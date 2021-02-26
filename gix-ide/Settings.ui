@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -833,6 +833,9 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="1">
        <widget class="QComboBox" name="cbDebugStartupBehaviour">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>300</width>
@@ -860,6 +863,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_9">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Host debugger port</string>
         </property>

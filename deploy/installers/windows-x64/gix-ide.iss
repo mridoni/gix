@@ -59,6 +59,7 @@ Source: "{#QTDIR}\plugins\styles\*"; DestDir: "{app}\bin\styles"; Flags: ignorev
 ;Source: "{#QTDIR}\plugins\translations\*"; DestDir: "{app}\bin\translations"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 Source: "{#WORKSPACE}\deploy\compilers\*"; DestDir: "{commonappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 [Registry]
 Root: "HKCU"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "1.0.0"; Flags: createvalueifdoesntexist deletevalue uninsdeletevalue uninsdeletekeyifempty
@@ -81,6 +82,7 @@ Name: "{app}\lib\{#HOST_PLATFORM}"
 Name: "{app}\lib\{#OTH_PLATFORM}"
 Name: "{commonappdata}\Gix-IDE\compilers"
 Name: "{userdocs}\Gix"
+Name: "{userdocs}\Gix\Examples"
 
 [Icons]
 Name: "{group}\Gix-IDE"; Filename: "{app}\bin\gix-ide.exe"; WorkingDir: "{app}"

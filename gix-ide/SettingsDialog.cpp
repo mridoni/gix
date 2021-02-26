@@ -56,6 +56,11 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	// For now, we do not show ESQL options
 	this->tabWidget->setTabEnabled(3, false);
 	this->setStyleSheet("QTabBar::tab::disabled {width: 0; height: 0; margin: 0; padding: 0; border: none;} ");
+	// 
+	label_9->setVisible(false);
+	label_10->setVisible(false);
+	tHostPort->setVisible(false);
+	cbSkipCheckPackageVersionCheck->setVisible(false);
 
 	connect(btnChoosePreprocBin, &QPushButton::clicked, this, [this] { choosePath(binPreprocessorPath, false); });
 	connect(btnChooseLinkLib, &QPushButton::clicked, this, [this] { choosePath(libLinkPath, false); });
@@ -69,7 +74,7 @@ SettingsDialog::~SettingsDialog()
 void SettingsDialog::accept()
 {
 	if (!GeneralCfgTab_CheckSettings() || !GnuCobolCfgTab_CheckSettings() ||
-		!ESQLCfgTab_CheckSettings() || !EditorCfgTab_CheckSettings() || !DebugCfgTab_CheckSettings()) {
+		!EditorCfgTab_CheckSettings() || !DebugCfgTab_CheckSettings()) {	// ESQLCfgTab is hidden/disabled
 		UiUtils::ErrorDialog(tr("Please check your settings"));
 		return;
 	}

@@ -23,7 +23,7 @@
   <cobc_warnings></cobc_warnings>
   <compiler_dialect>default</compiler_dialect>
   <copy_ext_list>.,.cpy,.CPY</copy_ext_list>
-  <copy_include_path>C:/Users/marchetto/Documents/gix/webtest001</copy_include_path>
+  <copy_include_path>${prj.basedir}</copy_include_path>
   <dbg_args></dbg_args>
   <dbg_cmd></dbg_cmd>
   <dbg_merge_env>true</dbg_merge_env>
