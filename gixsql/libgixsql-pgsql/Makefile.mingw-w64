@@ -1,0 +1,26 @@
+CC=x86_64-w64-mingw32.shared-g++
+CXX=x86_64-w64-mingw32.shared-g++
+
+CPPFLAGS=-fPIC -I ../libgixsql -std=c++11
+DEPS = DbInterfacePGSQL.h
+OBJS = DbInterfacePGSQL.o  dblib.o
+
+LDFLAGS=
+LIBS=-lm -lpq
+
+all: $(DESTDIR)/libgixsql-pgsql.dll
+
+%.o: %.cpp $(DEPS)
+	$(CC) -c -o  $@ $< $(CPPFLAGS)
+
+$(DESTDIR)/libgixsql-pgsql.dll: $(OBJS)
+	$(CC) -shared -fPIC -o $@ -Wl,--out-implib,$(DESTDIR)/libgixsql-pgsql.a $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f $(DESTDIR)/libgixsql-pgsql.dll *.o
+
+#install: libgixsql-pgsql.dll
+#	mkdir -p $(GIX_INSTALL_DIR)/lib && \
+#	cp libgixsql-pgsql.dll $(GIX_INSTALL_DIR)/lib

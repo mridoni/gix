@@ -1,0 +1,364 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="ServerConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MacroManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RsrcUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GixGlobals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildActionCompileHandler.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildActionHandler.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildActionLinkHandler.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildActionMakeListingHandler.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildActionNoOpHandler.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildActionPreprocessESQLHandler.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildConsts.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildDriver.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildResult.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\BuildTarget.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="metadata\CobolModuleMetadata.cpp">
+      <Filter>Source Files\metadata</Filter>
+    </ClCompile>
+    <ClCompile Include="CobolVar.cpp">
+      <Filter>Source Files\metadata</Filter>
+    </ClCompile>
+    <ClCompile Include="CobolVarList.cpp">
+      <Filter>Source Files\metadata</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\PrjCollPropertyDefinitionCollection.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\Project.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\ProjectCollection.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\ProjectFile.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\ProjectFilePropertyDefinitionCollection.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\ProjectFolder.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\ProjectFolderPropertyDefinitionCollection.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\ProjectItem.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\ProjectPropertyDefinitionCollection.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\PropertyDefinition.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\PropertyDefinitionCollection.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\PropertySource.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\TargetDefinition.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\TargetManager.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="metadata\ListingFileParser.cpp">
+      <Filter>Source Files\metadata</Filter>
+    </ClCompile>
+    <ClCompile Include="metadata\ListingFileParserResult.cpp">
+      <Filter>Source Files\metadata</Filter>
+    </ClCompile>
+    <ClCompile Include="DataEntry.cpp">
+      <Filter>Source Files\metadata</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\CompilerConfiguration.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\CompilerDefinition.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="buildsystem\CompilerManager.cpp">
+      <Filter>Source Files\buildsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\MultiBinaryProject.cpp">
+      <Filter>Source Files\projectsystem\projecttypes</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\SingleBinaryProject.cpp">
+      <Filter>Source Files\projectsystem\projecttypes</Filter>
+    </ClCompile>
+    <ClCompile Include="projectsystem\WebProject.cpp">
+      <Filter>Source Files\projectsystem\projecttypes</Filter>
+    </ClCompile>
+    <ClCompile Include="WebModuleMetadata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metadata\MetadataWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metadata\MetadataManager.cpp">
+      <Filter>Source Files\metadata</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyConsts.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SymbolBufferReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="gixcommon_global.h" />
+    <ClInclude Include="ServerConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CobolVar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CobolVarList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataEntry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\CompilerConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\CompilerDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\CompilerManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\LogOutputType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MacroManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RsrcUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GixGlobals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IGixLogManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SymbolMappingEntry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildActionCompileHandler.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildActionLinkHandler.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildActionMakeListingHandler.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildActionNoOpHandler.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildActionPreprocessESQLHandler.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildConsts.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildResult.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\BuildTarget.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="metadata\CobolModuleMetadata.h">
+      <Filter>Header Files\metadata</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\IBuildableItem.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\Project.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectCollection.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectFile.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectFilePropertyDefinitionCollection.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectFolder.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectFolderPropertyDefinitionCollection.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectItem.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectItemType.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectPropertyDefinitionCollection.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\ProjectType.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\PropertyDefinition.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\PropertyDefinitionCollection.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\PropertySource.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\IPersistableProjectItem.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\PrjCollPropertyDefinitionCollection.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\SingleBinaryProject.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\MultiBinaryProject.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="projectsystem\WebProject.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="WebModuleMetadata.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="metadata\ListingFileParser.h">
+      <Filter>Header Files\metadata</Filter>
+    </ClInclude>
+    <ClInclude Include="metadata\ListingFileParserResult.h">
+      <Filter>Header Files\metadata</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\TargetManager.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\TargetDefinition.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyConsts.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SymbolBufferReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Source Files\buildsystem">
+      <UniqueIdentifier>{0dd6983d-1f01-4483-ab9f-0b95e2d119d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\metadata">
+      <UniqueIdentifier>{da277464-5f6d-4a9a-a368-1f0673353f1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\projectsystem">
+      <UniqueIdentifier>{c47573a3-ff3a-4d58-8f82-94fa6ce7469c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\projectsystem\projecttypes">
+      <UniqueIdentifier>{18c0c1ed-1b21-4fd5-9cac-31da3a7b0489}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\buildsystem">
+      <UniqueIdentifier>{306289c0-0e8b-446f-b089-8483cf8de586}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\projectsystem">
+      <UniqueIdentifier>{1f6a219f-5cb1-4b6d-a535-55f565cd344e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\metadata">
+      <UniqueIdentifier>{389aaf77-6bcf-494d-afb7-0c2f264b704e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="QLogger.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="buildsystem\BuildActionHandler.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </QtMoc>
+    <QtMoc Include="buildsystem\BuildDriver.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </QtMoc>
+    <QtMoc Include="metadata\MetadataWorker.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="metadata\MetadataManager.h">
+      <Filter>Header Files\metadata</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="general.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="gix-targets.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>templates/PROGRAM.cbl</file>
+        <file>templates/COPY.cpy</file>
+    </qresource>
+</RCC>

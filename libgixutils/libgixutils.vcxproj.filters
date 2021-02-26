@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Header Files\linq">
+      <UniqueIdentifier>{f3afe6a7-7c7b-4212-abe7-284d83b1ad11}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libgixutils_global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PathUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SysUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_cursor.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_groupby.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_iterators.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_last.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_select.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_selectmany.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_skip.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_take.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="linq\linq_where.hpp">
+      <Filter>Header Files\linq</Filter>
+    </ClInclude>
+    <ClInclude Include="CopyResolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapFileWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapFileReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapFileReaderResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CobolUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PathUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CopyResolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MapFileWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MapFileReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CobolUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+</Project>

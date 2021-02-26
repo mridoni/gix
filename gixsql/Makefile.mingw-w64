@@ -1,0 +1,19 @@
+#include ../gix.cf
+
+gixsql		:= gixsql
+libgixsql	:= libgixsql
+libgixsql-mysql	:= libgixsql-mysql 
+libgixsql-odbc	:= libgixsql-odbc
+libgixsql-pgsql	:= libgixsql-pgsql
+libgixsql-test	:= libgixsql-test
+
+libraries	:= libgixsql libgixsql-mysql libgixsql-odbc libgixsql-pgsql
+
+.PHONY: all clean $(gixsql) $(libraries)
+
+all: gixsql $(libraries)
+
+$(gixsql) $(libraries):
+	$(MAKE) -f Makefile.mingw-w64 --directory=$@
+
+$(gixsql): $(libraries)

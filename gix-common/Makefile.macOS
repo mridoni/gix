@@ -1,0 +1,62 @@
+include ../gix.macos.cf
+
+CONFIG=Release
+CC=x86_64-apple-darwin19-clang++
+CXX=x86_64-apple-darwin19-clang++
+CPPFLAGS=-fPIC -g -std=c++11
+DEFINES=
+VERSION=1.0.0
+INCLUDEPATH=-I. \
+			-I$(QTBASE)/$(QTVERSION)/clang_64/lib/QtGui.framework/Headers \
+			-I$(QTBASE)/$(QTVERSION)/clang_64/lib/QtNetwork.framework/Headers \
+			-I$(QTBASE)/$(QTVERSION)/clang_64/lib/QtCore.framework/Headers \
+			-IGeneratedFiles/$(CONFIG) -I/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/OpenGL.framework/Headers \
+			-I/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/AGL.framework/Headers \
+			-I$(QTBASE)/$(QTVERSION)/clang_64/mkspecs/macx-clang \
+			-F$(QTBASE)/$(QTVERSION)/clang_64/lib 
+			
+LDFLAGS        = -stdlib=libc++ -headerpad_max_install_names $(EXPORT_ARCH_ARGS) -Wl,-syslibroot,$(OSXCROSS_SDK) \
+				-mmacosx-version-min=10.11 -Wl,-rpath,@executable_path/Frameworks -Wl,-rpath,$(QTBASE)/$(QTVERSION)/clang_64/lib -single_module \
+				-dynamiclib -compatibility_version	1.0 -current_version $(VERSION) -install_name libgix-common.dylib
+LIBS          = $(SUBLIBS) -F$(QTBASE)/$(QTVERSION)/clang_64/lib -L. -framework QtGui -framework QtCore -framework DiskArbitration -framework IOKit -framework QtNetwork -framework OpenGL -framework AGL 			
+
+MOC_BUILD_DIR=GeneratedFiles/$(CONFIG)
+
+GENERATED_SRCS = $(MOC_BUILD_DIR)/moc_QLogger.cpp
+
+SRCS = gixcommon.cpp CobolVar.cpp \
+	CobolVarList.cpp DataCopyParser.cpp DataEntry.cpp \
+	JsonManager.cpp PathUtils.cpp ServerConfig.cpp QLogger.cpp utils.cpp \
+	GeneratedFiles/$(CONFIG)/moc_QLogger.cpp
+
+HDRS = gixcommon.h gixcommon_global.h CobolVar.h CobolVarList.h DataCopyParser.h DataEntry.h JsonManager.h \
+		linq/linq.hpp linq/linq_cursor.hpp linq/linq_groupby.hpp linq/linq_iterators.hpp linq/linq_last.hpp linq/linq_select.hpp \
+		linq/linq_selectmany.hpp linq/linq_skip.hpp linq/linq_take.hpp linq/linq_where.hpp linq/util.hpp \
+		PathUtils.h ServerConfig.h SysUtils.h QLogger.h utils.h 
+
+GENERATED_OBJS = GeneratedFiles/$(CONFIG)/moc_QLogger.o
+
+OBJS = CobolVar.o  CobolVarList.o  DataCopyParser.o  DataEntry.o  \
+		gixcommon.o  JsonManager.o  PathUtils.o  QLogger.o  \
+		ServerConfig.o  utils.o \
+		$(GENERATED_OBJS)
+
+$(shell mkdir -p $(MOC_BUILD_DIR))
+
+all: $(DESTDIR)/libgix-common.dylib
+	
+GeneratedFiles/$(CONFIG)/moc_QLogger.cpp: QLogger.h
+	$(MOC) $(DEFINES) $(INCLUDEPATH) $< -o $@
+	
+%.o: %.cpp $(SRCS)
+	$(CC) $(INCLUDEPATH) -c -o  $@ $< $(CFLAGS)
+
+$(DESTDIR)/libgix-common.dylib: $(OBJS)
+	$(CC) -shared -fPIC -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
+
+.PHONY: clean 
+
+clean:
+	rm -f $(DESTDIR)/libgix-common.dylib *.o
+	rm -fr $(MOC_BUILD_DIR)/*
+

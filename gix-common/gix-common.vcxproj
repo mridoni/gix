@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{32B591D5-5AE7-431C-85F9-552B77EA08A3}</ProjectGuid>
+    <Keyword>QtVS_v303</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtInstall>Qt_5.14_msvc64</QtInstall>
+    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>Qt_5.14_msvc64</QtInstall>
+    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PreprocessorDefinitions>GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\libgixutils;..\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat />
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PreprocessorDefinitions>GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\libgixutils;..\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="buildsystem\BuildActionCompileHandler.cpp" />
+    <ClCompile Include="buildsystem\BuildActionHandler.cpp" />
+    <ClCompile Include="buildsystem\BuildActionLinkHandler.cpp" />
+    <ClCompile Include="buildsystem\BuildActionMakeListingHandler.cpp" />
+    <ClCompile Include="buildsystem\BuildActionNoOpHandler.cpp" />
+    <ClCompile Include="buildsystem\BuildActionPreprocessESQLHandler.cpp" />
+    <ClCompile Include="buildsystem\BuildConsts.cpp" />
+    <ClCompile Include="buildsystem\BuildDriver.cpp" />
+    <ClCompile Include="buildsystem\BuildResult.cpp" />
+    <ClCompile Include="buildsystem\BuildTarget.cpp" />
+    <ClCompile Include="buildsystem\CompilerConfiguration.cpp" />
+    <ClCompile Include="buildsystem\CompilerDefinition.cpp" />
+    <ClCompile Include="buildsystem\CompilerManager.cpp" />
+    <ClCompile Include="buildsystem\TargetManager.cpp" />
+    <ClCompile Include="buildsystem\TargetDefinition.cpp" />
+    <ClCompile Include="CobolVar.cpp" />
+    <ClCompile Include="CobolVarList.cpp" />
+    <ClCompile Include="DataEntry.cpp" />
+    <ClCompile Include="GixGlobals.cpp" />
+    <ClCompile Include="MacroManager.cpp" />
+    <ClCompile Include="metadata\CobolModuleMetadata.cpp" />
+    <ClCompile Include="metadata\MetadataManager.cpp" />
+    <ClCompile Include="metadata\ListingFileParser.cpp" />
+    <ClCompile Include="metadata\ListingFileParserResult.cpp" />
+    <ClCompile Include="metadata\MetadataWorker.cpp" />
+    <ClCompile Include="projectsystem\MultiBinaryProject.cpp" />
+    <ClCompile Include="projectsystem\PrjCollPropertyDefinitionCollection.cpp" />
+    <ClCompile Include="projectsystem\Project.cpp" />
+    <ClCompile Include="projectsystem\ProjectCollection.cpp" />
+    <ClCompile Include="projectsystem\ProjectFile.cpp" />
+    <ClCompile Include="projectsystem\ProjectFilePropertyDefinitionCollection.cpp" />
+    <ClCompile Include="projectsystem\ProjectFolder.cpp" />
+    <ClCompile Include="projectsystem\ProjectFolderPropertyDefinitionCollection.cpp" />
+    <ClCompile Include="projectsystem\ProjectItem.cpp" />
+    <ClCompile Include="projectsystem\ProjectPropertyDefinitionCollection.cpp" />
+    <ClCompile Include="projectsystem\PropertyDefinition.cpp" />
+    <ClCompile Include="projectsystem\PropertyDefinitionCollection.cpp" />
+    <ClCompile Include="projectsystem\PropertySource.cpp" />
+    <ClCompile Include="projectsystem\SingleBinaryProject.cpp" />
+    <ClCompile Include="projectsystem\WebProject.cpp" />
+    <ClCompile Include="PropertyConsts.cpp" />
+    <ClCompile Include="QLogger.cpp" />
+    <ClCompile Include="RsrcUtils.cpp" />
+    <ClCompile Include="ServerConfig.cpp" />
+    <ClCompile Include="SymbolBufferReader.cpp" />
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="WebModuleMetadata.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="buildsystem\BuildActionCompileHandler.h" />
+    <QtMoc Include="metadata\MetadataManager.h" />
+    <QtMoc Include="metadata\MetadataWorker.h" />
+    <ClInclude Include="PropertyConsts.h" />
+    <ClInclude Include="SymbolBufferReader.h" />
+    <ClInclude Include="SymbolMappingEntry.h" />
+    <ClInclude Include="WebModuleMetadata.h" />
+    <QtMoc Include="buildsystem\BuildActionHandler.h" />
+    <ClInclude Include="buildsystem\BuildActionLinkHandler.h" />
+    <ClInclude Include="buildsystem\BuildActionMakeListingHandler.h" />
+    <ClInclude Include="buildsystem\BuildActionNoOpHandler.h" />
+    <ClInclude Include="buildsystem\BuildActionPreprocessESQLHandler.h" />
+    <ClInclude Include="buildsystem\BuildConsts.h" />
+    <QtMoc Include="buildsystem\BuildDriver.h" />
+    <ClInclude Include="buildsystem\BuildResult.h" />
+    <ClInclude Include="buildsystem\BuildTarget.h" />
+    <ClInclude Include="buildsystem\CompilerConfiguration.h" />
+    <ClInclude Include="buildsystem\CompilerDefinition.h" />
+    <ClInclude Include="buildsystem\CompilerManager.h" />
+    <ClInclude Include="buildsystem\IBuildableItem.h" />
+    <ClInclude Include="buildsystem\TargetManager.h" />
+    <ClInclude Include="buildsystem\LogOutputType.h" />
+    <ClInclude Include="buildsystem\TargetDefinition.h" />
+    <ClInclude Include="CobolVar.h" />
+    <ClInclude Include="CobolVarList.h" />
+    <ClInclude Include="DataEntry.h" />
+    <ClInclude Include="gixcommon_global.h" />
+    <ClInclude Include="GixGlobals.h" />
+    <ClInclude Include="IGixLogManager.h" />
+    <ClInclude Include="MacroManager.h" />
+    <ClInclude Include="metadata\CobolModuleMetadata.h" />
+    <ClInclude Include="metadata\ListingFileParser.h" />
+    <ClInclude Include="metadata\ListingFileParserResult.h" />
+    <ClInclude Include="projectsystem\IPersistableProjectItem.h" />
+    <ClInclude Include="projectsystem\MultiBinaryProject.h" />
+    <ClInclude Include="projectsystem\PrjCollPropertyDefinitionCollection.h" />
+    <ClInclude Include="projectsystem\Project.h" />
+    <ClInclude Include="projectsystem\ProjectCollection.h" />
+    <ClInclude Include="projectsystem\ProjectFile.h" />
+    <ClInclude Include="projectsystem\ProjectFilePropertyDefinitionCollection.h" />
+    <ClInclude Include="projectsystem\ProjectFolder.h" />
+    <ClInclude Include="projectsystem\ProjectFolderPropertyDefinitionCollection.h" />
+    <ClInclude Include="projectsystem\ProjectItem.h" />
+    <ClInclude Include="projectsystem\ProjectItemType.h" />
+    <ClInclude Include="projectsystem\ProjectPropertyDefinitionCollection.h" />
+    <ClInclude Include="projectsystem\ProjectType.h" />
+    <ClInclude Include="projectsystem\PropertyDefinition.h" />
+    <ClInclude Include="projectsystem\PropertyDefinitionCollection.h" />
+    <ClInclude Include="projectsystem\PropertySource.h" />
+    <ClInclude Include="projectsystem\SingleBinaryProject.h" />
+    <ClInclude Include="projectsystem\WebProject.h" />
+    <ClInclude Include="RsrcUtils.h" />
+    <ClInclude Include="utils.h" />
+    <QtMoc Include="QLogger.h" />
+    <ClInclude Include="ServerConfig.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libgixpp\libgixpp.vcxproj">
+      <Project>{84023848-de04-4eef-86fc-d515d0a82842}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\libgixutils\libgixutils.vcxproj">
+      <Project>{a338b6df-8f61-4a29-9225-510235d795a0}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="general.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="gix-targets.xml" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.VisualStudio.Setup.Configuration.Native.2.3.2262\build\native\Microsoft.VisualStudio.Setup.Configuration.Native.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.Setup.Configuration.Native.2.3.2262\build\native\Microsoft.VisualStudio.Setup.Configuration.Native.targets')" />
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" MocOptions="" Qt5Version_x0020_x64="Qt_5.14_msvc64" />
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.Setup.Configuration.Native.2.3.2262\build\native\Microsoft.VisualStudio.Setup.Configuration.Native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.Setup.Configuration.Native.2.3.2262\build\native\Microsoft.VisualStudio.Setup.Configuration.Native.targets'))" />
+  </Target>
+</Project>

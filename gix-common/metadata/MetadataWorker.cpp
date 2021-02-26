@@ -1,0 +1,152 @@
+#include "MetadataWorker.h"
+#include "ProjectFile.h"
+#include "SysUtils.h"
+#include "GixGlobals.h"
+#include "GixPreProcessor.h"
+#include "CopyResolver.h"
+#include "TPESQLProcessing.h"
+#include "MetadataManager.h"
+
+#include <QFile>
+
+MetadataWorker::MetadataWorker(QObject *parent) : QObject(parent)
+{
+	_waitMutex.lock();
+}
+
+MetadataWorker::~MetadataWorker()
+{
+	_waitCondition.wakeAll();
+	_waitMutex.unlock();
+}
+
+void MetadataWorker::resume()
+{
+	_waitCondition.wakeAll();
+}
+
+void MetadataWorker::suspend()
+{
+	QMetaObject::invokeMethod(this, &MetadataWorker::suspendImpl);
+	// acquiring mutex to block the calling thread
+	_waitMutex.lock();
+	_waitMutex.unlock();
+}
+
+void MetadataWorker::scanModulesBatch(QList<ProjectFile *> pfiles)
+{
+	bool res = true;
+	for (ProjectFile *pf : pfiles) {
+		res |= (scanCobolModuleInternal(pf) != nullptr);
+	}
+
+	emit GixGlobals::getMetadataManager()->updatedModuleMetadataBatch(res);
+}
+
+void MetadataWorker::scanCobolModule(ProjectFile *pf)
+{
+	CobolModuleMetadata *cmm = scanCobolModuleInternal(pf);
+	if (cmm)
+		emit GixGlobals::getMetadataManager()->updatedModuleMetadata(cmm);
+}
+
+void MetadataWorker::suspendImpl()
+{
+	_waitCondition.wait(&_waitMutex);
+}
+
+QString MetadataWorker::extract_program_id(const QString &filename)
+{
+	if (filename.isEmpty() || !QFile::exists(filename))
+		return QString();
+
+	QList<QString> lines = SysUtils::FileReadLines(filename, 20);
+	for (QString ln : lines) {
+		if (ln.contains("PROGRAM-ID")) {
+			QString pid = ln.replace("PROGRAM-ID", "");
+			pid = pid.replace(".", "").trimmed();
+			return pid;
+		}
+	}
+
+	return QString();
+}
+
+CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
+{
+	if (!pf)
+		return nullptr;
+
+	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Scanning " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+
+	if (!QFile::exists(pf->GetFileFullPath())) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "No such file " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+		return nullptr;
+	}
+
+	QString program_id = extract_program_id(pf->GetFileFullPath());
+	if (program_id.isEmpty()) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Invalid program ID in " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+		return nullptr;
+	}
+
+	CobolModuleMetadata *metadata = GixGlobals::getMetadataManager()->getModuleMetadata(program_id);
+
+	if (metadata->isUpToDate()) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Metadata for module %1 (%2) is up to date").arg(program_id).arg(pf->GetFileFullPath()), QLogger::LogLevel::Trace);
+		return nullptr;
+	}
+
+	Project *prj = pf->getParentProject();
+
+	GixPreProcessor gp;
+	CopyResolver copy_resolver;
+
+	copy_resolver.setCopyDirs(prj->getCopyDirList());
+	copy_resolver.setExtensions(prj->getCopyExtList());
+	gp.setCopyResolver(&copy_resolver);
+
+	gp.setOpt("no_output", true);
+	gp.setOpt("preprocess_copy_files", true);
+
+	gp.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true));
+	gp.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true));
+
+	TPESQLProcessing *pp = new TPESQLProcessing(&gp);
+	gp.addStep(pp);
+
+	gp.setOpt("emit_debug_info", true);
+	gp.verbose = false;
+	gp.verbose_debug = false;
+
+	gp.setInputFile(pf->GetFileFullPath());
+	gp.setOutputFile("");
+
+	bool b = gp.process();
+	if (!b) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while retrieving metadata for module %1 (%2)").arg(program_id).arg(gp.err_code), QLogger::LogLevel::Trace);
+		for (auto errmsg : gp.err_messages) {
+			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + errmsg, QLogger::LogLevel::Trace);
+		}
+		return nullptr;
+	}
+
+	CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(program_id);
+	if (cmm) {
+		emit GixGlobals::getMetadataManager()->invalidateModuleMetadata(program_id, pf);
+		GixGlobals::getMetadataManager()->removeModuleMetadata(program_id);
+	}
+
+	cmm = CobolModuleMetadata::build(pf, pp);
+	if (!cmm) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while building metadata for module %1 (%2)").arg(program_id).arg(gp.err_code), QLogger::LogLevel::Trace);
+		for (auto errmsg : gp.err_messages) {
+			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + errmsg, QLogger::LogLevel::Trace);
+		}
+		return nullptr;
+	}
+
+	GixGlobals::getMetadataManager()->addModuleMetadata(cmm);
+
+	return cmm;
+}

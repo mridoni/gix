@@ -1,0 +1,21 @@
+CC=x86_64-apple-darwin19-gcc
+
+CPPFLAGS= -I ../libgixsql -I /opt/osxcross/local/unixODBC/include
+DEPS = DbInterfaceODBC.h
+OBJS = DbInterfaceODBC.o  dblib.o utils.o
+
+LDFLAGS=-L /opt/osxcross/local/unixODBC/lib
+LIBS=-lm -lodbc -ldl -lstdc++
+
+all: $(DESTDIR)/libgixsql-odbc.dylib
+
+%.o: %.cpp $(DEPS)
+	$(CC) -c -o  $@ $< $(CPPFLAGS)
+
+$(DESTDIR)/libgixsql-odbc.dylib: $(OBJS)
+	$(CC) -shared -fPIC -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f libgixsql-odbc.dylib *.o

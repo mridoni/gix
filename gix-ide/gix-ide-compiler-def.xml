@@ -1,0 +1,27 @@
+<gix-ide-compiler-def>
+  <id>gnucobol-2.2-dbg-vs-all</id>
+  <name>GnuCOBOL 2.2 Debugger (VS) x86/x64</name>
+  <version>2.2</version>
+  <homedir>${gixhome}/compilers/vs</homedir>
+  <host_platform>x64</host_platform>
+  <target_platforms>x86,x64</target_platforms>
+  <is_vs_based>true</is_vs_based>
+  <supports_anim>true</supports_anim>
+
+  <platform id="x86">
+    <bin_dir_path>${homedir}/bin</bin_dir_path>
+    <lib_dir_path>${homedir}/lib</lib_dir_path>
+    <include_dir_path>${homedir}/include</include_dir_path>
+    <config_dir_path>${homedir}/config</config_dir_path>
+    <copy_dir_path>${homedir}/copy</copy_dir_path>
+  </platform>
+
+  <platform id="x64">
+    <bin_dir_path>${homedir}/bin_x64</bin_dir_path>
+    <lib_dir_path>${homedir}/lib_x64</lib_dir_path>
+    <include_dir_path>${homedir}/include</include_dir_path>
+    <config_dir_path>${homedir}/config</config_dir_path>
+    <copy_dir_path>${homedir}/copy</copy_dir_path>
+  </platform>
+ 
+</gix-ide-compiler-def>

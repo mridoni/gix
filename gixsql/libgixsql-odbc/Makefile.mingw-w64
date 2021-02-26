@@ -1,0 +1,23 @@
+CC=x86_64-w64-mingw32.shared-g++
+CXX=x86_64-w64-mingw32.shared-g++
+
+CPPFLAGS=-I ../libgixsql -std=c++11
+DEPS = DbInterfaceODBC.h
+OBJS = DbInterfaceODBC.o  dblib.o utils.o
+
+LDFLAGS=
+LIBS=-lm -lodbc32
+
+all: $(DESTDIR)/libgixsql-odbc.dll
+
+%.o: %.cpp $(DEPS)
+	$(CC) -c -o  $@ $< $(CPPFLAGS)
+
+$(DESTDIR)/libgixsql-odbc.dll: $(OBJS)
+	$(CC) -shared -fPIC -o $@ -Wl,--out-implib,$(DESTDIR)/libgixsql-odbc.a $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f $(DESTDIR)/libgixsql-odbc.dll $(DESTDIR)/libgixsql-odbc.a*.o
+

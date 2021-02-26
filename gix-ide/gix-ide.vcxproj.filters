@@ -1,0 +1,632 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Source Files\projectsystem">
+      <UniqueIdentifier>{6f9402ad-02da-422d-9860-4a7d69fea884}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\projectsystem">
+      <UniqueIdentifier>{532e2544-6d83-4898-a97f-5bd2e93bce79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\icons">
+      <UniqueIdentifier>{bfddf478-81d8-41fd-9606-a71a7aa360be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\components">
+      <UniqueIdentifier>{7a0bbb43-c7f5-45a1-8411-46552e96f367}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\components">
+      <UniqueIdentifier>{7fd0edf2-8f4b-4e4d-9b4c-22efae7c7dc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\interfaces">
+      <UniqueIdentifier>{c5dcff0d-aca3-4dfa-86c2-50cf54c0f229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\debugger">
+      <UniqueIdentifier>{6f0042ed-bb80-427b-a1a9-5ef89a4b2a5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\debugger">
+      <UniqueIdentifier>{985b3c9d-7dba-4651-8d92-5b4f941db43d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\linq">
+      <UniqueIdentifier>{bb604b9b-fab6-47a2-bb1f-fc8d67fc5db1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\impexp">
+      <UniqueIdentifier>{dcee034c-59cf-4257-abce-6fdd2e5946ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\impexp">
+      <UniqueIdentifier>{6cd5f2bb-3c20-4832-b657-5c1feb769bd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\templates">
+      <UniqueIdentifier>{bd1ee076-aff1-421e-a518-d2a1ad434a77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dbmanager">
+      <UniqueIdentifier>{e66988b6-844e-421a-99ea-7afbfee82f04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dbmanager">
+      <UniqueIdentifier>{eae33a0e-3e6b-41a4-8693-8d13a0d91666}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\projectsystem\projecttypes">
+      <UniqueIdentifier>{f39a981e-be07-4102-935f-dfb4b99deab4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\projectsystem\projecttypes">
+      <UniqueIdentifier>{ddd27d05-630d-46d5-9244-05805ee6c37c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\debugger\Windows">
+      <UniqueIdentifier>{f6a187cd-4d5c-4172-b9c5-8a7e03a1526c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\debugger\Unix">
+      <UniqueIdentifier>{12031129-f2a9-4946-9c8b-e9062d39d2e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\debugger\Windows">
+      <UniqueIdentifier>{36428f03-7b75-4517-8577-45b7193fa724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\debugger\Unix">
+      <UniqueIdentifier>{b6221e01-6bb7-443f-ba07-27e84ac8ede5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainwindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mdichild.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectCollectionWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ElidedLabel.cpp">
+      <Filter>Source Files\components</Filter>
+    </ClCompile>
+    <ClCompile Include="ProtectedLineEdit.cpp">
+      <Filter>Source Files\components</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UiUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IdeTaskManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugDriver.cpp">
+      <Filter>Source Files\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Changeling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WatchWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ide.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugManager.cpp">
+      <Filter>Source Files\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectDependencyTracker.cpp">
+      <Filter>Source Files\projectsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="NewProjectDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SoapOptionsDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RestOptionsDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyOptionsDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SearchDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IdeSearchManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DependenciesWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NavigationWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DbManagerWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseConnectionDialog.cpp">
+      <Filter>Source Files\dbmanager</Filter>
+    </ClCompile>
+    <ClCompile Include="SqlMdiChild.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IdeDbManager.cpp">
+      <Filter>Source Files\dbmanager</Filter>
+    </ClCompile>
+    <ClCompile Include="DbConnection.cpp">
+      <Filter>Source Files\dbmanager</Filter>
+    </ClCompile>
+    <ClCompile Include="DbCodeGenerator.cpp">
+      <Filter>Source Files\dbmanager</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugDriverUtils.cpp">
+      <Filter>Source Files\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="StdStreamRedirect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MetadataLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TargetDefinition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GixDebugger.cpp">
+      <Filter>Source Files\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="GixDebuggerWin64.cpp">
+      <Filter>Source Files\debugger\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="imagehlp_funcs.cpp">
+      <Filter>Source Files\debugger\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="IdeLogManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeviewSymbolProvider.cpp">
+      <Filter>Source Files\debugger\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="DwarfSymbolProvider.cpp">
+      <Filter>Source Files\debugger\Windows</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ProtectedLineEdit.h">
+      <Filter>Header Files\components</Filter>
+    </ClInclude>
+    <ClInclude Include="IPersistableProjectItem.h">
+      <Filter>Header Files\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UiUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IdeStatus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WatchWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ide.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RestOptionsDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CodeEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoapOptionsDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DependenciesWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SqlMdiChild.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DbConnection.h">
+      <Filter>Header Files\dbmanager</Filter>
+    </ClInclude>
+    <ClInclude Include="DbCodeGenerator.h">
+      <Filter>Header Files\dbmanager</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugDriverUtils.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="EolMode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TargetDefinition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GixDebugger.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="GixDebuggerWin64.h">
+      <Filter>Header Files\debugger\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="ISymbolProvider.h">
+      <Filter>Header Files\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="CodeviewSymbolProvider.h">
+      <Filter>Header Files\debugger\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="DwarfSymbolProvider.h">
+      <Filter>Header Files\debugger\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="MetadataLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="mainwindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="mdichild.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ProjectCollectionWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ElidedLabel.h">
+      <Filter>Header Files\components</Filter>
+    </QtMoc>
+    <QtMoc Include="CustomDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="IdeTaskManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DebugDriver.h">
+      <Filter>Header Files\debugger</Filter>
+    </QtMoc>
+    <QtMoc Include="DebugManager.h">
+      <Filter>Header Files\debugger</Filter>
+    </QtMoc>
+    <QtMoc Include="Changeling.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ProjectDependencyTracker.h">
+      <Filter>Header Files\projectsystem</Filter>
+    </QtMoc>
+    <QtMoc Include="NewProjectDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SettingsDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SearchDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="IdeSearchManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertyWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertyOptionsDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DatabaseConnectionDialog.h">
+      <Filter>Header Files\dbmanager</Filter>
+    </QtMoc>
+    <QtMoc Include="IdeDbManager.h">
+      <Filter>Header Files\dbmanager</Filter>
+    </QtMoc>
+    <QtMoc Include="DbManagerWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ConsoleWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="StdStreamRedirect.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="NavigationWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="IdeLogManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icons\cblfile.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\prjcollection.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\project.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\file_add.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\file_add2.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\folder.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\folder_add.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\copy.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\cut.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\new.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\new_prj.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\open.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\open_prj.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\paste.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\save.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\save_all.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\settings.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\build.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\debug.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\debug_stop.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\go.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\run.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\step.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_add.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_arrow_top.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_delete.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\build_stop.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\build_clean.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_cross.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\vfolder.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="gix-ide-icon.ico" />
+    <Image Include="icons\save_as.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\splash.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\exit.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\book.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\book_go.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\book_next.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\book_open.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\book_previous.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\comment_add.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\find.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\find_next.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\find_prev.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\database.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\database_add.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\database_connect.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\database_delete.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\database_edit.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\database_table.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\pilcrow.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\replace.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\table.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\table_go.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\table_lightning.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\table_refresh.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_black.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_blue.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_green.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_key.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_orange.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_picture.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_pink.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_purple.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_red.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_star.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_wrench.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\bullet_yellow.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\table_multiple.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+    <Image Include="icons\key.png">
+      <Filter>Resource Files\icons</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="icons.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="templates.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="templates\PROGRAM.cbl">
+      <Filter>Resource Files\templates</Filter>
+    </None>
+    <None Include="gix-ide.pro" />
+    <None Include="gix-ide.pri" />
+    <None Include="packages.config" />
+    <None Include="templates\COPY.cpy">
+      <Filter>Resource Files\templates</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="gix-ide.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="SoapOptions.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="Settings.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="NewProject.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="Search.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="RestOptions.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="gix-ide-compiler-def.xml" />
+  </ItemGroup>
+</Project>

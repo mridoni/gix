@@ -1,0 +1,136 @@
+<targets>
+  <target type="collection" virtual="true" provider="prjc" expected="prj">
+    <filename>${prjc.path}</filename>
+    <provides></provides>
+    <uses>singleartifact/dll,multiartifact/dll,singleartifact/exe,multiartifact/exe,webartifact/dll</uses>
+    <location></location>
+    <action>
+      <action_id></action_id>
+      <action_args></action_args>
+    </action>
+  </target>
+
+  <target type="multiartifact/dll" provider="prj" expected="prj" virtual="true">
+    <filename>${prj.path}</filename>
+    <provides>dll</provides>
+    <uses>singleartifact/dll</uses>
+    <location>${prj.output_path}</location>
+    <handler></handler>
+    <action>
+      <action_id></action_id>
+      <action_args></action_args>
+    </action>
+  </target>
+
+  <target type="multiartifact/exe" provider="prj" expected="prj" virtual="true">
+    <filename>${prj.path}</filename>
+    <provides>exe</provides>
+    <uses>singleartifact/exe</uses>
+    <location>${prj.output_path}</location>
+    <handler></handler>
+    <action>
+      <action_id></action_id>
+      <action_args></action_args>
+    </action>
+  </target>
+
+  <target type="singleartifact/dll" provider="prj" expected="file">
+    <filename>${target_name}${sys.dllext}</filename>
+    <provides>dll</provides>
+    <uses>obj</uses>
+    <location>${prj.output_path}</location>
+    <action>
+      <action_id>link</action_id>
+      <action_args>obj:*</action_args>
+    </action>
+  </target>
+
+  <target type="singleartifact/exe" provider="prj" expected="file">
+    <filename>${target_name}${sys.exeext}</filename>
+    <provides>exe</provides>
+    <uses>obj</uses>
+    <location>${prj.output_path}</location>
+    <action>
+      <action_id>link</action_id>
+      <action_args>obj:*</action_args>
+    </action>
+  </target>
+
+  <target type="webartifact/dll" provider="prj" expected="prj" virtual="true">
+    <filename>${prj.path}</filename>
+    <provides>dll</provides>
+    <uses>singleartifact/dll</uses>
+    <location>${prj.output_path}</location>
+    <action>
+      <action_id></action_id>
+      <action_args></action_args>
+    </action>
+  </target>
+
+  <target type="obj" esql="false" provider="prj" expected="file">
+    <filename>${prjfile.name.noext}${sys.objext}</filename>
+    <provides>obj</provides>
+    <uses>cbl</uses>
+    <location>${prj.build_dir}</location>
+    <action>
+      <action_id>compile</action_id>
+      <action_args>*</action_args>
+    </action>
+  </target>
+
+  <target type="obj" esql="true" provider="prj" expected="file">
+    <filename>${prjfile.name.noext}${sys.objext}</filename>
+    <provides>obj</provides>
+    <uses>cbsql</uses>
+    <location>${prj.build_dir}</location>
+    <action>
+      <action_id>compile</action_id>
+      <action_args>*</action_args>
+    </action>
+  </target>
+
+  <target type="obj" esql="false" provider="prj" expected="file">
+    <filename>${prjfile.name.noext}${sys.objext}</filename>
+    <provides>obj</provides>
+    <uses>cbl</uses>
+    <location>${prj.build_dir}</location>
+    <action>
+      <action_id>compile</action_id>
+      <action_args>*</action_args>
+    </action>
+  </target>
+
+  <target type="obj" esql="true" provider="prj" expected="file">
+    <filename>${prjfile.name.noext}${sys.objext}</filename>
+    <provides>obj</provides>
+    <uses>cbsql</uses>
+    <location>${prj.build_dir}</location>
+    <action>
+      <action_id>compile</action_id>
+      <action_args>*</action_args>
+    </action>
+  </target>
+
+  <target type="cbsql" provider="file" expected="file">
+    <filename>${prjfile.name.noext}.cbsql</filename>
+    <provides>cbsql</provides>
+    <uses>cbl</uses>
+    <location>${prj.build_dir}</location>
+    <action>
+      <action_id>preprocess_esql</action_id>
+      <action_args>*</action_args>
+    </action>
+  </target>
+
+  <target type="cbl" provider="file" expected="file">
+    <filename>${prjfile.name.noext}.cbl</filename>
+    <provides>cbl</provides>
+    <uses></uses>
+    <location>${prjfile.basedir}</location>
+    <action>
+      <action_id>none</action_id>
+      <action_args></action_args>
+    </action>
+  </target>
+
+</targets>

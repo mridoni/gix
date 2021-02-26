@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>gix-targets.xml</file>
+    </qresource>
+</RCC>

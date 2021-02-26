@@ -1,0 +1,29 @@
+CONFIG=Release
+CC=x86_64-apple-darwin19-clang++
+CXX=x86_64-apple-darwin19-clang++
+
+CPPFLAGS=-std=c++11
+
+DEPS = Connection.h ConnectionManager.h ConnectionString.h Cursor.h CursorManager.h DbInterfaceFactory.h \
+		gixsql.h IConnection.h IConnectionString.h ICursor.h IDbInterface.h ILogger.h ISchemaManager.h \
+		Logger.h platform.h sqlca.h SqlVar.h SqlVarList.h utils.h 
+
+OBJS = Connection.o ConnectionManager.o ConnectionString.o Cursor.o CursorManager.o \
+		DbInterface.o DbInterfaceFactory.o dllmain.o gixsql.o Logger.o platform.o \
+		SqlVar.o SqlVarList.o utils.o 
+
+LDFLAGS=
+LIBS=-lm -ldl
+
+all: $(DESTDIR)/libgixsql.dylib
+
+%.o: %.cpp $(DEPS)
+	$(CC) -c -o  $@ $< $(CFLAGS)
+
+$(DESTDIR)/libgixsql.dylib: $(OBJS)
+	$(CC) -shared -fPIC -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f $(DESTDIR)/libgixsql.dylib *.o
