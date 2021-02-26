@@ -2,9 +2,9 @@
 Gix-IDE (or Gix) is an IDE and platform for GnuCOBOL, providing a native debugger, ESQL and HTTP REST services.
 
 ## Current state, development and plans for the future
-Gix-IDE is "mostly working" but it probably has many bugs lurking below the surface (or not really below) and several features missing. I want to improve it, make it more stable and add more features (e.g.  reintegrating macOS and Linux support - including a native debugger, adding SOAP support, a better DB manager)
+Gix-IDE is "mostly working" but it probably has many bugs lurking below the surface (or not really below) and several features missing. I want to improve it, make it more stable and add more features (e.g.  reintegrating macOS and Linux support - including a native debugger, adding SOAP support, a better DB manager); and there is a lot of documetation to write...
 
-I am releasing it because, in order to do this, I need to put it out in the wild and find some form of sponsorship to help the development along.
+I am releasing it because, in order to do this, I need to put it out in the wild, to get some feedback, but also to find some form of sponsorship to help the development along.
 
 ### The IDE
 The centerpiece is a Qt-based IDE that provides syntax highlighting (thanks to Scintilla), support for different versions of the compiler, a DB manager, variable navigation and integrated debugging.
@@ -29,3 +29,12 @@ While the focus of Gix-IDE is currently on Windows, both macOS and Linux version
 
 ### License
 Gix-IDE is GPL 2 licensed, except for runtime components (essentially the ESQL libraries and the HTTP server) that fall under LGPL.
+
+## How to install
+MingW compilers have a few problems in the packaged versions, so until this is fixed, you will have to use the VS ones.
+
+- If you don't have Visual Studio installed on your computer download and install Visual Studio Build Tools 2019 from here:
+https://visualstudio.microsoft.com/it/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16#
+or install Visual Studio Community
+- Download and install the release package
+- Launch Gix-IDE and try to build one of the examples in Documents\Gix\Examples
