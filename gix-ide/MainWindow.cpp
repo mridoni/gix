@@ -197,8 +197,11 @@ void MainWindow::open()
 
 void MainWindow::openPrj()
 {
+	QString docs_dir = QStandardPaths::locate(QStandardPaths::DocumentsLocation, ".", QStandardPaths::LocateOption::LocateDirectory);
+	docs_dir = PathUtils::combine(docs_dir, "gix");
+
 	QString fileName = QFileDialog::getOpenFileName(this,
-		tr("Open Project/Project Collection"), "",
+		tr("Open Project/Project Collection"), docs_dir,
 		tr("Project Collection (*.gix);;All Files (*)"));
 
 	if (fileName.isEmpty())
