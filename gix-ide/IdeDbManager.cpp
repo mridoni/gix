@@ -21,14 +21,14 @@ IdeDbManager::~IdeDbManager()
 bool IdeDbManager::init()
 {
 	QSettings settings;
-	unordered_set<QString> initialized_ids;
+	std::unordered_set<QString> initialized_ids;
 
 	connections.clear();
 	QString pfx = "dbmgr_conn_";
 	int index = 1;
 
 	auto std_keys = settings.allKeys().toVector().toStdVector();
-	vector<QString> keys = cpplinq::from(std_keys)
+	std::vector<QString> keys = cpplinq::from(std_keys)
 		.where([pfx](QString a) { return a.startsWith(pfx); })
 		.select([pfx](QString a) { return a.mid(0, pfx.length() + 4);  })
 		.to_vector();
@@ -93,7 +93,7 @@ void IdeDbManager::saveConnection(DbConnection* conn, bool save_password)
 
 	if (conn->id.isEmpty()) {	// new connection, must generate id
 		auto std_keys = settings.allKeys().toVector().toStdVector();
-		vector<QString> keys = cpplinq::from(std_keys)
+		std::vector<QString> keys = cpplinq::from(std_keys)
 					.where([pfx](QString a) { return a.startsWith(pfx); }).to_vector();
 					
 		if (keys.size() > 0) {

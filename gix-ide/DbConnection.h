@@ -16,10 +16,10 @@ public:
 
 	bool connect();
 	bool disconnect();
-	bool getSchemas(vector<SchemaInfo*>& res) ;
-	bool getTables(QString table, vector<TableInfo*>& res);
-	bool getColumns(QString schema, QString table, vector<ColumnInfo*>& columns);
-	bool getIndexes(QString schema, QString table, vector<IndexInfo*>& idxs);
+	bool getSchemas(std::vector<SchemaInfo*>& res) ;
+	bool getTables(QString table, std::vector<TableInfo*>& res);
+	bool getColumns(QString schema, QString table, std::vector<ColumnInfo*>& columns);
+	bool getIndexes(QString schema, QString table, std::vector<IndexInfo*>& idxs);
 
 	
 private:

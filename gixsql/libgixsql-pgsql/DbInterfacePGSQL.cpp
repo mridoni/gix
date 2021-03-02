@@ -333,7 +333,8 @@ int DbInterfacePGSQL::cursor_open(ICursor *cursor)
 		sprintf(true_query, "%s%s%s%s", query_part[0], cname, query_part[1], query);
 	}
 
-	int rc = exec_params(string(true_query), cursor->getNumParams(), NULL, cursor->getParameterValues(), NULL, NULL, 0);
+    auto pvalues = cursor->getParameterValues();
+	int rc = exec_params(string(true_query), cursor->getNumParams(), NULL, pvalues, NULL, NULL, 0);
 
 	cursor->setOpened(rc == DBERR_NO_ERROR);
 	return (rc == DBERR_NO_ERROR) ? DBERR_NO_ERROR : DBERR_DECLARE_CURSOR_FAILED;

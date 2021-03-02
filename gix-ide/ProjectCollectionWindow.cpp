@@ -375,7 +375,7 @@ void ProjectCollectionWindow::addProjectNewFolder(QTreeWidgetItem *item, Project
 {
 	bool ok;
 	bool add_to_copy_path;
-	string name;
+	std::string name;
 
 	CustomDialog dlg(tr("Enter a folder name"), this);
 	//dlg.addLabel    ("Please enter your details below ...");

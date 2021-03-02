@@ -14,7 +14,7 @@
 #include "IDbInterface.h"
 #include "IConnectionString.h"
 
-using namespace std;
+
 
 class DbInterface;
 
@@ -36,24 +36,24 @@ public:
 
 	int getId() override;
 	bool isOpen() override;
-	void setName(string) override;
+	void setName(std::string) override;
 
 	bool getAutoCommit() override;
 	void setAutoCommit(bool) override;
 	
 	void setOpened(bool) override;
 	
-	string getEncoding() override;
-	void setEncoding(string) override;
+	std::string getEncoding() override;
+	void setEncoding(std::string) override;
 
 private:
 
 	int id;
-	string cname;
+	std::string cname;
 	IConnectionString *conninfo;
 	bool autocommit;
 	bool is_opened; //open flag
-	string encoding;
+	std::string encoding;
 
 	bool ext_conninfo;
 

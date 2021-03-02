@@ -11,11 +11,23 @@
 #define TERMINAL_LENGTH ((int)1)
 #define DECIMAL_LENGTH 1
 
+#if defined(unix) || defined(__unix__) || defined(__unix) || defined(__linux__)
+#include <byteswap.h>
+#define COB_BSWAP_16(val) (bswap_16 (val))
+#define COB_BSWAP_32(val) (bswap_32(val))
+#define COB_BSWAP_64(val) (bswap_64 (val))
+#elif defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
+#define COB_BSWAP_16(val) (OSSwapInt16(val))
+#define COB_BSWAP_32(val) (OSSwapInt32(val))
+#define COB_BSWAP_64(val) (OSSwapInt64(val))
+#else
 #define COB_BSWAP_16(val) (_byteswap_ushort (val))
 #define COB_BSWAP_32(val) (_byteswap_ulong (val))
 #define COB_BSWAP_64(val) (_byteswap_uint64 (val))
+#endif
 
-#define CBL_FIELD_FLAG_NONE		0x0
+#define CBL_FIELD_FLAG_NONE	0x0
 #define CBL_FIELD_FLAG_VARLEN	0x80
 
 #define ASCII_ZERO ((unsigned char)0x30)

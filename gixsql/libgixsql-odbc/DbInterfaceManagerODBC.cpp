@@ -2,6 +2,7 @@
 
 // For schema functions
 
+#include <algorithm>
 
 struct DataBinding
 {
@@ -332,7 +333,7 @@ bool DbInterfaceODBC::getColumns(string schema, string table, vector<ColumnInfo*
 			c->type = decode_odbc_data_type(DataType);
 			c->native_type = string((const char*)&strTypeName);
 
-			vector<string>::iterator it = find_if(pk->columns.begin(), pk->columns.end(), [c](const string &s) { return s == c->name; });
+			vector<string>::iterator it = std::find_if(pk->columns.begin(), pk->columns.end(), [c](const string &s) { return s == c->name; });
 			c->is_pk_column = (it != pk->columns.end());
 
 

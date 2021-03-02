@@ -60,7 +60,7 @@ QString TPSourceConsolidation::getOutput(ITransformationStep *me)
 
 QMap<int, QString> &TPSourceConsolidation::getFileMap() const
 {
-	return QMap<int, QString>();
+	return const_cast<QMap<int, QString>&>(filemap);
 }
 
 QMap<QString, QString> &TPSourceConsolidation::getSrcLineMap() const

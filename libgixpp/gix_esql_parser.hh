@@ -1,4 +1,4 @@
-// A Bison parser, made by GNU Bison 3.7.1.
+// A Bison parser, made by GNU Bison 3.7.4.
 
 // Skeleton interface for Bison LALR(1) parsers in C++
 
@@ -818,7 +818,7 @@ namespace yy {
       /// Copy constructor.
       basic_symbol (const basic_symbol& that);
 
-      /// Constructor for valueless symbols, and symbols from each type.
+      /// Constructors for typed symbols.
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, location_type&& l)
         : Base (t)
@@ -830,6 +830,7 @@ namespace yy {
         , location (l)
       {}
 #endif
+
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, QList<QString> *&& v, location_type&& l)
         : Base (t)
@@ -843,6 +844,7 @@ namespace yy {
         , location (l)
       {}
 #endif
+
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, QString&& v, location_type&& l)
         : Base (t)
@@ -856,6 +858,7 @@ namespace yy {
         , location (l)
       {}
 #endif
+
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, int&& v, location_type&& l)
         : Base (t)
@@ -869,6 +872,7 @@ namespace yy {
         , location (l)
       {}
 #endif
+
 #if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, long&& v, location_type&& l)
         : Base (t)
@@ -1042,55 +1046,48 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, location_type l)
         : super_type(token_type (tok), std::move (l))
-      {
-        YY_ASSERT (tok == token::TOK_YYEOF || tok == token::TOK_YYerror || tok == token::TOK_YYUNDEF || tok == token::TOK_PERIOD || tok == token::TOK_CONNECT_RESET || tok == token::TOK_END_EXEC || tok == token::TOK_EXECSQL || tok == token::TOK_EXECSQL_INCLUDE || tok == token::TOK_FROM || tok == token::TOK_DECLARE || tok == token::TOK_CURSOR || tok == token::TOK_FOR || tok == token::TOK_WORKINGBEGIN || tok == token::TOK_WORKINGEND || tok == token::TOK_LINKAGEBEGIN || tok == token::TOK_LINKAGEEND || tok == token::TOK_FILEBEGIN || tok == token::TOK_FILEEND || tok == token::TOK_PROCEDURE_DIVISION || tok == token::TOK_HOSTVARIANTBEGIN || tok == token::TOK_HOSTVARIANTEND || tok == token::TOK_INCLUDE_FILE || tok == token::TOK_INCLUDE_SQLCA || tok == token::TOK_SQLCA || tok == token::TOK_IDENTIFIED_BY || tok == token::TOK_COMMIT_WORK || tok == token::TOK_ROLLBACK_WORK || tok == token::TOK_CONNECT || tok == token::TOK_USING || tok == token::TOK_OPEN || tok == token::TOK_CLOSE || tok == token::TOK_FETCH || tok == token::TOK_TRAILING || tok == token::TOK_COMP_1 || tok == token::TOK_COMP_2 || tok == token::TOK_COMP_3 || tok == token::TOK_COMP || tok == token::TOK_BINARY || tok == token::TOK_USAGE || tok == token::TOK_SIGN || tok == token::TOK_LEADING || tok == token::TOK_SEPARATE || tok == token::TOK_IS || tok == token::TOK_ARE || tok == token::TOK_VALUE || tok == token::TOK_ALL || tok == token::TOK_OCCURS || tok == token::TOK_EXTERNAL || tok == token::TOK_TIMES || tok == token::TOK_CONST || tok == token::TOK_CONNECT_TO || tok == token::TOK_USER || tok == token::TOK_TABLE || tok == token::TOK_TO || tok == token::TOK_BEGIN_DECLARE_SPECIAL || tok == token::TOK_COPY || tok == token::TOK_COPY_FILE || tok == token::TOK_WHERE_CURRENT_OF);
-      }
 #else
       symbol_type (int tok, const location_type& l)
         : super_type(token_type (tok), l)
-      {
-        YY_ASSERT (tok == token::TOK_YYEOF || tok == token::TOK_YYerror || tok == token::TOK_YYUNDEF || tok == token::TOK_PERIOD || tok == token::TOK_CONNECT_RESET || tok == token::TOK_END_EXEC || tok == token::TOK_EXECSQL || tok == token::TOK_EXECSQL_INCLUDE || tok == token::TOK_FROM || tok == token::TOK_DECLARE || tok == token::TOK_CURSOR || tok == token::TOK_FOR || tok == token::TOK_WORKINGBEGIN || tok == token::TOK_WORKINGEND || tok == token::TOK_LINKAGEBEGIN || tok == token::TOK_LINKAGEEND || tok == token::TOK_FILEBEGIN || tok == token::TOK_FILEEND || tok == token::TOK_PROCEDURE_DIVISION || tok == token::TOK_HOSTVARIANTBEGIN || tok == token::TOK_HOSTVARIANTEND || tok == token::TOK_INCLUDE_FILE || tok == token::TOK_INCLUDE_SQLCA || tok == token::TOK_SQLCA || tok == token::TOK_IDENTIFIED_BY || tok == token::TOK_COMMIT_WORK || tok == token::TOK_ROLLBACK_WORK || tok == token::TOK_CONNECT || tok == token::TOK_USING || tok == token::TOK_OPEN || tok == token::TOK_CLOSE || tok == token::TOK_FETCH || tok == token::TOK_TRAILING || tok == token::TOK_COMP_1 || tok == token::TOK_COMP_2 || tok == token::TOK_COMP_3 || tok == token::TOK_COMP || tok == token::TOK_BINARY || tok == token::TOK_USAGE || tok == token::TOK_SIGN || tok == token::TOK_LEADING || tok == token::TOK_SEPARATE || tok == token::TOK_IS || tok == token::TOK_ARE || tok == token::TOK_VALUE || tok == token::TOK_ALL || tok == token::TOK_OCCURS || tok == token::TOK_EXTERNAL || tok == token::TOK_TIMES || tok == token::TOK_CONST || tok == token::TOK_CONNECT_TO || tok == token::TOK_USER || tok == token::TOK_TABLE || tok == token::TOK_TO || tok == token::TOK_BEGIN_DECLARE_SPECIAL || tok == token::TOK_COPY || tok == token::TOK_COPY_FILE || tok == token::TOK_WHERE_CURRENT_OF);
-      }
 #endif
+      {
+        YY_ASSERT (tok == token::TOK_YYEOF
+                   || (token::TOK_YYerror <= tok && tok <= token::TOK_PERIOD)
+                   || tok == token::TOK_CONNECT_RESET
+                   || (token::TOK_END_EXEC <= tok && tok <= token::TOK_COPY_FILE)
+                   || tok == token::TOK_WHERE_CURRENT_OF);
+      }
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, QString v, location_type l)
         : super_type(token_type (tok), std::move (v), std::move (l))
-      {
-        YY_ASSERT (tok == token::TOK_SELECT || tok == token::TOK_SELECTFROM || tok == token::TOK_TOKEN || tok == token::TOK_HOSTTOKEN || tok == token::TOK_WORD || tok == token::TOK_PICTURE || tok == token::TOK_INSERT || tok == token::TOK_UPDATE || tok == token::TOK_DISCONNECT || tok == token::TOK_DELETE || tok == token::TOK_EXECUTE || tok == token::TOK_OTHERFUNC || tok == token::TOK_INTO);
-      }
 #else
       symbol_type (int tok, const QString& v, const location_type& l)
         : super_type(token_type (tok), v, l)
-      {
-        YY_ASSERT (tok == token::TOK_SELECT || tok == token::TOK_SELECTFROM || tok == token::TOK_TOKEN || tok == token::TOK_HOSTTOKEN || tok == token::TOK_WORD || tok == token::TOK_PICTURE || tok == token::TOK_INSERT || tok == token::TOK_UPDATE || tok == token::TOK_DISCONNECT || tok == token::TOK_DELETE || tok == token::TOK_EXECUTE || tok == token::TOK_OTHERFUNC || tok == token::TOK_INTO);
-      }
 #endif
+      {
+        YY_ASSERT ((token::TOK_SELECT <= tok && tok <= token::TOK_DISCONNECT)
+                   || (token::TOK_DELETE <= tok && tok <= token::TOK_INTO));
+      }
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, int v, location_type l)
         : super_type(token_type (tok), std::move (v), std::move (l))
-      {
-        YY_ASSERT (tok == token::TOK_WITH_HOLD);
-      }
 #else
       symbol_type (int tok, const int& v, const location_type& l)
         : super_type(token_type (tok), v, l)
+#endif
       {
         YY_ASSERT (tok == token::TOK_WITH_HOLD);
       }
-#endif
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, long v, location_type l)
         : super_type(token_type (tok), std::move (v), std::move (l))
-      {
-        YY_ASSERT (tok == token::TOK_NUMERIC);
-      }
 #else
       symbol_type (int tok, const long& v, const location_type& l)
         : super_type(token_type (tok), v, l)
+#endif
       {
         YY_ASSERT (tok == token::TOK_NUMERIC);
       }
-#endif
     };
 
     /// Build a parser object.
@@ -2826,7 +2823,7 @@ switch (yykind)
   }
 
 } // yy
-#line 2830 "gix_esql_parser.hh"
+#line 2827 "gix_esql_parser.hh"
 
 
 

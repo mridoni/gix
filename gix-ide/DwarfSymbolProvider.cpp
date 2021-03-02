@@ -3,7 +3,19 @@
 #include <QDir>
 #include <stdio.h>
 #include <fcntl.h>
+
+#if defined(_WIN32)
 #include <io.h>
+#else
+#include <fcntl.h>
+#include <unistd.h>
+
+#ifndef O_BINARY
+#define O_BINARY  0
+#define O_TEXT    0
+#endif
+
+#endif
 
 #include "PathUtils.h"
 #include <SymbolBufferReader.h>
@@ -109,9 +121,6 @@ uint64_t hex2int64(const char *hex)
 
 SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err)
 {
-	HANDLE hProcess = (HANDLE)hproc;
-	DWORD64 dll_base = (DWORD64)hmod;
-
 	module_dwarf_private_data *md = nullptr;
 	if (!module_data.contains(mod_path))
 		return nullptr;
@@ -203,7 +212,7 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 	return shared_module;
 }
 
-DWORD64 DwarfSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err)
+void *DwarfSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err)
 {
 	return 0;
 }
@@ -218,7 +227,7 @@ void *get_die_addr(Dwarf_Die die, Dwarf_Debug dbg)
 		return 0;
 
 	if (dwarf_attrlist(die, &attrs, &attrcount, &err) != DW_DLV_OK)
-		return false;
+		return NULL;
 
 	for (i = 0; i < attrcount; ++i) {
 		Dwarf_Half attrcode;
@@ -529,10 +538,6 @@ static bool get_cu_line_info(Dwarf_Debug dbg, QList<lineinfo_entry> &linenums)
 			lires = dwarf_lineno(line, &lineno, &lt_err);
 			dwarf_linesrc(line, &filename, &err);
 
-			char bfr[1024];
-			sprintf(bfr, "%03d - dwarf_lineaddr: line: 0x%08x pc: 0x%08x filename=%s lineno: %d\n", linecount, line, pc, filename, lineno);
-			OutputDebugStringA(bfr);
-
 			QString f = QDir::cleanPath(filename);
 			lineinfo_entry t = { f, (int)lineno, (void *)pc };
 			linenums.push_back(t);
@@ -712,21 +717,21 @@ Dwarf_Die get_die_name(Dwarf_Debug dbg, Dwarf_Die the_die, const QString &name)
 	int rc = dwarf_diename(the_die, &die_name, &err);
 
 	if (rc == DW_DLV_ERROR)
-		return false;
+		return NULL;
 
 	else if (rc == DW_DLV_NO_ENTRY)
-		return false;
+		return NULL;
 
 	if (dwarf_tag(the_die, &tag, &err) != DW_DLV_OK)
-		return false;
+		return NULL;
 
 	/* Only interested in subprogram DIEs here */
 	if (tag != DW_TAG_subprogram)
-		return false;
+		return NULL;
 
 
 	if (dwarf_get_TAG_name(tag, &tag_name) != DW_DLV_OK)
-		return false;
+		return NULL;
 
 	//printf("DW_TAG_subprogram: '%s'\n", die_name);
 
@@ -765,7 +770,7 @@ Dwarf_Die find_top_level_die(const QString &target_die_name, Dwarf_Debug dbg)
 
 		/* Expect the CU to have a single sibling - a DIE */
 		if (dwarf_siblingof(dbg, no_die, &cu_die, &err) == DW_DLV_ERROR)
-			return false;
+			return NULL;
 
 		//list_func_in_die(dbg, cu_die, funcinfo);
 
@@ -773,19 +778,18 @@ Dwarf_Die find_top_level_die(const QString &target_die_name, Dwarf_Debug dbg)
 
 		/* Expect the CU DIE to have children */
 		if (dwarf_child(cu_die, &child_die, &err) == DW_DLV_ERROR)
-			return false;
+			return NULL;
 
 		/* Now go over all children DIEs */
 		while (1) {
 			rc = dwarf_diename(child_die, &die_name, &err);
-			OutputDebugStringA(die_name); OutputDebugStringA("\n");
 			if (die_name == target_die_name)
 				return child_die;
 
 			rc = dwarf_siblingof(dbg, child_die, &child_die, &err);
 
 			if (rc == DW_DLV_ERROR)
-				return false;
+				return NULL;
 			else if (rc == DW_DLV_NO_ENTRY)
 				break; /* done */
 		}
@@ -822,16 +826,16 @@ void *DwarfSymbolProvider::get_local_var_addr(CobolModuleInfo *cmi, const QStrin
 
 	QString dllpath = cmi->owner->dll_path;
 	if (!module_data.contains(dllpath))
-		return false;
+		return NULL;
 
 	module_dwarf_private_data *md = module_data[dllpath];
 	Dwarf_Debug dbg = md->dbg;
 	Dwarf_Die the_die = find_top_level_die(cmi->name + "_", dbg);
 	if (!the_die)
-		return false;
+		return NULL;
 
 	if (dwarf_child(the_die, &c, &err) == DW_DLV_ERROR)
-		return false;
+		return NULL;
 
 	do {
 		if (dwarf_diename(c, &die_name, &err))
@@ -840,7 +844,7 @@ void *DwarfSymbolProvider::get_local_var_addr(CobolModuleInfo *cmi, const QStrin
 		if (sym_name == die_name) {
 
 			if (dwarf_attrlist(c, &attrs, &attrcount, &err) != DW_DLV_OK)
-				return false;
+				return NULL;
 
 			for (i = 0; i < attrcount; ++i) {
 				Dwarf_Half attrcode;

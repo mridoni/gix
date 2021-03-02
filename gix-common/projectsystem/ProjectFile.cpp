@@ -313,7 +313,7 @@ ProjectFile *ProjectFile::newProjectFile(ProjectItem *owner, QString filepath, b
 			break;
 
 		default:
-			return false;
+			return NULL;
 	}
 
 	ProjectFile *pf = new ProjectFile();

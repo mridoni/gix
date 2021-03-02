@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QtGlobal>
 
 #include "gixcommon_global.h"
 #include "TargetManager.h"

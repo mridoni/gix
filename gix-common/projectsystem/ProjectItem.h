@@ -8,7 +8,6 @@
 
 #include "ProjectItemType.h"
 #include "gixcommon_global.h"
-using namespace std;
 
 class PropertyDefinition;
 

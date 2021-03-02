@@ -28,7 +28,7 @@ bool Connection::isOpen()
 	return is_opened;
 }
 
-void Connection::setName(string name)
+void Connection::setName(std::string name)
 {
 	cname = name;
 }
@@ -50,7 +50,7 @@ void Connection::setOpened(bool i)
 	is_opened = i;
 }
 
-void Connection::setEncoding(string enc)
+void Connection::setEncoding(std::string enc)
 {
 	encoding = enc;
 }
@@ -70,7 +70,7 @@ IConnectionString *Connection::getConnectionInfo()
 	return conninfo;
 }
 
-string Connection::getEncoding()
+std::string Connection::getEncoding()
 {
 	return encoding;
 }

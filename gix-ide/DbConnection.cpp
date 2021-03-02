@@ -33,7 +33,7 @@ bool DbConnection::disconnect()
 	return (last_error == 0);
 }
 
-bool DbConnection::getSchemas(vector<SchemaInfo*>& schemas)
+bool DbConnection::getSchemas(std::vector<SchemaInfo*>& schemas)
 {
 	if (!dbi)
 		return false;
@@ -41,7 +41,7 @@ bool DbConnection::getSchemas(vector<SchemaInfo*>& schemas)
 	return dbi->manager()->getSchemas(schemas);
 }
 
-bool DbConnection::getTables(QString table, vector<TableInfo*>& tables)
+bool DbConnection::getTables(QString table, std::vector<TableInfo*>& tables)
 {
 	if (!dbi)
 		return false;
@@ -49,7 +49,7 @@ bool DbConnection::getTables(QString table, vector<TableInfo*>& tables)
 	return dbi->manager()->getTables(table.toStdString(), tables);
 }
 
-bool DbConnection::getColumns(QString schema, QString table, vector<ColumnInfo*>& columns)
+bool DbConnection::getColumns(QString schema, QString table, std::vector<ColumnInfo*>& columns)
 {
 	if (!dbi)
 		return false;
@@ -57,7 +57,7 @@ bool DbConnection::getColumns(QString schema, QString table, vector<ColumnInfo*>
 	return dbi->manager()->getColumns(schema.toStdString(), table.toStdString(), columns);
 }
 
-bool DbConnection::getIndexes(QString schema, QString table, vector<IndexInfo*>& idxs)
+bool DbConnection::getIndexes(QString schema, QString table, std::vector<IndexInfo*>& idxs)
 {
 	if (!dbi)
 		return false;

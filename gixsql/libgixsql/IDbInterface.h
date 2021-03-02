@@ -9,7 +9,7 @@
 #include "IConnectionString.h"
 #include "IDbManagerInterface.h"
 
-using namespace std;
+
 
 #define USE_DEFAULT_CONNECTION		-998
 
@@ -54,13 +54,13 @@ class IDbInterface
 {
 public:
 	virtual int init(ILogger *) = 0;
-	virtual int connect(IConnectionString *, int, string) = 0;
+	virtual int connect(IConnectionString *, int, std::string) = 0;
 	virtual int reset() = 0;
 	virtual int terminate_connection() = 0;
 	virtual int begin_transaction() = 0;
-	virtual int end_transaction(string) = 0;
-	virtual int exec(string) = 0;
-	virtual int exec_params(string, int, int *, vector<string>&, int *, int *, int) = 0;
+	virtual int end_transaction(std::string) = 0;
+	virtual int exec(std::string) = 0;
+	virtual int exec_params(std::string, int, int *, std::vector<std::string>&, int *, int *, int) = 0;
 	virtual int close_cursor(ICursor *) = 0;
 	virtual int cursor_declare(ICursor *, bool, int) = 0;
 	virtual int cursor_declare_with_params(ICursor *, char **, bool, int) = 0;

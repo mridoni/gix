@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #define COBOL_TYPE_UNSIGNED_NUMBER		1         
 #define COBOL_TYPE_SIGNED_NUMBER_TC		3        // (trailing combined)
 #define COBOL_TYPE_SIGNED_NUMBER_LS		4        // (leading separate)

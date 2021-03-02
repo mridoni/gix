@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QObject.h>
+#include <QObject>
 #include <QLogger.h>
 
 #include "IGixLogManager.h"

@@ -5,13 +5,13 @@
 
 #include "ISchemaManager.h"
 
-using namespace std;
+
 
 class IDbManagerInterface
 {
 public:
-	virtual bool getSchemas(vector<SchemaInfo*>& res) = 0;
-	virtual bool getTables(string table, vector<TableInfo*>& res) = 0;
-	virtual bool getColumns(string schema, string table, vector<ColumnInfo*>& columns) = 0;
-	virtual bool getIndexes(string schema, string tabl, vector<IndexInfo*>& idxs) = 0;
+	virtual bool getSchemas(std::vector<SchemaInfo*>& res) = 0;
+	virtual bool getTables(std::string table, std::vector<TableInfo*>& res) = 0;
+	virtual bool getColumns(std::string schema, std::string table, std::vector<ColumnInfo*>& columns) = 0;
+	virtual bool getIndexes(std::string schema, std::string tabl, std::vector<IndexInfo*>& idxs) = 0;
 };

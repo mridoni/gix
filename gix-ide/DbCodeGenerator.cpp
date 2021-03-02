@@ -20,7 +20,7 @@ bool DbCodeGenerator::generateCopyFile(IConnectionString *conn_info, QString sch
 	if (!dbc|| !dbc->connect())
 		return false;
 
-	vector<ColumnInfo *> columns;
+	std::vector<ColumnInfo *> columns;
 	if (dbc->getColumns(schema, table, columns)) {
 
 		auto lengths = cpplinq::from(columns).select([](ColumnInfo* a) { return a->name.size(); }).to_vector();

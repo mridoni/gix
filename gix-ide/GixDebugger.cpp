@@ -2,9 +2,8 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include "GixDebuggerWin64.h"
 #else
-#include "GixDebuggerUnix.h"
+#include "GixDebuggerLinux.h"
 #endif
-//#include "libcob.h"
 
 #include <QMap>
 #include <QDir>
@@ -30,7 +29,7 @@ GixDebugger *GixDebugger::get()
 	gd = new GixDebuggerWin64();
 #else
 
-	gd = new GixDebuggerUnix();
+	gd = new GixDebuggerLinux();
 
 #endif
 
@@ -123,7 +122,7 @@ void GixDebugger::getAndResolveUserBreakpoints()
 			continue;
 
 		if (source_lines.find(it.key()) != source_lines.end()) {
-			if_blk->debuggerMessage(this, "Resolved breakpoint (" + it.key() + ")" + QString::number((long)bkp->address), 0);
+			if_blk->debuggerMessage(this, "Resolved breakpoint (" + it.key() + ")" + QString::number((uint64_t)bkp->address), 0);
 			bkp->address = source_lines[it.key()]->addr;
 
 			installHardwareBreakpoint(bkp);

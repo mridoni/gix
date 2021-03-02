@@ -27,7 +27,7 @@ public:
 	static QStringList FileReadAllLines(QString filename);
 	static QStringList FileReadAllLines(QTextStream *s);
 	static QStringList FileReadLines(const QString& filename, int max_lines);
-	static bool SysUtils::FileWriteAllLines(QString filename, QStringList lines);
+	static bool FileWriteAllLines(QString filename, QStringList lines);
 	static QByteArray FileReadAll(QString filename);
 	static QString RegistryGetValue(QString keypath, QString value, QString default_value = QString());
 	static void mergeMaps(QMap<QString, QVariant>& m1, const QMap<QString, QVariant> m2);

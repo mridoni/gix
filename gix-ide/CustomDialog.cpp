@@ -6,9 +6,6 @@
 #include <qvalidator.h>
 #include <qcolordialog.h>
 #include <QFileDialog>
-
-using namespace std;
-
 //############################################################
 
 ColorButton::ColorButton(QColor _color, QWidget *parent) : QPushButton(parent)
@@ -255,7 +252,7 @@ int CustomDialog::addCheckBox(QString caption, bool *checked, QString tooltip)
 //--                   value is saved if/when the user clicks "Ok"
 //-- @ tooltip       = is_optional tooltip
 
-int CustomDialog::addLineEdit(QString caption, string *stringValue, QString tooltip)
+int CustomDialog::addLineEdit(QString caption, std::string *stringValue, QString tooltip)
 {
 	DialogElement &e = addNewElement(DLG_LINEEDIT, caption, tooltip, true);
 
@@ -412,7 +409,7 @@ int CustomDialog::addComboBox(QString caption, QString barSepList, int *selIdx,
 	e.returnInt = selIdx;
 	e.cmbBox = new QComboBox(this);
 	QStringList items = barSepList.split("|", QString::SkipEmptyParts);
-	// break apart string values between each "|"
+	// break apart std::string values between each "|"
 
 	e.cmbBox->addItems(items);
 	if (*selIdx < (int)items.size())  // Set default selection.
@@ -434,7 +431,7 @@ int CustomDialog::addComboBox(QString caption, QString barSepList, int *selIdx,
 //-- @ *selIdx    = the default selected index + where the selected index is
 //--                updated when/if the user clicks "Ok"
 //-- @ tooltip    = is_optional tooltip applied to whole group
-//-- @ tooltipArr = is_optional string of tool tips where each tool tip must be seperated by
+//-- @ tooltipArr = is_optional std::string of tool tips where each tool tip must be seperated by
 //--                a bar character (eg: "tooltip opt1|tooltip opt2|tooltip opt 3")
 //-- @ checkable  = wether or not a checkbox appears in the title of the radio group.
 //-- @ *checked   = if "checkable" is true, the default value + where the value of the
@@ -458,7 +455,7 @@ int CustomDialog::addRadioGrp(QString caption, QString barSepList, int *selIdx,
 	butLay->setSpacing(2);
 	butLay->setContentsMargins(5, 2, 5, 5);
 	QStringList items = barSepList.split(
-		"|", QString::SkipEmptyParts);   // Break apart string values between each "|".
+		"|", QString::SkipEmptyParts);   // Break apart std::string values between each "|".
 
 	QStringList tooltips;
 	if (!tooltipArr.isEmpty())
@@ -579,7 +576,7 @@ int CustomDialog::addMinMaxSpinBoxPair(QString caption, QString middleCaption,
 //-- @ minHeight = the minimum height of the text area in pixels
 //-- @ tooltip   =  is_optional tooltip for all the form elements in this row
 
-int CustomDialog::addTextEdit(string *text, bool richText, bool readOnly,
+int CustomDialog::addTextEdit(std::string *text, bool richText, bool readOnly,
 	int minHeight, QString tooltip)
 {
 	DialogElement &e = addNewElement(DLG_TEXTEDIT, "", tooltip, false);
@@ -1040,7 +1037,7 @@ int CustomDialog::addAutoCompletePrev(QStringList wordList, bool caseSensitive)
 	DialogElement &e = elements.back();
 	if (e.type != DLG_LINEEDIT)
 	{
-		cerr << "ERROR: addAutoCompletePrev() must proceed addLineEdit()" << endl;
+		std::cerr << "ERROR: addAutoCompletePrev() must proceed addLineEdit()" << std::endl;
 		return 01;
 	}
 
@@ -1063,7 +1060,7 @@ int CustomDialog::addAutoCompletePrev(QStringList wordList, bool caseSensitive)
 //--             eg: "color: rgb(0, 0, 0); background-color: rgba(255, 255, 255, 0);"
 //-- @ bold    = if true: the font for the element will be made bold
 
-bool CustomDialog::setStyleElem(int idx, string styleStr, bool bold)
+bool CustomDialog::setStyleElem(int idx, std::string styleStr, bool bold)
 {
 	if (idx >= elements.size() || idx < 0)
 		return false;
@@ -1108,7 +1105,7 @@ bool CustomDialog::setStyleElem(int idx, string styleStr, bool bold)
 //--             eg: "color: rgb(0, 0, 0); background-color: rgba(255, 255, 255, 0);"
 //-- @ bold    = if true: the font for the element will be made bold
 
-void CustomDialog::setStylePrev(string styleStr, bool bold)
+void CustomDialog::setStylePrev(std::string styleStr, bool bold)
 {
 	setStyleElem(elements.size() - 1, styleStr, bold);
 }
@@ -1325,7 +1322,7 @@ bool CustomDialog::wasCancelled()
 //---------
 //-- Display a simple message box
 
-void MsgBox(string str)
+void MsgBox(std::string str)
 {
 	QMessageBox::information(0, "...", str.c_str());
 }
@@ -1341,7 +1338,7 @@ void MsgBox(QWidget *parent, QString title, QString str)
 //---------
 //-- Display a tyes/no dialog box and return "true" if use clicks yes.
 
-bool MsgBoxYesNo(QWidget *parent, string str)
+bool MsgBoxYesNo(QWidget *parent, std::string str)
 {
 	int result = QMessageBox::information(parent, "...", str.c_str(),
 		QMessageBox::Yes, QMessageBox::No);
@@ -1349,9 +1346,9 @@ bool MsgBoxYesNo(QWidget *parent, string str)
 }
 
 //---------
-//-- Display an input dialog and return the string entered by the user.
+//-- Display an input dialog and return the std::string entered by the user.
 
-string InputBoxString(QWidget *parent, string title, string label, string defaultStr)
+std::string InputBoxString(QWidget *parent, std::string title, std::string label, std::string defaultStr)
 {
 	return qStringToString(QInputDialog::getText(parent, title.c_str(), label.c_str(),
 		QLineEdit::Normal, defaultStr.c_str()));

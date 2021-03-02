@@ -11,11 +11,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
-//#include <QSqlDatabase>
 #include <QString>
 #include <QMessageBox>
 #include <QDebug>
-//#include <QSqlError>
 #include <QPushButton>
 #include <QGroupBox>
 

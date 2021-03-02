@@ -192,7 +192,7 @@ void DatabaseConnectionDialog::findAvailableDrivers() {
 	comboDatabaseDriverName->clear();
 	// populate the combo box with all available drivers
 
-	foreach(string driverName, DbInterfaceFactory::getAvailableDrivers())
+	foreach(std::string driverName, DbInterfaceFactory::getAvailableDrivers())
 		comboDatabaseDriverName->addItem(QString::fromStdString(driverName).toUpper());
 }
 

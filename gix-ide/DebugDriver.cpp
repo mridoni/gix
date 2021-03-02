@@ -30,11 +30,6 @@ const QString DebugDriver::RESP_OK_WITH_RESULT = "OK:";
 const QString DebugDriver::RESP_KO = "KO";
 const QString DebugDriver::RESP_KO_WITH_RESULT = "KO:";
 
-typedef struct thread_data {
-	DebugDriver* debug_driver;
-	SOCKET client;
-} THREADDATA;
-
 DebugDriver::DebugDriver(DebugManager* mgr)
 {
 	debug_manager = mgr;

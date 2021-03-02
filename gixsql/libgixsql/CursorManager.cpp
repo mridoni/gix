@@ -9,7 +9,7 @@ CursorManager::CursorManager()
 
 CursorManager::~CursorManager()
 {
-	vector<Cursor*>::iterator it;
+	std::vector<Cursor*>::iterator it;
 	for (it = _cursor_list.begin(); it != _cursor_list.end(); ++it) {
 		if (*it)
 			delete (*it);
@@ -35,13 +35,13 @@ void CursorManager::remove(Cursor *c)
 	delete c;
 }
 
-bool CursorManager::exists(string cname)
+bool CursorManager::exists(std::string cname)
 {
-	std::map<string, Cursor *>::iterator it = _cursor_map.find(cname);
+	std::map<std::string, Cursor *>::iterator it = _cursor_map.find(cname);
 	return (it != _cursor_map.end());
 }
 
-Cursor * CursorManager::get(string cname)
+Cursor * CursorManager::get(std::string cname)
 {
 	if (!exists(cname))
 		return NULL;
@@ -51,8 +51,8 @@ Cursor * CursorManager::get(string cname)
 
 void CursorManager::clearConnectionCursors(int connId, bool clear_held_cursors)
 {
-	vector<Cursor *> _cur_to_del;
-	vector<Cursor *>::iterator it;
+	std::vector<Cursor *> _cur_to_del;
+	std::vector<Cursor *>::iterator it;
 
 	for (it = _cursor_list.begin(); it != _cursor_list.end(); it++) {
 		IConnection * conn = (*it)->getConnection();

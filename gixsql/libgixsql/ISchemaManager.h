@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+
 
 enum class ColumnType
 {
@@ -40,9 +40,9 @@ enum class ColumnType
 class ColumnInfo
 {
 public:
-	string name;
+	std::string name;
 	ColumnType  type;
-	string native_type;
+	std::string native_type;
 	int length;	// See above
 	int base;	// See above
 	int decimal_digits;
@@ -64,29 +64,29 @@ public:
 class PkInfo
 {
 public:
-	string name;
-	vector<string> columns;
+	std::string name;
+	std::vector<std::string> columns;
 };
 
 class IndexInfo
 {
 public:
-	string name;
-	vector<string> columns;
+	std::string name;
+	std::vector<std::string> columns;
 	bool is_unique;
 };
 
 class TableInfo
 {
 public:
-	string name;
-	string schema_name;
+	std::string name;
+	std::string schema_name;
 	//PkInfo primary_key;
 };
 
 class SchemaInfo
 {
 public:
-	string name;
+	std::string name;
 	//PkInfo primary_key;
 };

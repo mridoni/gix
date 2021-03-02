@@ -7,11 +7,11 @@
 #include "ConnectionManager.h"
 #include "DbInterfaceFactory.h"
 
-using namespace std;
 
-static vector<Connection *> _connections;
-static map<int, Connection *> _connection_map;
-static map<string, Connection *> _connection_name_map;
+
+static std::vector<Connection *> _connections;
+static std::map<int, Connection *> _connection_map;
+static std::map<std::string, Connection *> _connection_name_map;
 static Connection *current_connection;
 
 static int next_conn_id = 1;
@@ -49,19 +49,19 @@ void ConnectionManager::remove(Connection *conn)
 		return;
 
 	int id = conn->id;
-	string name = conn->cname;
+	std::string name = conn->cname;
 	_connections.erase(std::remove(_connections.begin(), _connections.end(), conn), _connections.end());
 	_connection_map.erase(id);
 	_connection_name_map.erase(name);
 	delete (conn);
 }
 
-bool ConnectionManager::exists(string cname)
+bool ConnectionManager::exists(std::string cname)
 {
 	return false;
 }
 
-int ConnectionManager::setCurrent(string cname)
+int ConnectionManager::setCurrent(std::string cname)
 {
 	return 0;
 }

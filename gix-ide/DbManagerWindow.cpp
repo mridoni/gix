@@ -123,7 +123,7 @@ DbManagerWindow::DbManagerWindow(QWidget* parent, MainWindow* mw)
 				if (!conn)
 					return;
 
-				vector<SchemaInfo*> items;
+				std::vector<SchemaInfo*> items;
 				if (conn->dbi->manager()->getSchemas(items)) {
 
 					for (SchemaInfo* schema : items) {
@@ -153,7 +153,7 @@ DbManagerWindow::DbManagerWindow(QWidget* parent, MainWindow* mw)
 				tablesItem->setData(0, ROLE_NODE_DATA, 0);
 				item->addChild(tablesItem);
 
-				vector<TableInfo*> items;
+				std::vector<TableInfo*> items;
 				if (conn->dbi->manager()->getTables(schema_name.toStdString(), items)) {
 
 					for (TableInfo* table : items) {
@@ -208,7 +208,7 @@ DbManagerWindow::DbManagerWindow(QWidget* parent, MainWindow* mw)
 				SchemaInfo* si = getItemSchema(item);
 				QString table_name = QString::fromStdString(ti->name);
 
-				vector<ColumnInfo*> items;
+				std::vector<ColumnInfo*> items;
 				if (conn->dbi->manager()->getColumns(si->name, ti->name, items)) {
 
 					for (ColumnInfo* col : items) {

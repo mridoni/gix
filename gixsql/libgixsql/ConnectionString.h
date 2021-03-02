@@ -11,41 +11,41 @@
 #include <string>
 #include "IConnectionString.h"
 
-using namespace std;
+
 
 class ConnectionString : public IConnectionString
 {
 public:
 	LIBGIXSQL_API ConnectionString();
 	LIBGIXSQL_API ~ConnectionString();
-	LIBGIXSQL_API int init(const string& c);
-	LIBGIXSQL_API string get() override;
+	LIBGIXSQL_API int init(const std::string& c);
+	LIBGIXSQL_API std::string get() override;
 
-	int init(string name, string user, string password) override;
+	int init(std::string name, std::string user, std::string password) override;
 
-	LIBGIXSQL_API string getDbType() override;
-	LIBGIXSQL_API string getHost() override;
+	LIBGIXSQL_API std::string getDbType() override;
+	LIBGIXSQL_API std::string getHost() override;
 	LIBGIXSQL_API int getPort() override;
-	LIBGIXSQL_API string getDbName() override;
-	LIBGIXSQL_API string getUsername() override;
-	LIBGIXSQL_API string getPassword() override;
-	LIBGIXSQL_API string getDefaultSchema() override;
+	LIBGIXSQL_API std::string getDbName() override;
+	LIBGIXSQL_API std::string getUsername() override;
+	LIBGIXSQL_API std::string getPassword() override;
+	LIBGIXSQL_API std::string getDefaultSchema() override;
 
-	LIBGIXSQL_API static ConnectionString * parseEx(const string& cs);
+	LIBGIXSQL_API static ConnectionString * parseEx(const std::string& cs);
 
-	LIBGIXSQL_API string toConnectionString(bool use_pwd, string pwd = "") override;
-	LIBGIXSQL_API string getName() override;
-	LIBGIXSQL_API virtual void setPassword(string) override;
+	LIBGIXSQL_API std::string toConnectionString(bool use_pwd, std::string pwd = "") override;
+	LIBGIXSQL_API std::string getName() override;
+	LIBGIXSQL_API virtual void setPassword(std::string) override;
 
 private:
-	string dbtype;
-	string conn_string;
-	string host;
+	std::string dbtype;
+	std::string conn_string;
+	std::string host;
 	int port; 
-	string dbname;
-	string username;
-	string password;
-	string default_schema;
+	std::string dbname;
+	std::string username;
+	std::string password;
+	std::string default_schema;
 	int parse();
 
 };

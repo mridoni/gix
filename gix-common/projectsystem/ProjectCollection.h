@@ -7,8 +7,6 @@
 #include "Project.h"
 #include "IBuildableItem.h"
 
-using namespace std;
-
 class Project;
 
 class ProjectCollection : public ProjectItem, public PropertySource, public IPersistableProjectItem, public IBuildableItem
@@ -35,7 +33,7 @@ public:
 
 	// Inherited via IPersistableProjectItem
 	GIXCOMMON_EXPORT virtual bool load(ProjectItem * owner, QString filepath) override;
-	GIXCOMMON_EXPORT virtual bool save(ProjectItem* owner = nullptr, QString filepath = QString::null) override;
+	GIXCOMMON_EXPORT virtual bool save(ProjectItem* owner = nullptr, QString filepath = QString()) override;
 	GIXCOMMON_EXPORT virtual bool revert() override;
 	GIXCOMMON_EXPORT virtual bool isDirty() override;
 	GIXCOMMON_EXPORT virtual void setDirty(bool b) override;

@@ -39,12 +39,12 @@ class DbInterfaceFactory
 public:
 
 	static LIBGIXSQL_API IDbInterface *getInterface(int);
-	static LIBGIXSQL_API IDbInterface *getInterface(string);
+	static LIBGIXSQL_API IDbInterface *getInterface(std::string);
 	static LIBGIXSQL_API IDbManagerInterface* getManagerInterface(int);
-	static LIBGIXSQL_API IDbManagerInterface* getManagerInterface(string);
+	static LIBGIXSQL_API IDbManagerInterface* getManagerInterface(std::string);
 	static int removeInterface(IDbInterface *);
 
-	static LIBGIXSQL_API vector<string> getAvailableDrivers();
+	static LIBGIXSQL_API std::vector<std::string> getAvailableDrivers();
 
 private:
 

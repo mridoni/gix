@@ -11,9 +11,11 @@
 #include "linq/linq.hpp"
 
 #include <QFile>
+#include <QList>
 #include <QDataStream>
 #include <QRegularExpression>
 #include <linq/linq.hpp>
+
 #if defined(_WIN32) && defined(_DEBUG)
 #include <Windows.h>
 #endif
@@ -527,8 +529,8 @@ void CobolModuleMetadata::dump_linemap(const QMap<uint64_t, uint64_t> &orig_to_r
 
 	QMap<uint64_t, uint64_t>::const_iterator it;
 	for (it = orig_to_running_linemap.begin(); it != orig_to_running_linemap.end(); ++it) {
-		s << it.key();
-		s << it.value();
+		s << (quint64) it.key();
+		s << (quint64) it.value();
 	}
 }
 
@@ -662,7 +664,7 @@ void CobolModuleMetadata::load_filemap(QMap<int, QString> &p_filemap, QDataStrea
 void CobolModuleMetadata::load_linemap(QMap<uint64_t, uint64_t> &p_linemap, QMap<uint64_t, uint64_t> &p_linemap_rev, QDataStream &s)
 {
 	int count;
-	uint64_t k, v;
+	quint64 k, v;
 
 	s >> count;
 
@@ -808,7 +810,8 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 
 	QMap<QString, cb_field_ptr> fmap = pp->getVariableDeclarationInfoMap();
 
-	QList<cb_field_ptr> ftree = QList<cb_field_ptr>::fromStdList(cpplinq::from(fmap.values()).where([](cb_field_ptr a) { return a->parent == nullptr;  }).to_list());
+	QList<cb_field_ptr> fvals = fmap.values();
+	QList<cb_field_ptr> ftree = QList<cb_field_ptr>::fromStdList(cpplinq::from(fvals).where([](cb_field_ptr a) { return a->parent == nullptr;  }).to_list());
 	QList<cb_field_ptr> ws_tree = QList<cb_field_ptr>::fromStdList(cpplinq::from(ftree).where([](cb_field_ptr a) { return a->data_section == DataSectionType::WorkingStorage; }).to_list());
 	QList<cb_field_ptr> ls_tree = QList<cb_field_ptr>::fromStdList(cpplinq::from(ftree).where([](cb_field_ptr a) { return a->data_section == DataSectionType::LinkageSection; }).to_list());
 	QList<cb_field_ptr> fs_tree = QList<cb_field_ptr>::fromStdList(cpplinq::from(ftree).where([](cb_field_ptr a) { return a->data_section == DataSectionType::FileSection; }).to_list());
@@ -893,7 +896,7 @@ CobolModuleMetadata *CobolModuleMetadata::loadFromFile(const QString &filename)
 
 	QFile f(filename);
 	if (!f.open(QIODevice::OpenModeFlag::ReadOnly))
-		return false;
+		return NULL;
 
 	QDataStream s(&f);
 	CobolModuleMetadata *cmm = new CobolModuleMetadata();

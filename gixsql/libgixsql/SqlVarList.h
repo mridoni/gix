@@ -1,12 +1,12 @@
 #pragma once
 
-using namespace std;
+
 
 #include <vector>
 
 #include "SqlVar.h"
 
-class SqlVarList : public vector<SqlVar *>
+class SqlVarList : public std::vector<SqlVar *>
 {
 public:
 	SqlVarList();

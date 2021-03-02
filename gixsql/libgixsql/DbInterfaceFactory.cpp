@@ -7,7 +7,7 @@
 #include "IDbInterface.h"
 #include "Logger.h"
 
-static map<IDbInterface *, LIBHANDLE> lib_map;
+static std::map<IDbInterface *, LIBHANDLE> lib_map;
 
 DECLARE_LOGGER_STATIC(logger);
 
@@ -30,7 +30,7 @@ IDbInterface *DbInterfaceFactory::getInterface(int type)
 	}
 }
 
-IDbInterface* DbInterfaceFactory::getInterface(string t)
+IDbInterface* DbInterfaceFactory::getInterface(std::string t)
 {
 		if (t == "pgsql")
 			return load_dblib("pgsql");
@@ -49,7 +49,7 @@ IDbManagerInterface* DbInterfaceFactory::getManagerInterface(int type)
 	return dynamic_cast<IDbManagerInterface *>(getManagerInterface(type));
 }
 
-IDbManagerInterface* DbInterfaceFactory::getManagerInterface(string type)
+IDbManagerInterface* DbInterfaceFactory::getManagerInterface(std::string type)
 {
 	return dynamic_cast<IDbManagerInterface *>(getManagerInterface(type));
 }
@@ -154,8 +154,8 @@ int DbInterfaceFactory::removeInterface(IDbInterface *dbi)
 	return 0;
 }
 
-vector<string> DbInterfaceFactory::getAvailableDrivers()
+std::vector<std::string> DbInterfaceFactory::getAvailableDrivers()
 {
-	return vector<string> { "odbc", "mysql", "pgsql" } ;
+	return std::vector<std::string> { "odbc", "mysql", "pgsql" } ;
 }
 

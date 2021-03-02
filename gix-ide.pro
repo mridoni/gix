@@ -1,30 +1,31 @@
 CONFIG(release,debug|release) DESTDIR = x64/Release
 CONFIG(debug,debug|release) DESTDIR = x64/Debug
 
-CONFIG += ordered
+CONFIG += ordered c++17
 
 TEMPLATE = subdirs
 SUBDIRS += \
-			gixsql \
 			libgixsql \
 			libgixsql-odbc \
 			libgixsql-mysql \
 			libgixsql-pgsql \
-			gix-debugger \
+			libgixpp \
+			libgixutils \
 			gix-common \
+			scintilla \
 			gix-ide
 			
-gixsql.subdir = gixsql/gixsql
+libgixpp.subdir = libgixpp			
+libgixutils.subdir = libgixutils			
 libgixsql.subdir  = gixsql/libgixsql
 libgixsql-odbc.subdir  = gixsql/libgixsql-odbc			
 libgixsql-mysql.subdir  = gixsql/libgixsql-mysql			
 libgixsql-pgsql.subdir  = gixsql/libgixsql-pgsql			
-gix-debugger.subdir  = gix-debugger			
 gix-common.subdir  = gix-common			
+scintilla.subdir = libs/scintilla/src/scintilla/qt/ScintillaEdit
 gix-ide.subdir = gix-ide
 
-gix-ide.depends = gix-common gix-debugger libgixsql
-gixsql.depends = libgixsql
+gix-ide.depends = libgixpp libgixutils gix-common gix-debugger libgixsql scintilla
 libgixsql-odbc.depends = libgixsql
 libgixsql-mysql.depends = libgixsql
 libgixsql-pgsql.depends = libgixsql
@@ -32,7 +33,7 @@ libgixsql-pgsql.depends = libgixsql
 unix:GIX_INSTALL_DIR = /opt/gix-ide
 win32:GIX_INSTALL_DIR = c:/gix-ide
 
-gix-ide.path = $${GIX_INSTALL_DIR}/bin
+gix-ide.path = ${GIX_INSTALL_DIR}/bin
 gix-ide.files = $(DESTIDIR)/gix-ide
 
 INSTALLS += gix-ide

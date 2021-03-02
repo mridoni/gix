@@ -1,12 +1,11 @@
 #pragma once
 
-using namespace std;
 
 #include <vector>
 
 #include "CobolVar.h"
 
-class CobolVarList : public vector<CobolVar *>
+class CobolVarList : public std::vector<CobolVar *>
 {
 public:
 	CobolVarList();

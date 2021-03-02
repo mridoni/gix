@@ -47,7 +47,7 @@ GIXCOMMON_EXPORT WebModuleMetadata *WebModuleMetadata::loadFromFile(const QStrin
 
 	QFile f(filename);
 	if (!f.open(QIODevice::OpenModeFlag::ReadOnly))
-		return false;
+		return NULL;
 
 	QDataStream s(&f);
 	WebModuleMetadata *wmm = new WebModuleMetadata();

@@ -109,11 +109,11 @@ void *CodeviewSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void 
 	IMAGEHLP_STACK_FRAME isf;
 	ZeroMemory(&isf, sizeof(IMAGEHLP_STACK_FRAME));
 
-	DWORD64 mod_address = getSymbolAddress(gd, hproc, NULL, cmi->name + "_", NULL, &err);
+	DWORD64 mod_address = (DWORD64) getSymbolAddress(gd, hproc, NULL, cmi->name + "_", NULL, &err);
 	isf.InstructionOffset = mod_address;
 	SymSetContext(hproc, &isf, NULL);
 
-	DWORD64 root_addr = getSymbolAddress(gd, hproc, NULL, vrootvar->local_sym_name, NULL, 0);
+	DWORD64 root_addr = (DWORD64)getSymbolAddress(gd, hproc, NULL, vrootvar->local_sym_name, NULL, 0);
 	if (!root_addr)
 		return 0;
 
@@ -162,7 +162,7 @@ void *CodeviewSymbolProvider::loadSymbols(GixDebugger *gd, void *hproc, void *hm
 	HANDLE hProcess = (HANDLE)hproc;
 	DWORD64 dll_base = (DWORD64)hmod;
 
-	DWORD64 hSymbols = SymLoadModule64(hProcess, NULL, mod_path.toLocal8Bit().constData(), 0, dll_base, 0);
+	DWORD64 hSymbols = SymLoadModule64(hProcess, NULL, mod_path.toLocal8Bit().data(), 0, dll_base, 0);
 	if (!hSymbols) {
 		gd->printLastError();
 		*err = GetLastError();
@@ -255,7 +255,7 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 	return mi;
 }
 
-DWORD64 CodeviewSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err)
+void * CodeviewSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err)
 {
 	HANDLE hProcess = (HANDLE)hproc;
 	SYMBOL_INFO *pSymbol;
@@ -269,12 +269,12 @@ DWORD64 CodeviewSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, v
 
 	delete[](BYTE *)pSymbol; // Valid syntax!
 
-	return rc ? dwAddress : NULL;
+	return rc ? (void *) dwAddress : NULL;
 }
 
 int CodeviewSymbolProvider::readSymbolValueAsInt(void *hproc, const QString &s)
 {
-	DWORD64 addr = getSymbolAddress(NULL, hproc, NULL, s, NULL, 0);
+	DWORD64 addr = (DWORD64)getSymbolAddress(NULL, hproc, NULL, s, NULL, 0);
 	if (!addr)
 		return -1;
 
@@ -289,7 +289,7 @@ int CodeviewSymbolProvider::readSymbolValueAsInt(void *hproc, const QString &s)
 
 uint8_t *CodeviewSymbolProvider::readSymbolValueInBuffer(void *hproc, const QString &s, int bfrlen)
 {
-	DWORD64 addr = getSymbolAddress(NULL, hproc, NULL, s, NULL, 0);
+	DWORD64 addr = (DWORD64)getSymbolAddress(NULL, hproc, NULL, s, NULL, 0);
 	if (!addr)
 		return 0;
 

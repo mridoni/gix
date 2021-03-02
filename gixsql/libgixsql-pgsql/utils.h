@@ -20,24 +20,24 @@ bool is_dml_statement(std::string query);
 bool is_begin_transaction_statement(std::string query);
 bool is_update_or_delete_statement(std::string query);
 bool has_where_current_of(const std::string query, std::string& cursor_name);
-inline void ltrim(std::string& s);
+void ltrim(std::string& s);
 
 // trim from end (in place)
-inline void rtrim(std::string& s);
+void rtrim(std::string& s);
 
 // trim from both ends (in place)
-inline void trim(std::string& s);
+void trim(std::string& s);
 
 // trim from start (copying)
-inline std::string ltrim_copy(std::string s);
+std::string ltrim_copy(std::string s);
 
 // trim from end (copying)
-inline std::string rtrim_copy(std::string s);
+std::string rtrim_copy(std::string s);
 
 // trim from both ends (copying)
-inline std::string trim_copy(std::string s);
+std::string trim_copy(std::string s);
 
-inline bool starts_with(std::string s, std::string s1);
+bool starts_with(std::string s, std::string s1);
 
 bool caseInsensitiveStringCompare(const std::string& str1, const std::string& str2);
 

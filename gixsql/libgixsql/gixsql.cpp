@@ -56,7 +56,7 @@
 										setStatus(_st, _dbi, _err); \
 										return RESULT_FAILED; \
 								   }
-using namespace std;
+
 
 struct query_info {
 	char *pname;  // default
@@ -80,7 +80,7 @@ SqlVarList _res_sql_var_list;
 static int _gixsqlExec(Connection *conn, struct sqlca_t *st, char *_query);
 static int _gixsqlExecParams(Connection *conn, struct sqlca_t *st, char *_query, unsigned int nParams);
 static int _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, char *cname, int with_hold, char *query, int nParams);
-static int _gixsqlConnectMain(struct sqlca_t *st, string name, string user, string passwd, int type, string conndbname);
+static int _gixsqlConnectMain(struct sqlca_t *st, std::string name, std::string user, std::string passwd, int type, std::string conndbname);
 
 //static int _gixsqlResolveCONNID(struct sqlca_t *, char *, int);
 
@@ -94,11 +94,11 @@ sqlca_initialize(struct sqlca_t * sqlca)
 
 #ifdef _DEBUG
 
-map<string, char *> __cobol_vars;
+map<std::string, char *> __cobol_vars;
 
 LIBGIXSQL_API int GIXSQLExposeCobolVar(char *name, char *value)
 {
-	__cobol_vars[string(name)] = value;
+	__cobol_vars[std::string(name)] = value;
 	return 0;
 }
 
@@ -149,13 +149,13 @@ GIXSQLConnect(struct sqlca_t *st, char *user, int userlen, char *passwd, int pas
 	LOG_DEBUG(__FILE__, __func__, ">>>> USR   : %s\n", dbuser);
 	LOG_DEBUG(__FILE__, __func__, ">>>> PWD   : %s\n", dbpasswd);
 
-	string theuser = dbuser;
-	string thepwd = dbpasswd;
-	string thename = dbname;
-	string s_dbtype = "";
+	std::string theuser = dbuser;
+	std::string thepwd = dbpasswd;
+	std::string thename = dbname;
+	std::string s_dbtype = "";
 	size_t type_spec = thename.find(";");
 
-	if (type_spec != string::npos) {
+	if (type_spec != std::string::npos) {
 		s_dbtype = thename.substr(0, type_spec);
 		thename = thename.substr(type_spec + 1);
 	}
@@ -197,7 +197,7 @@ GIXSQLConnect(struct sqlca_t *st, char *user, int userlen, char *passwd, int pas
 }
 
 static int
-_gixsqlConnectMain(struct sqlca_t *st, string name, string user, string passwd, int type, string conndbname)
+_gixsqlConnectMain(struct sqlca_t *st, std::string name, std::string user, std::string passwd, int type, std::string conndbname)
 {
 
 	const char *cencoding = "UTF8";
@@ -221,7 +221,7 @@ _gixsqlConnectMain(struct sqlca_t *st, string name, string user, string passwd, 
 
 	bool autocommit = env_get_autocommit();
 
-	LOG_DEBUG(__FILE__, __func__, "Connection string : %s\n", conn_string->get().c_str());
+	LOG_DEBUG(__FILE__, __func__, "Connection std::string : %s\n", conn_string->get().c_str());
 	LOG_DEBUG(__FILE__, __func__, "Autocommit        : %d\n", autocommit);
 
 	IDbInterface *dbi = DbInterfaceFactory::getInterface(type);
@@ -318,7 +318,7 @@ GIXSQLExec(struct sqlca_t *st, char *_query)
 
 static int _gixsqlExec(Connection *conn, struct sqlca_t *st, char *_query)
 {
-	string query = _query;
+	std::string query = _query;
 	int rc = 0;
 	IDbInterface *dbi = conn->getDbInterface();
 
@@ -388,9 +388,9 @@ GIXSQLExecParams(struct sqlca_t *st, char *_query, int nParams)
 
 static int _gixsqlExecParams(Connection *conn, struct sqlca_t *st, char *_query, unsigned int nParams)
 {
-	vector<string> params;
-	vector<int> param_types;
-	vector<SqlVar *>::iterator it;
+	std::vector<std::string> params;
+	std::vector<int> param_types;
+	std::vector<SqlVar *>::iterator it;
 
 	// set parameters
 	for (it = _current_sql_var_list.begin(); it != _current_sql_var_list.end(); it++) {
@@ -399,7 +399,7 @@ static int _gixsqlExecParams(Connection *conn, struct sqlca_t *st, char *_query,
 	}
 
 
-	string query = _query;
+	std::string query = _query;
 	int rc = 0;
 	IDbInterface *dbi = conn->getDbInterface();
 
@@ -508,15 +508,15 @@ GIXSQLCursorDeclare(struct sqlca_t *st, char *cname, int with_hold, char *_query
 static int  _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, char *cname, int with_hold, char *query, int nParams)
 {
 	if (cursor_manager.exists(cname)) {
-		LOG_ERROR((string("Cursor exists: ") + string(cname)).c_str());
+		LOG_ERROR((std::string("Cursor exists: ") + std::string(cname)).c_str());
 		setStatus(st, NULL, DBERR_CURSOR_EXISTS);
 		return RESULT_FAILED;
 	}
 
 	Cursor *c = cursor_manager.create();
 	c->setConnection((IConnection *)conn);
-	c->setName(string(cname));
-	c->setQuery(string(query));
+	c->setName(std::string(cname));
+	c->setQuery(std::string(query));
 	c->setNumParams(nParams);
 	c->setWithHold(with_hold);
 
@@ -527,7 +527,7 @@ static int  _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, char *cna
 	if (conn) {
 		IDbInterface* dbi = conn->getDbInterface();
 		if (dbi->cursor_declare(c, with_hold, nParams)) {
-			LOG_ERROR((string("Invalid cursor data: ") + string(cname)).c_str());
+			LOG_ERROR((std::string("Invalid cursor data: ") + std::string(cname)).c_str());
 			setStatus(st, NULL, DBERR_DECLARE_CURSOR_FAILED);
 			delete c;
 			return RESULT_FAILED;
@@ -556,7 +556,7 @@ GIXSQLCursorOpen(struct sqlca_t *st, char *cname)
 	}
 
 	// search cursor
-	Cursor *cursor = cursor_manager.get(string(cname));
+	Cursor *cursor = cursor_manager.get(std::string(cname));
 	if (cursor == NULL) {
 		LOG_ERROR("cursor %s not registered.\n", cname);
 		setStatus(st, NULL, DBERR_NO_SUCH_CURSOR);
@@ -575,7 +575,7 @@ GIXSQLCursorOpen(struct sqlca_t *st, char *cname)
 		if (cursor->getConnection()) {
 			IDbInterface* cdbi = cursor->getConnection()->getDbInterface();
 			if (!cdbi || cdbi->cursor_declare(cursor, cursor->isWithHold(), cursor->getNumParams())) {
-				LOG_ERROR((string("Invalid cursor data: ") + string(cname)).c_str());
+				LOG_ERROR((std::string("Invalid cursor data: ") + std::string(cname)).c_str());
 				setStatus(st, NULL, DBERR_DECLARE_CURSOR_FAILED);
 				return RESULT_FAILED;
 			}
@@ -623,7 +623,7 @@ GIXSQLCursorOpen(struct sqlca_t *st, char *cname)
 	//	cursor->createRealDataforParameters();
 
 	//	SqlVarList& l = cursor->getParameters();
-	//	vector<SqlVar *>::iterator it;
+	//	std::vector<SqlVar *>::iterator it;
 	//	int i = 0;
 	//	for (it = l.begin(); it != l.end(); it++) {
 	//		SqlVar *v = *it;
@@ -687,7 +687,7 @@ LIBGIXSQL_API int GIXSQLCursorFetchOne(struct sqlca_t *st, char *cname) {
 
 	int bsize = _res_sql_var_list.getMaxLength() + 2;
 	char *buffer = (char *) calloc(1, bsize);
-	vector<SqlVar *>::iterator it;
+	std::vector<SqlVar *>::iterator it;
 	int i = 0;
 	for (it = _res_sql_var_list.begin(); it != _res_sql_var_list.end(); it++) {
 		if (!dbi->get_resultset_value(cursor, 0, i++, buffer, bsize)) {

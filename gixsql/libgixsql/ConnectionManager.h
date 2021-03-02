@@ -4,7 +4,7 @@
 #include "Connection.h"
 #include "IConnectionString.h"
 
-using namespace std;
+
 
 class Connection;
 
@@ -18,8 +18,8 @@ public:
 	Connection *current();
 	int add(Connection *);
 	void remove(Connection *);
-	bool exists(string cname);
-	int setCurrent(string cname);
+	bool exists(std::string cname);
+	int setCurrent(std::string cname);
 	int setCurrent(int cid);
 
 };

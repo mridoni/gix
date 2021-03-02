@@ -15,8 +15,6 @@
 #include "BuildTarget.h"
 #include "gixcommon_global.h"
 
-using namespace std;
-
 class ProjectFile;
 class CompilerConfiguration;
 class ProjectBuilder;
@@ -69,7 +67,7 @@ public:
 	
 	// Inherited via IPersistableProjectItem
 	virtual bool load(ProjectItem *owner, QString filepath) override;
-	virtual bool save(ProjectItem *owner = nullptr, QString filepath = QString::null) override;
+	virtual bool save(ProjectItem *owner = nullptr, QString filepath = QString()) override;
 	virtual bool revert() override;
 	virtual bool isDirty() override;
 	virtual void setDirty(bool b) override;

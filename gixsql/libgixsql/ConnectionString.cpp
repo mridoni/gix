@@ -1,6 +1,6 @@
 #include "ConnectionString.h"
 
-using namespace std;
+
 
 #include <string>
 #include <sstream>
@@ -18,11 +18,11 @@ ConnectionString::~ConnectionString()
 {
 }
 
-int ConnectionString::init(string name, string user, string password)
+int ConnectionString::init(std::string name, std::string user, std::string password)
 {
 	int rc = 1;
 
-	string real_dbname, host, s_port;
+	std::string real_dbname, host, s_port;
 	int port = 0;
 
 	// dbname -> host:port/dbname
@@ -30,7 +30,7 @@ int ConnectionString::init(string name, string user, string password)
 		size_t tmpstr;
 
 		tmpstr = name.find('/');
-		if (tmpstr != string::npos) {
+		if (tmpstr != std::string::npos) {
 			real_dbname = name.substr(tmpstr + 1);
 			host = name.substr(0, tmpstr);
 		}
@@ -40,7 +40,7 @@ int ConnectionString::init(string name, string user, string password)
 		}
 
 		tmpstr = host.find(':');
-		if (tmpstr != string::npos) {
+		if (tmpstr != std::string::npos) {
 			port = atoi(host.substr(tmpstr + 1).c_str());
 			s_port = host.substr(tmpstr + 1);
 			host = host.substr(0, tmpstr);
@@ -60,17 +60,17 @@ int ConnectionString::init(string name, string user, string password)
 	return 1;
 }
 
-string ConnectionString::get()
+std::string ConnectionString::get()
 {
 	return conn_string;
 }
 
-LIBGIXSQL_API string ConnectionString::getDbType()
+LIBGIXSQL_API std::string ConnectionString::getDbType()
 {
 	return dbtype;
 }
 
-string ConnectionString::getHost()
+std::string ConnectionString::getHost()
 {
 	return host;
 }
@@ -80,29 +80,29 @@ int ConnectionString::getPort()
 	return port;
 }
 
-string ConnectionString::getDbName()
+std::string ConnectionString::getDbName()
 {
 	return dbname;
 }
 
-string ConnectionString::getUsername()
+std::string ConnectionString::getUsername()
 {
 	return username;
 }
 
-string ConnectionString::getPassword()
+std::string ConnectionString::getPassword()
 {
 	return password;
 }
 
-string ConnectionString::getDefaultSchema()
+std::string ConnectionString::getDefaultSchema()
 {
 	return default_schema;
 }
 
-LIBGIXSQL_API string ConnectionString::getName()
+LIBGIXSQL_API std::string ConnectionString::getName()
 {
-	string conn_name = this->getDbType() + "://" + this->getUsername();
+	std::string conn_name = this->getDbType() + "://" + this->getUsername();
 
 	if (this->getDbType() == "odbc")
 		conn_name += ("@" + this->getHost());
@@ -112,20 +112,20 @@ LIBGIXSQL_API string ConnectionString::getName()
 	return conn_name;
 }
 
-LIBGIXSQL_API void ConnectionString::setPassword(string pwd)
+LIBGIXSQL_API void ConnectionString::setPassword(std::string pwd)
 {
 	this->password = pwd;
 }
 
-LIBGIXSQL_API ConnectionString* ConnectionString::parseEx(const string& cs)
+LIBGIXSQL_API ConnectionString* ConnectionString::parseEx(const std::string& cs)
 {
 	// Format: type://user/password@host[:port]/database?default_schema
 	// e.g. pgsql://user:password@localhost:5432/postgres?public
 
 	//regex rxConnString("([A-Za-z0-9_]+)\\:\\/\\/([a-zA-Z0-9_\\-]+)\\:([a-zA-Z0-9_\\-]+)@([a-zA-Z0-9_\\-\\.]+)\\:([0-9]+)\\/([a-zA-Z0-9_\\-]+)\\?([a-zA-Z0-9_\\-]+)");
 	//regex rxConnString("([A-Za-z0-9_]+)\\:\\/\\/([a-zA-Z0-9_\\-]+)\\:([a-zA-Z0-9_\\-]+)@([a-zA-Z0-9_\\-\\.]+)(\\:([0-9]+))?(\\/([a-zA-Z0-9_\\-]+))?(\\?([a-zA-Z0-9_\\-]+))?");
-	regex rxConnString(R"(([A-Za-z0-9_]+)\:\/\/([a-zA-Z0-9_\-]+)\:([a-zA-Z0-9_\-]+)?@([a-zA-Z0-9_\-\.]+)(\:([0-9]+))?(\/([a-zA-Z0-9_\-]+))?(\?([a-zA-Z0-9_\-]+))?)");
-	smatch cm;
+	std::regex rxConnString(R"(([A-Za-z0-9_]+)\:\/\/([a-zA-Z0-9_\-]+)\:([a-zA-Z0-9_\-]+)?@([a-zA-Z0-9_\-\.]+)(\:([0-9]+))?(\/([a-zA-Z0-9_\-]+))?(\?([a-zA-Z0-9_\-]+))?)");
+	std::smatch cm;
 	if (!regex_match(cs, cm, rxConnString, std::regex_constants::match_default))
 		return nullptr;
 
@@ -142,9 +142,9 @@ LIBGIXSQL_API ConnectionString* ConnectionString::parseEx(const string& cs)
 	return ccs;
 }
 
-string ConnectionString::toConnectionString(bool use_pwd, string pwd)
+std::string ConnectionString::toConnectionString(bool use_pwd, std::string pwd)
 {
-	ostringstream res;
+	std::ostringstream res;
 	res << dbtype << "://" << username << ":";
 	if (use_pwd)
 		res << ((!pwd.empty()) ? pwd : password);
@@ -152,7 +152,7 @@ string ConnectionString::toConnectionString(bool use_pwd, string pwd)
 	res << "@" << host;
 	
 	if (port > 0)
-		res << ":" << to_string(port);
+		res << ":" << std::to_string(port);
 
 	if (!dbname.empty()) {
 		res << "/" << dbname;
@@ -164,7 +164,7 @@ string ConnectionString::toConnectionString(bool use_pwd, string pwd)
 	return res.str();
 }
 
-int ConnectionString::init(const string& c)
+int ConnectionString::init(const std::string& c)
 {
 	conn_string = c;
 	return parse();
@@ -172,11 +172,11 @@ int ConnectionString::init(const string& c)
 
 int ConnectionString::parse()
 {
-	string auth_portion, target_portion;
+	std::string auth_portion, target_portion;
 
 	size_t t = conn_string.find('@');
 
-	if (t == string::npos)
+	if (t == std::string::npos)
 		return 1;
 
 	auth_portion = conn_string.substr(0, t);
@@ -184,7 +184,7 @@ int ConnectionString::parse()
 
 	// parse auth_portion
 	t = auth_portion.find('/');
-	if (t == string::npos) {
+	if (t == std::string::npos) {
 		return 1;
 	}
 
@@ -193,17 +193,17 @@ int ConnectionString::parse()
 
 	// parse target_portion
 	t = target_portion.find('/');
-	if (t != string::npos) {
+	if (t != std::string::npos) {
 		dbname = target_portion.substr(t + 1);
 		t = dbname.find("?");
-		if (t != string::npos) {
+		if (t != std::string::npos) {
 			default_schema = dbname.substr(t + 1);
 			dbname = dbname.substr(0, t);
 		}
 	}
 
 	t = target_portion.find(':');
-	if (t != string::npos) {
+	if (t != std::string::npos) {
 		port = atoi(target_portion.substr(t + 1).c_str());
 		host = target_portion.substr(0, t);
 	}

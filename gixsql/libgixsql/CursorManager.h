@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <map>
 
 #include "Cursor.h"
@@ -17,11 +18,11 @@ public:
 	//static Cursor *current();
 	int add(Cursor *);
 	void remove(Cursor *);
-	bool exists(string cname);
-	Cursor *get(string cname);
+	bool exists(std::string cname);
+	Cursor *get(std::string cname);
 
 private:
-	vector<Cursor *> _cursor_list;
-	map<string, Cursor *> _cursor_map;
+	std::vector<Cursor *> _cursor_list;
+	std::map<std::string, Cursor *> _cursor_map;
 };
 

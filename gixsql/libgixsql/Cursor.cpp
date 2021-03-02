@@ -19,12 +19,12 @@ void Cursor::setConnection(IConnection *c)
 	connection = (Connection *) c;
 }
 
-void Cursor::setName(string n)
+void Cursor::setName(std::string n)
 {
 	name = n;
 }
 
-void Cursor::setQuery(string q)
+void Cursor::setQuery(std::string q)
 {
 	query = q;
 }
@@ -39,12 +39,12 @@ IConnection *Cursor::getConnection()
 	return (IConnection *) connection;
 }
 
-string Cursor::getName()
+std::string Cursor::getName()
 {
 	return name;
 }
 
-string Cursor::getQuery()
+std::string Cursor::getQuery()
 {
 	return query;
 }
@@ -71,7 +71,7 @@ void Cursor::setOpened(bool b)
 
 void Cursor::setParameters(SqlVarList &l)
 {
-	vector<SqlVar *>::iterator it;
+	std::vector<SqlVar *>::iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
 		SqlVar *v = (*it)->copy();
 		parameter_list.push_back(v);
@@ -85,7 +85,7 @@ SqlVarList& Cursor::getParameters()
 
 void Cursor::createRealDataforParameters()
 {
-	vector<SqlVar *>::iterator it;
+	std::vector<SqlVar *>::iterator it;
 	for (it = parameter_list.begin(); it != parameter_list.end(); it++) {
 		SqlVar *v = (*it);
 		v->createRealData();
@@ -107,20 +107,20 @@ void Cursor::increaseRowNum()
 	rownum++;
 }
 
-vector<string> Cursor::getParameterValues()
+std::vector<std::string> Cursor::getParameterValues()
 {
-	vector<string> params;
+	std::vector<std::string> params;
 
 	createRealDataforParameters();	// Just in case
 	for (int i = 0; i < parameter_list.size(); i++) {
-		params.push_back(string(parameter_list.at(i)->getRealData()));
+		params.push_back(std::string(parameter_list.at(i)->getRealData()));
 	}
 	return params;
 }
 
-vector<int> Cursor::getParameterTypes()
+std::vector<int> Cursor::getParameterTypes()
 {
-	vector<int> param_types;
+	std::vector<int> param_types;
 
 	for (int i = 0; i < parameter_list.size(); i++) {
 		param_types.push_back(parameter_list.at(i)->getType());

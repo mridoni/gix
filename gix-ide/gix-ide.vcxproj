@@ -347,6 +347,8 @@
       <AdditionalLibraryDirectories>$(OutDir);$(QTDIR)\lib;$(SolutionDir)libs\scintilla\lib\$(Configuration);$(SolutionDir)libs\libdwarf;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Networkd.lib;Qt5UiToolsd.lib;Qt5Widgetsd.lib;Qt5WinExtrasd.lib;Qt5Xmld.lib;Qt5XmlPatternsd.lib;Qt5Sqld.lib;comsuppwd.lib;wsock32.lib;ScintillaEdit4.lib;gix-common.lib;libgixsql.lib;libgixutils.lib;libgixpp.lib;dbghelp.lib;imagehlp.lib;dwarf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Version>
+      </Version>
     </Link>
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
@@ -387,6 +389,8 @@
       <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Network.lib;Qt5UiTools.lib;Qt5Widgets.lib;Qt5WinExtras.lib;Qt5Xml.lib;Qt5XmlPatterns.lib;Qt5Sql.lib;comsuppw.lib;wsock32.lib;ScintillaEdit4.lib;gix-common.lib;libgixsql.lib;libgixutils.lib;libgixpp.lib;dbghelp.lib;imagehlp.lib;dwarf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <Version>
+      </Version>
     </Link>
     <QtMoc>
       <OutputFile>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>

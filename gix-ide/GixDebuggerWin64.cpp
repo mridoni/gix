@@ -191,7 +191,7 @@ int GixDebuggerWin64::start()
 				if (debuggee_type == DebuggedModuleType::Executable) {
 					QString sEXEName = GetFileNameFromHandle(debug_event.u.CreateProcessInfo.hFile);
 					strEventMessage = QString("Loaded EXE: ") + sEXEName;
-					DWORD64 hSymbols = (DWORD64)sym_provider->loadSymbols(this, the_process, debug_event.u.CreateProcessInfo.lpBaseOfImage, sEXEName, debug_event.u.CreateProcessInfo.lpStartAddress, &err);
+					DWORD64 hSymbols = (DWORD64)sym_provider->loadSymbols(this, the_process, debug_event.u.CreateProcessInfo.lpBaseOfImage, sEXEName, (void *) debug_event.u.CreateProcessInfo.lpStartAddress, &err);
 					if (!processImage(the_process, debug_event.u.CreateProcessInfo.lpBaseOfImage, hSymbols, sEXEName)) {
 						if_blk->debuggerMessage(this, "Error loading image information for: " + sEXEName, 0);
 					}

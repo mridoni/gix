@@ -12,6 +12,6 @@ public:
 	virtual QList<IBuildableItem *> getDependencies(const QString &use, QVariantMap *props, bool *yield_ownership) override;
 
 private:
-	QList<IBuildableItem *> WebProject::splitProject();
+	QList<IBuildableItem *> splitProject();
 };
 

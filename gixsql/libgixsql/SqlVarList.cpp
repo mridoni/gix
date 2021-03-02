@@ -10,7 +10,7 @@ SqlVarList::SqlVarList()
 
 SqlVarList::~SqlVarList()
 {
-	vector<SqlVar*>::iterator it;
+	std::vector<SqlVar*>::iterator it;
 	for (it = this->begin(); it != this->end(); ++it) {
 		if (*it)
 			delete(*it);
@@ -29,27 +29,27 @@ SqlVar * SqlVarList::AddVar(int type, int length, int power, uint32_t flags, voi
 
 	v->createRealData();
 
-	vector<SqlVar *>::push_back(v);
+	std::vector<SqlVar *>::push_back(v);
 	return v;
 }
 
 void SqlVarList::clear()
 {
-	vector<SqlVar *>::iterator it;
+	std::vector<SqlVar *>::iterator it;
 
-	for (it = vector<SqlVar *>::begin(); it != vector<SqlVar *>::end(); it++) {
+	for (it = std::vector<SqlVar *>::begin(); it != std::vector<SqlVar *>::end(); it++) {
 		if (*it != NULL)
 			delete(*it);
 	}
 
-	vector<SqlVar *>::clear();
+	std::vector<SqlVar *>::clear();
 }
 
 void SqlVarList::dump()
 {
 	DECLARE_LOGGER(logger);
-	vector<SqlVar *>::iterator it;
-	for (it = vector<SqlVar *>::begin(); it != vector<SqlVar *>::end(); it++) {
+	std::vector<SqlVar *>::iterator it;
+	for (it = std::vector<SqlVar *>::begin(); it != std::vector<SqlVar *>::end(); it++) {
 		SqlVar * v = *it;
 		if (v != NULL) 
 			LOG_DEBUG(__FILE__, __func__, "%p %d %d %d %p\n", v, v->type, v->length, v->power, v->addr);
