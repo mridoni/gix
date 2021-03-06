@@ -50,11 +50,11 @@
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>Qt_5.14_msvc64</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>Qt_5.14_msvc64</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">

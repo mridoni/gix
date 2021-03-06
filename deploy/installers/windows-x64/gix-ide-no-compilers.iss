@@ -10,9 +10,9 @@
 AppName=Gix-Ide
 AppVersion=1.0.{#BUILD_NUMBER}
 AppCopyright=Marco Ridoni
-DefaultDirName={autopf}\Gix-IDE
+DefaultDirName={pf}\Gix-IDE
 OutputDir={#WORKSPACE}\deploy\installers\msvc-x64
-OutputBaseFilename=Gix-IDE-1.0.0-installer
+OutputBaseFilename=Gix-IDE-1.0.0-installer-no-compilers
 ArchitecturesInstallIn64BitMode=x64
 DefaultGroupName=Gix-IDE
 
@@ -60,8 +60,8 @@ Source: "{#QTDIR}\plugins\platforms\*"; DestDir: "{app}\bin\platforms"; Flags: i
 Source: "{#QTDIR}\plugins\styles\*"; DestDir: "{app}\bin\styles"; Flags: ignoreversion createallsubdirs recursesubdirs
 ;Source: "{#QTDIR}\plugins\translations\*"; DestDir: "{app}\bin\translations"; Flags: ignoreversion createallsubdirs recursesubdirs
 
-Source: "{#WORKSPACE}\deploy\compilers\compilers\*"; DestDir: "{autoappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs
-Source: "{#WORKSPACE}\deploy\compilers\defs\*"; DestDir: "{autoappdata}\Gix\compiler-defs"; Flags: ignoreversion createallsubdirs recursesubdirs
+; Source: "{#WORKSPACE}\deploy\compilers\compilers\*"; DestDir: "{autoappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs
+; Source: "{#WORKSPACE}\deploy\compilers\defs\*"; DestDir: "{autoappdata}\Gix\compiler-defs"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 Source: "{#WORKSPACE}\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs
 
@@ -83,7 +83,7 @@ Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName:
 Name: "{app}\bin"
 Name: "{app}\lib\{#HOST_PLATFORM}"
 Name: "{app}\lib\{#OTH_PLATFORM}"
-Name: "{autoappdata}\Gix\compiler-pkgs"
+; Name: "{autoappdata}\Gix\compiler-pkgs"
 Name: "{userdocs}\Gix"
 Name: "{userdocs}\Gix\Examples"
 

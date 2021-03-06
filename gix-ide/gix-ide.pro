@@ -5,7 +5,7 @@ CONFIG(release,debug|release) DESTDIR = ../x64/Release
 CONFIG(debug,debug|release) DESTDIR = ../x64/Debug
 
 QT += core xml network gui xmlpatterns uitools widgets
-CONFIG +=
+CONFIG += c++17
 INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build \
 				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata \
 				 ../libgixutils ../libgixpp ../gixsql/libgixsql ../libs/scintilla/include 

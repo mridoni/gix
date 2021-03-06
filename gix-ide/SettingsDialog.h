@@ -45,5 +45,8 @@ private:
 		bool settingsSetValue(QString n, QString v);
 		bool settingsSetValue(QString n, bool v);
 		bool settingsSetValue(QString n, int v);
+
+		void addCompiler(int i);
+		void initCompilers();
 };
 

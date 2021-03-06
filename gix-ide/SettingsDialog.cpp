@@ -5,6 +5,8 @@
 #include "IdeTaskManager.h"
 #include "CompilerManager.h"
 #include "CompilerDefinition.h"
+#include "CustomDialog.h"
+#include "AddCompilerDialog.h"
 #include "GixGlobals.h"
 
 #include <QSettings>
@@ -18,13 +20,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	connect(cancelButton, &QPushButton::clicked, this, [this] { close(); });
 	connect(okButton, &QPushButton::clicked, this, [this] { accept(); });
 
-	QMap<QString, CompilerDefinition*> compilers = GixGlobals::getCompilerManager()->getCompilers();
-	QMap<QString, CompilerDefinition*>::iterator it;
-	for (it = compilers.begin(); it != compilers.end(); ++it) {
-		CompilerDefinition* cd = it.value();
-		cbReleaseCompiler->addItem(cd->getName(), cd->getId());
-		cbDebugCompiler->addItem(cd->getName(), cd->getId());
-	}
+	initCompilers();
 
 	cbEditorFontSize->clear();
 	for (int i = 6; i <= 24; i++) {
@@ -65,11 +61,29 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	connect(btnChoosePreprocBin, &QPushButton::clicked, this, [this] { choosePath(binPreprocessorPath, false); });
 	connect(btnChooseLinkLib, &QPushButton::clicked, this, [this] { choosePath(libLinkPath, false); });
 	connect(btnChooseRuntimeLib, &QPushButton::clicked, this, [this] { choosePath(libRuntimePath, false); });
+
+	connect(btnChooseReleaseCompiler, &QPushButton::clicked, this, [this] { addCompiler(0); });
+	connect(btnChooseDebugCompiler, &QPushButton::clicked, this, [this] { addCompiler(1); });
+
 }
 
 
 SettingsDialog::~SettingsDialog()
 {}
+
+
+void SettingsDialog::initCompilers()
+{
+	cbReleaseCompiler->clear();
+	cbDebugCompiler->clear();
+	QMap<QString, CompilerDefinition *> compilers = GixGlobals::getCompilerManager()->getCompilers();
+	QMap<QString, CompilerDefinition *>::iterator it;
+	for (it = compilers.begin(); it != compilers.end(); ++it) {
+		CompilerDefinition *cd = it.value();
+		cbReleaseCompiler->addItem(cd->getName(), cd->getId());
+		cbDebugCompiler->addItem(cd->getName(), cd->getId());
+	}
+}
 
 void SettingsDialog::accept()
 {
@@ -296,5 +310,18 @@ bool SettingsDialog::settingsSetValue(QString n, int v)
 
 	settings.setValue(n, v);
 	return res;
+}
+
+void SettingsDialog::addCompiler(int i)
+{
+	std::string basedir;
+	bool b;
+	AddCompilerDialog *adlg = new AddCompilerDialog(this);
+
+	if (adlg->exec()) {
+		initCompilers();
+		GnuCobolCfgTab_LoadSettings();
+	}
+
 }
 

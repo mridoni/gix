@@ -1,6 +1,6 @@
 #include "CompilerDefinition.h"
 
-//#include "IdeTaskManager.h"
+#include "linq/linq.hpp"
 
 #include <QDomDocument>
 #include <QFile>
@@ -17,7 +17,6 @@
 CompilerDefinition::CompilerDefinition()
 {
 	is_vs_based = false;
-	supports_anim = false;
 }
 
 CompilerDefinition::~CompilerDefinition()
@@ -101,7 +100,6 @@ CompilerDefinition* CompilerDefinition::load(QString def_path)
 	def->homedir = homedir;
 	def->host_platform = root.firstChildElement("host_platform").text();
 	def->is_vs_based = QVariant(root.firstChildElement("is_vs_based").text()).toBool();
-	def->supports_anim = QVariant(root.firstChildElement("supports_anim").text()).toBool();
 
 	QStringList target_platforms = root.firstChildElement("target_platforms").text().split(",");
 
@@ -137,6 +135,65 @@ CompilerDefinition* CompilerDefinition::load(QString def_path)
 	}
 
 	return def;
+}
+
+void CompilerDefinition::addPlatform(QString platform_id, CompilerPlatformDefinition *cd)
+{
+	if (platform_id.isEmpty() || !cd)
+		return;
+
+	target_platforms[platform_id] = cd;
+}
+
+void appendElement(QDomDocument &doc, QDomElement &parent, QString name, QString content)
+{
+	QDomElement xid = doc.createElement(name);
+	xid.appendChild(doc.createTextNode(content));
+	parent.appendChild(xid);
+
+}
+
+bool CompilerDefinition::save()
+{
+	QDomDocument doc;
+
+	QDomElement xdef = doc.createElement("gix-ide-compiler-def");
+	doc.appendChild(xdef);
+
+	appendElement(doc, xdef, "id", this->id);
+	appendElement(doc, xdef, "name", this->name);
+	appendElement(doc, xdef, "version", this->version);
+	appendElement(doc, xdef, "homedir", this->homedir);
+	appendElement(doc, xdef, "host_platform", this->host_platform);
+	appendElement(doc, xdef, "target_platforms", this->target_platforms.keys().join(','));
+	appendElement(doc, xdef, "is_vs_based", this->is_vs_based ? "true" : "false");
+
+	for (QString cpd_id : target_platforms.keys()) {
+		CompilerPlatformDefinition *cpd = target_platforms.value(cpd_id);
+
+		QDomElement xcpd = doc.createElement("platform");
+		xdef.appendChild(xcpd);
+
+		xcpd.setAttribute("id", cpd_id);
+		appendElement(doc, xcpd, "bin_dir_path", cpd->bin_dir_path);
+		appendElement(doc, xcpd, "lib_dir_path", cpd->lib_dir_path);
+		appendElement(doc, xcpd, "include_dir_path", cpd->include_dir_path);
+		appendElement(doc, xcpd, "config_dir_path", cpd->config_dir_path);
+		appendElement(doc, xcpd, "copy_dir_path", cpd->copy_dir_path);
+	}
+
+	QFile file(def_file);
+
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		//qDebug("Failed to open file for writing: " + filepath);
+		return false;
+	}
+
+	QTextStream stream(&file);
+	stream << doc.toString();
+	file.close();
+
+	return true;
 }
 
 CompilerPlatformDefinition* CompilerDefinition::getPlatform(QString platform_id)

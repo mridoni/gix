@@ -24,6 +24,8 @@
 #include <memory>
 #include <stdexcept>
 
+#include "gixcommon_global.h"
+
 
 #define SIGN_LENGTH 1
 #define TERMINAL_LENGTH 1
@@ -49,24 +51,26 @@ bool is_commit_or_rollback_statement(std::string query);
 bool is_dml_statement(std::string query);
 bool is_begin_transaction_statement(std::string query);
 
-inline void ltrim(std::string &s);
+void ltrim(std::string &s);
 
 // trim from end (in place)
-inline void rtrim(std::string &s);
+void rtrim(std::string &s);
 
 // trim from both ends (in place)
-inline void trim(std::string &s);
+void trim(std::string &s);
 
 // trim from start (copying)
-inline std::string ltrim_copy(std::string s);
+std::string ltrim_copy(std::string s);
 
 // trim from end (copying)
-inline std::string rtrim_copy(std::string s);
+std::string rtrim_copy(std::string s);
 
 // trim from both ends (copying)
-inline std::string trim_copy(std::string s);
+std::string trim_copy(std::string s);
 
 bool caseInsensitiveStringCompare(const std::string& str1, const std::string& str2);
+
+bool GIXCOMMON_EXPORT starts_with(std::string s1, std::string s2);
 
 template<typename ... Args>
 std::string std_string_format(const std::string &format, Args ... args)

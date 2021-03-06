@@ -779,6 +779,40 @@ int CustomDialog::addEditableStringList(QString caption, QString tooltip, QStrin
 	return elements.size();
 }
 
+int CustomDialog::addGetFolder(QString caption, std::string *folder_path, std::string default_path)
+{
+	DialogElement &e = addNewElement(DLG_GET_FOLDER, caption, "", true);
+	e.returnString = folder_path;
+
+	QHBoxLayout *hb = new QHBoxLayout(this);
+
+	QLabel *path_display = new QLabel(this);
+	path_display->setText("");
+	path_display->setMinimumWidth(350);
+	path_display->setStyleSheet("border: 1px solid #c0c0c0");
+
+	hb->addWidget(path_display);
+
+	QPushButton *pb = new QPushButton();
+	pb->setMaximumWidth(30);
+	pb->setText("...");
+	hb->addWidget(pb);
+
+    connect(pb, &QPushButton::clicked, this, [path_display, e, default_path]() {
+		QFileDialog dialog;
+		dialog.setFileMode(QFileDialog::Directory);
+		dialog.setOption(QFileDialog::ShowDirsOnly);
+        dialog.setDirectory(QString::fromStdString(default_path));
+		if (dialog.exec()) { 
+			path_display->setText(dialog.selectedFiles()[0]);
+			e.returnString->assign(dialog.selectedFiles()[0].toStdString());
+		}
+	});
+
+	layoutNextElement->addLayout(hb);
+	return elements.size();
+}
+
 
 int CustomDialog::addEditablePathList(QString caption, QString tooltip, QStringList *pathList)
 {
@@ -1235,6 +1269,11 @@ void CustomDialog::customBtnAccept()
 			break;
 		}
 
+	}
+
+	if (validate_callback) {
+		if (!validate_callback(this))
+			return;
 	}
 
 	QDialog::accept();

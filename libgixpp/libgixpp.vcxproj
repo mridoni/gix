@@ -59,12 +59,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtModules>core</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
-    <QtInstall>Qt_5.14_msvc64</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtModules>core</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
-    <QtInstall>Qt_5.14_msvc64</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />

@@ -48,8 +48,7 @@ HEADERS += \
 	./TargetDefinition.h \
 	./UiUtils.h \
 	./WatchWindow.h \
-
-	
+	./AddCompilerDialog.h
 
 SOURCES += \
     ./Changeling.cpp \
@@ -95,12 +94,14 @@ SOURCES += \
 	./TargetDefinition.cpp \
 	./UiUtils.cpp \
 	./WatchWindow.cpp \
+	./AddCompilerDialog.cpp
 
 FORMS += ./NewProject.ui \
 	./Settings.ui  \
 	./SoapOptions.ui \
 	./RestOptions.ui \
-	./Search.ui
-
+	./Search.ui \
+	./AddCompilerDialog.ui
+	
 RESOURCES += icons.qrc \
     templates.qrc

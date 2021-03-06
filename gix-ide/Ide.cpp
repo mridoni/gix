@@ -7,6 +7,7 @@
 #include "IdeDbManager.h"
 #include "TargetManager.h"
 #include "GixGlobals.h"
+#include "UiUtils.h"
 
 #include <QDir>
 #include <QStandardPaths>
@@ -37,6 +38,12 @@ void Ide::init()
 	ide_callbacks.getCurrentPlatform = []() { return ide_task_manager->getCurrentPlatform(); };
 	ide_callbacks.getCurrentProjectCollection = []() { return ide_task_manager->getCurrentProjectCollection(); };
 	GixGlobals::registerCallbacks(&ide_callbacks);
+
+	if (GixGlobals::getCompilerManager()->getCompilers().size() == 0) {
+		QString msg = QCoreApplication::translate("gix", QString("No configured compilers found in compiler definitions directory %1").arg(GixGlobals::getCompilerDefsDir()).toUtf8().constData());
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		UiUtils::ErrorDialog(msg);
+	}
 }
 
 IdeTaskManager *Ide::TaskManager()

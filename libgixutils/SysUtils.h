@@ -113,17 +113,29 @@ inline QString SysUtils::getCbl2XmlPath()
 
 inline bool SysUtils::isWindows()
 {
-	return QSysInfo::kernelType() == "winnt";
+#if defined(Q_OS_WIN)
+	return true;
+#else
+	return false;
+#endif
 }
 
 inline bool SysUtils::isMacOs()
 {
-	return QSysInfo::kernelType() == "darwin";
+#if defined(Q_OS_MAC)
+	return true;
+#else
+	return false;
+#endif
 }
 
 inline bool SysUtils::isLinux()
 {
-	return QSysInfo::kernelType() == "linux";
+#if defined(Q_OS_LINUX)
+	return true;
+#else
+	return false;
+#endif
 }
 
 inline void SysUtils::mergeEnvironmentVariable(QProcessEnvironment& env, QString name, QString value, QChar sep)

@@ -160,15 +160,6 @@
     <ClInclude Include="DataEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="buildsystem\CompilerConfiguration.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="buildsystem\CompilerDefinition.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="buildsystem\CompilerManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="buildsystem\LogOutputType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -291,6 +282,15 @@
     </ClInclude>
     <ClInclude Include="SymbolBufferReader.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\CompilerConfiguration.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\CompilerDefinition.h">
+      <Filter>Header Files\buildsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="buildsystem\CompilerManager.h">
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

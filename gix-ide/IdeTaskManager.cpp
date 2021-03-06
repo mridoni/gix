@@ -152,6 +152,14 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	QList<QPair<QString, QString>> tl;
 
 	auto compiler_cfg = CompilerConfiguration::get(configuration, platform);
+    if (!compiler_cfg) {
+        QString err_msg = QString("Invalid compiler configuration for configuration \"%1\"").arg(configuration);
+        this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
+        UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
+        setStatus(IdeStatus::Editing);
+        emit buildFinished(build_res);
+        return;
+    }
 
 	QVariantMap props;
 	props.insert("sys.objext", SysUtils::isWindows() && compiler_cfg->isVsBased ? ".obj" : ".o");

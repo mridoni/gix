@@ -228,6 +228,9 @@
     <ClCompile Include="DwarfSymbolProvider.cpp">
       <Filter>Source Files\debugger\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="AddCompilerDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProtectedLineEdit.h">
@@ -377,6 +380,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="IdeLogManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="AddCompilerDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -623,6 +629,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="RestOptions.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="AddCompilerDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

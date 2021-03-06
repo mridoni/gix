@@ -92,18 +92,6 @@ sqlca_initialize(struct sqlca_t * sqlca)
 	memcpy((char *)sqlca, (char *)&sqlca_init, sizeof(struct sqlca_t));
 }
 
-#ifdef _DEBUG
-
-map<std::string, char *> __cobol_vars;
-
-LIBGIXSQL_API int GIXSQLExposeCobolVar(char *name, char *value)
-{
-	__cobol_vars[std::string(name)] = value;
-	return 0;
-}
-
-#endif
-
 LIBGIXSQL_API int
 GIXSQLConnect(struct sqlca_t *st, char *user, int userlen, char *passwd, int passwdlen, char *name, int namelen) {
 	LOG_DEBUG(__FILE__, __func__, "GIXSQLConnect start\n");

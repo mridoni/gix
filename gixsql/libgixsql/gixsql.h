@@ -20,8 +20,6 @@
 #ifndef GIXSQL_H
 #define GIXSQL_H
 
-
-//#include "ocdb.h"
 #include "sqlca.h"
 
 #define GIXSQL_CONN_CONNECT_OK 0
@@ -139,9 +137,6 @@ extern "C" {
 	LIBGIXSQL_API int GIXSQLSetResultParams(int type, int length, int scale, uint32_t flags, void* addr);
 	LIBGIXSQL_API int GIXSQLEndSQL(void);
 
-#ifdef _DEBUG
-	LIBGIXSQL_API int GIXSQLExposeCobolVar(char *name, char *value);
-#endif
 }
 
 #endif

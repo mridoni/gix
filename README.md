@@ -1,4 +1,4 @@
-# gix
+﻿# Gix-iDE
 Gix-IDE (or Gix) is an IDE and platform for GnuCOBOL, providing a native debugger, ESQL and HTTP REST services.
 
 ## Current state, development and plans for the future
@@ -7,7 +7,7 @@ Gix-IDE is "mostly working" but it probably has many bugs lurking below the surf
 I am releasing it because, in order to do this, I need to put it out in the wild, to get some feedback, but also to find some form of sponsorship to help the development along.
 
 ### The IDE
-The centerpiece is a Qt-based IDE that provides syntax highlighting (thanks to Scintilla), support for different versions of the compiler, a DB manager, variable navigation and integrated debugging.
+The centerpiece is a Qt-based IDE that provides syntax highlighting (thanks to Scintilla), support for different versions of the compiler, a DB manager, variable navigation and integrated native debugging.
 
 ### Native debugging
 Gix-IDE incorporates a custom module that provides native debugging (only supported with GnuCOBOL 3.1+) including breakpoints, stepping, variable inspection of both executable and callable modules.
@@ -25,16 +25,13 @@ Gix-IDE also incorporates a DB manager that can generate COPY files from a DB co
 While Gix-IDE runs standard GnuCOBOL versions that can be added to the install, the binary installer also provides pre-packaged version of the compilers, in Visual Studio and MingW versions.
 
 ### Multi-platform support
-While the focus of Gix-IDE is currently on Windows, both macOS and Linux versions of the IDE and the tools have been successfully built and run,
+While the focus of Gix-IDE is currently on Windows, a Linux versions of the IDE can be successfully built and run,
 
 ### License
 Gix-IDE is GPL 2 licensed, except for runtime components (essentially the ESQL libraries and the HTTP server) that fall under LGPL.
 
-## How to install
-MingW compilers have a few problems in the packaged versions, so until this is fixed, you will have to use the VS ones.
+## Documentation
 
-- If you don't have Visual Studio installed on your computer download and install Visual Studio Build Tools 2019 from here:
-https://visualstudio.microsoft.com/it/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16#
-or install Visual Studio Community
-- Download and install the release package
-- Launch Gix-IDE and try to build one of the examples in Documents\Gix\Examples
+ - [Building and/or installing](doc/building_and_installing.md)
+ - [Tutorial](doc/tutorial.md)
+

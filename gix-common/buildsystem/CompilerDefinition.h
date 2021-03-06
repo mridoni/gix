@@ -4,6 +4,8 @@
 #include <QMap>
 #include <QDomNode>
 
+#include "gixcommon_global.h"
+
 /*
   <id>gnucobol-2.2-dbg-vs-all</id>
   <name>GnuCOBOL 2.2 Debugger (VS) x86/x64</name>
@@ -12,7 +14,6 @@
   <host_platform>x64</host_platform>
   <target_platforms>x86,x64</target_platforms>
   <is_vs_based>true</is_vs_based>
-  <supports_anim>true</supports_anim>
 
   <platform id="x86">
 	<bin_dir_path>${homedir}/bin</bin_dir_path>
@@ -32,9 +33,9 @@
 
 */
 
-class CompilerPlatformDefinition
+class GIXCOMMON_EXPORT CompilerPlatformDefinition
 {
-	friend class CompilerDefinition;
+	friend GIXCOMMON_EXPORT class CompilerDefinition;
 
 public:
 
@@ -88,7 +89,7 @@ private:
 	QString copy_dir_path;
 };
 
-class CompilerDefinition
+class GIXCOMMON_EXPORT CompilerDefinition
 {
 public:
 	static CompilerDefinition* load(QString def_path);
@@ -96,12 +97,16 @@ public:
 	CompilerDefinition();
 	~CompilerDefinition();
 
+	void setDefinitionFile(QString f) { def_file = f; }
+
+	bool save();
+
 	QString getId() {
 		return id;
 	}
 
-	void setId(QString id) {
-		id = id;
+	void setId(QString _id) {
+		id = _id;
 	}
 
 	QString getName() {
@@ -144,20 +149,14 @@ public:
 		is_vs_based = _is_vs_based;
 	}
 
-	bool hasAnimSupport() {
-		return supports_anim;
-	}
-
-	void setHasAnimSupport(bool _supports_anim) {
-		supports_anim = _supports_anim;
-	}
-
 	const QMap<QString, CompilerPlatformDefinition*> getTargetPlatforms()
 	{
 		return target_platforms;
 	}
 
 	CompilerPlatformDefinition* getPlatform(QString platform_id);
+
+	void addPlatform(QString platform_id, CompilerPlatformDefinition *cd);
 
 private:
 	QString def_file;
@@ -170,7 +169,6 @@ private:
 	QString homedir;
 	QString host_platform;
 	bool is_vs_based;
-	bool supports_anim;
 
 private:
 	static CompilerPlatformDefinition *parsePlatform(QDomNode& xn, QString homedir);

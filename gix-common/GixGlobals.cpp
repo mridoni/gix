@@ -1,10 +1,19 @@
 #include "GixGlobals.h"
 #include "PathUtils.h"
 
+#include <QSettings>
+
 GixGlobals GixGlobals::instance;
+QString GixGlobals::_gix_data_dir = QString();
 
 bool GixGlobals::initManagers()
 {
+    QString dataDir = getGixDataDir();
+    if (!dataDir.isEmpty()) {
+        QDir(".").mkpath(dataDir);
+        QDir(".").mkpath(PathUtils::combine(dataDir, "compiler-defs"));
+    }
+
     instance.target_manager = new TargetManager();
     instance.compiler_manager = new CompilerManager();
     instance.metadata_manager = new MetadataManager();
@@ -111,24 +120,28 @@ QString GixGlobals::getGixDataDir()
         return QString::fromUtf8(qba);
 
 #if defined(Q_OS_WIN)
-    QString programdata_dir = qgetenv("PROGRAMDATA");
-    QString gix_data_dir = PathUtils::combine(programdata_dir, "gix");
-    return QDir(gix_data_dir).exists() ? gix_data_dir : QString();
-#elif defined(Q_OS_LINUX)
-    QDir binDir = QDir(getGixBinDir());
-    if (binDir.isEmpty() || !binDir.cdUp())
-        return QString();
+    if (_gix_data_dir.isEmpty()) {
 
-    return binDir.absolutePath();
-#elif defined(Q_OS_MAC)
-    QString gix_data_dir = PathUtils::combine({ QDir::homePath(), "gix", "share" });
-    return QDir(gix_data_dir).exists() ? gix_data_dir : QString();
+        QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\MediumGray\\gix-ide", QSettings::Registry64Format);
+        QVariant v = m.value("DataDir");
+        if (!v.isValid()) {
+            QSettings u("HKEY_CURRENT_USER\\SOFTWARE\\MediumGray\\gix-ide", QSettings::Registry64Format);
+            v = u.value("DataDir");
+            if (!v.isValid()) {
+                _gix_data_dir = PathUtils::combine(qgetenv("LOCALAPPDATA"), "Gix");
+            }
+            else
+                _gix_data_dir = v.toString();
+        }
+    }
+    return _gix_data_dir;
+
 #else
-#error "Unknown platform"
+    return PathUtils::combine({ QDir::homePath(), ".gix" });
 #endif
 }
 
-QString GixGlobals::getCompilerBaseDir()
+QString GixGlobals::getCompilerDefsDir()
 {
     /* This is:
         $GIX_DATA_DIR/compiler-pkgs
@@ -137,11 +150,9 @@ QString GixGlobals::getCompilerBaseDir()
     */
 
     // Override from environment
-    auto qba = qgetenv("GIX_COMPILER_BASE_DIR");
-    if (!qba.isEmpty())
-        return QString::fromUtf8(qba);
+    auto qba = getGixDataDir();
 
-    QString compiler_base_dir = PathUtils::combine(getGixDataDir(), "compiler-pkgs");
+    QString compiler_base_dir = PathUtils::combine(getGixDataDir(), "compiler-defs");
     return QDir(compiler_base_dir).exists() ? compiler_base_dir : QString();
 }
 

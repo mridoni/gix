@@ -96,6 +96,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include <qdialog.h>
 #include <qobject.h>
@@ -136,7 +137,7 @@ enum DlgType {
 	DLG_LABEL, DLG_CHECKBOX, DLG_LINEEDIT, DLG_FLOATEDIT,
 	DLG_SPINBOX, DLG_DBLSPINBOX, DLG_MINMAXSPIN,
 	DLG_COMBOBOX, DLG_RADIOGRP, DLG_GRPBOX, DLG_COLOR, DLG_TEXTEDIT, DGL_ALL,
-	DLG_EDITABLE_PATH_LIST, DLG_EDITABLE_STRING_LIST
+	DLG_EDITABLE_PATH_LIST, DLG_EDITABLE_STRING_LIST, DLG_GET_FOLDER
 };
 
 enum chkbehav { CB_NONE, CB_DISABLE, CB_ENABLE, CB_HIDE, CB_SHOW };
@@ -214,6 +215,9 @@ struct DialogElement
 
 //############################################################
 
+class CustomDialog;
+typedef std::function<bool(CustomDialog *)> f_validate_callback;
+
 //************************
 //** GuiDialogCustomizable is used to present a customizable gui
 //** dialog and retrieve user input with minimal code!
@@ -252,6 +256,7 @@ public:     //## METHODS:
 	int addVSpacer(int minHeight = 0);
 	int addEditablePathList(QString caption, QString tooltip, QStringList *pathList);
 	int addEditableStringList(QString caption, QString tooltip, QStringList *stringList);
+    int addGetFolder(QString caption, std::string *folder_path, std::string default_path = std::string());
 
 	int beginGroupBox(QString caption, bool flat = false, QString tooltip = "", bool checkable = false, bool *checked = 0);
 	void endGroupBox();
@@ -265,6 +270,7 @@ public:     //## METHODS:
 	void setEnabledPrev(bool enabled);
 	void setEnabledAll(bool enabled);
 
+	void setValidationCallback(f_validate_callback vb) { validate_callback = vb; }
 
 
 public:       //## DATA:
@@ -273,8 +279,10 @@ public:       //## DATA:
 										//   and change the values.
 	int customBtnClicked;               // Set to the index of the button
 										//   "customBtn" clicked.
-
+	
+	f_validate_callback validate_callback = nullptr;
 private:
+
 
 	std::vector<QPushButton*> customBtn;      // std::vector of buttons down the button of the GUI.
 	QVBoxLayout *vboxLayout;

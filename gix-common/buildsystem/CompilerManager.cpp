@@ -26,10 +26,16 @@ void CompilerManager::init()
 	if (compiler_defs.size() > 0)
 		cleanup();
 
-	logger->logMessage(GIX_CONSOLE_LOG, "Compiler base directory is " + GixGlobals::getCompilerBaseDir(), QLogger::LogLevel::Debug);
 
-	QString cdir = PathUtils::combine(GixGlobals::getCompilerBaseDir(), "defs");
+	QString cdir = GixGlobals::getCompilerDefsDir();
 	QDir compiler_defs_dir(QDir::fromNativeSeparators(cdir));
+	if (!compiler_defs_dir.exists()) {
+		logger->logMessage(GIX_CONSOLE_LOG, "Cannot locate compiler definitions directory: " + cdir, QLogger::LogLevel::Error);
+		return;
+	}
+
+	logger->logMessage(GIX_CONSOLE_LOG, "Compiler definitions directory is " + cdir, QLogger::LogLevel::Debug);
+
 	compiler_defs_dir.setNameFilters(QStringList("*.def"));
 
 	for (QFileInfo def_file : compiler_defs_dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files)) {
@@ -42,6 +48,7 @@ void CompilerManager::init()
 
 		compiler_defs[cd->getId()] = cd;
 	}
+
 }
 
 QMap<QString, CompilerDefinition*> CompilerManager::getCompilers()

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AddCompilerDialog.cpp" />
     <ClCompile Include="Changeling.cpp" />
     <ClCompile Include="CodeviewSymbolProvider.cpp" />
     <ClCompile Include="ConsoleWidget.cpp" />
@@ -73,6 +74,11 @@
     <ClCompile Include="DataWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="AddCompilerDialog.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXmlPatterns;C:\Users\marchetto\Documents\Visual Studio 2017\Projects\gix-ide\libs\libdwarf</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtSql</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;WIN32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_DEBUG_LOG_ON;%(PreprocessorDefinitions)</Define>
+    </QtMoc>
     <ClInclude Include="CodeviewSymbolProvider.h" />
     <ClInclude Include="DwarfSymbolProvider.h" />
     <ClInclude Include="GixDebugger.h" />
@@ -280,6 +286,7 @@
     <ResourceCompile Include="gix-ide.rc" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="AddCompilerDialog.ui" />
     <QtUic Include="NewProject.ui" />
     <QtUic Include="RestOptions.ui" />
     <QtUic Include="Search.ui" />
@@ -422,7 +429,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="1" lreleaseOptions="" Qt5Version_x0020_x64="Qt_5.14_msvc64" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="1" lreleaseOptions="" Qt5Version_x0020_x64="msvc2017_64" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

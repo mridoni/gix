@@ -39,7 +39,7 @@ public:
 	static QString getGixBinDir();
 	static QString getGixLibDir(QString target_platform);
 	static QString getGixDataDir();
-	static QString getCompilerBaseDir();
+	static QString getCompilerDefsDir();
 	static QString getGixToolPath(QString tool);
 	static ProjectCollection *getCurrentProjectCollection();
 	static CompilerManager *getCompilerManager();
@@ -58,5 +58,10 @@ private:
 	f_ret_prjcoll_callback cb_getCurrentProjectCollection;
 
 	static GixGlobals instance;
+
+	// Only used on Windows to avoid a registry lookup
+#if defined(Q_OS_WIN)
+	static QString _gix_data_dir;
+#endif
 };
 
