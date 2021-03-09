@@ -13,9 +13,6 @@
     <ClCompile Include="Cursor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DbInterface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DbInterfaceFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

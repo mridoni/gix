@@ -1,4 +1,5 @@
 /*
+* Copyright (C) 2021 Marco Ridoni
 * Copyright (C) 2013 Tokyo System House Co.,Ltd.
 *
 * This library is free software; you can redistribute it and/or

@@ -172,7 +172,6 @@
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="ConnectionManager.cpp" />
     <ClCompile Include="CursorManager.cpp" />
-    <ClCompile Include="DbInterface.cpp" />
     <ClCompile Include="DbInterfaceFactory.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Logger.cpp" />

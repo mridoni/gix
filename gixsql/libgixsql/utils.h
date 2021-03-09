@@ -1,5 +1,6 @@
 /*
-* Copyright (C) 2013 Tokyo System House Co.,Ltd.
+* This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
+* Copyright (C) 2021 Marco Ridoni
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public License

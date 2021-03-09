@@ -28,7 +28,14 @@ While Gix-IDE runs standard GnuCOBOL versions that can be added to the install, 
 While the focus of Gix-IDE is currently on Windows, a Linux versions of the IDE can be successfully built and run,
 
 ### License
-Gix-IDE is GPL 2 licensed, except for runtime components (essentially the ESQL libraries and the HTTP server) that fall under LGPL.
+Gix-IDE is GPL 2 licensed, with some exceptions, due to a few dependencies:
+
+ - The ESQL subsystem, though having been rewritten and refactored for the most part, started as a (private) fork of [OceSQL](https://github.com/tollofsen/ocesql):
+   - libgixsql and all the libgixsql-* runtime libraries are LGPL 2.1+
+   - gixpp (the preprocessor is GPL 2.1+
+  - gix-http is a modification of [QtWebApp](http://stefanfrings.de/qtwebapp/index-en.html) by Stefan Frings and is licensed as LGPL3+
+  - libdwarf is LGPL 2.1+
+  - Scintilla comes under its own GPL-compatible license
 
 ## Documentation
 

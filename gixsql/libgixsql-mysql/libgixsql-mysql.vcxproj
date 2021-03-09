@@ -158,9 +158,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="DbInterfaceMySQL.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

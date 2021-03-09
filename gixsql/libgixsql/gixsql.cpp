@@ -1,4 +1,5 @@
 /*
+* Copyright (C) 2021 Marco Ridoni
 * Copyright (C) 2013 Tokyo System House Co.,Ltd.
 *
 * This library is free software; you can redistribute it and/or
@@ -16,7 +17,6 @@
 * not, write to the Free Software Foundation, 51 Franklin Street, Fifth Floor
 * Boston, MA 02110-1301 USA
 */
-
 
 #include <cstdio>
 #include <cstdlib>

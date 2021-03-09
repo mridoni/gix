@@ -1,6 +1,6 @@
 ﻿# Building and/or installing Gix-IDE
 
-***Note: the main development - for the moment - takes place on Windows with Visual Studio, mostly to make the work easier and faster. This means that while the intention is to have full cross-platform support, both with regard to feature parity and stability, for obvious reasons the Windows+MingW and Linux builds can, at a given point in time, lack a feature, or display some quirk or instability.***
+***Note: the main development - for the moment - takes place on Windows with Visual Studio, mostly to make the work easier and faster. This means that while the intention is to have full cross-platform support, both with regard to feature parity and stability, for obvious reasons the Windows+MingW and Linux builds can be, at a given point in time, lack a feature, or display some quirk or instability.***
 
 ## Installing from a binary package
 

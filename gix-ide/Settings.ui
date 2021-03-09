@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Gix-IDE - Settings</string>
   </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
@@ -541,25 +541,6 @@
          <item>
           <widget class="QComboBox" name="cbReleaseCompiler"/>
          </item>
-         <item>
-          <widget class="QPushButton" name="btnChooseReleaseCompiler">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -592,23 +573,35 @@
          <item>
           <widget class="QComboBox" name="cbDebugCompiler"/>
          </item>
-         <item>
-          <widget class="QPushButton" name="btnChooseDebugCompiler">
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
      </widget>
+    </widget>
+    <widget class="QPushButton" name="btnAddCompiler">
+     <property name="geometry">
+      <rect>
+       <x>350</x>
+       <y>150</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Add compiler...</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
