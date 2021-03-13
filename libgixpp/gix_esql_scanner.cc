@@ -1,23 +1,3 @@
-/*
-This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
-Copyright (C) 2021 Marco Ridoni
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-USA.
-*/
-
 #line 1 "gix_esql_scanner.cc"
 
 #line 3 "gix_esql_scanner.cc"
@@ -1761,19 +1741,19 @@ static const flex_int32_t yy_rule_can_match_eol[121] =
 
 static const flex_int16_t yy_rule_linenum[120] =
     {   0,
-       76,  100,  109,  114,  116,  121,  134,  146,  158,  165,
-      172,  180,  192,  204,  211,  218,  225,  232,  239,  246,
-      253,  260,  267,  274,  281,  288,  295,  310,  311,  313,
-      316,  320,  325,  341,  352,  359,  363,  370,  378,  386,
-      397,  401,  407,  412,  418,  428,  437,  443,  450,  471,
-      492,  493,  497,  502,  509,  516,  517,  518,  589,  647,
-      649,  655,  659,  663,  677,  688,  696,  701,  711,  722,
-      728,  735,  744,  753,  762,  771,  781,  800,  819,  839,
-      841,  842,  843,  844,  845,  846,  867,  868,  872,  876,
-      880,  881,  884,  887,  890,  893,  897,  898,  899,  900,
+       96,  120,  129,  134,  136,  141,  154,  166,  178,  185,
+      192,  200,  212,  224,  231,  238,  245,  252,  259,  266,
+      273,  280,  287,  294,  301,  308,  315,  330,  331,  333,
+      336,  340,  345,  361,  372,  379,  383,  390,  398,  406,
+      417,  421,  427,  432,  438,  448,  457,  463,  470,  491,
+      512,  513,  517,  522,  529,  536,  537,  538,  609,  667,
+      669,  675,  679,  683,  697,  708,  716,  721,  731,  742,
+      748,  755,  764,  773,  782,  791,  801,  820,  839,  859,
+      861,  862,  863,  864,  865,  866,  887,  888,  892,  896,
+      900,  901,  904,  907,  910,  913,  917,  918,  919,  920,
 
-      901,  902,  903,  904,  905,  906,  907,  908,  912,  916,
-      918,  922,  924,  934,  937,  946,  950,  954,  958
+      921,  922,  923,  924,  925,  926,  927,  928,  932,  936,
+      938,  942,  944,  954,  957,  966,  970,  974,  978
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1784,8 +1764,27 @@ static const flex_int16_t yy_rule_linenum[120] =
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 #line 1 "gix_esql_scanner.ll"
+/*
+* Copyright (C) 2021 Marco Ridoni
+* Copyright (C) 2013 Tokyo System House Co.,Ltd.
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public License
+* as published by the Free Software Foundation; either version 3,
+* or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; see the file COPYING.LIB.  If
+* not, write to the Free Software Foundation, 51 Franklin Street, Fifth Floor
+* Boston, MA 02110-1301 USA
+*/
 /* -*- c++ -*- */
-#line 3 "gix_esql_scanner.ll"
+#line 23 "gix_esql_scanner.ll"
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
@@ -1824,12 +1823,12 @@ static yy::location loc;
 // exception specifier from the one in `unistd.h`:
 #define YY_NO_UNISTD_H
 
-#line 1807 "gix_esql_scanner.cc"
+#line 1826 "gix_esql_scanner.cc"
 /* Options: */
 /* Regex abbreviations: */
 
 /* STRVALUE "\""[^\"]+"\""|"\'"[^\'\n]*"\'" */
-#line 1812 "gix_esql_scanner.cc"
+#line 1831 "gix_esql_scanner.cc"
 
 #define INITIAL 0
 #define PICTURE_STATE 1
@@ -2030,10 +2029,10 @@ YY_DECL
 
 	{
 /* %% [7.0] user's declarations go here */
-#line 74 "gix_esql_scanner.ll"
+#line 94 "gix_esql_scanner.ll"
 
 
-#line 2016 "gix_esql_scanner.cc"
+#line 2035 "gix_esql_scanner.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -2120,7 +2119,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 76 "gix_esql_scanner.ll"
+#line 96 "gix_esql_scanner.ll"
 { 
 		BEGIN ESQL_FUNC_STATE; 
 
@@ -2147,7 +2146,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 100 "gix_esql_scanner.ll"
+#line 120 "gix_esql_scanner.ll"
 {
 	if (driver.in_file_section) {
 		yy_push_state(FD_STATE);
@@ -2158,7 +2157,7 @@ YY_RULE_SETUP
 
 case 3:
 YY_RULE_SETUP
-#line 109 "gix_esql_scanner.ll"
+#line 129 "gix_esql_scanner.ll"
 {    
 		yy_pop_state();
 		//return yy::gix_esql_parser::make_PERIOD(loc);
@@ -2167,19 +2166,19 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 114 "gix_esql_scanner.ll"
+#line 134 "gix_esql_scanner.ll"
 { }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 116 "gix_esql_scanner.ll"
+#line 136 "gix_esql_scanner.ll"
 {}
 	YY_BREAK
 
 
 case 6:
 YY_RULE_SETUP
-#line 121 "gix_esql_scanner.ll"
+#line 141 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 		flag_insqlstring = 1;
@@ -2195,7 +2194,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 134 "gix_esql_scanner.ll"
+#line 154 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 		flag_insqlstring = 1;
@@ -2210,7 +2209,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 146 "gix_esql_scanner.ll"
+#line 166 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 		flag_insqlstring = 1;
@@ -2225,7 +2224,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 158 "gix_esql_scanner.ll"
+#line 178 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2235,7 +2234,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 165 "gix_esql_scanner.ll"
+#line 185 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2245,7 +2244,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 172 "gix_esql_scanner.ll"
+#line 192 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2255,7 +2254,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 180 "gix_esql_scanner.ll"
+#line 200 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 		flag_insqlstring = 1;
@@ -2270,7 +2269,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 192 "gix_esql_scanner.ll"
+#line 212 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 		flag_insqlstring = 1;
@@ -2285,7 +2284,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 204 "gix_esql_scanner.ll"
+#line 224 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2295,7 +2294,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 211 "gix_esql_scanner.ll"
+#line 231 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 			driver.endlineno = yylineno;
@@ -2305,7 +2304,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 218 "gix_esql_scanner.ll"
+#line 238 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2315,7 +2314,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 225 "gix_esql_scanner.ll"
+#line 245 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2325,7 +2324,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 232 "gix_esql_scanner.ll"
+#line 252 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2335,7 +2334,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 239 "gix_esql_scanner.ll"
+#line 259 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2345,7 +2344,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 246 "gix_esql_scanner.ll"
+#line 266 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2355,7 +2354,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 253 "gix_esql_scanner.ll"
+#line 273 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2365,7 +2364,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 260 "gix_esql_scanner.ll"
+#line 280 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2375,7 +2374,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 267 "gix_esql_scanner.ll"
+#line 287 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2385,7 +2384,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 274 "gix_esql_scanner.ll"
+#line 294 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2395,7 +2394,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 281 "gix_esql_scanner.ll"
+#line 301 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2405,7 +2404,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 288 "gix_esql_scanner.ll"
+#line 308 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2415,7 +2414,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 295 "gix_esql_scanner.ll"
+#line 315 "gix_esql_scanner.ll"
 {
 		BEGIN ESQL_STATE;
 
@@ -2432,17 +2431,17 @@ YY_RULE_SETUP
 
 case 28:
 YY_RULE_SETUP
-#line 310 "gix_esql_scanner.ll"
+#line 330 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_USER(loc); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 311 "gix_esql_scanner.ll"
+#line 331 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_TO(loc); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 313 "gix_esql_scanner.ll"
+#line 333 "gix_esql_scanner.ll"
 {
 					return yy::gix_esql_parser::make_TOKEN(yytext, loc);
 	          }
@@ -2450,20 +2449,20 @@ YY_RULE_SETUP
 case 31:
 /* rule 31 can match eol */
 YY_RULE_SETUP
-#line 316 "gix_esql_scanner.ll"
+#line 336 "gix_esql_scanner.ll"
 {   }
 	YY_BREAK
 case 32:
 /* rule 32 can match eol */
 YY_RULE_SETUP
-#line 320 "gix_esql_scanner.ll"
+#line 340 "gix_esql_scanner.ll"
 { 
 				ECHO; 
 				}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 325 "gix_esql_scanner.ll"
+#line 345 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){
 	      			//yylval.s = strdup (yytext);
@@ -2482,7 +2481,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 341 "gix_esql_scanner.ll"
+#line 361 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){
 				if(!flag_selectcommand){
@@ -2496,7 +2495,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 352 "gix_esql_scanner.ll"
+#line 372 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){ 
 					return yy::gix_esql_parser::make_TOKEN(yytext, loc);
@@ -2506,14 +2505,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 359 "gix_esql_scanner.ll"
+#line 379 "gix_esql_scanner.ll"
 {
 		return yy::gix_esql_parser::make_WITH_HOLD(1, loc);
 	 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 363 "gix_esql_scanner.ll"
+#line 383 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){
 				return yy::gix_esql_parser::make_TOKEN(yytext, loc);   
@@ -2523,7 +2522,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 370 "gix_esql_scanner.ll"
+#line 390 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){   
 				return yy::gix_esql_parser::make_TOKEN(yytext, loc);  
@@ -2534,7 +2533,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 378 "gix_esql_scanner.ll"
+#line 398 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){  
 				return yy::gix_esql_parser::make_TOKEN(yytext, loc);
@@ -2545,7 +2544,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 386 "gix_esql_scanner.ll"
+#line 406 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring && !flag_selectcommand){
 	      		//yylval.s = strdup (yytext);
@@ -2559,14 +2558,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 397 "gix_esql_scanner.ll"
+#line 417 "gix_esql_scanner.ll"
 {
 		return yy::gix_esql_parser::make_WHERE_CURRENT_OF(loc);
 	}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 401 "gix_esql_scanner.ll"
+#line 421 "gix_esql_scanner.ll"
 {
 	    //yylval.s = strdup (yytext);
 	    //return TOKEN;      
@@ -2575,7 +2574,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 407 "gix_esql_scanner.ll"
+#line 427 "gix_esql_scanner.ll"
 {
 			driver.hostlineno = yylineno;
 			return yy::gix_esql_parser::make_HOSTTOKEN(yytext, loc);
@@ -2584,7 +2583,7 @@ YY_RULE_SETUP
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 412 "gix_esql_scanner.ll"
+#line 432 "gix_esql_scanner.ll"
 {
 			driver.hostlineno = yylineno;   
 			return yy::gix_esql_parser::make_TOKEN(yytext, loc);
@@ -2593,7 +2592,7 @@ YY_RULE_SETUP
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 418 "gix_esql_scanner.ll"
+#line 438 "gix_esql_scanner.ll"
 {
 			flag_insqlstring = 0;
 			flag_selectcommand = 0;
@@ -2606,7 +2605,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 428 "gix_esql_scanner.ll"
+#line 448 "gix_esql_scanner.ll"
 {
 			flag_insqlstring = 0;
 			flag_selectcommand = 0;
@@ -2618,7 +2617,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 437 "gix_esql_scanner.ll"
+#line 457 "gix_esql_scanner.ll"
 {
 		      //yylval.s = strdup (yytext);
 		      //return TOKEN;  
@@ -2627,7 +2626,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 443 "gix_esql_scanner.ll"
+#line 463 "gix_esql_scanner.ll"
 {
 	    //yylval.s = strdup (yytext);
 	    //return TOKEN;      
@@ -2637,7 +2636,7 @@ YY_RULE_SETUP
 
 case 49:
 YY_RULE_SETUP
-#line 450 "gix_esql_scanner.ll"
+#line 470 "gix_esql_scanner.ll"
 {
 
     if (driver.opt_preprocess_copy_files) {
@@ -2662,7 +2661,7 @@ YY_RULE_SETUP
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 471 "gix_esql_scanner.ll"
+#line 491 "gix_esql_scanner.ll"
 {
     driver.period = 0;
 	int n = count_crlf(yytext);
@@ -2687,12 +2686,12 @@ YY_RULE_SETUP
 case 51:
 /* rule 51 can match eol */
 YY_RULE_SETUP
-#line 492 "gix_esql_scanner.ll"
+#line 512 "gix_esql_scanner.ll"
 {   } 
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 493 "gix_esql_scanner.ll"
+#line 513 "gix_esql_scanner.ll"
 {
 		driver.commandname = "INCSQLCA";		
 		return yy::gix_esql_parser::make_INCLUDE_SQLCA(loc);
@@ -2700,7 +2699,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 497 "gix_esql_scanner.ll"
+#line 517 "gix_esql_scanner.ll"
 {
 		driver.commandname = "INCFILE";		
 		driver.incfilename = yytext;
@@ -2710,7 +2709,7 @@ YY_RULE_SETUP
 case 54:
 /* rule 54 can match eol */
 YY_RULE_SETUP
-#line 502 "gix_esql_scanner.ll"
+#line 522 "gix_esql_scanner.ll"
 {
 		driver.period = 1;
 		driver.endlineno = yylineno;
@@ -2720,7 +2719,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 509 "gix_esql_scanner.ll"
+#line 529 "gix_esql_scanner.ll"
 {
 		driver.endlineno = yylineno;
 		yy_pop_state(); 
@@ -2729,12 +2728,12 @@ YY_RULE_SETUP
 	YY_BREAK
 
 case 56:
-#line 517 "gix_esql_scanner.ll"
+#line 537 "gix_esql_scanner.ll"
 case 57:
-#line 518 "gix_esql_scanner.ll"
+#line 538 "gix_esql_scanner.ll"
 case 58:
 YY_RULE_SETUP
-#line 518 "gix_esql_scanner.ll"
+#line 538 "gix_esql_scanner.ll"
 {
         driver.startlineno = yylineno;
         driver.endlineno = yylineno;
@@ -2809,7 +2808,7 @@ YY_RULE_SETUP
 case 59:
 /* rule 59 can match eol */
 YY_RULE_SETUP
-#line 589 "gix_esql_scanner.ll"
+#line 609 "gix_esql_scanner.ll"
 {
 
 	if (YYSTATE == DATA_SECTION_STATE) {
@@ -2869,12 +2868,12 @@ YY_RULE_SETUP
 case 60:
 /* rule 60 can match eol */
 YY_RULE_SETUP
-#line 647 "gix_esql_scanner.ll"
+#line 667 "gix_esql_scanner.ll"
 {   }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 649 "gix_esql_scanner.ll"
+#line 669 "gix_esql_scanner.ll"
 {
 	      		//yylval.s = strdup (yytext);
 	      		//return TOKEN;      
@@ -2884,21 +2883,21 @@ YY_RULE_SETUP
 case 62:
 /* rule 62 can match eol */
 YY_RULE_SETUP
-#line 655 "gix_esql_scanner.ll"
+#line 675 "gix_esql_scanner.ll"
 { 
 				ECHO; 
 				}
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 659 "gix_esql_scanner.ll"
+#line 679 "gix_esql_scanner.ll"
 { 
 		return yy::gix_esql_parser::make_TABLE(loc);
 	}
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 663 "gix_esql_scanner.ll"
+#line 683 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){
 				return yy::gix_esql_parser::make_TOKEN(strdup (yytext), loc);
@@ -2915,7 +2914,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 677 "gix_esql_scanner.ll"
+#line 697 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){
 				if(!flag_selectcommand){
@@ -2929,7 +2928,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 688 "gix_esql_scanner.ll"
+#line 708 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){ 
 				return yy::gix_esql_parser::make_TOKEN(strdup (yytext), loc);
@@ -2940,7 +2939,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 696 "gix_esql_scanner.ll"
+#line 716 "gix_esql_scanner.ll"
 {
 		//return WITH_HOLD;
 		return yy::gix_esql_parser::make_WITH_HOLD(1, loc);
@@ -2948,7 +2947,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 701 "gix_esql_scanner.ll"
+#line 721 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring){
 	      		//yylval.s = strdup (yytext);
@@ -2960,7 +2959,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 711 "gix_esql_scanner.ll"
+#line 731 "gix_esql_scanner.ll"
 {
 			if(flag_insqlstring && !flag_selectcommand){
 	      		//yylval.s = strdup (yytext);
@@ -2974,7 +2973,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 722 "gix_esql_scanner.ll"
+#line 742 "gix_esql_scanner.ll"
 {
 	      		//yylval.s = strdup (yytext);
 	      		//return TOKEN;      
@@ -2983,7 +2982,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 728 "gix_esql_scanner.ll"
+#line 748 "gix_esql_scanner.ll"
 {
 			//yylval.s = strdup (yytext + 1);
 			driver.hostlineno = yylineno;
@@ -2994,7 +2993,7 @@ YY_RULE_SETUP
 case 72:
 /* rule 72 can match eol */
 YY_RULE_SETUP
-#line 735 "gix_esql_scanner.ll"
+#line 755 "gix_esql_scanner.ll"
 {
 			flag_insqlstring = 0;
 			flag_selectcommand = 0;
@@ -3006,7 +3005,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 744 "gix_esql_scanner.ll"
+#line 764 "gix_esql_scanner.ll"
 {
 			flag_insqlstring = 0;
 			flag_selectcommand = 0;
@@ -3018,7 +3017,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 753 "gix_esql_scanner.ll"
+#line 773 "gix_esql_scanner.ll"
 {
 		      //yylval.s = strdup (yytext);
 		      //return TOKEN;       
@@ -3029,7 +3028,7 @@ YY_RULE_SETUP
 
 case 75:
 YY_RULE_SETUP
-#line 762 "gix_esql_scanner.ll"
+#line 782 "gix_esql_scanner.ll"
 {
 		yy_push_state(SPECIAL_DECLARE_STATE);
                 driver.startlineno = yylineno;
@@ -3042,7 +3041,7 @@ YY_RULE_SETUP
 case 76:
 /* rule 76 can match eol */
 YY_RULE_SETUP
-#line 771 "gix_esql_scanner.ll"
+#line 791 "gix_esql_scanner.ll"
 {
 		yy_push_state(SPECIAL_DECLARE_STATE);
                 driver.startlineno = yylineno-1;
@@ -3054,7 +3053,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 781 "gix_esql_scanner.ll"
+#line 801 "gix_esql_scanner.ll"
 {
 		driver.startlineno = yylineno;
 		driver.endlineno = yylineno;
@@ -3076,7 +3075,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 800 "gix_esql_scanner.ll"
+#line 820 "gix_esql_scanner.ll"
 {
 		driver.startlineno = yylineno;
 		driver.endlineno = yylineno;
@@ -3098,7 +3097,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 819 "gix_esql_scanner.ll"
+#line 839 "gix_esql_scanner.ll"
 {
 		driver.startlineno = yylineno;
 		driver.endlineno = yylineno;
@@ -3120,22 +3119,22 @@ YY_RULE_SETUP
 case 80:
 /* rule 80 can match eol */
 YY_RULE_SETUP
-#line 839 "gix_esql_scanner.ll"
+#line 859 "gix_esql_scanner.ll"
 {}
 	YY_BREAK
 case 81:
-#line 842 "gix_esql_scanner.ll"
+#line 862 "gix_esql_scanner.ll"
 case 82:
-#line 843 "gix_esql_scanner.ll"
+#line 863 "gix_esql_scanner.ll"
 case 83:
-#line 844 "gix_esql_scanner.ll"
+#line 864 "gix_esql_scanner.ll"
 case 84:
-#line 845 "gix_esql_scanner.ll"
+#line 865 "gix_esql_scanner.ll"
 case 85:
-#line 846 "gix_esql_scanner.ll"
+#line 866 "gix_esql_scanner.ll"
 case 86:
 YY_RULE_SETUP
-#line 846 "gix_esql_scanner.ll"
+#line 866 "gix_esql_scanner.ll"
 {
 		driver.startlineno = yylineno - 1;
 		driver.endlineno = yylineno - 1;
@@ -3157,134 +3156,134 @@ YY_RULE_SETUP
     }
 	YY_BREAK
 case 87:
-#line 868 "gix_esql_scanner.ll"
+#line 888 "gix_esql_scanner.ll"
 case 88:
 YY_RULE_SETUP
-#line 868 "gix_esql_scanner.ll"
+#line 888 "gix_esql_scanner.ll"
 {
 		yy_push_state(PICTURE_STATE);
     }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 872 "gix_esql_scanner.ll"
+#line 892 "gix_esql_scanner.ll"
 {
 		return yy::gix_esql_parser::make_OCCURS(loc);
 	}
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 876 "gix_esql_scanner.ll"
+#line 896 "gix_esql_scanner.ll"
 {
 		return yy::gix_esql_parser::make_NUMERIC(atoi(yytext), loc);
 	}
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 880 "gix_esql_scanner.ll"
+#line 900 "gix_esql_scanner.ll"
 {return yy::gix_esql_parser::make_USAGE(loc);}
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 881 "gix_esql_scanner.ll"
+#line 901 "gix_esql_scanner.ll"
 { 
         return yy::gix_esql_parser::make_COMP(loc);     
 	} 
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 884 "gix_esql_scanner.ll"
+#line 904 "gix_esql_scanner.ll"
 { 
         return yy::gix_esql_parser::make_BINARY(loc);      
 	}
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 887 "gix_esql_scanner.ll"
+#line 907 "gix_esql_scanner.ll"
 { 
         return yy::gix_esql_parser::make_COMP_1(loc);        
     }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 890 "gix_esql_scanner.ll"
+#line 910 "gix_esql_scanner.ll"
 { 
         return yy::gix_esql_parser::make_COMP_2(loc);
     }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 893 "gix_esql_scanner.ll"
+#line 913 "gix_esql_scanner.ll"
 {
         return yy::gix_esql_parser::make_COMP_3(loc);
     }
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
-#line 897 "gix_esql_scanner.ll"
+#line 917 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_SIGN(loc) ;} 
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 898 "gix_esql_scanner.ll"
+#line 918 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_LEADING(loc);}
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
-#line 899 "gix_esql_scanner.ll"
+#line 919 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_SEPARATE(loc); }
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
-#line 900 "gix_esql_scanner.ll"
+#line 920 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_TRAILING(loc); }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 901 "gix_esql_scanner.ll"
+#line 921 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_EXTERNAL(loc);}
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
-#line 902 "gix_esql_scanner.ll"
+#line 922 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_IS(loc);}
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
-#line 903 "gix_esql_scanner.ll"
+#line 923 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_ARE(loc);}
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
-#line 904 "gix_esql_scanner.ll"
+#line 924 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_TIMES(loc);}
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
-#line 905 "gix_esql_scanner.ll"
+#line 925 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_VALUE(loc);}
 	YY_BREAK
 case 106:
 YY_RULE_SETUP
-#line 906 "gix_esql_scanner.ll"
+#line 926 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_ALL(loc);} 
 	YY_BREAK
 case 107:
 /* rule 107 can match eol */
 YY_RULE_SETUP
-#line 907 "gix_esql_scanner.ll"
+#line 927 "gix_esql_scanner.ll"
 { return yy::gix_esql_parser::make_CONST(loc); }
 	YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 908 "gix_esql_scanner.ll"
+#line 928 "gix_esql_scanner.ll"
 {
 			return yy::gix_esql_parser::make_WORD(yytext, loc);
         }
 	YY_BREAK
 case 109:
 YY_RULE_SETUP
-#line 912 "gix_esql_scanner.ll"
+#line 932 "gix_esql_scanner.ll"
 {    
 			return yy::gix_esql_parser::make_PERIOD(loc);
 		}
@@ -3292,12 +3291,12 @@ YY_RULE_SETUP
 case 110:
 /* rule 110 can match eol */
 YY_RULE_SETUP
-#line 916 "gix_esql_scanner.ll"
+#line 936 "gix_esql_scanner.ll"
 { }
 	YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 918 "gix_esql_scanner.ll"
+#line 938 "gix_esql_scanner.ll"
 {}
 	YY_BREAK
 
@@ -3305,12 +3304,12 @@ YY_RULE_SETUP
 case 112:
 /* rule 112 can match eol */
 YY_RULE_SETUP
-#line 922 "gix_esql_scanner.ll"
+#line 942 "gix_esql_scanner.ll"
 {   }
 	YY_BREAK
 case 113:
 YY_RULE_SETUP
-#line 924 "gix_esql_scanner.ll"
+#line 944 "gix_esql_scanner.ll"
 {
 		driver.commandname = "INCFILE";
 		driver.incfilename = QString(yytext) + ".";
@@ -3322,14 +3321,14 @@ YY_RULE_SETUP
 
 case 114:
 YY_RULE_SETUP
-#line 934 "gix_esql_scanner.ll"
+#line 954 "gix_esql_scanner.ll"
 {
 	/* ignore */
   }
 	YY_BREAK
 case 115:
 YY_RULE_SETUP
-#line 937 "gix_esql_scanner.ll"
+#line 957 "gix_esql_scanner.ll"
 {
 	
 	yy_pop_state();
@@ -3341,14 +3340,14 @@ YY_RULE_SETUP
 case 116:
 /* rule 116 can match eol */
 YY_RULE_SETUP
-#line 946 "gix_esql_scanner.ll"
+#line 966 "gix_esql_scanner.ll"
 {
 	
 }
 	YY_BREAK
 case 117:
 YY_RULE_SETUP
-#line 950 "gix_esql_scanner.ll"
+#line 970 "gix_esql_scanner.ll"
 {
      
 	//Ignore 
@@ -3357,14 +3356,14 @@ YY_RULE_SETUP
 case 118:
 /* rule 118 can match eol */
 YY_RULE_SETUP
-#line 954 "gix_esql_scanner.ll"
+#line 974 "gix_esql_scanner.ll"
 { 
 
 }
 	YY_BREAK
 case 119:
 YY_RULE_SETUP
-#line 958 "gix_esql_scanner.ll"
+#line 978 "gix_esql_scanner.ll"
 {
 	if (strlen(yytext) == 1 && yytext[0] == '.') {
 		if (!driver.procedure_division_started && cur_line_content.contains("PROGRAM-ID")) {
@@ -3395,7 +3394,7 @@ case YY_STATE_EOF(ESQL_SELECT_STATE):
 case YY_STATE_EOF(ESQL_STATE):
 case YY_STATE_EOF(INCLUDE_STATE):
 case YY_STATE_EOF(FD_STATE):
-#line 979 "gix_esql_scanner.ll"
+#line 999 "gix_esql_scanner.ll"
 {
 	return yy::gix_esql_parser::make_YYEOF(loc);
 	//yyterminate ();
@@ -3403,10 +3402,10 @@ case YY_STATE_EOF(FD_STATE):
 	YY_BREAK
 case 120:
 YY_RULE_SETUP
-#line 985 "gix_esql_scanner.ll"
+#line 1005 "gix_esql_scanner.ll"
 ECHO;
 	YY_BREAK
-#line 3389 "gix_esql_scanner.cc"
+#line 3408 "gix_esql_scanner.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -4531,7 +4530,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 985 "gix_esql_scanner.ll"
+#line 1005 "gix_esql_scanner.ll"
 
 
 // CHANGE: The "parts of the driver that need lexer data" have been

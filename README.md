@@ -1,4 +1,4 @@
-﻿# Gix-iDE
+﻿# Gix-IDE
 Gix-IDE (or Gix) is an IDE and platform for GnuCOBOL, providing a native debugger, ESQL and HTTP REST services.
 
 ## Current state, development and plans for the future
@@ -13,10 +13,10 @@ The centerpiece is a Qt-based IDE that provides syntax highlighting (thanks to S
 Gix-IDE incorporates a custom module that provides native debugging (only supported with GnuCOBOL 3.1+) including breakpoints, stepping, variable inspection of both executable and callable modules.
 
 ### ESQL support
-Gix-IDE provides an ESQL preprocessor and drivers for ODBC, MySQL and PostgreSQL. The preprocessor has been developed starting from OceSQL, but has been almost completely rewritten in its last iterations. It has been at the center of several production applications for a few years now.
+Gix-IDE provides an ESQL preprocessor and drivers for ODBC, MySQL and PostgreSQL. The preprocessor has been developed starting from OceSQL, but has been almost completely rewritten in its last iterations. It has been at the center of several production applications for a few years now. The ESQL subsystem, though having been rewritten and refactored for the most part, started as a (private) fork of [OceSQL](https://github.com/opensourcecobol/Open-COBOL-ESQL).
 
 ### HTTP REST Services
-An HTTP server is provided that can natively call GnuCOBOL modules, using HTTP methods and JSON for input/output. Such modules can be run and debugged from inside the IDE.
+An HTTP server is provided that can natively call GnuCOBOL modules, using HTTP methods and JSON for input/output. Such modules can be run and debugged from inside the IDE. This module (named gix-http) is largely based on [QtWebApp](http://stefanfrings.de/qtwebapp/index-en.html) by Stefan Frings.
 
 ### DB management
 Gix-IDE also incorporates a DB manager that can generate COPY files from a DB connection (DCLGEN-style) and look at basic table/field properties.
@@ -28,13 +28,11 @@ While Gix-IDE runs standard GnuCOBOL versions that can be added to the install, 
 While the focus of Gix-IDE is currently on Windows, a Linux versions of the IDE can be successfully built and run,
 
 ### License
-Gix-IDE is GPL 2 licensed, with some exceptions, due to a few dependencies:
+Gix-IDE is GPL 3 licensed, with some exceptions:
 
- - The ESQL subsystem, though having been rewritten and refactored for the most part, started as a (private) fork of [OceSQL](https://github.com/tollofsen/ocesql):
-   - libgixsql and all the libgixsql-* runtime libraries are LGPL 2.1+
-   - gixpp (the preprocessor is GPL 2.1+
-  - gix-http is a modification of [QtWebApp](http://stefanfrings.de/qtwebapp/index-en.html) by Stefan Frings and is licensed as LGPL3+
-  - libdwarf is LGPL 2.1+
+ - The ESQL subsystem runtime: libgixsql (main library) and all the libgixsql-* runtime libraries (DB-specific drivers) are LGPL 3+
+  - gix-http is licensed as LGPL3+
+  - libdwarf is LGPL 2.1
   - Scintilla comes under its own GPL-compatible license
 
 ## Documentation

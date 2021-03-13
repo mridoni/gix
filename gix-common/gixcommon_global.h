@@ -4,7 +4,7 @@ Copyright (C) 2021 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
+the Free Software Foundation; either version 3 of the License, or (at
 your option) any later version.
 
 This program is distributed in the hope that it will be useful, but
@@ -22,14 +22,18 @@ USA.
 
 #include <QtCore/qglobal.h>
 
-#ifndef BUILD_STATIC
-# if defined(GIXCOMMON_LIB)
-#  define GIXCOMMON_EXPORT Q_DECL_EXPORT
-# else
-#  define GIXCOMMON_EXPORT Q_DECL_IMPORT
-# endif
+#if defined(GIXCOMMON_LIB)
+	#if defined(WIN32) && !defined(__MINGW32__)  
+		#define GIXCOMMON_EXPORT Q_DECL_EXPORT
+	#else
+		#define GIXCOMMON_EXPORT	
+	#endif
 #else
-# define GIXCOMMON_EXPORT
+	#if defined(WIN32) && !defined(__MINGW32__)  
+		#define GIXCOMMON_EXPORT Q_DECL_IMPORT
+	#else
+		#define GIXCOMMON_EXPORT	
+	#endif		
 #endif
 
 #define GIX_CONSOLE_LOG "GIX-CONSOLE"

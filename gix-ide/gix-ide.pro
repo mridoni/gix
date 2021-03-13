@@ -19,15 +19,16 @@ linux:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEdi
 linux:LIBPATH += ../libs/scintilla/src/scintilla/bin $(DESTDIR) 
 linux:LIBS += -lScintillaEdit -L$(DESTDIR) -L ../libs/scintilla/src/scintilla/bin/ -lgix-common -lgixsql -ldwarf
 
-win32:DEFINES += _UNICODE WIN64 QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _HAS_STD_BYTE=0
-win32:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEditBase ../libs/scintilla/qt/ScintillaEdit ../gixsql/libgixsql  ../build-tools/grammar-tools  ../libs/libdwarf
+win32:DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _HAS_STD_BYTE=0
+win32:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEditBase ../libs/scintilla/qt/ScintillaEdit ../gixsql/libgixsql  ../build-tools/grammar-tools  ../libs/libdwarf/libdwarf
 win32:RC_FILE = gix-ide.rc
-win32:LIBPATH += ../libs/scintilla/src/scintilla/bin $(DESTDIR) 
+win32:LIBPATH += ../libs/scintilla/src/scintilla/bin ../libs/libdwarf/libdwarf $(DESTDIR)
 win32:LIBS += -lScintillaEdit4 -lwsock32 -lgix-common -lgixsql -ldwarf -ldbghelp -limagehlp -lgixutils -lz
 win32:QMAKE_LFLAGS_DEBUG += -rdynamic -L ../libs/libdwarf
 win32:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
 win32:QMAKE_LFLAGS_RELEASE+= -L ../libs/libdwarf
 win32:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
+win32:DEFINES -= UNICODE _UNICODE
 
 macx:LIBS += -F $(HOME)/Projects/scintilla/bin -framework ScintillaEdit -lgixutils -lgixixpp -lgix-common -lgixsql
 macx:QMAKE_POST_LINK = mkdir -p ../x64/Debug/gix-ide.app/Contents/Frameworks && cp -frvp ../../scintilla/bin/ScintillaEdit.framework ../x64/Debug/gix-ide.app/Contents/Frameworks

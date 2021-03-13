@@ -27,6 +27,7 @@ The compilers available on [Arnold Trembley's page](https://www.arnoldtrembley.c
    	 - [PostgreSQL x64 binaries](https://sbp.enterprisedb.com/getfile.jsp?fileid=1257551&_ga=2.17284795.341452640.1615031602-1234917009.1613646523)
  You can probably use newer versions without problems, the versions linked are the ones currently in use to build the binary packages. Since we are only using the client libraries and headers, older versions should not be a problem.
  - Clone the repository or download the snapshot
+ - Install cmake (if not already installed)
  - You will need the **Qt Visual Studio Tools**:  unfortunately they are only available as a VSIX extension, so if you are using the VS C++ Build Tools (no full VS), go into the "build-tools" directory and extract the QtMsBuild.zip archive somewhere (this a repackaged version of the Qt Visual Studio Tools). If you are using the full Visual Studio IDE, just download and install the [Qt Visual Studio Tools](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019) (follow the link or use The Extension Manager in Visual Studio).
  - If you are using the VS C++ Build Tools, you will have to manually download the nuget.exe executable from [here](https://www.nuget.org/downloads).
    
@@ -46,16 +47,19 @@ The compilers available on [Arnold Trembley's page](https://www.arnoldtrembley.c
 		
 - Open a Visual Studio "Developer Command Prompt" and navigate to the directory where you have uncompressed the Gix-IDE source.
 - Run `<path to nuget.exe>\nuget.exe restore` (this should download and install a NuGet Package)
+- Go into the `libs/libdwarf` subdirectory and run `cmake . -G "Visual Studio 16 2019"`, then go back up to the source root directory
 - Run `msbuild gix-ide.sln /p:Configuration=Release /p:Platform=x64` to build Gix-IDE
 
 If all goes well, you should find the binaries in the **x64** directory.
 
-### Windows, with MingW64/MSYS2
+### Windows, with MinGW-w64/MSYS2
 
  - Gix-IDE uses C++17 features, so ensure your GCC version is "not really old"
  - Download and install the Qt SDK (same versions as above)
+ - Install cmake in MSYS2 (if not already installed)
  - Clone or download the repository
  - Set up the environment variables as above (you cam obviously ignore QtMsBuild and QtToolsPath)
+ - Go into the `libs/libdwarf` subdirectory and run `cmake . -G "MSYS Makefiles"`, then go back up to the source root directory
  - run `qmake` (or `qmake CONFIG+=debug` if you want to build a debug-enabled version)
  - run make
 
@@ -67,6 +71,8 @@ You might need to add Qt's library path to your PATH variable, in order to launc
  - Download and install the Qt SDK (same versions as above)
  - Clone or download the repository
  - Set up the environment variables as above (you cam obviously ignore QtMsBuild and QtToolsPath)
+ - Install cmake (if not already installed)
+ - Go into the `libs/libdwarf` subdirectory and run `cmake .`, then go back up to the source root directory
  - run `qmake` (or `qmake CONFIG+=debug` if you want to build a debug-enabled version)
  - run make
 

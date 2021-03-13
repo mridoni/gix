@@ -1,5 +1,7 @@
 TEMPLATE = lib
-TARGET = libgixsql-mysql
+TARGET = gixsql-mysql
+win32:TARGET = libgixsql-mysql
+
 INCLUDEPATH += . ../libgixsql /usr/include/mysql
 
 CONFIG(debug,debug|release) DESTDIR = ../../x64/Debug

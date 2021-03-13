@@ -12,9 +12,14 @@ SUBDIRS += \
 			libgixpp \
 			libgixutils \
 			gix-common \
-			scintilla \
-			gix-ide
+			gix-http \
+			gixpp \
+			scintilla
 			
+win32:SUBDIRS += libs/libdwarf/libdwarf	
+			
+SUBDIRS += gix-ide				
+
 libgixpp.subdir = libgixpp			
 libgixutils.subdir = libgixutils			
 libgixsql.subdir  = gixsql/libgixsql
@@ -24,16 +29,22 @@ libgixsql-pgsql.subdir  = gixsql/libgixsql-pgsql
 gix-common.subdir  = gix-common			
 scintilla.subdir = libs/scintilla/src/scintilla/qt/ScintillaEdit
 gix-ide.subdir = gix-ide
-
 gix-ide.depends = libgixpp libgixutils gix-common gix-debugger libgixsql scintilla
+
+win32:gix-ide.depends += libs/libdwarf/libdwarf
+win32:libdwarf.subdir = libs/libdwarf/libdwarf
+
 libgixsql-odbc.depends = libgixsql
 libgixsql-mysql.depends = libgixsql
 libgixsql-pgsql.depends = libgixsql
 
+gixpp.subdir = gixpp
+gixpp.depends = libgixpp
+
 unix:GIX_INSTALL_DIR = /opt/gix-ide
 win32:GIX_INSTALL_DIR = c:/gix-ide
 
-gix-ide.path = ${GIX_INSTALL_DIR}/bin
+gix-ide.path = ${DESTDIR}
 gix-ide.files = $(DESTIDIR)/gix-ide
 
 INSTALLS += gix-ide

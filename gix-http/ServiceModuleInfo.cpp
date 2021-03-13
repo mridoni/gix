@@ -109,21 +109,21 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 	libHandle = LoadLibrary(QDir::toNativeSeparators(shared_module).toLocal8Bit().constData());
 
 	if (!libHandle)
-		return false;
+		return nullptr;
 
 	for (QString module : cob_module_list) {
-		void *p__GIX_SYM_MOD_EC = GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_EC").toLocal8Bit().constData());
-		void *p__GIX_SYM_MOD_ES = GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_ES").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_EC = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_EC").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_ES = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_ES").toLocal8Bit().constData());
 
-		void *p__GIX_SYM_MOD_MC = GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_MC").toLocal8Bit().constData());
-		void *p__GIX_SYM_MOD_MS = GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_MS").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_MC = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_MC").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_MS = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_MS").toLocal8Bit().constData());
 
 		uint8_t *__GIX_SYM_MOD_E = (uint8_t *)GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_E").toLocal8Bit().constData());
 		uint8_t *__GIX_SYM_MOD_M = (uint8_t *)GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_M").toLocal8Bit().constData());
 
 		if (!p__GIX_SYM_MOD_EC || !p__GIX_SYM_MOD_ES || !p__GIX_SYM_MOD_MC || !p__GIX_SYM_MOD_MS || !__GIX_SYM_MOD_E || !__GIX_SYM_MOD_M) {
 			FreeLibrary(libHandle);
-			return false;
+			return nullptr;
 		}
 		int __GIX_SYM_MOD_EC = *(int *)p__GIX_SYM_MOD_EC;
 		int __GIX_SYM_MOD_ES = *(int *)p__GIX_SYM_MOD_ES;
@@ -185,29 +185,28 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 
 
 #else
-
+// To be implemented
+/*
 	strcat(bfr, ".so");
-	LOG_DEBUG(__FILE__, __func__, "loading DB provider: %s\n", bfr);
 
 	libHandle = dlopen(bfr, RTLD_NOW);
 	if (libHandle != NULL) {
 		dblib_provider = (DBLIB_PROVIDER_FUNC)dlsym(libHandle, "get_dblib");
-		LOG_DEBUG(__FILE__, __func__, "Accessing DB provider: %s\n", bfr);
 		// If the function address is valid, call the function. 
 		if (dblib_provider != NULL) {
 			dbi = dblib_provider();
 			lib_map[dbi] = libHandle;
 		}
 		else {
-			LOG_ERROR("ERROR while accessing DB provider: %s\n", bfr);
+			return nullptr;
 		}
 
 		// Library not freed here
 	}
 	else {
-		LOG_ERROR("ERROR while loading DB provider: %s\n", bfr);
+		return nullptr;
 	}
-
+*/
 #endif
 
 
@@ -247,6 +246,7 @@ DataEntry *ServiceModuleInfo::buildInterfaceEntryTree(const QString &root_field_
 	return e;
 }
 
+#if defined(_WIN32) || defined(_WIN64)
 
 void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions)
 {
@@ -274,3 +274,4 @@ void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions)
 		UnMapAndLoad(&LoadedImage);
 	}
 }
+#endif

@@ -45,7 +45,7 @@
 #ifndef YY_YY_GIX_ESQL_PARSER_HH_INCLUDED
 # define YY_YY_GIX_ESQL_PARSER_HH_INCLUDED
 // "%code requires" blocks.
-#line 11 "gix_esql_parser.yy"
+#line 31 "gix_esql_parser.yy"
 
 #include <QString>
 #include <QList>

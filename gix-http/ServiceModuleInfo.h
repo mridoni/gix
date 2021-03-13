@@ -29,7 +29,7 @@ class ServiceModuleInfo
 public:
 	static ServiceModuleInfo *load(ServiceConfig *svc);
 
-	DataEntry *ServiceModuleInfo::buildInterfaceEntryTree(const QString &root_field_id);
+	DataEntry *buildInterfaceEntryTree(const QString &root_field_id);
 	bool containsEntry(const QString &name);
 	DataEntry *getEntry(const QString &name);
 	QList<DataEntry *>getEntryList() const;
@@ -39,7 +39,7 @@ public:
 	static ServiceModuleInfo *extractSharedModuleInfo(const QString &shared_module);
 
 private:
-	void ServiceModuleInfo::add_tree_children(DataEntry *e);
+	void add_tree_children(DataEntry *e);
 
 };
 

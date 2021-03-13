@@ -1,5 +1,7 @@
 TEMPLATE = lib
-TARGET = libgixsql-odbc
+TARGET = gixsql-odbc
+win32:TARGET = libgixsql-odbc
+
 INCLUDEPATH += . ../libgixsql
 
 CONFIG(debug,debug|release) DESTDIR = ../../x64/Debug

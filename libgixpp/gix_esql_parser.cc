@@ -42,7 +42,7 @@
 
 
 // Unqualified %code blocks.
-#line 42 "gix_esql_parser.yy"
+#line 62 "gix_esql_parser.yy"
 
 #include "gix_esql_driver.hh"
 #define yylex driver.lexer.yylex
@@ -486,217 +486,217 @@ namespace yy {
         switch (yykind)
     {
       case symbol_kind::S_SELECT: // SELECT
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 492 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_SELECTFROM: // SELECTFROM
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 498 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_TOKEN: // TOKEN
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 504 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_HOSTTOKEN: // HOSTTOKEN
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 510 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_WORD: // WORD
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 516 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_PICTURE: // PICTURE
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 522 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_INSERT: // INSERT
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 528 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_UPDATE: // UPDATE
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 534 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_DISCONNECT: // DISCONNECT
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 540 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_DELETE: // DELETE
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 546 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_EXECUTE: // EXECUTE
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 552 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_OTHERFUNC: // OTHERFUNC
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 558 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_INTO: // INTO
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 564 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_NUMERIC: // NUMERIC
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < long > ()); }
 #line 570 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_WITH_HOLD: // WITH_HOLD
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < int > ()); }
 #line 576 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_updatesql: // updatesql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 582 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_update: // update
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 588 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_disconnectsql: // disconnectsql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 594 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_disconnect: // disconnect
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 600 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_deletesql: // deletesql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 606 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_delete: // delete
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 612 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_insertsql: // insertsql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 618 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_insert: // insert
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 624 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_opensql: // opensql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 630 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_othersql: // othersql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 636 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_incfile: // incfile
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 642 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_includesql: // includesql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 648 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_selectintosql: // selectintosql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 654 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_declaresql: // declaresql
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 660 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_select: // select
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 666 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_token_list: // token_list
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 672 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_host_reference: // host_reference
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 678 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_expr: // expr
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 684 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_declare_cursor: // declare_cursor
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QList<QString> * > ()); }
 #line 690 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_declare_table: // declare_table
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 696 "gix_esql_parser.cc"
         break;
 
       case symbol_kind::S_declare_special: // declare_special
-#line 141 "gix_esql_parser.yy"
+#line 161 "gix_esql_parser.yy"
                  { yyoutput << to_std_string(yysym.value.template as < QString > ()); }
 #line 702 "gix_esql_parser.cc"
         break;
@@ -817,7 +817,7 @@ namespace yy {
 
 
     // User initialization code.
-#line 31 "gix_esql_parser.yy"
+#line 51 "gix_esql_parser.yy"
 {
     // Initialize the initial location.
     yyla.location.begin.filename = yyla.location.end.filename = &driver.file;
@@ -1007,7 +1007,7 @@ namespace yy {
           switch (yyn)
             {
   case 21: // updatesql: EXECSQL update token_list END_EXEC
-#line 169 "gix_esql_parser.yy"
+#line 189 "gix_esql_parser.yy"
 {
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list (yystack_[2].value.as < QList<QString> * > (), yystack_[1].value.as < QList<QString> * > ());
 	driver.put_exec_list();
@@ -1016,7 +1016,7 @@ namespace yy {
     break;
 
   case 22: // updatesql: EXECSQL update token_list WHERE_CURRENT_OF expr END_EXEC
-#line 174 "gix_esql_parser.yy"
+#line 194 "gix_esql_parser.yy"
 {
 	driver.cb_set_cursorname(yystack_[1].value.as < QString > ());
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list (yystack_[4].value.as < QList<QString> * > (), yystack_[3].value.as < QList<QString> * > ());
@@ -1028,13 +1028,13 @@ namespace yy {
     break;
 
   case 23: // update: UPDATE
-#line 183 "gix_esql_parser.yy"
+#line 203 "gix_esql_parser.yy"
        {yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (NULL, yystack_[0].value.as < QString > ());}
 #line 1034 "gix_esql_parser.cc"
     break;
 
   case 24: // disconnectsql: EXECSQL disconnect token_list END_EXEC
-#line 188 "gix_esql_parser.yy"
+#line 208 "gix_esql_parser.yy"
 {
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list (yystack_[2].value.as < QList<QString> * > (), yystack_[1].value.as < QList<QString> * > ());
 	driver.put_exec_list();
@@ -1043,13 +1043,13 @@ namespace yy {
     break;
 
   case 25: // disconnect: DISCONNECT
-#line 194 "gix_esql_parser.yy"
+#line 214 "gix_esql_parser.yy"
            {yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (NULL, yystack_[0].value.as < QString > ());}
 #line 1049 "gix_esql_parser.cc"
     break;
 
   case 26: // deletesql: EXECSQL delete token_list END_EXEC
-#line 198 "gix_esql_parser.yy"
+#line 218 "gix_esql_parser.yy"
 {
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list (yystack_[2].value.as < QList<QString> * > (), yystack_[1].value.as < QList<QString> * > ());
 	driver.put_exec_list();
@@ -1058,13 +1058,13 @@ namespace yy {
     break;
 
   case 27: // delete: DELETE
-#line 205 "gix_esql_parser.yy"
+#line 225 "gix_esql_parser.yy"
        {yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (NULL, yystack_[0].value.as < QString > ());}
 #line 1064 "gix_esql_parser.cc"
     break;
 
   case 28: // insertsql: EXECSQL insert token_list END_EXEC
-#line 209 "gix_esql_parser.yy"
+#line 229 "gix_esql_parser.yy"
 {
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list (yystack_[2].value.as < QList<QString> * > (), yystack_[1].value.as < QList<QString> * > ());
 	driver.put_exec_list();
@@ -1073,19 +1073,19 @@ namespace yy {
     break;
 
   case 29: // insert: INSERT
-#line 215 "gix_esql_parser.yy"
+#line 235 "gix_esql_parser.yy"
        {yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (NULL, yystack_[0].value.as < QString > ());}
 #line 1079 "gix_esql_parser.cc"
     break;
 
   case 30: // insert: insert INTO
-#line 216 "gix_esql_parser.yy"
+#line 236 "gix_esql_parser.yy"
               {yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (yystack_[1].value.as < QList<QString> * > (), yystack_[0].value.as < QString > ());}
 #line 1085 "gix_esql_parser.cc"
     break;
 
   case 31: // rollbacksql: EXECSQL ROLLBACK_WORK END_EXEC
-#line 221 "gix_esql_parser.yy"
+#line 241 "gix_esql_parser.yy"
                                {
 	driver.put_exec_list();
 }
@@ -1093,7 +1093,7 @@ namespace yy {
     break;
 
   case 32: // commitsql: EXECSQL COMMIT_WORK END_EXEC
-#line 226 "gix_esql_parser.yy"
+#line 246 "gix_esql_parser.yy"
                              {
 	driver.put_exec_list();
 }
@@ -1101,7 +1101,7 @@ namespace yy {
     break;
 
   case 33: // fetchsql: EXECSQL fetch INTO res_host_references END_EXEC
-#line 232 "gix_esql_parser.yy"
+#line 252 "gix_esql_parser.yy"
                                                 {
 	driver.put_exec_list();
 }
@@ -1109,37 +1109,37 @@ namespace yy {
     break;
 
   case 34: // fetch: FETCH expr
-#line 236 "gix_esql_parser.yy"
+#line 256 "gix_esql_parser.yy"
            { driver.cb_set_cursorname(yystack_[0].value.as < QString > ());}
 #line 1115 "gix_esql_parser.cc"
     break;
 
   case 35: // host_references: host_reference
-#line 239 "gix_esql_parser.yy"
+#line 259 "gix_esql_parser.yy"
                {driver.cb_host_list_add (driver.host_reference_list, yystack_[0].value.as < QString > ());}
 #line 1121 "gix_esql_parser.cc"
     break;
 
   case 37: // host_references: host_references host_reference
-#line 241 "gix_esql_parser.yy"
+#line 261 "gix_esql_parser.yy"
                                  {driver.cb_host_list_add (driver.host_reference_list, yystack_[0].value.as < QString > ());}
 #line 1127 "gix_esql_parser.cc"
     break;
 
   case 38: // res_host_references: host_reference
-#line 244 "gix_esql_parser.yy"
+#line 264 "gix_esql_parser.yy"
                {driver.cb_res_host_list_add (driver.res_host_reference_list, yystack_[0].value.as < QString > ());}
 #line 1133 "gix_esql_parser.cc"
     break;
 
   case 40: // res_host_references: res_host_references host_reference
-#line 246 "gix_esql_parser.yy"
+#line 266 "gix_esql_parser.yy"
                                      {driver.cb_res_host_list_add (driver.res_host_reference_list, yystack_[0].value.as < QString > ());}
 #line 1139 "gix_esql_parser.cc"
     break;
 
   case 41: // closesql: EXECSQL CLOSE expr END_EXEC
-#line 249 "gix_esql_parser.yy"
+#line 269 "gix_esql_parser.yy"
                             {
 	driver.cb_set_cursorname(yystack_[1].value.as < QString > ());
 	driver.put_exec_list();
@@ -1148,7 +1148,7 @@ namespace yy {
     break;
 
   case 42: // opensql: EXECSQL OPEN expr END_EXEC
-#line 255 "gix_esql_parser.yy"
+#line 275 "gix_esql_parser.yy"
                            {
 	driver.cb_set_cursorname(yystack_[1].value.as < QString > ());
 	driver.put_exec_list();
@@ -1157,7 +1157,7 @@ namespace yy {
     break;
 
   case 43: // opensql: EXECSQL OPEN expr USING host_references END_EXEC
-#line 259 "gix_esql_parser.yy"
+#line 279 "gix_esql_parser.yy"
                                                    {
 	driver.cb_set_cursorname(yystack_[3].value.as < QString > ());
 	driver.put_exec_list();
@@ -1166,25 +1166,25 @@ namespace yy {
     break;
 
   case 44: // connectsql: EXECSQL connect identified using END_EXEC
-#line 265 "gix_esql_parser.yy"
+#line 285 "gix_esql_parser.yy"
                                           { driver.put_exec_list(); }
 #line 1172 "gix_esql_parser.cc"
     break;
 
   case 45: // connectsql: EXECSQL connect END_EXEC
-#line 266 "gix_esql_parser.yy"
+#line 286 "gix_esql_parser.yy"
                            { driver.put_exec_list(); }
 #line 1178 "gix_esql_parser.cc"
     break;
 
   case 46: // connectsql: EXECSQL connect_to END_EXEC
-#line 267 "gix_esql_parser.yy"
+#line 287 "gix_esql_parser.yy"
                               { driver.put_exec_list(); }
 #line 1184 "gix_esql_parser.cc"
     break;
 
   case 47: // connect_to: CONNECT_TO HOSTTOKEN USER HOSTTOKEN
-#line 270 "gix_esql_parser.yy"
+#line 290 "gix_esql_parser.yy"
                                     { 
 	driver.cb_host_list_add (driver.host_reference_list, yystack_[0].value.as < QString > ());
 	driver.cb_host_list_add_force (driver.host_reference_list, yystack_[0].value.as < QString > ());
@@ -1194,7 +1194,7 @@ namespace yy {
     break;
 
   case 48: // resetsql: EXECSQL CONNECT_RESET END_EXEC
-#line 278 "gix_esql_parser.yy"
+#line 298 "gix_esql_parser.yy"
                                { 
  driver.put_exec_list();
  }
@@ -1202,7 +1202,7 @@ namespace yy {
     break;
 
   case 49: // othersql: EXECSQL OTHERFUNC token_list END_EXEC
-#line 283 "gix_esql_parser.yy"
+#line 303 "gix_esql_parser.yy"
                                       {
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, yystack_[2].value.as < QString > ()), yystack_[1].value.as < QList<QString> * > ());
 	driver.put_exec_list();
@@ -1211,7 +1211,7 @@ namespace yy {
     break;
 
   case 50: // connect: CONNECT host_reference
-#line 289 "gix_esql_parser.yy"
+#line 309 "gix_esql_parser.yy"
                        {
 	driver.cb_host_list_add (driver.host_reference_list, yystack_[0].value.as < QString > ());
 }
@@ -1219,7 +1219,7 @@ namespace yy {
     break;
 
   case 51: // identified: IDENTIFIED_BY host_reference
-#line 295 "gix_esql_parser.yy"
+#line 315 "gix_esql_parser.yy"
                              {
 	driver.cb_host_list_add (driver.host_reference_list, yystack_[0].value.as < QString > ());
 }
@@ -1227,7 +1227,7 @@ namespace yy {
     break;
 
   case 52: // using: USING host_reference
-#line 300 "gix_esql_parser.yy"
+#line 320 "gix_esql_parser.yy"
                      {
 	driver.cb_host_list_add (driver.host_reference_list, yystack_[0].value.as < QString > ());
 }
@@ -1235,7 +1235,7 @@ namespace yy {
     break;
 
   case 53: // incfile: EXECSQL_INCLUDE INCLUDE_FILE END_EXEC
-#line 306 "gix_esql_parser.yy"
+#line 326 "gix_esql_parser.yy"
                                      {
 	driver.put_exec_list();
 	driver.lexer.pushNewFile(driver.incfilename, &driver, true, true);
@@ -1244,7 +1244,7 @@ namespace yy {
     break;
 
   case 54: // incfile: COPY
-#line 310 "gix_esql_parser.yy"
+#line 330 "gix_esql_parser.yy"
        { 
 	driver.put_exec_list(); 
 
@@ -1254,7 +1254,7 @@ namespace yy {
     break;
 
   case 55: // includesql: EXECSQL_INCLUDE INCLUDE_SQLCA END_EXEC
-#line 317 "gix_esql_parser.yy"
+#line 337 "gix_esql_parser.yy"
                                       {
 	driver.put_exec_list();
 }
@@ -1262,7 +1262,7 @@ namespace yy {
     break;
 
   case 56: // selectintosql: EXECSQL SELECT token_list INTO res_host_references SELECTFROM token_list END_EXEC
-#line 322 "gix_esql_parser.yy"
+#line 342 "gix_esql_parser.yy"
                                                                                    {
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, yystack_[6].value.as < QString > ()), yystack_[5].value.as < QList<QString> * > ());
 	driver.cb_concat_text_list(yylhs.value.as < QList<QString> * > (), driver.cb_text_list_add(NULL, yystack_[2].value.as < QString > ()));
@@ -1273,7 +1273,7 @@ namespace yy {
     break;
 
   case 57: // selectintosql: EXECSQL SELECT token_list INTO res_host_references END_EXEC
-#line 328 "gix_esql_parser.yy"
+#line 348 "gix_esql_parser.yy"
                                                                {
 	yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, yystack_[4].value.as < QString > ()), yystack_[3].value.as < QList<QString> * > ());
 	driver.put_exec_list();
@@ -1282,43 +1282,43 @@ namespace yy {
     break;
 
   case 58: // declaresql: EXECSQL declare_for select END_EXEC
-#line 335 "gix_esql_parser.yy"
+#line 355 "gix_esql_parser.yy"
                                     { driver.put_exec_list(); }
 #line 1288 "gix_esql_parser.cc"
     break;
 
   case 59: // select: SELECT token_list
-#line 338 "gix_esql_parser.yy"
+#line 358 "gix_esql_parser.yy"
                  { yylhs.value.as < QList<QString> * > () = driver.cb_concat_text_list (driver.cb_text_list_add (NULL, yystack_[1].value.as < QString > ()), yystack_[0].value.as < QList<QString> * > ());}
 #line 1294 "gix_esql_parser.cc"
     break;
 
   case 60: // declare_for: DECLARE expr CURSOR FOR
-#line 341 "gix_esql_parser.yy"
+#line 361 "gix_esql_parser.yy"
                         { driver.cb_set_cursorname(yystack_[2].value.as < QString > ()); driver.cb_set_cursor_hold(0); }
 #line 1300 "gix_esql_parser.cc"
     break;
 
   case 61: // declare_for: DECLARE expr CURSOR WITH_HOLD FOR
-#line 342 "gix_esql_parser.yy"
+#line 362 "gix_esql_parser.yy"
                                     { driver.cb_set_cursorname(yystack_[3].value.as < QString > ()); driver.cb_set_cursor_hold(1); }
 #line 1306 "gix_esql_parser.cc"
     break;
 
   case 62: // token_list: expr
-#line 345 "gix_esql_parser.yy"
+#line 365 "gix_esql_parser.yy"
                                 {      yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (NULL, yystack_[0].value.as < QString > ());}
 #line 1312 "gix_esql_parser.cc"
     break;
 
   case 63: // token_list: token_list expr
-#line 346 "gix_esql_parser.yy"
+#line 366 "gix_esql_parser.yy"
                         {      yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (yystack_[1].value.as < QList<QString> * > (), yystack_[0].value.as < QString > ());}
 #line 1318 "gix_esql_parser.cc"
     break;
 
   case 64: // token_list: token_list host_reference
-#line 347 "gix_esql_parser.yy"
+#line 367 "gix_esql_parser.yy"
                               {
 	yylhs.value.as < QList<QString> * > () = driver.cb_text_list_add (yystack_[1].value.as < QList<QString> * > (), driver.cb_host_list_add (driver.host_reference_list, yystack_[0].value.as < QString > ()));
 }
@@ -1326,37 +1326,37 @@ namespace yy {
     break;
 
   case 65: // host_reference: HOSTTOKEN
-#line 352 "gix_esql_parser.yy"
+#line 372 "gix_esql_parser.yy"
           { yylhs.value.as < QString > () = yystack_[0].value.as < QString > (); }
 #line 1332 "gix_esql_parser.cc"
     break;
 
   case 66: // expr: TOKEN
-#line 354 "gix_esql_parser.yy"
+#line 374 "gix_esql_parser.yy"
             { yylhs.value.as < QString > () = yystack_[0].value.as < QString > (); }
 #line 1338 "gix_esql_parser.cc"
     break;
 
   case 67: // expr: SELECT
-#line 355 "gix_esql_parser.yy"
+#line 375 "gix_esql_parser.yy"
        {}
 #line 1344 "gix_esql_parser.cc"
     break;
 
   case 68: // expr: FOR
-#line 356 "gix_esql_parser.yy"
+#line 376 "gix_esql_parser.yy"
      {}
 #line 1350 "gix_esql_parser.cc"
     break;
 
   case 69: // expr: UPDATE
-#line 357 "gix_esql_parser.yy"
+#line 377 "gix_esql_parser.yy"
         {}
 #line 1356 "gix_esql_parser.cc"
     break;
 
   case 70: // $@1: %empty
-#line 360 "gix_esql_parser.yy"
+#line 380 "gix_esql_parser.yy"
                                {
 	driver.current_field = NULL;
 	driver.description_field = NULL;
@@ -1366,7 +1366,7 @@ namespace yy {
     break;
 
   case 71: // sqlvariantstates: WORKINGBEGIN $@1 sqlvariantstate_list WORKINGEND
-#line 366 "gix_esql_parser.yy"
+#line 386 "gix_esql_parser.yy"
            {
 	// check host_variable
 	driver.put_exec_list();
@@ -1375,7 +1375,7 @@ namespace yy {
     break;
 
   case 72: // $@2: %empty
-#line 370 "gix_esql_parser.yy"
+#line 390 "gix_esql_parser.yy"
               {
 	driver.current_field = NULL;
 	driver.description_field = NULL;
@@ -1385,7 +1385,7 @@ namespace yy {
     break;
 
   case 73: // sqlvariantstates: LINKAGEBEGIN $@2 sqlvariantstate_list LINKAGEEND
-#line 376 "gix_esql_parser.yy"
+#line 396 "gix_esql_parser.yy"
            {
 	// check host_variable
 	driver.put_exec_list();
@@ -1394,7 +1394,7 @@ namespace yy {
     break;
 
   case 74: // $@3: %empty
-#line 380 "gix_esql_parser.yy"
+#line 400 "gix_esql_parser.yy"
            {
 	driver.current_field = NULL;
 	driver.description_field = NULL;
@@ -1404,7 +1404,7 @@ namespace yy {
     break;
 
   case 75: // sqlvariantstates: FILEBEGIN $@3 sqlvariantstate_list FILEEND
-#line 386 "gix_esql_parser.yy"
+#line 406 "gix_esql_parser.yy"
         {
 	// check host_variable
 	driver.put_exec_list();
@@ -1413,7 +1413,7 @@ namespace yy {
     break;
 
   case 76: // sqlvariantstates: PROCEDURE_DIVISION
-#line 390 "gix_esql_parser.yy"
+#line 410 "gix_esql_parser.yy"
                     {
 	driver.put_exec_list();
 }
@@ -1421,19 +1421,19 @@ namespace yy {
     break;
 
   case 83: // sqlvariantstate_list: sqlvariantstate_list HOSTVARIANTBEGIN
-#line 402 "gix_esql_parser.yy"
+#line 422 "gix_esql_parser.yy"
                                        { driver.put_exec_list(); }
 #line 1427 "gix_esql_parser.cc"
     break;
 
   case 84: // sqlvariantstate_list: sqlvariantstate_list HOSTVARIANTEND
-#line 403 "gix_esql_parser.yy"
+#line 423 "gix_esql_parser.yy"
                                      { driver.put_exec_list(); }
 #line 1433 "gix_esql_parser.cc"
     break;
 
   case 85: // declare_cursor: declare_special CURSOR FOR select END_EXEC
-#line 407 "gix_esql_parser.yy"
+#line 427 "gix_esql_parser.yy"
                                                     { 
 		yylhs.value.as < QList<QString> * > () = yystack_[1].value.as < QList<QString> * > ();
 		driver.cb_set_cursorname(yystack_[4].value.as < QString > ()); 
@@ -1444,7 +1444,7 @@ namespace yy {
     break;
 
   case 86: // declare_cursor: declare_special CURSOR WITH_HOLD FOR select END_EXEC
-#line 412 "gix_esql_parser.yy"
+#line 432 "gix_esql_parser.yy"
                                                          { 
 		yylhs.value.as < QList<QString> * > () = yystack_[1].value.as < QList<QString> * > ();
 		driver.cb_set_cursorname(yystack_[5].value.as < QString > ()); 
@@ -1455,7 +1455,7 @@ namespace yy {
     break;
 
   case 87: // declare_table: declare_special TABLE token_list END_EXEC
-#line 421 "gix_esql_parser.yy"
+#line 441 "gix_esql_parser.yy"
                                                   { 
 	driver.cb_set_commandname("DECLARE_TABLE");
 	driver.put_exec_list(); 
@@ -1464,13 +1464,13 @@ namespace yy {
     break;
 
   case 88: // declare_special: BEGIN_DECLARE_SPECIAL expr
-#line 428 "gix_esql_parser.yy"
+#line 448 "gix_esql_parser.yy"
                                    { yylhs.value.as < QString > () = yystack_[0].value.as < QString > (); }
 #line 1470 "gix_esql_parser.cc"
     break;
 
   case 89: // $@4: %empty
-#line 431 "gix_esql_parser.yy"
+#line 451 "gix_esql_parser.yy"
              {
 	cb_field_ptr x;
 
@@ -1485,7 +1485,7 @@ namespace yy {
     break;
 
   case 90: // sqlvariantstate: NUMERIC WORD $@4 data_description_clause_sequence
-#line 442 "gix_esql_parser.yy"
+#line 462 "gix_esql_parser.yy"
 {
 	if (driver.description_field == NULL)
 		driver.description_field = driver.current_field;
@@ -1494,7 +1494,7 @@ namespace yy {
     break;
 
   case 91: // $@5: %empty
-#line 446 "gix_esql_parser.yy"
+#line 466 "gix_esql_parser.yy"
          {
 	cb_field_ptr x;
 
@@ -1506,7 +1506,7 @@ namespace yy {
     break;
 
   case 92: // sqlvariantstate: NUMERIC $@5 data_description_clause_sequence
-#line 454 "gix_esql_parser.yy"
+#line 474 "gix_esql_parser.yy"
 {
 	if (driver.description_field == NULL)
 		driver.description_field = driver.current_field;
@@ -1515,85 +1515,85 @@ namespace yy {
     break;
 
   case 93: // data_description_clause_sequence: %empty
-#line 462 "gix_esql_parser.yy"
+#line 482 "gix_esql_parser.yy"
 {}
 #line 1521 "gix_esql_parser.cc"
     break;
 
   case 94: // data_description_clause_sequence: data_description_clause_sequence data_description_clause
-#line 464 "gix_esql_parser.yy"
+#line 484 "gix_esql_parser.yy"
 {}
 #line 1527 "gix_esql_parser.cc"
     break;
 
   case 101: // picture_clause: PICTURE
-#line 477 "gix_esql_parser.yy"
+#line 497 "gix_esql_parser.yy"
                 {  driver.build_picture( yystack_[0].value.as < QString > (),driver.current_field);  }
 #line 1533 "gix_esql_parser.cc"
     break;
 
   case 104: // usage: COMP
-#line 486 "gix_esql_parser.yy"
+#line 506 "gix_esql_parser.yy"
                                 { driver.current_field->usage = Usage::Binary;  }
 #line 1539 "gix_esql_parser.cc"
     break;
 
   case 105: // usage: BINARY
-#line 487 "gix_esql_parser.yy"
+#line 507 "gix_esql_parser.yy"
                                 { driver.current_field->usage = Usage::Binary;  }
 #line 1545 "gix_esql_parser.cc"
     break;
 
   case 106: // usage: COMP_1
-#line 488 "gix_esql_parser.yy"
+#line 508 "gix_esql_parser.yy"
                                 { driver.current_field->usage = Usage::Float;   }
 #line 1551 "gix_esql_parser.cc"
     break;
 
   case 107: // usage: COMP_2
-#line 489 "gix_esql_parser.yy"
+#line 509 "gix_esql_parser.yy"
                                 { driver.current_field->usage = Usage::Double;  }
 #line 1557 "gix_esql_parser.cc"
     break;
 
   case 108: // usage: COMP_3
-#line 490 "gix_esql_parser.yy"
+#line 510 "gix_esql_parser.yy"
                                 { driver.current_field->usage = Usage::Packed;  }
 #line 1563 "gix_esql_parser.cc"
     break;
 
   case 109: // usage: WORD
-#line 491 "gix_esql_parser.yy"
+#line 511 "gix_esql_parser.yy"
                     { driver.current_field->usage = Usage::None;    }
 #line 1569 "gix_esql_parser.cc"
     break;
 
   case 110: // value_clause: VALUE _is_are _all const_clause
-#line 494 "gix_esql_parser.yy"
+#line 514 "gix_esql_parser.yy"
                                               {}
 #line 1575 "gix_esql_parser.cc"
     break;
 
   case 111: // const_clause: NUMERIC
-#line 497 "gix_esql_parser.yy"
+#line 517 "gix_esql_parser.yy"
         {}
 #line 1581 "gix_esql_parser.cc"
     break;
 
   case 112: // const_clause: WORD
-#line 498 "gix_esql_parser.yy"
+#line 518 "gix_esql_parser.yy"
       { }
 #line 1587 "gix_esql_parser.cc"
     break;
 
   case 113: // const_clause: CONST
-#line 499 "gix_esql_parser.yy"
+#line 519 "gix_esql_parser.yy"
        {}
 #line 1593 "gix_esql_parser.cc"
     break;
 
   case 114: // sign_clause: _sign_is LEADING flag_separate
-#line 503 "gix_esql_parser.yy"
+#line 523 "gix_esql_parser.yy"
 {
 	driver.current_field->sign_leading = SIGNLEADING;
 }
@@ -1601,7 +1601,7 @@ namespace yy {
     break;
 
   case 115: // sign_clause: _sign_is TRAILING flag_separate
-#line 507 "gix_esql_parser.yy"
+#line 527 "gix_esql_parser.yy"
 {
 
 }
@@ -1609,25 +1609,25 @@ namespace yy {
     break;
 
   case 116: // _sign_is: SIGN
-#line 512 "gix_esql_parser.yy"
+#line 532 "gix_esql_parser.yy"
                        {}
 #line 1615 "gix_esql_parser.cc"
     break;
 
   case 117: // _sign_is: SIGN IS
-#line 513 "gix_esql_parser.yy"
+#line 533 "gix_esql_parser.yy"
           {}
 #line 1621 "gix_esql_parser.cc"
     break;
 
   case 119: // flag_separate: SEPARATE
-#line 516 "gix_esql_parser.yy"
+#line 536 "gix_esql_parser.yy"
            { driver.current_field->separate = SIGN_SEPARATE; }
 #line 1627 "gix_esql_parser.cc"
     break;
 
   case 120: // occurs_clause: OCCURS NUMERIC _times
-#line 521 "gix_esql_parser.yy"
+#line 541 "gix_esql_parser.yy"
 {
 	driver.current_field->occurs = (int)yystack_[1].value.as < long > ();
 }
@@ -1635,7 +1635,7 @@ namespace yy {
     break;
 
   case 121: // external_clause: _is EXTERNAL
-#line 527 "gix_esql_parser.yy"
+#line 547 "gix_esql_parser.yy"
              {}
 #line 1641 "gix_esql_parser.cc"
     break;
@@ -2238,20 +2238,20 @@ namespace yy {
   const short
   gix_esql_parser::yyrline_[] =
   {
-       0,   145,   145,   146,   148,   149,   150,   151,   152,   153,
-     154,   155,   156,   157,   158,   159,   160,   161,   162,   163,
-     164,   168,   173,   183,   187,   194,   197,   205,   208,   215,
-     216,   221,   226,   232,   236,   239,   240,   241,   244,   245,
-     246,   249,   255,   259,   265,   266,   267,   270,   278,   283,
-     289,   295,   300,   306,   310,   317,   322,   328,   335,   338,
-     341,   342,   345,   346,   347,   352,   354,   355,   356,   357,
-     360,   360,   370,   370,   380,   380,   390,   396,   397,   398,
-     399,   400,   401,   402,   403,   407,   412,   421,   428,   431,
-     431,   446,   446,   462,   463,   468,   469,   470,   471,   472,
-     473,   477,   481,   482,   486,   487,   488,   489,   490,   491,
-     494,   497,   498,   499,   502,   506,   512,   513,   515,   516,
-     520,   527,   530,   530,   531,   531,   531,   532,   532,   533,
-     533
+       0,   165,   165,   166,   168,   169,   170,   171,   172,   173,
+     174,   175,   176,   177,   178,   179,   180,   181,   182,   183,
+     184,   188,   193,   203,   207,   214,   217,   225,   228,   235,
+     236,   241,   246,   252,   256,   259,   260,   261,   264,   265,
+     266,   269,   275,   279,   285,   286,   287,   290,   298,   303,
+     309,   315,   320,   326,   330,   337,   342,   348,   355,   358,
+     361,   362,   365,   366,   367,   372,   374,   375,   376,   377,
+     380,   380,   390,   390,   400,   400,   410,   416,   417,   418,
+     419,   420,   421,   422,   423,   427,   432,   441,   448,   451,
+     451,   466,   466,   482,   483,   488,   489,   490,   491,   492,
+     493,   497,   501,   502,   506,   507,   508,   509,   510,   511,
+     514,   517,   518,   519,   522,   526,   532,   533,   535,   536,
+     540,   547,   550,   550,   551,   551,   551,   552,   552,   553,
+     553
   };
 
   void
@@ -2285,7 +2285,7 @@ namespace yy {
 } // yy
 #line 2287 "gix_esql_parser.cc"
 
-#line 536 "gix_esql_parser.yy"
+#line 556 "gix_esql_parser.yy"
 
 
 // Register errors to the driver:

@@ -340,8 +340,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_GCDEBUGGER_NET_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXmlPatterns;C:\Users\marchetto\Documents\Visual Studio 2017\Projects\gix-ide\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_GCDEBUGGER_NET_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXmlPatterns;C:\Users\marchetto\Documents\Visual Studio 2017\Projects\gix-ide\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -351,7 +351,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(QTDIR)\lib;$(SolutionDir)libs\scintilla\lib\$(Configuration);$(SolutionDir)libs\libdwarf;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(QTDIR)\lib;$(SolutionDir)libs\scintilla\lib\$(Configuration);$(SolutionDir)libs\libdwarf\libdwarf\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Networkd.lib;Qt5UiToolsd.lib;Qt5Widgetsd.lib;Qt5WinExtrasd.lib;Qt5Xmld.lib;Qt5XmlPatternsd.lib;Qt5Sqld.lib;comsuppwd.lib;wsock32.lib;ScintillaEdit4.lib;gix-common.lib;libgixsql.lib;libgixutils.lib;libgixpp.lib;dbghelp.lib;imagehlp.lib;dwarf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
@@ -381,8 +381,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_DEBUG_LOG_ON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtSql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_DEBUG_LOG_ON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtSql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -391,7 +391,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(QTDIR)\lib;$(SolutionDir)libs\scintilla\lib\$(Configuration);$(SolutionDir)libs\libdwarf;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(QTDIR)\lib;$(SolutionDir)libs\scintilla\lib\$(Configuration);$(SolutionDir)libs\libdwarf\libdwarf\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Network.lib;Qt5UiTools.lib;Qt5Widgets.lib;Qt5WinExtras.lib;Qt5Xml.lib;Qt5XmlPatterns.lib;Qt5Sql.lib;comsuppw.lib;wsock32.lib;ScintillaEdit4.lib;gix-common.lib;libgixsql.lib;libgixutils.lib;libgixpp.lib;dbghelp.lib;imagehlp.lib;dwarf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>

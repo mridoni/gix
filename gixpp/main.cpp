@@ -4,7 +4,7 @@ Copyright (C) 2021 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
+the Free Software Foundation; either version 3 of the License, or (at
 your option) any later version.
 
 This program is distributed in the hope that it will be useful, but
@@ -98,44 +98,43 @@ public slots:
 		if (parser.isSet("help")) {
 			rc = 0;
 			parser.showHelp();
-			goto end;
+		}
+		else {
+			copy_dirs = parser.value("I").split(QDir::listSeparator());
+			copy_resolver.setCopyDirs(copy_dirs);
+
+			//gp.out_sym_file = parser.value("s");
+			gp.setCopyResolver(&copy_resolver);
+
+			if (parser.isSet("c"))
+				gp.addStep(new TPSourceConsolidation(&gp));
+
+			if (parser.isSet("e")) {
+				gp.setOpt("emit_static_calls", parser.isSet("S"));
+				gp.setOpt("anonymous_params", parser.isSet("a"));
+				gp.setOpt("preprocess_copy_files", parser.isSet("p"));
+				gp.addStep(new TPESQLProcessing(&gp));
+					QString e = parser.value("E");
+				copy_resolver.setExtensions(parser.value("E").split(","));
+			}
+
+			gp.setOpt("emit_debug_info", parser.isSet("g"));
+			gp.verbose = parser.isSet("v");
+			gp.verbose_debug = parser.isSet("d");
+
+			gp.setInputFile(parser.value("i"));
+			gp.setOutputFile(parser.value("o"));
+
+			bool b = gp.process();
+			if (!b) {
+				rc = gp.err_code;
+				for (QString m : gp.err_messages)
+					fprintf(stderr, "Error: %s\n", m.toLocal8Bit().data());
+
+				app->exit(gp.err_code);
+			}
 		}
 
-		copy_dirs = parser.value("I").split(QDir::listSeparator());
-		copy_resolver.setCopyDirs(copy_dirs);
-
-		//gp.out_sym_file = parser.value("s");
-		gp.setCopyResolver(&copy_resolver);
-
-		if (parser.isSet("c"))
-			gp.addStep(new TPSourceConsolidation(&gp));
-
-		if (parser.isSet("e")) {
-			gp.setOpt("emit_static_calls", parser.isSet("S"));
-			gp.setOpt("anonymous_params", parser.isSet("a"));
-			gp.setOpt("preprocess_copy_files", parser.isSet("p"));
-			gp.addStep(new TPESQLProcessing(&gp));
-			QString e = parser.value("E");
-			copy_resolver.setExtensions(parser.value("E").split(","));
-		}
-
-		gp.setOpt("emit_debug_info", parser.isSet("g"));
-		gp.verbose = parser.isSet("v");
-		gp.verbose_debug = parser.isSet("d");
-
-		gp.setInputFile(parser.value("i"));
-		gp.setOutputFile(parser.value("o"));
-
-		bool b = gp.process();
-		if (!b) {
-			rc = gp.err_code;
-			for (QString m : gp.err_messages)
-				fprintf(stderr, "Error: %s\n", m.toLocal8Bit().data());
-
-			app->exit(gp.err_code);
-		}
-
-	end:
 		emit finished();
 	}
 

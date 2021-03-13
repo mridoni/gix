@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = gixsql
+win32:TARGET = libgixsql
 INCLUDEPATH += .
 
 CONFIG(debug,debug|release) DESTDIR = ../../x64/Debug
@@ -40,7 +41,6 @@ SOURCES += Connection.cpp \
            ConnectionString.cpp \
            Cursor.cpp \
            CursorManager.cpp \
-           DbInterface.cpp \
            DbInterfaceFactory.cpp \
            dllmain.cpp \
            gixsql.cpp \

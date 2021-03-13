@@ -4,7 +4,7 @@ Copyright (C) 2021 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
+the Free Software Foundation; either version 3 of the License, or (at
 your option) any later version.
 
 This program is distributed in the hope that it will be useful, but
@@ -21,8 +21,6 @@ USA.
 #include "GixDebuggerWin64.h"
 #include "CodeviewSymbolProvider.h"
 #include "DwarfSymbolProvider.h"
-//#include "InjectThread.h"
-//#include "libcob.h"
 #include "utils.h"
 
 #include <QDir>
@@ -62,7 +60,7 @@ int GixDebuggerWin64::start()
 	STARTUPINFO si;
 	int err = 0;
 	UserBreakpoint *last_bkp = nullptr;
-	wchar_t dbg_help_path[1024] = { 0, 0, 0, 0 };
+	char dbg_help_path[1024] = { 0, 0, 0, 0 };
 
 	if (!if_blk) {
 		fprintf(stderr, "Missing interface block\n");
@@ -78,7 +76,7 @@ int GixDebuggerWin64::start()
 
 		auto dbgver = ImagehlpApiVersion();
 
-		HMODULE hDbgHelp = GetModuleHandle(L"dbghelp.dll");
+		HMODULE hDbgHelp = GetModuleHandle("dbghelp.dll");
 		if (GetModuleFileName(hDbgHelp, dbg_help_path, sizeof(dbg_help_path)) == 0) {
 			int ret = GetLastError();
 			fprintf(stderr, "GetModuleFileName failed, error = %d\n", ret);
@@ -164,7 +162,7 @@ int GixDebuggerWin64::start()
 	if (use_external_console)
 		createFlags |= CREATE_NEW_CONSOLE;
 
-	if (!CreateProcess(NULL, (LPWSTR) fcl.toStdWString().c_str(), NULL, NULL, !use_external_console, createFlags, envBlock, working_dir.toStdWString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
+	if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, !use_external_console, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
 		TerminateThread(hThreadReadStdOut, 0);
 		TerminateThread(hThreadReadStdErr, 0);
 		
