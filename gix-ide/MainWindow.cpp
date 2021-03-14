@@ -657,7 +657,7 @@ void MainWindow::setupEolMenu()
 void MainWindow::about()
 {
 	QMessageBox::about(this, tr("About GIX-Ide"),
-		tr("<b>GIX-Ide</b> is teh IDE for GNUCobol"));
+		tr("<b>GIX-Ide</b> is an IDE for GnuCOBOL with an integrated debugger"));
 }
 
 void MainWindow::updateMenus()
