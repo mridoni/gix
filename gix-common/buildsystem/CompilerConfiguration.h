@@ -30,10 +30,11 @@ typedef unsigned char byte;
 #include <QString>
 
 #include "BuildDriver.h"
+#include "CompilerEnvironment.h"
 
 class BuildDriver;
 
-class CompilerConfiguration {
+class GIXCOMMON_EXPORT CompilerConfiguration {
 
 public:
 
@@ -50,8 +51,10 @@ public:
 	QString target_platform;
 	bool isVsBased;
 
+	CompilerEnvironment getCompilerEnvironment();
 	QProcessEnvironment getEnvironment(BuildDriver *);
-	GIXCOMMON_EXPORT static CompilerConfiguration *get(QString build_configuration, QString target_platform);
+	
+	static CompilerConfiguration *get(QString build_configuration, QString target_platform);
 
 private:
 	static CompilerConfiguration* getCompilerById(QString compiler_id, QString target_platform = "x64");

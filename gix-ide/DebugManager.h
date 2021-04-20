@@ -72,6 +72,11 @@ private slots:
 	void debuggedProcessStarted();
 
 private:
+	QString build_configuration;
+	QString target_platform;
+	QString build_dir;
+	QString working_dir;
+
 	bool is_debugging_enabled;
 	bool is_user_initiated_stop;
 
@@ -98,6 +103,14 @@ private:
 	int cur_line;
 
 	QStringList watched_vars;
+
+	QMap<QString, CobolModuleMetadata *> dbg_metadata_by_module;
+	QMap<QString, CobolModuleMetadata *> dbg_metadata_by_filename;
+	QMap<QString, ProjectFile *> dbg_module_srcs;
+
+	void get_module_sources();
+
+	CobolModuleMetadata *processDebugMetadata(ProjectFile *pf);
 
 	Project *debugged_prj;
 

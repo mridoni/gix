@@ -36,7 +36,12 @@
 #define CLIENT_SIDE_CURSOR
 
 DbInterfaceMySQL::DbInterfaceMySQL()
-{}
+{
+	connaddr = nullptr;
+	last_rc = 0;
+	logger = nullptr;
+	owner = nullptr;
+}
 
 
 DbInterfaceMySQL::~DbInterfaceMySQL()
@@ -279,7 +284,7 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 
 	if (is_dml_statement(q)) {
 		if (!exec_data->cursor_stmt)
-		return DBERR_OUT_OF_MEMORY;
+			return DBERR_OUT_OF_MEMORY;
 
 		last_rc = mysql_stmt_prepare(exec_data->cursor_stmt, q.c_str(), q.size());
 		if (last_rc) {
@@ -299,6 +304,11 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 	}
 
 		if (mysql_stmt_field_count(exec_data->cursor_stmt)) {
+
+			// Set STMT_ATTR_UPDATE_MAX_LENGTH attribute
+			bool aBool = 1;
+			int rc = mysql_stmt_attr_set(exec_data->cursor_stmt, STMT_ATTR_UPDATE_MAX_LENGTH, &aBool);
+
 #ifdef CLIENT_SIDE_CURSOR
 			last_rc = mysql_stmt_store_result(exec_data->cursor_stmt);
 			if (last_rc) {
@@ -514,7 +524,7 @@ int DbInterfaceMySQL::fetch_one(ICursor *cursor, int fetchmode)
 
 	last_rc = mysql_stmt_fetch(cursor_data->cursor_stmt);
 	if (last_rc) {
-		last_error = retrieve_mysql_error_message(cursor_data->cursor_stmt);
+		last_error = (last_rc == MYSQL_DATA_TRUNCATED) ? "Data truncated" : retrieve_mysql_error_message(cursor_data->cursor_stmt);
 		//LOG_ERROR("MySQL: Error while fetching row from cursor (%d : %s) %s\n", get_error_code(), get_error_message(), cursor->getName().c_str());
 		return DBERR_FETCH_ROW_FAILED;
 	}
@@ -593,7 +603,7 @@ int DbInterfaceMySQL::supports_num_rows()
 int DbInterfaceMySQL::get_num_rows()
 {
 	if (cur_crsr.cursor_stmt)
-		return  mysql_stmt_num_rows(cur_crsr.cursor_stmt);
+		return  (int) mysql_stmt_num_rows(cur_crsr.cursor_stmt);
 	else
 		return -1;
 }
@@ -608,7 +618,7 @@ int DbInterfaceMySQL::get_num_fields()
 
 MySQLCursorData::MySQLCursorData()
 {
-
+	cursor_stmt = nullptr;
 }
 
 MySQLCursorData::~MySQLCursorData()
@@ -619,17 +629,19 @@ MySQLCursorData::~MySQLCursorData()
 bool MySQLCursorData::init()
 {
 	if (!cursor_stmt)
-	return false;
+		return false;
 
 	MYSQL_RES* metadata = mysql_stmt_result_metadata(cursor_stmt);
 
-	if (!metadata)
-		return false;
-
 	clear_buffers();
 
-	int field_count = metadata->field_count;
-	for (int i = 0; i < field_count; i++) {
+	if (!metadata) {
+		return false;
+	}
+
+	unsigned int field_count = mysql_stmt_field_count(cursor_stmt);
+	
+	for (unsigned int i = 0; i < field_count; i++) {
 		MYSQL_FIELD* f = &metadata->fields[i];
 		int len = f->max_length + 1;
 		char* bfr = (char*)calloc(len, 1);

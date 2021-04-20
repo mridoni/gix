@@ -26,6 +26,7 @@ USA.
 #include "SysUtils.h"
 #include "UiUtils.h"
 #include "IdeTaskManager.h"
+#include "NoWheelComboBox.h"
 
 #include <QToolBar>
 #include <QLabel>
@@ -58,6 +59,10 @@ PropertyWindow::PropertyWindow(QWidget* parent, MainWindow* mw) : QMainWindow(pa
 	header->hide();
 
 	connect(Ide::TaskManager(), &IdeTaskManager::SettingsChanged, this, &PropertyWindow::refreshContent);
+
+	connect(Ide::TaskManager(), &IdeTaskManager::projectCollectionClosed, this, [this]() {
+		setContent(nullptr);
+	});
 }
 
 
@@ -156,7 +161,8 @@ void PropertyWindow::setContent(ProjectItem* pi)
 
 			case PropertyTypeOption:
 				if (pd->Options != nullptr && pd->Options->size() > 0) {
-					QComboBox* cb = new QComboBox(propertyTable);
+					QComboBox* cb = new NoWheelComboBox(propertyTable);
+					cb->setFocusPolicy(Qt::StrongFocus);
 					QMap<QString, QVariant>::iterator it;
 					for (it = pd->Options->begin(); it != pd->Options->end(); ++it) {
 						cb->addItem(it.value().toString(), it.key());
@@ -173,7 +179,8 @@ void PropertyWindow::setContent(ProjectItem* pi)
 
 			case PropertyTypeBoolean:
 			{
-				QComboBox* cb = new QComboBox(propertyTable);
+				QComboBox* cb = new NoWheelComboBox(propertyTable);
+				cb->setFocusPolicy(Qt::StrongFocus);
 				cb->addItem(tr("Yes"), true);
 				cb->addItem(tr("No"), false);
 				cb->setCurrentIndex(cb->findData(cur_property_value));
@@ -300,7 +307,8 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				layout->setAlignment(Qt::AlignJustify);
 
 				QScopedPointer<QVariantMap> sub_props(SysUtils::deserializeMap(cur_property_value.toString()));
-				QComboBox* cb = new QComboBox(propertyTable);
+				QComboBox* cb = new NoWheelComboBox(propertyTable);
+				cb->setFocusPolicy(Qt::StrongFocus);
 				QPushButton* qpb = new QPushButton("...", propertyTable);
 
 				cb->addItem(tr("Yes"), true);

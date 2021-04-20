@@ -17,8 +17,7 @@
 * Boston, MA 02110-1301 USA
 */
 
-#ifndef OCDBUTIL_H
-#define OCDBUTIL_H
+#pragma once
 
 #include <string>
 #include <memory>
@@ -81,5 +80,3 @@ std::string std_string_format(const std::string &format, Args ... args)
     snprintf(buf.get(), size, format.c_str(), args ...);
     return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }
-
-#endif

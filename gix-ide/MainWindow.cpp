@@ -44,6 +44,7 @@ USA.
 #include "ConsoleWindow.h"
 #include "NavigationWindow.h"
 #include "GixGlobals.h"
+#include "GixVersion.h"
 
 // 0 = Release, 1 = Debug
 #define DEFAULT_TARGET_CONFIG 0
@@ -656,8 +657,12 @@ void MainWindow::setupEolMenu()
 
 void MainWindow::about()
 {
-	QMessageBox::about(this, tr("About GIX-Ide"),
-		tr("<b>GIX-Ide</b> is teh IDE for GNUCobol"));
+	QString info_msg = tr("About Gix-IDE");
+	QString main_msg = tr("Gix-IDE is an IDE and platform for GnuCOBOL, providing a native debugger, ESQL and HTTP REST services.");
+	QString license_msg = tr("Gix-IDE is licensed under the GPL 3.0 license.");
+	QString ver = getGixIdePrintableVersion();
+	QMessageBox::about(this, info_msg,
+		"<h1><b>Gix-IDE</h1>v" + ver + "<p>" + main_msg + "</p><p>(c) Marco Ridoni 2021</p><p>" + license_msg + "</p>");
 }
 
 void MainWindow::updateMenus()
@@ -1323,9 +1328,8 @@ void MainWindow::readSettings()
 	const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
 	if (geometry.isEmpty()) {
 		const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
-		resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
-		move((availableGeometry.width() - width()) / 2,
-			(availableGeometry.height() - height()) / 2);
+		resize(availableGeometry.width(), availableGeometry.height());
+		showMaximized();
 	}
 	else {
 		restoreGeometry(geometry);

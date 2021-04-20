@@ -10,6 +10,8 @@ The installer places Gix-IDE in C:\Program Files and creates a data directory, e
 
 The compilers available on [Arnold Trembley's page](https://www.arnoldtrembley.com/GnuCOBOL.htm) have been successfully tested with Gix-IDE.
 
+The installer will install the runtimes for Visual Studio 2015-2019 and the x86 version of the runtime for Visual Studio 2013 (needed for libmysql on x86). If you choose to install the Visual Studio-based compilers, the Visual Studio Build Tools 2019 and the Windows SDK will be installed as well (this implies a download of about 2GB).
+
 ## Building from source
 
 ### Windows,, with Visual Studio or Visual Studio Tools
@@ -20,12 +22,13 @@ The compilers available on [Arnold Trembley's page](https://www.arnoldtrembley.c
    https://visualstudio.microsoft.com/it/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16#
    or install Visual Studio Community. While the Build Tools are enough
    to build Gix-IDE, having the full VS IDE available will obviously
-   make applying small fies to solution and project files (e.g. paths,
+   make applying small fixes to solution and project files (e.g. paths,
    environment variables) much easier.  Download the binary
    prerequisites and uncompress them in a folder:
 	 - [MySQL x64 binaries](https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.31-winx64.zip)
    	 - [PostgreSQL x64 binaries](https://sbp.enterprisedb.com/getfile.jsp?fileid=1257551&_ga=2.17284795.341452640.1615031602-1234917009.1613646523)
- You can probably use newer versions without problems, the versions linked are the ones currently in use to build the binary packages. Since we are only using the client libraries and headers, older versions should not be a problem.
+   	 
+ You can probably use newer versions without problems, the versions linked are the ones currently in use to build the binary packages. Since we are only using the client libraries and headers, older versions should not be a problem. 32-bit versions of the runtime libraries are also available on the respective websites, should you intend to build a 32-bit version of Gix-IDE.
  - Clone the repository or download the snapshot
  - Install cmake (if not already installed)
  - You will need the **Qt Visual Studio Tools**:  unfortunately they are only available as a VSIX extension, so if you are using the VS C++ Build Tools (no full VS), go into the "build-tools" directory and extract the QtMsBuild.zip archive somewhere (this a repackaged version of the Qt Visual Studio Tools). If you are using the full Visual Studio IDE, just download and install the [Qt Visual Studio Tools](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019) (follow the link or use The Extension Manager in Visual Studio).
@@ -42,7 +45,7 @@ The compilers available on [Arnold Trembley's page](https://www.arnoldtrembley.c
 	- QtToolsPath=C:\Qt\5.14.2\msvc2017_64\bin
 	- NUGET_EXE=C:\Users\gix-builder\nuget.exe
 **Note**:
-		- the *32_HOME variables are only used to build 32-bit versions of the ESQL libraries (useful if you want to target x86 beside x64). If you're targeting x64 only you can safely ignore them. If you are using them, you will also need to download x86 binary versions of MySQL and PostgreSQL
+		- the *32_HOME variables are only used to build 32-bit versions of the ESQL libraries (useful if you want to target x86 beside x64) or a 32-bit version of Gix-IDE. If you're targeting x64 only you can safely ignore them. If you are using them, you will also need to download x86 binary versions of MySQL and PostgreSQL, as indicated above.
 		- GNUCOBOL_HOME must point to an existing install of GnuCOBOL
 		
 - Open a Visual Studio "Developer Command Prompt" and navigate to the directory where you have uncompressed the Gix-IDE source.

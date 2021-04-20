@@ -1,0 +1,56 @@
+﻿Build started 20/04/2021 12:29:57.
+Logging verbosity is set to: Normal.     1>Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" on node 2 (Build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Win32\Debug\ScintillaEdit.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       QtVars:
+       Skipping target "QtVars" because all output files are up-to-date with respect to the input files.
+     1>Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (1) is building "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (1:2) on node 3 (Build target(s)).
+     1>InitializeBuildStatus:
+         Touching "Win32\Debug\ScintillaEdit.tlog\unsuccessfulbuild".
+       CustomBuild:
+         All outputs are up-to-date.
+       QtRccFilterSetModified:
+       Skipping target "QtRccFilterSetModified" because it has no outputs.
+       QtRccFilter:
+       Skipping target "QtRccFilter" because it has no outputs.
+       QtQmlSetModified:
+       Skipping target "QtQmlSetModified" because it has no outputs.
+       QtQml:
+       Skipping target "QtQml" because it has no outputs.
+       QtMocSetModified:
+       Skipping target "QtMocSetModified" because all output files are up-to-date with respect to the input files.
+       QtMocSetModified:
+       Skipping target "QtMocSetModified" because all output files are up-to-date with respect to the input files.
+       QtMocSetModified:
+       Skipping target "QtMocSetModified" because all output files are up-to-date with respect to the input files.
+       QtMocSetModified:
+       Skipping target "QtMocSetModified" because all output files are up-to-date with respect to the input files.
+       QtMoc:
+       Skipping target "QtMoc" because all output files are up-to-date with respect to the input files.
+       QtMoc:
+       Skipping target "QtMoc" because all output files are up-to-date with respect to the input files.
+       QtMoc:
+       Skipping target "QtMoc" because all output files are up-to-date with respect to the input files.
+       QtMoc:
+       Skipping target "QtMoc" because all output files are up-to-date with respect to the input files.
+       ClCompile:
+         All outputs are up-to-date.
+         All outputs are up-to-date.
+       ResourceCompile:
+         All outputs are up-to-date.
+       Link:
+         All outputs are up-to-date.
+         ScintillaEdit.vcxproj -> C:\Users\marchetto\source\repos\gix-ide\Win32\Debug\ScintillaEdit4.dll
+       FinalizeBuildStatus:
+         Deleting file "Win32\Debug\ScintillaEdit.tlog\unsuccessfulbuild".
+         Touching "Win32\Debug\ScintillaEdit.tlog\ScintillaEdit.lastbuildstate".
+     1>Done Building Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (Build target(s)).
+     1>FinalizeBuildStatus:
+         Touching "Win32\Debug\ScintillaEdit.tlog\ScintillaEdit.lastbuildstate".
+     1>Done Building Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (Build target(s)).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.79

@@ -932,13 +932,13 @@ void CobolVar::createCobolData(char *retstr)
 					*((uint16_t *)addr) = COB_BSWAP_16(u_short_number);
 				}
 				else {
-					if (this->length >= 5 || this->length <= 9) {	// 4 bytes
+					if (this->length >= 5 && this->length <= 9) {	// 4 bytes
 						uint32_t  u_int_number = (uint32_t)strtoull(retstr, NULL, 0);
 						uint32_t t = COB_BSWAP_32(u_int_number);
 						*((uint32_t *)addr) = COB_BSWAP_32(u_int_number);
 					}
 					else {
-						if (this->length >= 10 || this->length <= 18) {	// 8 bytes
+						if (this->length >= 10 && this->length <= 18) {	// 8 bytes
 							uint64_t  u_long_number = (uint64_t)strtoull(retstr, NULL, 0);
 							*((uint64_t *)addr) = COB_BSWAP_64(u_long_number);
 						}
@@ -968,12 +968,12 @@ void CobolVar::createCobolData(char *retstr)
 					*((int16_t *)addr) = COB_BSWAP_16(s_short_number);
 				}
 				else {
-					if (this->length >= 5 || this->length <= 9) {	// 4 bytes
+					if (this->length >= 5 && this->length <= 9) {	// 4 bytes
 						int32_t  s_int_number = (int32_t)strtoll(retstr, NULL, 0);
 						*((int32_t *)addr) = COB_BSWAP_32(s_int_number);
 					}
 					else {
-						if (this->length >= 10 || this->length <= 18) {	// 8 bytes
+						if (this->length >= 10 && this->length <= 18) {	// 8 bytes
 							int64_t  s_long_number = (int64_t)strtoll(retstr, NULL, 0);
 							*((int64_t *)addr) = COB_BSWAP_64(s_long_number);
 						}

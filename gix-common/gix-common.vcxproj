@@ -9,6 +9,14 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{32B591D5-5AE7-431C-85F9-552B77EA08A3}</ProjectGuid>
@@ -26,6 +34,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -49,12 +65,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtInstall>msvc2017</QtInstall>
+    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <QtInstall>msvc2017</QtInstall>
     <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -70,6 +102,7 @@
       <PreprocessorDefinitions>GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\libgixutils;..\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -87,11 +120,35 @@
       <PreprocessorDefinitions>GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\libgixutils;..\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\libgixutils;..\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
+      <AdditionalDependencies>comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\libgixutils;..\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
       <AdditionalDependencies>comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -114,6 +171,7 @@
     <ClCompile Include="CobolVar.cpp" />
     <ClCompile Include="CobolVarList.cpp" />
     <ClCompile Include="DataEntry.cpp" />
+    <ClCompile Include="ESQLConfiguration.cpp" />
     <ClCompile Include="GixGlobals.cpp" />
     <ClCompile Include="MacroManager.cpp" />
     <ClCompile Include="metadata\CobolModuleMetadata.cpp" />
@@ -148,6 +206,8 @@
     <ClInclude Include="buildsystem\BuildActionCompileHandler.h" />
     <QtMoc Include="metadata\MetadataManager.h" />
     <QtMoc Include="metadata\MetadataWorker.h" />
+    <ClInclude Include="buildsystem\CompilerEnvironment.h" />
+    <QtMoc Include="ESQLConfiguration.h" />
     <ClInclude Include="PropertyConsts.h" />
     <ClInclude Include="SymbolBufferReader.h" />
     <ClInclude Include="SymbolMappingEntry.h" />

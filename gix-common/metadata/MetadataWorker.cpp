@@ -26,6 +26,8 @@ USA.
 #include "CopyResolver.h"
 #include "TPESQLProcessing.h"
 #include "MetadataManager.h"
+#include "ESQLConfiguration.h"
+#include "CompilerConfiguration.h"
 
 #include <QFile>
 
@@ -112,9 +114,9 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 
 	CobolModuleMetadata *metadata = GixGlobals::getMetadataManager()->getModuleMetadata(program_id);
 
-	if (metadata->isUpToDate()) {
+	if (metadata && metadata->isUpToDate()) {
 		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Metadata for module %1 (%2) is up to date").arg(program_id).arg(pf->GetFileFullPath()), QLogger::LogLevel::Trace);
-		return nullptr;
+		return metadata;
 	}
 
 	Project *prj = pf->getParentProject();
@@ -122,7 +124,25 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 	GixPreProcessor gp;
 	CopyResolver copy_resolver;
 
-	copy_resolver.setCopyDirs(prj->getCopyDirList());
+	QStringList copy_dirs = prj->getCopyDirList();
+
+	if (prj->isEsql()) {
+		QSettings settings;
+		QString configuration = GixGlobals::getCurrentConfiguration();
+		QString platform = GixGlobals::getCurrentPlatform();
+		QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform));
+		
+		QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+		CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
+		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, configuration, platform));
+		if (!esql_cfg.isNull()) {
+			QStringList esql_copy_dirs = esql_cfg->getCopyPathList();
+			if (!esql_copy_dirs.isEmpty())
+				copy_dirs.append(esql_copy_dirs);
+		}
+	}
+
+	copy_resolver.setCopyDirs(copy_dirs);
 	copy_resolver.setExtensions(prj->getCopyExtList());
 	gp.setCopyResolver(&copy_resolver);
 

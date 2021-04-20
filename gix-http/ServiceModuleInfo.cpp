@@ -37,46 +37,55 @@ void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions);
 #define LIBHANDLE void *
 #endif
 
+#if defined(_WIN64)
+#define GIX_SYM_PFX "__GIX_SYM_"
+#else
+#define GIX_SYM_PFX "_GIX_SYM_"
+#endif
+
+
+
 ServiceModuleInfo *ServiceModuleInfo::load(ServiceConfig *svc)
 {
-		ExternalInterfaceData *res = nullptr;
+	ExternalInterfaceData *res = nullptr;
 
-		//QString search_path = svc->getServerConfig()->getBasePath();
-		//if (search_path.isEmpty() || !QDir(search_path).exists()) {
-			QString search_path = svc->getServerConfig()->getSearchPath();
-			if (search_path.isEmpty() || search_path == ".")
-				search_path = QCoreApplication::applicationDirPath();
-	
-			if (search_path.isEmpty() || !QDir(search_path).exists()) {
-				QLogger::QLog_Error(svc->getLogModule(), QString("No base path defined"));
-				return nullptr;
-			}
-		//}
-	
-		QString shared_module = svc->getSharedModule();
-		if (!shared_module.isEmpty()) {
-			if (!QFileInfo(shared_module).isAbsolute()) {
-				shared_module = PathUtils::combine(search_path, shared_module);
-			}
-		}
-		else {
-			shared_module = PathUtils::changeExtension(svc->getProgram(), (SysUtils::isWindows() ? ".dll" : ".so"));
+	//QString search_path = svc->getServerConfig()->getBasePath();
+	//if (search_path.isEmpty() || !QDir(search_path).exists()) {
+	QString search_path = svc->getServerConfig()->getSearchPath();
+	if (search_path.isEmpty() || search_path == ".")
+		search_path = QCoreApplication::applicationDirPath();
+
+	if (search_path.isEmpty() || !QDir(search_path).exists()) {
+		QLogger::QLog_Error(svc->getLogModule(), QString("No base path defined"));
+		return nullptr;
+	}
+	//}
+
+	QString shared_module = svc->getSharedModule();
+	if (!shared_module.isEmpty()) {
+		if (!QFileInfo(shared_module).isAbsolute()) {
 			shared_module = PathUtils::combine(search_path, shared_module);
 		}
-	
-		if (!QFile::exists(shared_module)) {
-			QLogger::QLog_Error(svc->getLogModule(), QString("Cannot locate shared module for service %1: %2").arg(svc->getName()).arg(shared_module));
-			return nullptr;
-		}
-	
-	
-		ServiceModuleInfo *ed = extractSharedModuleInfo(shared_module);
-		if (!ed) {
-			QLogger::QLog_Error(svc->getLogModule(), QString("Cannot extract module info for service %1 from module %2").arg(svc->getName()).arg(shared_module));
-			return nullptr;
-		}
-	
-		return ed;
+	}
+	else {
+		shared_module = PathUtils::changeExtension(svc->getProgram(), (SysUtils::isWindows() ? ".dll" : ".so"));
+		shared_module = PathUtils::combine(search_path, shared_module);
+	}
+
+	if (!QFile::exists(shared_module)) {
+		QLogger::QLog_Error(svc->getLogModule(), QString("Cannot locate shared module for service %1: %2").arg(svc->getName()).arg(shared_module));
+		return nullptr;
+	}
+
+	QLogger::QLog_Trace(svc->getLogModule(), QString("Extracting symbol info from %1").arg(shared_module));
+
+	ServiceModuleInfo *ed = extractSharedModuleInfo(shared_module);
+	if (!ed) {
+		QLogger::QLog_Error(svc->getLogModule(), QString("Cannot extract module info for service %1 from module %2").arg(svc->getName()).arg(shared_module));
+		return nullptr;
+	}
+
+	return ed;
 }
 
 bool ServiceModuleInfo::containsEntry(const QString &name)
@@ -112,14 +121,14 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 		return nullptr;
 
 	for (QString module : cob_module_list) {
-		void *p__GIX_SYM_MOD_EC = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_EC").toLocal8Bit().constData());
-		void *p__GIX_SYM_MOD_ES = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_ES").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_EC = (void *)GetProcAddress(libHandle, (GIX_SYM_PFX + module + "_EC").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_ES = (void *)GetProcAddress(libHandle, (GIX_SYM_PFX + module + "_ES").toLocal8Bit().constData());
 
-		void *p__GIX_SYM_MOD_MC = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_MC").toLocal8Bit().constData());
-		void *p__GIX_SYM_MOD_MS = (void *) GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_MS").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_MC = (void *)GetProcAddress(libHandle, (GIX_SYM_PFX + module + "_MC").toLocal8Bit().constData());
+		void *p__GIX_SYM_MOD_MS = (void *)GetProcAddress(libHandle, (GIX_SYM_PFX + module + "_MS").toLocal8Bit().constData());
 
-		uint8_t *__GIX_SYM_MOD_E = (uint8_t *)GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_E").toLocal8Bit().constData());
-		uint8_t *__GIX_SYM_MOD_M = (uint8_t *)GetProcAddress(libHandle, ("__GIX_SYM_" + module + "_M").toLocal8Bit().constData());
+		uint8_t *__GIX_SYM_MOD_E = (uint8_t *)GetProcAddress(libHandle, (GIX_SYM_PFX + module + "_E").toLocal8Bit().constData());
+		uint8_t *__GIX_SYM_MOD_M = (uint8_t *)GetProcAddress(libHandle, (GIX_SYM_PFX + module + "_M").toLocal8Bit().constData());
 
 		if (!p__GIX_SYM_MOD_EC || !p__GIX_SYM_MOD_ES || !p__GIX_SYM_MOD_MC || !p__GIX_SYM_MOD_MS || !__GIX_SYM_MOD_E || !__GIX_SYM_MOD_M) {
 			FreeLibrary(libHandle);
@@ -138,7 +147,7 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 
 			e->name = sr.readString();
 			e->path = sr.readString();
-			e->type = (WsEntryType) sr.readInt();
+			e->type = (WsEntryType)sr.readInt();
 			e->level = sr.readInt();
 			e->base_var_name = sr.readString();
 			e->offset_local = sr.readInt();
@@ -185,28 +194,28 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 
 
 #else
-// To be implemented
-/*
-	strcat(bfr, ".so");
+	// To be implemented
+	/*
+		strcat(bfr, ".so");
 
-	libHandle = dlopen(bfr, RTLD_NOW);
-	if (libHandle != NULL) {
-		dblib_provider = (DBLIB_PROVIDER_FUNC)dlsym(libHandle, "get_dblib");
-		// If the function address is valid, call the function. 
-		if (dblib_provider != NULL) {
-			dbi = dblib_provider();
-			lib_map[dbi] = libHandle;
+		libHandle = dlopen(bfr, RTLD_NOW);
+		if (libHandle != NULL) {
+			dblib_provider = (DBLIB_PROVIDER_FUNC)dlsym(libHandle, "get_dblib");
+			// If the function address is valid, call the function.
+			if (dblib_provider != NULL) {
+				dbi = dblib_provider();
+				lib_map[dbi] = libHandle;
+			}
+			else {
+				return nullptr;
+			}
+
+			// Library not freed here
 		}
 		else {
 			return nullptr;
 		}
-
-		// Library not freed here
-	}
-	else {
-		return nullptr;
-	}
-*/
+	*/
 #endif
 
 

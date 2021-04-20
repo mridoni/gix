@@ -40,10 +40,6 @@ USA.
 #include <Windows.h>
 #endif
 
-#define FLAG_M_BASE					0
-#define FLAG_M_PREPROCD_ESQL		1
-
-
 CobolModuleMetadata::CobolModuleMetadata()
 {
 	module_name = "";
@@ -907,7 +903,25 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		}
 	}
 
+	if (pf->getParentProject()->isEsql()) {
+		cmm->is_preprocessed = true;
+		cmm->flags |= FLAG_M_PREPROCD_ESQL;
+	}
+	else {
+		cmm->is_preprocessed = false;
+		cmm->flags = FLAG_M_BASE;
+	}
+
+	if (pp->getOwner()->getOpt("preprocess_copy_files", false).toBool()) {
+		cmm->flags != FLAG_M_PREPROCD_COPY;
+	}
+
 	return cmm;
+}
+
+uint32_t CobolModuleMetadata::getFlags()
+{
+	return flags;
 }
 
 CobolModuleMetadata *CobolModuleMetadata::loadFromFile(const QString &filename)

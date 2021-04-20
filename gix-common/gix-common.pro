@@ -3,8 +3,8 @@ TEMPLATE = lib
 TARGET = gix-common
 INCLUDEPATH += . ./buildsystem ./projectsystem ./metadata ../libgixutils ../libgixpp
 
-CONFIG(release,debug|release) DESTDIR = ../x64/Release
-CONFIG(debug,debug|release) DESTDIR = ../x64/Debug
+CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
+CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
 
 DEFINES += GIXCOMMON_LIB
 

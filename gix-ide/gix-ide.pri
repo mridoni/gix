@@ -48,7 +48,8 @@ HEADERS += \
 	./TargetDefinition.h \
 	./UiUtils.h \
 	./WatchWindow.h \
-	./AddCompilerDialog.h
+	./AddCompilerDialog.h \
+	./NoWheelComboBox.h
 
 SOURCES += \
     ./Changeling.cpp \

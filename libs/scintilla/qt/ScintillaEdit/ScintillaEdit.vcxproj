@@ -1,0 +1,435 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6695E5F3-6160-35AA-9554-8DA5A85BADB8}</ProjectGuid>
+    <RootNamespace>ScintillaEdit</RootNamespace>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.19041.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <PlatformToolset>v142</PlatformToolset>
+    <OutputDirectory>..\..\..\..\$(Platform)\Release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <IntermediateDirectory>release\</IntermediateDirectory>
+    <PrimaryOutput>ScintillaEdit4</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <PlatformToolset>v142</PlatformToolset>
+    <OutputDirectory>..\..\..\..\$(Platform)\Debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <IntermediateDirectory>debug\</IntermediateDirectory>
+    <PrimaryOutput>ScintillaEdit4</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>ScintillaEdit4</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>ScintillaEdit4</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>ScintillaEdit4</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>ScintillaEdit4</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <QtInstall>msvc2017</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <QtInstall>msvc2017</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\ScintillaEditBase;..\..\include;..\..\src;..\..\lexlib;$(QTDIR)\mkspecs\win32-msvc;$(Qt_INCLUDEPATH_);release;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>release\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;SCINTILLA_QT=1;MAKING_LIBRARY=1;SCI_LEXER=1;_CRT_SECURE_NO_DEPRECATE=1;NDEBUG=1;NDEBUG;QT_NO_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkDLL>true</LinkDLL>
+      <LinkIncremental>false</LinkIncremental>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\ScintillaEdit4.dll</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>4.3</Version>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;SCINTILLA_QT=1;MAKING_LIBRARY=1;SCI_LEXER=1;_CRT_SECURE_NO_DEPRECATE=1;NDEBUG=1;NDEBUG;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>C:/Users/marchetto/Documents/Visual Studio 2017/Projects/gix-ide/libs/scintilla/qt/ScintillaEdit/$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\ScintillaEditBase;..\..\include;..\..\src;..\..\lexlib;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include;debug;/include;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>debug\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;SCINTILLA_QT=1;MAKING_LIBRARY=1;SCI_LEXER=1;_CRT_SECURE_NO_DEPRECATE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkDLL>true</LinkDLL>
+      <OutputFile>$(OutDir)\ScintillaEdit4.dll</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>4.3</Version>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;SCINTILLA_QT=1;MAKING_LIBRARY=1;SCI_LEXER=1;_CRT_SECURE_NO_DEPRECATE=1;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>C:/Users/marchetto/Documents/Visual Studio 2017/Projects/gix-ide/libs/scintilla/qt/ScintillaEdit/$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <OutputFile>$(OutDir)\ScintillaEdit4.dll</OutputFile>
+      <Version>4.3</Version>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;SCINTILLA_QT=1;MAKING_LIBRARY=1;SCI_LEXER=1;_CRT_SECURE_NO_DEPRECATE=1;</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\ScintillaEdit;..\ScintillaEditBase;..\..\include;..\..\src;..\..\lexlib;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <OutputFile>$(OutDir)\ScintillaEdit4.dll</OutputFile>
+      <Version>4.3</Version>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;SCINTILLA_QT=1;MAKING_LIBRARY=1;SCI_LEXER=1;_CRT_SECURE_NO_DEPRECATE=1;</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\ScintillaEditBase;..\..\include;..\..\src;..\..\lexlib;$(QTDIR)\mkspecs\win32-msvc;$(Qt_INCLUDEPATH_);release;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\lexlib\Accessor.cxx" />
+    <ClCompile Include="..\..\src\AutoComplete.cxx" />
+    <ClCompile Include="..\..\src\CallTip.cxx" />
+    <ClCompile Include="..\..\src\CaseConvert.cxx" />
+    <ClCompile Include="..\..\src\CaseFolder.cxx" />
+    <ClCompile Include="..\..\src\Catalogue.cxx" />
+    <ClCompile Include="..\..\src\CellBuffer.cxx" />
+    <ClCompile Include="..\..\src\CharClassify.cxx" />
+    <ClCompile Include="..\..\lexlib\CharacterCategory.cxx" />
+    <ClCompile Include="..\..\lexlib\CharacterSet.cxx" />
+    <ClCompile Include="..\..\src\ContractionState.cxx" />
+    <ClCompile Include="..\..\src\DBCS.cxx" />
+    <ClCompile Include="..\..\src\Decoration.cxx" />
+    <ClCompile Include="..\..\lexlib\DefaultLexer.cxx" />
+    <ClCompile Include="..\..\src\Document.cxx" />
+    <ClCompile Include="..\..\src\EditModel.cxx" />
+    <ClCompile Include="..\..\src\EditView.cxx" />
+    <ClCompile Include="..\..\src\Editor.cxx" />
+    <ClCompile Include="..\..\src\ExternalLexer.cxx" />
+    <ClCompile Include="..\..\src\Indicator.cxx" />
+    <ClCompile Include="..\..\src\KeyMap.cxx" />
+    <ClCompile Include="..\..\lexers\LexA68k.cxx" />
+    <ClCompile Include="..\..\lexers\LexAPDL.cxx" />
+    <ClCompile Include="..\..\lexers\LexASY.cxx" />
+    <ClCompile Include="..\..\lexers\LexAU3.cxx" />
+    <ClCompile Include="..\..\lexers\LexAVE.cxx" />
+    <ClCompile Include="..\..\lexers\LexAVS.cxx" />
+    <ClCompile Include="..\..\lexers\LexAbaqus.cxx" />
+    <ClCompile Include="..\..\lexers\LexAda.cxx" />
+    <ClCompile Include="..\..\lexers\LexAsm.cxx" />
+    <ClCompile Include="..\..\lexers\LexAsn1.cxx" />
+    <ClCompile Include="..\..\lexers\LexBaan.cxx" />
+    <ClCompile Include="..\..\lexers\LexBash.cxx" />
+    <ClCompile Include="..\..\lexers\LexBasic.cxx" />
+    <ClCompile Include="..\..\lexers\LexBatch.cxx" />
+    <ClCompile Include="..\..\lexers\LexBibTeX.cxx" />
+    <ClCompile Include="..\..\lexers\LexBullant.cxx" />
+    <ClCompile Include="..\..\lexers\LexCIL.cxx" />
+    <ClCompile Include="..\..\lexers\LexCLW.cxx" />
+    <ClCompile Include="..\..\lexers\LexCOBOL.cxx" />
+    <ClCompile Include="..\..\lexers\LexCPP.cxx" />
+    <ClCompile Include="..\..\lexers\LexCSS.cxx" />
+    <ClCompile Include="..\..\lexers\LexCaml.cxx" />
+    <ClCompile Include="..\..\lexers\LexCmake.cxx" />
+    <ClCompile Include="..\..\lexers\LexCoffeeScript.cxx" />
+    <ClCompile Include="..\..\lexers\LexConf.cxx" />
+    <ClCompile Include="..\..\lexers\LexCrontab.cxx" />
+    <ClCompile Include="..\..\lexers\LexCsound.cxx" />
+    <ClCompile Include="..\..\lexers\LexD.cxx" />
+    <ClCompile Include="..\..\lexers\LexDMAP.cxx" />
+    <ClCompile Include="..\..\lexers\LexDMIS.cxx" />
+    <ClCompile Include="..\..\lexers\LexDataflex.cxx" />
+    <ClCompile Include="..\..\lexers\LexDiff.cxx" />
+    <ClCompile Include="..\..\lexers\LexECL.cxx" />
+    <ClCompile Include="..\..\lexers\LexEDIFACT.cxx" />
+    <ClCompile Include="..\..\lexers\LexEScript.cxx" />
+    <ClCompile Include="..\..\lexers\LexEiffel.cxx" />
+    <ClCompile Include="..\..\lexers\LexErlang.cxx" />
+    <ClCompile Include="..\..\lexers\LexErrorList.cxx" />
+    <ClCompile Include="..\..\lexers\LexFlagship.cxx" />
+    <ClCompile Include="..\..\lexers\LexForth.cxx" />
+    <ClCompile Include="..\..\lexers\LexFortran.cxx" />
+    <ClCompile Include="..\..\lexers\LexGAP.cxx" />
+    <ClCompile Include="..\..\lexers\LexGui4Cli.cxx" />
+    <ClCompile Include="..\..\lexers\LexHTML.cxx" />
+    <ClCompile Include="..\..\lexers\LexHaskell.cxx" />
+    <ClCompile Include="..\..\lexers\LexHex.cxx" />
+    <ClCompile Include="..\..\lexers\LexHollywood.cxx" />
+    <ClCompile Include="..\..\lexers\LexIndent.cxx" />
+    <ClCompile Include="..\..\lexers\LexInno.cxx" />
+    <ClCompile Include="..\..\lexers\LexJSON.cxx" />
+    <ClCompile Include="..\..\lexers\LexKVIrc.cxx" />
+    <ClCompile Include="..\..\lexers\LexKix.cxx" />
+    <ClCompile Include="..\..\lexers\LexLaTeX.cxx" />
+    <ClCompile Include="..\..\lexers\LexLisp.cxx" />
+    <ClCompile Include="..\..\lexers\LexLout.cxx" />
+    <ClCompile Include="..\..\lexers\LexLua.cxx" />
+    <ClCompile Include="..\..\lexers\LexMMIXAL.cxx" />
+    <ClCompile Include="..\..\lexers\LexMPT.cxx" />
+    <ClCompile Include="..\..\lexers\LexMSSQL.cxx" />
+    <ClCompile Include="..\..\lexers\LexMagik.cxx" />
+    <ClCompile Include="..\..\lexers\LexMake.cxx" />
+    <ClCompile Include="..\..\lexers\LexMarkdown.cxx" />
+    <ClCompile Include="..\..\lexers\LexMatlab.cxx" />
+    <ClCompile Include="..\..\lexers\LexMaxima.cxx" />
+    <ClCompile Include="..\..\lexers\LexMetapost.cxx" />
+    <ClCompile Include="..\..\lexers\LexModula.cxx" />
+    <ClCompile Include="..\..\lexers\LexMySQL.cxx" />
+    <ClCompile Include="..\..\lexers\LexNim.cxx" />
+    <ClCompile Include="..\..\lexers\LexNimrod.cxx" />
+    <ClCompile Include="..\..\lexers\LexNsis.cxx" />
+    <ClCompile Include="..\..\lexers\LexNull.cxx" />
+    <ClCompile Include="..\..\lexers\LexOScript.cxx" />
+    <ClCompile Include="..\..\lexers\LexOpal.cxx" />
+    <ClCompile Include="..\..\lexers\LexPB.cxx" />
+    <ClCompile Include="..\..\lexers\LexPLM.cxx" />
+    <ClCompile Include="..\..\lexers\LexPO.cxx" />
+    <ClCompile Include="..\..\lexers\LexPOV.cxx" />
+    <ClCompile Include="..\..\lexers\LexPS.cxx" />
+    <ClCompile Include="..\..\lexers\LexPascal.cxx" />
+    <ClCompile Include="..\..\lexers\LexPerl.cxx" />
+    <ClCompile Include="..\..\lexers\LexPowerPro.cxx" />
+    <ClCompile Include="..\..\lexers\LexPowerShell.cxx" />
+    <ClCompile Include="..\..\lexers\LexProgress.cxx" />
+    <ClCompile Include="..\..\lexers\LexProps.cxx" />
+    <ClCompile Include="..\..\lexers\LexPython.cxx" />
+    <ClCompile Include="..\..\lexers\LexR.cxx" />
+    <ClCompile Include="..\..\lexers\LexRaku.cxx" />
+    <ClCompile Include="..\..\lexers\LexRebol.cxx" />
+    <ClCompile Include="..\..\lexers\LexRegistry.cxx" />
+    <ClCompile Include="..\..\lexers\LexRuby.cxx" />
+    <ClCompile Include="..\..\lexers\LexRust.cxx" />
+    <ClCompile Include="..\..\lexers\LexSAS.cxx" />
+    <ClCompile Include="..\..\lexers\LexSML.cxx" />
+    <ClCompile Include="..\..\lexers\LexSQL.cxx" />
+    <ClCompile Include="..\..\lexers\LexSTTXT.cxx" />
+    <ClCompile Include="..\..\lexers\LexScriptol.cxx" />
+    <ClCompile Include="..\..\lexers\LexSmalltalk.cxx" />
+    <ClCompile Include="..\..\lexers\LexSorcus.cxx" />
+    <ClCompile Include="..\..\lexers\LexSpecman.cxx" />
+    <ClCompile Include="..\..\lexers\LexSpice.cxx" />
+    <ClCompile Include="..\..\lexers\LexStata.cxx" />
+    <ClCompile Include="..\..\lexers\LexTACL.cxx" />
+    <ClCompile Include="..\..\lexers\LexTADS3.cxx" />
+    <ClCompile Include="..\..\lexers\LexTAL.cxx" />
+    <ClCompile Include="..\..\lexers\LexTCL.cxx" />
+    <ClCompile Include="..\..\lexers\LexTCMD.cxx" />
+    <ClCompile Include="..\..\lexers\LexTeX.cxx" />
+    <ClCompile Include="..\..\lexers\LexTxt2tags.cxx" />
+    <ClCompile Include="..\..\lexers\LexVB.cxx" />
+    <ClCompile Include="..\..\lexers\LexVHDL.cxx" />
+    <ClCompile Include="..\..\lexers\LexVerilog.cxx" />
+    <ClCompile Include="..\..\lexers\LexVisualProlog.cxx" />
+    <ClCompile Include="..\..\lexers\LexX12.cxx" />
+    <ClCompile Include="..\..\lexers\LexYAML.cxx" />
+    <ClCompile Include="..\..\lexlib\LexerBase.cxx" />
+    <ClCompile Include="..\..\lexlib\LexerModule.cxx" />
+    <ClCompile Include="..\..\lexlib\LexerNoExceptions.cxx" />
+    <ClCompile Include="..\..\lexlib\LexerSimple.cxx" />
+    <ClCompile Include="..\..\src\LineMarker.cxx" />
+    <ClCompile Include="..\..\src\MarginView.cxx" />
+    <ClCompile Include="..\..\src\PerLine.cxx" />
+    <ClCompile Include="..\ScintillaEditBase\PlatQt.cpp" />
+    <ClCompile Include="..\..\src\PositionCache.cxx" />
+    <ClCompile Include="..\..\lexlib\PropSetSimple.cxx" />
+    <ClCompile Include="..\..\src\RESearch.cxx" />
+    <ClCompile Include="..\..\src\RunStyles.cxx" />
+    <ClCompile Include="..\..\src\ScintillaBase.cxx" />
+    <ClCompile Include="ScintillaDocument.cpp" />
+    <ClCompile Include="ScintillaEdit.cpp" />
+    <ClCompile Include="..\ScintillaEditBase\ScintillaEditBase.cpp" />
+    <ClCompile Include="..\ScintillaEditBase\ScintillaQt.cpp" />
+    <ClCompile Include="..\..\src\Selection.cxx" />
+    <ClCompile Include="..\..\src\Style.cxx" />
+    <ClCompile Include="..\..\lexlib\StyleContext.cxx" />
+    <ClCompile Include="..\..\src\UniConversion.cxx" />
+    <ClCompile Include="..\..\src\UniqueString.cxx" />
+    <ClCompile Include="..\..\src\ViewStyle.cxx" />
+    <ClCompile Include="..\..\lexlib\WordList.cxx" />
+    <ClCompile Include="..\..\src\XPM.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="ScintillaDocument.h">
+    </QtMoc>
+    <QtMoc Include="ScintillaEdit.h">
+    </QtMoc>
+    <QtMoc Include="..\ScintillaEditBase\ScintillaEditBase.h">
+    </QtMoc>
+    <QtMoc Include="..\ScintillaEditBase\ScintillaQt.h">
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Qt\5.14.2\msvc2017\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cl -Bxc:\Qt\5.14.2\msvc2017\bin\qmake.exe -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E C:\Qt\5.14.2\msvc2017\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\moc_predefs.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Qt\5.14.2\msvc2017\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cl -Bxc:\Qt\5.14.2\msvc2017\bin\qmake.exe -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E C:\Qt\5.14.2\msvc2017\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\moc_predefs.h;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(SolutionDir)\libs\scintilla\qt\ScintillaEdit\ScintillaEdit_resource.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

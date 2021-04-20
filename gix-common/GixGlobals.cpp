@@ -92,9 +92,11 @@ IGixLogManager *GixGlobals::getLogManager()
 
 QString GixGlobals::getGixHomeDir()
 {
+#ifdef _DEBUG
     auto qba = qgetenv("GIX_HOME");
     if (!qba.isEmpty())
         return QString::fromUtf8(qba);
+#endif
 
     QString bindir = getGixBinDir();
     if (!bindir.isEmpty()) {
@@ -112,18 +114,21 @@ QString GixGlobals::getGixBinDir()
     return theDir.absolutePath();
 }
 
-QString GixGlobals::getGixLibDir(QString target_platform)
+// This is also used for link libraries at link time
+QString GixGlobals::getGixRuntimeLibDir(CompilerEnvironment env, QString target_platform)
 {
+#ifdef _DEBUG
     auto qba = qgetenv("GIX_LIB_DIR");
     if (!qba.isEmpty())
         return QString::fromUtf8(qba);
+#endif
+    QString conf = (env == CompilerEnvironment::Gcc) ? "gcc" : "msvc";
+    
+    QDir theDir(PathUtils::combine({ getGixHomeDir(), "lib", target_platform, conf }));
+    QString d = theDir.absolutePath();
+    if (theDir.exists())
+        return theDir.absolutePath();
 
-    QString libdir = getGixHomeDir();
-    if (!libdir.isEmpty()) {
-        QDir theDir(libdir);
-        if (theDir.cd(target_platform))
-            return theDir.absolutePath();
-    }
     return QString();
 }
 
@@ -136,25 +141,30 @@ QString GixGlobals::getGixDataDir()
         Mac: $HOME/Library/gix
     */
 
+#ifdef _DEBUG
     // Override from environment
     auto qba = qgetenv("GIX_DATA_DIR");
     if (!qba.isEmpty())
         return QString::fromUtf8(qba);
+#endif
 
 #if defined(Q_OS_WIN)
     if (_gix_data_dir.isEmpty()) {
 
-        QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\MediumGray\\gix-ide", QSettings::Registry64Format);
-        QVariant v = m.value("DataDir");
-        if (!v.isValid()) {
-            QSettings u("HKEY_CURRENT_USER\\SOFTWARE\\MediumGray\\gix-ide", QSettings::Registry64Format);
-            v = u.value("DataDir");
+        //QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\MediumGray\\gix-ide", QSettings::NativeFormat);
+        //auto l = m.allKeys();
+        //QVariant v = m.value("DataDir");
+        //if (!v.isValid()) {
+            QSettings u("HKEY_CURRENT_USER\\SOFTWARE\\MediumGray\\gix-ide", QSettings::NativeFormat);
+            QVariant v = u.value("DataDir");
             if (!v.isValid()) {
                 _gix_data_dir = PathUtils::combine(qgetenv("LOCALAPPDATA"), "Gix");
             }
             else
                 _gix_data_dir = v.toString();
-        }
+        //}
+        //else
+        //    _gix_data_dir = v.toString();
     }
     return _gix_data_dir;
 

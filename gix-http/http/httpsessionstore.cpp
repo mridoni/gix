@@ -1,6 +1,6 @@
 /*
 This file is part of QtWebApp
-Copyright (C) 2010-2019 Stefan Frings
+Copyright (C) 2010-2021 Stefan Frings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -82,7 +82,8 @@ HttpSession HttpSessionStore::getSession(HttpRequest& request, HttpResponse& res
             QByteArray cookiePath=settings->value("cookiePath").toByteArray();
             QByteArray cookieComment=settings->value("cookieComment").toByteArray();
             QByteArray cookieDomain=settings->value("cookieDomain").toByteArray();
-            response.setCookie(HttpCookie(cookieName,session.getId(),expirationTime/1000,cookiePath,cookieComment,cookieDomain));
+            response.setCookie(HttpCookie(cookieName,session.getId(),expirationTime/1000,
+                                          cookiePath,cookieComment,cookieDomain,false,false,"Lax"));
             session.setLastAccess();
             return session;
         }
@@ -97,7 +98,8 @@ HttpSession HttpSessionStore::getSession(HttpRequest& request, HttpResponse& res
         HttpSession session(true);
         qDebug("HttpSessionStore: create new session with ID %s",session.getId().data());
         sessions.insert(session.getId(),session);
-        response.setCookie(HttpCookie(cookieName,session.getId(),expirationTime/1000,cookiePath,cookieComment,cookieDomain));
+        response.setCookie(HttpCookie(cookieName,session.getId(),expirationTime/1000,
+                                      cookiePath,cookieComment,cookieDomain,false,false,"Lax"));
         mutex.unlock();
         return session;
     }
@@ -129,6 +131,7 @@ void HttpSessionStore::sessionTimerEvent()
         if (now-lastAccess>expirationTime)
         {
             qDebug("HttpSessionStore: session %s expired",session.getId().data());
+            emit sessionDeleted(session.getId());
             sessions.erase(prev);
         }
     }
@@ -140,6 +143,7 @@ void HttpSessionStore::sessionTimerEvent()
 void HttpSessionStore::removeSession(HttpSession session)
 {
     mutex.lock();
+    emit sessionDeleted(session.getId());
     sessions.remove(session.getId());
     mutex.unlock();
 }

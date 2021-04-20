@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2019 Stefan Frings
+Copyright (C) 2010-2021 Stefan Frings
 Copyright (C) 2021 Marco Ridoni
 
 This program is free software; you can redistribute it and/or
@@ -132,6 +132,8 @@ int main(int argc, char* argv[])
 	log_manager = QLogger::QLoggerManager::getInstance();
 	log_manager->addDestination(config->getLog(), SERVER_LOG, decode_log_level(config->getLogLevel()));
 
+	QLogger::QLog_Info(SERVER_LOG, QString("gix-http/%1 launched").arg(SysUtils::getGixBuildPlatform()));
+
 	QLogger::QLog_Info(SERVER_LOG, QString("%1 service(s) found").arg(config->getServices().size()));
 
 	if (!init_server_environment()) {
@@ -200,7 +202,7 @@ int main(int argc, char* argv[])
 
 bool init_server_environment()
 {
-	QString libcob_path = PathUtils::combine(config->getRuntimePath(), "bin_x64");
+	QString libcob_path = config->getRuntimePath();
 	QString env_path = SysUtils::mergeEnvironmentVariable(QString("PATH"), libcob_path);
 
 	QString search_path = config->getSearchPath();

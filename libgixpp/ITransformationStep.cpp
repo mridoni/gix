@@ -36,6 +36,11 @@ QString ITransformationStep::getOutput(ITransformationStep *me)
 	return output_file;
 }
 
+GixPreProcessor *ITransformationStep::getOwner()
+{
+	return owner;
+}
+
 void ITransformationStep::setOutput(QString out_file)
 {
 	output_file = out_file;

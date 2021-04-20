@@ -40,7 +40,34 @@ USA.
 #include "PathUtils.h"
 #include <SymbolBufferReader.h>
 
-static bool get_module_base_offset(Dwarf_Debug dbg, uint64_t *offset);
+#if defined(_MSC_VER) || (defined(__INTEL_COMPILER) && defined(_WIN32))
+#if defined(_M_X64)
+#define BITNESS 64
+#define LONG_SIZE 4
+#define DWARF_ADDR_T uint64_t
+#else
+#define BITNESS 32
+#define LONG_SIZE 4
+#define DWARF_ADDR_T uint32_t
+#endif
+#elif defined(__clang__) || defined(__INTEL_COMPILER) || defined(__GNUC__)
+#if defined(__x86_64)
+#define BITNESS 64
+#define DWARF_ADDR_T uint64_t
+#else
+#define BITNESS 32
+#define DWARF_ADDR_T uint32_t
+#endif
+#if __LONG_MAX__ == 2147483647L
+#define LONG_SIZE 4
+#define DWARF_ADDR_T uint32_t
+#else
+#define LONG_SIZE 8
+#define DWARF_ADDR_T uint64_t
+#endif
+#endif
+
+static bool get_module_base_offset(Dwarf_Debug dbg, DWARF_ADDR_T *offset);
 static bool list_funcs_in_file(Dwarf_Debug dbg, QMap<QString, void *> &funcinfo);
 static bool locate_cobol_modules(module_dwarf_private_data *md, QMap<QString, void *> &funcinfo);
 static Dwarf_Die find_top_level_die(const QString &target_die_name, Dwarf_Debug dbg);
@@ -50,12 +77,14 @@ extern void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunct
 
 QMap<QString, struct module_dwarf_private_data *> DwarfSymbolProvider::module_data;
 
+
+
 struct module_dwarf_private_data
 {
 	QString module_name;
 	Dwarf_Debug dbg;
 	int fd;
-	uint64_t base_offset;
+	DWARF_ADDR_T base_offset;
 };
 
 struct lineinfo_entry
@@ -91,7 +120,7 @@ void *DwarfSymbolProvider::loadSymbols(GixDebugger *gd, void *hproc, void *hmod,
 		return nullptr;
 	}
 
-	uint64_t offset;
+	DWARF_ADDR_T offset;
 	if (!get_module_base_offset(dbg, &offset)) {
 		if (dwarf_finish(dbg, &error) != DW_DLV_OK) {
 			fprintf(stderr, "Failed DWARF finalization\n");
@@ -112,6 +141,11 @@ void *DwarfSymbolProvider::loadSymbols(GixDebugger *gd, void *hproc, void *hmod,
 	return (void *)md;
 }
 
+bool DwarfSymbolProvider::unloadSymbols(GixDebugger *gd, void *hproc, void *hmod, const QString &mod_path, void *userdata, int *err)
+{
+	return false;
+}
+
 
 bool DwarfSymbolProvider::initialize(GixDebugger *gd, void *hproc, void *userdata)
 {
@@ -123,9 +157,9 @@ bool DwarfSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void *h
 	return true;
 }
 
-uint64_t hex2int64(const char *hex)
+DWARF_ADDR_T hex2int64(const char *hex)
 {
-	uint64_t val = 0;
+	DWARF_ADDR_T val = 0;
 	while (*hex) {
 		// get current character then increment
 		uint8_t byte = *hex++;
@@ -138,6 +172,8 @@ uint64_t hex2int64(const char *hex)
 	}
 	return val;
 }
+
+
 
 SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err)
 {
@@ -154,7 +190,7 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 	shared_module->dll_base = hmod;
 	shared_module->dll_symbols = hsym;
 
-	shared_module->base_of_code = (uint64_t)userdata;
+	shared_module->base_of_code = (DWARF_ADDR_T)userdata;
 
 
 	QList<lineinfo_entry> linenum_info;
@@ -172,9 +208,13 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 			if (!shared_module->source_files.contains(qp.filename))
 				shared_module->source_files.push_back(qp.filename);
 
-			uint64_t dwarf_addr = (uint64_t)qp.lineaddr;
+			DWARF_ADDR_T dwarf_addr = (DWARF_ADDR_T)qp.lineaddr;
 
-			uint64_t addr = (uint64_t)shared_module->dll_base + (dwarf_addr - md->base_offset) + shared_module->base_of_code;	// 0x1000
+#if defined(_WIN64)
+			DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + (dwarf_addr - md->base_offset) + ((DWARF_ADDR_T) shared_module->base_of_code);	// 0x1000
+#else
+			DWARF_ADDR_T addr = dwarf_addr;
+#endif
 
 			SourceLineInfo *li = new SourceLineInfo();
 			li->module = shared_module;
@@ -207,21 +247,25 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 	bool b = locate_cobol_modules(md, funcinfo);
 	if (b) {
 		for (auto m : funcinfo.keys()) {
-			uint64_t dwarf_addr = (uint64_t)funcinfo[m];
+			DWARF_ADDR_T dwarf_addr = (DWARF_ADDR_T)funcinfo[m];
 
 			CobolModuleInfo *cmi = new CobolModuleInfo();
 			cmi->name = m;
 			cmi->owner = shared_module;
-			cmi->entry_point = (void *)(((uint64_t)shared_module->dll_base) + (dwarf_addr - md->base_offset) + shared_module->base_of_code);	// 0x1000
-
+#if defined(_WIN64)
+			cmi->entry_point = (void *)(((DWARF_ADDR_T)shared_module->dll_base) + (dwarf_addr - md->base_offset) + shared_module->base_of_code);	// 0x1000
+#else
+			cmi->entry_point = (void *)dwarf_addr;
+#endif
 			cmi->entry_breakpoint = new UserBreakpoint();
 			cmi->entry_breakpoint->address = cmi->entry_point;
 			cmi->entry_breakpoint->automatic = true;
 			cmi->entry_breakpoint->key = QString(m) + ":0";
-			cmi->entry_breakpoint->line = 0;
 			cmi->entry_breakpoint->orig_instr = 0x00;
 			cmi->entry_breakpoint->owner = shared_module;
+			
 			cmi->entry_breakpoint->source_file = "";
+			cmi->entry_breakpoint->line = 0;
 
 			shared_module->cbl_modules[m] = cmi;
 
@@ -230,6 +274,11 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 	}
 
 	return shared_module;
+}
+
+LibCobInfo *DwarfSymbolProvider::extractLibCobInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err)
+{
+	return nullptr;
 }
 
 void *DwarfSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err)
@@ -273,7 +322,7 @@ void *get_die_addr(Dwarf_Die die, Dwarf_Debug dbg)
 			uint8_t op = *((uint8_t *)bdata);
 			if (op == DW_OP_addr) {
 				uint8_t *data_addr = ((uint8_t *)bdata) + 1;
-				uint64_t addr = *((uint64_t *)data_addr);
+				DWARF_ADDR_T addr = *((DWARF_ADDR_T *)data_addr);
 
 				return (void *)addr;
 
@@ -298,12 +347,15 @@ int DwarfSymbolProvider::readSymbolValueAsInt(GixDebugger *gd, CobolModuleInfo *
 	if (!die)
 		return -1;
 
-	uint64_t dwarf_addr = (uint64_t)get_die_addr(die, dbg);
+	DWARF_ADDR_T dwarf_addr = (DWARF_ADDR_T)get_die_addr(die, dbg);
 	if (!dwarf_addr)
 		return -1;
 
-	uint64_t addr = (uint64_t)shared_module->dll_base + (dwarf_addr - md->base_offset) + shared_module->base_of_code;	// 0x1000
-
+#if _WIN64
+	DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + (dwarf_addr - md->base_offset) + shared_module->base_of_code;	// 0x1000
+#else
+	DWARF_ADDR_T addr = dwarf_addr;
+#endif
 	int res = 0;
 	if (!gd->readProcessMemory((void *)addr, &res, sizeof(int)))
 		return -1;
@@ -324,11 +376,15 @@ uint8_t *DwarfSymbolProvider::readSymbolValueInBuffer(GixDebugger *gd, CobolModu
 	if (!die)
 		return 0;
 
-	uint64_t dwarf_addr = (uint64_t)get_die_addr(die, dbg);
+	DWARF_ADDR_T dwarf_addr = (DWARF_ADDR_T)get_die_addr(die, dbg);
 	if (!dwarf_addr)
 		return 0;
 
-	uint64_t addr = (uint64_t)shared_module->dll_base + (dwarf_addr - md->base_offset) + shared_module->base_of_code;	// 0x1000
+#if _WIN64
+	DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + (dwarf_addr - md->base_offset) + shared_module->base_of_code;	// 0x1000
+#else
+	DWARF_ADDR_T addr = dwarf_addr;
+#endif
 
 	uint8_t *bfr = (uint8_t *)calloc(1, bfrlen);
 	if (!gd->readProcessMemory((void *)addr, bfr, bfrlen))
@@ -360,6 +416,8 @@ bool DwarfSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hproc,
 		VariableResolverData *rd = new VariableResolverData();
 		rd->var_name = sr.readString();
 		rd->var_path = sr.readString();
+		int rd_type = sr.readInt();
+		int rd_level = sr.readInt();
 		rd->base_var_name = sr.readString();
 		rd->local_addr = sr.readInt();
 		rd->storage_len = sr.readInt();
@@ -419,7 +477,7 @@ bool DwarfSymbolProvider::is_acceptable_source(GixDebugger *gd, const QString &f
 	return false;
 }
 
-bool get_module_base_offset(Dwarf_Debug dbg, uint64_t *offset)
+bool get_module_base_offset(Dwarf_Debug dbg, DWARF_ADDR_T *offset)
 {
 	Dwarf_Unsigned cu_header_length, abbrev_offset, next_cu_header;
 	Dwarf_Half version_stamp, address_size;
@@ -486,7 +544,6 @@ bool get_module_base_offset(Dwarf_Debug dbg, uint64_t *offset)
 	return true;
 }
 
-
 static bool get_cu_line_info(Dwarf_Debug dbg, QList<lineinfo_entry> &linenums)
 {
 	Dwarf_Unsigned lineversion = 0;
@@ -506,61 +563,90 @@ static bool get_cu_line_info(Dwarf_Debug dbg, QList<lineinfo_entry> &linenums)
 	Dwarf_Unsigned lineno = 0;
 	Dwarf_Unsigned cu_header_length, abbrev_offset, next_cu_header;
 	Dwarf_Half version_stamp, address_size;
-	Dwarf_Error err = 0;;
-	Dwarf_Die no_die = 0, cu_die;
+	Dwarf_Error err = 0;
+	Dwarf_Die no_die = 0, cu_die, cu_die_2;
 	Dwarf_Attribute *attrs;
 	Dwarf_Addr lowpc = 0, highpc = 0;
 	Dwarf_Signed attrcount, i;
 
-	/* Find compilation unit header */
-	if (dwarf_next_cu_header(
+	while (dwarf_next_cu_header(
 		dbg,
 		&cu_header_length,
 		&version_stamp,
 		&abbrev_offset,
 		&address_size,
 		&next_cu_header,
-		&err) == DW_DLV_ERROR)
-		return false;
+		&err) != DW_DLV_NO_ENTRY);
 
-	/* Expect the CU to have a single sibling - a DIE */
-	if (dwarf_siblingof(dbg, no_die, &cu_die, &err) == DW_DLV_ERROR)
-		return false;
 
-	lres = dwarf_srclines_b(cu_die, &lineversion,
-		&table_count, &line_context,
-		&err);
+	while (true) {
+		/* Find compilation unit header */
+		if (dwarf_next_cu_header(
+			dbg,
+			&cu_header_length,
+			&version_stamp,
+			&abbrev_offset,
+			&address_size,
+			&next_cu_header,
+			&err) != DW_DLV_OK)
+			break;
 
-	if (table_count > 0) {
 
-	}
+		///* Find compilation unit header */
+		//if (dwarf_next_cu_header(
+		//	dbg,
+		//	&cu_header_length,
+		//	&version_stamp,
+		//	&abbrev_offset,
+		//	&address_size,
+		//	&next_cu_header,
+		//	&err) == DW_DLV_ERROR)
+		//	return false;
 
-	if (lres == DW_DLV_OK) {
-		lres = dwarf_srclines_two_level_from_linecontext(line_context,
-			&linebuf, &linecount,
-			&linebuf_actuals, &linecount_actuals,
+		/* Expect the CU to have a single sibling - a DIE */
+		if (dwarf_siblingof(dbg, no_die, &cu_die, &err) == DW_DLV_ERROR)
+			return false;
+
+		lres = dwarf_srclines_b(cu_die, &lineversion,
+			&table_count, &line_context,
 			&err);
-	}
 
-	if (linecount > 0) {
+		if (table_count > 0) {
 
-		Dwarf_Signed i = 0;
-		Dwarf_Addr pc = 0;
-		Dwarf_Error lt_err = 0;
+		}
 
-		for (i = 0; i < linecount; i++) {
-			Dwarf_Line line = linebuf[i];
-			char *filename = 0;
-			int nsres = 0;
+		if (lres == DW_DLV_OK) {
+			lres = dwarf_srclines_two_level_from_linecontext(line_context,
+				&linebuf, &linecount,
+				&linebuf_actuals, &linecount_actuals,
+				&err);
+		}
 
-			pc = 0;
-			ares = dwarf_lineaddr(line, &pc, &lt_err);
-			lires = dwarf_lineno(line, &lineno, &lt_err);
-			dwarf_linesrc(line, &filename, &err);
+		// *******************************************************************************
 
-			QString f = QDir::cleanPath(filename);
-			lineinfo_entry t = { f, (int)lineno, (void *)pc };
-			linenums.push_back(t);
+
+		// *******************************************************************************
+
+		if (linecount > 0) {
+
+			Dwarf_Signed i = 0;
+			Dwarf_Addr pc = 0;
+			Dwarf_Error lt_err = 0;
+
+			for (i = 0; i < linecount; i++) {
+				Dwarf_Line line = linebuf[i];
+				char *filename = 0;
+				int nsres = 0;
+
+				pc = 0;
+				ares = dwarf_lineaddr(line, &pc, &lt_err);
+				lires = dwarf_lineno(line, &lineno, &lt_err);
+				dwarf_linesrc(line, &filename, &err);
+
+				QString f = QDir::cleanPath(filename);
+				lineinfo_entry t = { f, (int)lineno, (void *)pc };
+				linenums.push_back(t);
+			}
 		}
 	}
 	return true;
@@ -890,7 +976,7 @@ void *DwarfSymbolProvider::get_local_var_addr(CobolModuleInfo *cmi, const QStrin
 					uint8_t op = *((uint8_t *)bdata);
 					if (op == DW_OP_addr) {
 						uint8_t *data_addr = ((uint8_t *)bdata) + 1;
-						uint64_t addr = *((uint64_t *)data_addr);
+						DWARF_ADDR_T addr = *((DWARF_ADDR_T *)data_addr);
 
 						//printf(":: %s : 0x%08llx\n", die_name, addr);
 
@@ -911,19 +997,27 @@ void *DwarfSymbolProvider::get_local_var_addr(CobolModuleInfo *cmi, const QStrin
 	return 0;
 }
 
-void *DwarfSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi, uint64_t frame_ptr, VariableResolverData *rootvar, VariableResolverData *vvar)
+void *DwarfSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi, uint64_t _frame_ptr, VariableResolverData *rootvar, VariableResolverData *vvar)
 {
-	uint64_t dll_base = (uint64_t)cmi->owner->dll_base;
+	DWARF_ADDR_T dll_base = (DWARF_ADDR_T)cmi->owner->dll_base;
 
 	if (!module_data.contains(cmi->owner->dll_path))
 		return nullptr;
 
 	module_dwarf_private_data *md = module_data[cmi->owner->dll_path];
 
-	uint64_t root_addr = (uint64_t)get_local_var_addr(cmi, rootvar->local_sym_name);
+	DWARF_ADDR_T root_addr = (DWARF_ADDR_T)get_local_var_addr(cmi, rootvar->local_sym_name);
 
-	uint64_t offset = (root_addr - md->base_offset) + cmi->owner->base_of_code;	// 0x1000
+#if _WIN32
+#if _WIN64
+	DWARF_ADDR_T offset = (root_addr - md->base_offset) + cmi->owner->base_of_code;	// 0x1000
 	offset += vvar->local_addr;
-
 	return (void *)(dll_base + offset);
+#else
+	uint32_t var_addr = root_addr + vvar->local_addr;
+	return (void *)var_addr;
+#endif
+#endif
+
+	return nullptr;
 }

@@ -27,6 +27,11 @@ Cursor::Cursor()
 {
 	dbi_data = NULL;
 	rownum = 0;
+	connection = nullptr;
+	is_opened = false;
+	is_with_hold = false;
+	nParams = 0;
+	tuples = 0;
 }
 
 

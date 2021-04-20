@@ -51,7 +51,7 @@ public:
 	LIBGIXSQL_API std::string getPassword() override;
 	LIBGIXSQL_API std::string getDefaultSchema() override;
 
-	LIBGIXSQL_API static ConnectionString * parseEx(const std::string& cs);
+	LIBGIXSQL_API static ConnectionString * parseEx(std::string cs);
 
 	LIBGIXSQL_API std::string toConnectionString(bool use_pwd, std::string pwd = "") override;
 	LIBGIXSQL_API std::string getName() override;

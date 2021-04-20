@@ -28,6 +28,7 @@ USA.
 #include "CompilerManager.h"
 #include "MetadataManager.h"
 #include "ProjectCollection.h"
+#include "CompilerEnvironment.h"
 #include "IGixLogManager.h"
 
 typedef std::function<QString()> f_ret_qstring_callback;
@@ -57,7 +58,7 @@ public:
 	static IGixLogManager *getLogManager();
 	static QString getGixHomeDir();
 	static QString getGixBinDir();
-	static QString getGixLibDir(QString target_platform);
+	static QString getGixRuntimeLibDir(CompilerEnvironment env, QString target_platform);
 	static QString getGixDataDir();
 	static QString getCompilerDefsDir();
 	static QString getGixToolPath(QString tool);

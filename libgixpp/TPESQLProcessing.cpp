@@ -71,6 +71,35 @@ USA.
 #define MAP_FILE_FMT_VER ((uint16_t) 0x0100)
 #define FLAG_M_BASE					0
 
+#define HVARTYPE_UNSIGNED_NUMERIC 1
+#define HVARTYPE_SIGNED_TRAILING_SEPARATE 2
+#define HVARTYPE_SIGNED_TRAILING_COMBINED 3
+#define HVARTYPE_SIGNED_LEADING_SEPARATE 4
+#define HVARTYPE_SIGNED_LEADING_COMBINED 5
+
+#define HVARTYPE_UNSIGNED_PACKED 8
+#define HVARTYPE_SIGNED_PACKED 9
+
+#define HVARTYPE_UNSIGNED_BINARY 22
+#define HVARTYPE_SIGNED_BINARY 23
+
+#define HVARTYPE_ALPHABETIC 16
+
+#define HVARTYPE_GROUP 22
+#define HVARTYPE_FLOAT 23
+#define HVARTYPE_NATIONAL 24
+
+#define ERR_NOTDEF_CONVERSION -1
+
+enum oc_usage
+{
+	USAGE_NONE,
+	USAGE_FLOAT,
+	USAGE_DOUBLE,
+	USAGE_PACKED,
+	USAGE_BINARY
+};
+
 enum class ESQL_Command
 {
 	Connect,
@@ -173,11 +202,11 @@ int TPESQLProcessing::outputESQL()
 
 	if (output_file.isEmpty()) {
 		QString f = PathUtils::changeExtension(input_file, ".cbsql");
-		f = QDir::tempPath() + QDir::separator() + PathUtils::getFilename(f);
-		output_file = QDir::cleanPath(f);
+		//f = QDir::tempPath() + QDir::separator() + PathUtils::getFilename(f);
+		output_file = "#" + PathUtils::getFilename(f);
 	}
 
-	if (!SysUtils::isWritableFile(output_file))
+	if (!output_file.startsWith("#") && !SysUtils::isWritableFile(output_file))
 		return -1;
 
 	input_file_stack.push(QDir::cleanPath(input_file));
@@ -236,12 +265,19 @@ bool TPESQLProcessing::processNextFile()
 
 	if (!input_lines.size()) {
 		input_file_stack.pop();
+		if (input_file_stack.size() > 0)
+			main_module_driver.file = input_file_stack.top().toStdString();
+
 		return true;
 	}
 
 	for (int input_line = 1; input_line <= input_lines.size(); input_line++) {
 		current_input_line = input_line;
-		//fprintf(stderr, "Processing line %d of file %s\n", input_line, the_file.toUtf8().constData());
+#if defined(_WIN32) && defined(_DEBUG)
+		//char bfr[256];
+		//sprintf(bfr, "Processing line %d of file %s\n", input_line, the_file.toUtf8().constData());
+		//OutputDebugStringA(bfr);
+#endif
 		QString cur_line = input_lines.at(input_line - 1);
 
 		bool in_ws = (input_line >= working_begin_line) && (input_line <= working_end_line);
@@ -265,9 +301,9 @@ bool TPESQLProcessing::processNextFile()
 				put_output_line(input_lines.at(exec_sql_stmt->startLine - 1));
 				break;
 
-			case ESQL_Command::WorkingEnd:
-				put_query_defs();
-				break;
+			//case ESQL_Command::WorkingEnd:
+			//	put_query_defs();
+			//	break;
 
 			case ESQL_Command::ProcedureDivision:
 				put_output_line(input_lines.at(exec_sql_stmt->startLine - 1));
@@ -291,12 +327,22 @@ bool TPESQLProcessing::processNextFile()
 				}
 		}
 
+		// Special case
+		if (exec_sql_stmt->endLine == working_end_line) {
+			if (!handle_esql_stmt(ESQL_Command::WorkingEnd, find_esql_cmd(ESQL_WORKING_END, 0), 0)) {
+				owner->err_messages << QString("Unsupported ESQL statement at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
+				return false;
+			}
+		}
+
 		// Update input line pointer
 		input_line = exec_sql_stmt->endLine;
 		current_input_line = input_line;
 	}
 
 	input_file_stack.pop();
+	if (input_file_stack.size() > 0)
+		main_module_driver.file = input_file_stack.top().toStdString();
 
 	return true;
 }
@@ -413,9 +459,9 @@ bool TPESQLProcessing::put_cursor_declarations()
 		else { // (struct sqlca_t *st, char *cname, int with_hold, char *_query)
 			ESQLCall cd_call(get_call_id("CursorDeclare"), emit_static);
 			cd_call.addParameter("SQLCA", BY_REFERENCE);
-			cd_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE); //& x\"00\"
-			cd_call.addParameter(QString::number(stmt->cursor_hold ? 1 : 0), BY_VALUE);
-			cd_call.addParameter(stmt->sqlName, BY_REFERENCE); //& x\"00\"
+			cd_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE);
+			cd_call.addParameter(stmt->cursor_hold, BY_VALUE);
+			cd_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
 
 			put_call(cd_call, stmt->period);
 		}
@@ -449,6 +495,22 @@ cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const QString filename
 	return NULL;
 }
 
+cb_exec_sql_stmt_ptr TPESQLProcessing::find_esql_cmd(QString cmd, int idx)
+{
+	int n = 0;
+	QList<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
+	for (auto e : *p) {
+		if (e->commandName == cmd) {
+			if (n == idx)
+				return e;
+			else
+				n++;
+		}
+	}
+
+	return NULL;
+}
+
 void TPESQLProcessing::put_output_line(const QString &line)
 {
 	output_line++;
@@ -456,6 +518,9 @@ void TPESQLProcessing::put_output_line(const QString &line)
 
 	QString output_id = QString("%1@%2").arg(output_line).arg(output_file);
 	QString input_id = QString("%1@%2").arg(current_input_line).arg(input_file_stack.top());
+#if defined(_WIN32) && defined(_DEBUG)
+	OutputDebugStringA((input_id + "-> " + output_id + "\n").toLocal8Bit().constData());
+#endif
 	out_to_in[output_id] = input_id;
 	in_to_out[input_id] = output_id;
 }
@@ -479,6 +544,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			break;
 
 		case ESQL_Command::WorkingEnd:
+			put_query_defs();
 			break;
 
 		case ESQL_Command::Incfile:
@@ -627,20 +693,29 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				call_id = get_call_id("ExecSelectIntoOne");
 			}
 
-			ESQLCall select_call(call_id, emit_static);
-			select_call.addParameter("SQLCA", BY_REFERENCE);
-			select_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
-			select_call.addParameter(stmt->host_list->size(), BY_VALUE);
-			select_call.addParameter(stmt->res_host_list->size(), BY_VALUE);
-			put_call(select_call, stmt->period);
-
+			if (stmt->cursorName.isEmpty()) {
+				ESQLCall select_call(call_id, emit_static);
+				select_call.addParameter("SQLCA", BY_REFERENCE);
+				select_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
+				select_call.addParameter(stmt->host_list->size(), BY_VALUE);
+				select_call.addParameter(stmt->res_host_list->size(), BY_VALUE);
+				put_call(select_call, stmt->period);
+			}
+			else {
+				ESQLCall select_call(call_id, emit_static);
+				select_call.addParameter("SQLCA", BY_REFERENCE);
+				select_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE);
+				select_call.addParameter(stmt->cursor_hold, BY_VALUE);
+				select_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
+				put_call(select_call, stmt->period);
+			}
 			put_end_exec_sql(stmt->period);
 		}
 		break;
 
 		case ESQL_Command::Open:
 		{
-			QString cursor_id = main_module_driver.filenameID + "_" + stmt->cursorName;
+			QString cursor_id = stmt->cursorName;
 			ESQLCall open_call(get_call_id("CursorOpen"), emit_static);
 			open_call.addParameter("SQLCA", BY_REFERENCE);
 			open_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
@@ -650,7 +725,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		case ESQL_Command::Close:
 		{
-			QString cursor_id = main_module_driver.filenameID + "_" + stmt->cursorName;
+			QString cursor_id = stmt->cursorName;
 			ESQLCall close_call(get_call_id("CursorClose"), emit_static);
 			close_call.addParameter("SQLCA", BY_REFERENCE);
 			close_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
@@ -680,8 +755,8 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				put_call(rp_call, stmt->period);
 			}
 
-			QString cursor_id = main_module_driver.filenameID + "_" + stmt->cursorName;
-			ESQLCall fetch_call(get_call_id("CursorClose"), emit_static);
+			QString cursor_id = stmt->cursorName;
+			ESQLCall fetch_call(get_call_id("CursorFetchOne"), emit_static);
 			fetch_call.addParameter("SQLCA", BY_REFERENCE);
 			fetch_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
 			put_call(fetch_call, stmt->period);
@@ -799,11 +874,102 @@ bool TPESQLProcessing::is_var_len_group(cb_field_ptr f)
 	return true;
 }
 
+int gethostvarianttype(cb_field_ptr p, int *type)
+{
+	int tmp_type = ERR_NOTDEF_CONVERSION;
+
+	if (p->pictype != 0) {
+		switch (p->pictype) {
+			case PIC_ALPHANUMERIC:
+				tmp_type = HVARTYPE_ALPHABETIC;
+				break;
+			case PIC_NATIONAL:
+				tmp_type = HVARTYPE_NATIONAL;
+				break;
+			case PIC_NUMERIC:
+				if (p->have_sign) {
+					if (p->usage != Usage::None) {
+						switch (p->usage) {
+							case Usage::Packed:
+								tmp_type = HVARTYPE_SIGNED_PACKED;
+								break;
+							case Usage::Binary:
+								tmp_type = HVARTYPE_SIGNED_BINARY;
+								break;
+							default:
+								return ERR_NOTDEF_CONVERSION;
+						}
+					}
+					else if (p->sign_leading) {
+						if (p->separate) {
+							tmp_type = HVARTYPE_SIGNED_LEADING_SEPARATE;
+						}
+						else {
+							tmp_type = HVARTYPE_SIGNED_LEADING_COMBINED;
+						}
+					}
+					else {
+						if (p->separate) {
+							tmp_type = HVARTYPE_SIGNED_TRAILING_SEPARATE;
+						}
+						else {
+							tmp_type = HVARTYPE_SIGNED_TRAILING_COMBINED;
+						}
+					}
+				}
+				else {
+					if (p->usage != Usage::None) {
+						switch (p->usage) {
+							case Usage::Packed:
+								tmp_type = HVARTYPE_UNSIGNED_PACKED;
+								break;
+							case Usage::Binary:
+								tmp_type = HVARTYPE_UNSIGNED_BINARY;
+								break;
+							default:
+								return ERR_NOTDEF_CONVERSION;
+						}
+					}
+					else {
+						tmp_type = HVARTYPE_UNSIGNED_NUMERIC;
+					}
+				}
+				break;
+			default:
+				break;
+		}
+		*type = tmp_type;
+		return 0;
+	}
+	if (p->usage != Usage::None) {
+		switch (p->usage) {
+			case Usage::Float:
+				tmp_type = HVARTYPE_FLOAT;
+				break;
+			case Usage::Double:
+				tmp_type = HVARTYPE_FLOAT;
+				break;
+			default:
+				return ERR_NOTDEF_CONVERSION;
+		}
+		*type = tmp_type;
+		return 0;
+	}
+
+	if (p->children && (p->level == 1 || ((p->level % 10) == 0))) {
+		*type = HVARTYPE_GROUP;
+		return 0;
+	}
+
+	return ERR_NOTDEF_CONVERSION;
+}
+
 bool TPESQLProcessing::get_actual_field_data(cb_field_ptr f, int *type, int *size, int *scale)
 {
 	bool is_varlen = is_var_len_group(f);
 	if (!is_varlen) {
-		*type = f->pictype;
+		gethostvarianttype(f, type);
+		//*type = f->pictype;
 		*size = f->picnsize;
 		*scale = f->scale;
 	}
@@ -811,7 +977,8 @@ bool TPESQLProcessing::get_actual_field_data(cb_field_ptr f, int *type, int *siz
 		QString f_name = f->children->sister->sname;
 		cb_field_ptr f_actual = main_module_driver.field_map[f_name];
 
-		*type = f_actual->pictype;
+		gethostvarianttype(f_actual, type);
+		//*type = f_actual->pictype;
 		*size = f_actual->picnsize + 2;
 		*scale = f_actual->scale;
 	}

@@ -515,12 +515,6 @@ QStringList Project::getCopyDirList()
 	QStringList res = cpath.toStringList();
 	MacroManager mm(*properties);
 	mm.add(this->runtime_properties);
-
-	if (PropertyGetValue("preprocess_esql", false).toBool()) {
-		QString copy_dir = SysUtils::getSysCopyDir();
-		if (!copy_dir.isEmpty() && !res.contains(copy_dir))
-			res.append(copy_dir);
-	}
 	
 	for (int i = 0; i < res.size(); i++) {
 		res[i] = mm.translate(res.at(i));

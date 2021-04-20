@@ -60,7 +60,7 @@ public:
 	bool setInputFile(QString infile);
 	bool setOutputFile(QString outfile);
 
-	QVariant getOpt(QString id);
+	QVariant getOpt(QString id, QVariant v = QVariant());
 	void setOpt(QString id, QVariant v);
 
 private:

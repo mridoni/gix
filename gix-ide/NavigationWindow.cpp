@@ -124,56 +124,11 @@ void NavigationWindow::setContent(ProjectFile *pf)
 	}
 	refresh_data_items();
 }
-//
-//void NavigationWindow::setContent(ProjectFile *pf)
-//{
-//	QString module_name, output_path;
-//	bool switched_file = false;
-//
-//	QString configuration = Ide::TaskManager()->getCurrentConfiguration();
-//	QString platform = Ide::TaskManager()->getCurrentPlatform();
-//
-//	if (pf == nullptr || pf->PropertyGetValue("build_action") != "compile" || !pf->getOutputModuleAndFile(configuration, platform, module_name, output_path)) {
-//		refresh_data_items();
-//		return;
-//	}
-//
-//	CobolModuleMetadata* cfm = Ide::TaskManager()->getModuleMetadataBySourceFile(pf->GetFileFullPath());
-//	if (cfm) {
-//		switched_file = (pf == nullptr) || cur_file->GetFileFullPath() != pf->GetFileFullPath();
-//		cur_file = pf;
-//	}
-//	else {
-//		cur_file = nullptr;
-//	}
-//	refresh_data_items();
-//}
-//
+
 bool NavigationWindow::hasContent()
 {
 	return false;
 }
-//
-//void NavigationWindow::refreshContent()
-//{
-//	dataWidget->clear();
-//
-//	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("NavigationWindow is refreshing"), QLogger::LogLevel::Debug);
-//	if (mainWindow->activeMdiChild() != nullptr) {
-//		QString f = mainWindow->activeMdiChild()->currentFile();
-//
-//		ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
-//		if (ppj != nullptr) {
-//			ProjectFile* pf = ppj->locateProjectFileByPath(f);
-//			if (pf != nullptr) {
-//				QDockWidget* qdw = dynamic_cast<QDockWidget*>(this->parent());
-//				if (qdw && qdw->isVisible()) {
-//					this->setContent(pf);
-//				}
-//			}
-//		}
-//	}
-//}
 
 void NavigationWindow::refresh_data_items()
 {

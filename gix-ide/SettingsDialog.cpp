@@ -28,6 +28,7 @@ USA.
 #include "CustomDialog.h"
 #include "AddCompilerDialog.h"
 #include "GixGlobals.h"
+#include "ESQLConfiguration.h"
 
 #include <QSettings>
 #include <QFileDialog>
@@ -61,6 +62,9 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	cbDebugStartupBehaviour->addItem(tr("Stop at the first line of every module"), (int)0x03);
 	cbSkipCheckPackageVersionCheck->setChecked(false);
 
+	cb_esql_pp_driver_list->addItem("Gix (Internal)", "esql_driver_gix_internal");
+	cb_esql_pp_driver_list->addItem("Gix (External)", "esql_driver_gix_external");
+
 	GeneralCfgTab_LoadSettings();
 	GnuCobolCfgTab_LoadSettings();
 	ESQLCfgTab_LoadSettings();
@@ -72,20 +76,62 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	// For now, we do not show ESQL options
 	this->tabWidget->setTabEnabled(3, false);
 	this->setStyleSheet("QTabBar::tab::disabled {width: 0; height: 0; margin: 0; padding: 0; border: none;} ");
-	// 
+	 
 	label_9->setVisible(false);
 	label_10->setVisible(false);
 	tHostPort->setVisible(false);
 	cbSkipCheckPackageVersionCheck->setVisible(false);
 
-	connect(btnChoosePreprocBin, &QPushButton::clicked, this, [this] { choosePath(binPreprocessorPath, false); });
-	connect(btnChooseLinkLib, &QPushButton::clicked, this, [this] { choosePath(libLinkPath, false); });
-	connect(btnChooseRuntimeLib, &QPushButton::clicked, this, [this] { choosePath(libRuntimePath, false); });
+	connect(btn_esql_mysql_x64_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_mysql_x64_rt_path, true); });
+	connect(btn_esql_mysql_x86_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_mysql_x86_rt_path, true); });
+
+	connect(btn_esql_odbc_x64_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_odbc_x64_rt_path, true); });
+	connect(btn_esql_odbc_x86_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_odbc_x86_rt_path, true); });
+
+	connect(btn_esql_pgsql_x64_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_pgsql_x64_rt_path, true); });
+	connect(btn_esql_pgsql_x86_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_pgsql_x86_rt_path, true); });
+	
+	connect(btn_esql_pp_new, &QPushButton::clicked, this, [this] { UiUtils::InfoDialog(tr("Function not implemented")); });
+
+	connect(cbReleaseCompiler, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i){ updateCompilerInfo(0, i); });
+	connect(cbDebugCompiler, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i){ updateCompilerInfo(1, i); });
+	
 
 	connect(btnAddCompiler, &QPushButton::clicked, this, [this] { addCompiler(); });
 
 }
 
+void SettingsDialog::updateCompilerInfo(int t, int idx)
+{
+	QString id;
+	switch (t) {
+		case 0:
+			id = cbReleaseCompiler->itemData(idx).toString();
+			break;
+		case 1:
+			id = cbDebugCompiler->itemData(idx).toString();
+			break;
+	}
+
+	if (id.isEmpty())
+		return;
+
+	QMap<QString, CompilerDefinition *> compilers = GixGlobals::getCompilerManager()->getCompilers();
+	if (!compilers.contains(id))
+		return;
+
+	CompilerDefinition *cdef = compilers.value(id);
+	switch (t) {
+		case 0:
+			lblReleaseCompilerBaseDir->setText(cdef->getHomedir());
+			lblReleaseCompilerDescription->setText(cdef->getName());
+			break;
+		case 1:
+			lblDebugCompilerBaseDir->setText(cdef->getHomedir());
+			lblDebugCompilerDescription->setText(cdef->getName());
+			break;
+	}
+}
 
 SettingsDialog::~SettingsDialog()
 {}
@@ -145,9 +191,11 @@ void SettingsDialog::GnuCobolCfgTab_LoadSettings()
 
 	idx = cbReleaseCompiler->findData(settings.value("ReleaseCompilerId", ""));
 	cbReleaseCompiler->setCurrentIndex((idx >= 0) ? idx : 0);
+	updateCompilerInfo(0, idx);
 
 	idx = cbDebugCompiler->findData(settings.value("DebugCompilerId", ""));
 	cbDebugCompiler->setCurrentIndex((idx >= 0) ? idx : 0);
+	updateCompilerInfo(1, idx);
 }
 
 bool SettingsDialog::GnuCobolCfgTab_CheckSettings()
@@ -177,9 +225,18 @@ bool SettingsDialog::GeneralCfgTab_CheckSettings()
 bool SettingsDialog::ESQLCfgTab_SaveSettings()
 {
 	QSettings settings;
-	bool changed = settingsSetValue("ESQL_PreprocBinPath", binPreprocessorPath->text());
-	changed |= settingsSetValue("ESQL_RuntimeLibPath", libRuntimePath->text());
-	changed |= settingsSetValue("ESQL_LinkLibPath", libLinkPath->text());
+	bool changed = false;
+	changed |= settingsSetValue("esql_mysql_x64_rt_path", esql_mysql_x64_rt_path->text());
+	changed |= settingsSetValue("esql_mysql_x86_rt_path", esql_mysql_x86_rt_path->text());
+
+	changed |= settingsSetValue("esql_odbc_x64_rt_path", esql_odbc_x64_rt_path->text());
+	changed |= settingsSetValue("esql_odbc_x86_rt_path", esql_odbc_x86_rt_path->text());
+
+	changed |= settingsSetValue("esql_pgsql_x64_rt_path", esql_pgsql_x64_rt_path->text());
+	changed |= settingsSetValue("esql_pgsql_x86_rt_path", esql_pgsql_x86_rt_path->text());
+
+	changed |= settingsSetValue("esql_preprocessor_id", cb_esql_pp_driver_list->currentData().toString());
+
 	return changed;
 }
 
@@ -246,16 +303,43 @@ bool SettingsDialog::DebugCfgTab_SaveSettings()
 void SettingsDialog::ESQLCfgTab_LoadSettings()
 {
 	QSettings settings;
-	binPreprocessorPath->setText(settings.value("ESQL_PreprocBinPath", "").toString());
-	libRuntimePath->setText(settings.value("ESQL_RuntimeLibPath", "").toString());
-	libLinkPath->setText(settings.value("ESQL_LinkLibPath", "").toString());
+
+	esql_mysql_x64_rt_path->setText(settings.value("esql_mysql_x64_rt_path", "").toString());
+	esql_mysql_x86_rt_path->setText(settings.value("esql_mysql_x86_rt_path", "").toString());
+
+	esql_odbc_x64_rt_path->setText(settings.value("esql_odbc_x64_rt_path", "").toString());
+	esql_odbc_x86_rt_path->setText(settings.value("esql_odbc_x86_rt_path", "").toString());
+
+	esql_pgsql_x64_rt_path->setText(settings.value("esql_pgsql_x64_rt_path", "").toString());
+	esql_pgsql_x86_rt_path->setText(settings.value("esql_pgsql_x86_rt_path", "").toString());
+
+	QString esql_pp_driver_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+	if (esql_pp_driver_id == ESQLConfigurationType::GixInternal)
+		cb_esql_pp_driver_list->setCurrentIndex(0);
+	else
+		if (esql_pp_driver_id == ESQLConfigurationType::GixExternal)
+			cb_esql_pp_driver_list->setCurrentIndex(1);
+		else {
+			int idx = cb_esql_pp_driver_list->findData(esql_pp_driver_id);
+			if (idx > 1)
+				cb_esql_pp_driver_list->setCurrentIndex(idx);
+			else
+				cb_esql_pp_driver_list->setCurrentIndex(0);
+
+		}
 }
 
 bool SettingsDialog::ESQLCfgTab_CheckSettings()
 {
-	return !binPreprocessorPath->text().isEmpty() &&
-		!libRuntimePath->text().isEmpty() &&
-		!libLinkPath->text().isEmpty();
+	return
+		(esql_mysql_x64_rt_path->text().isEmpty() || QDir(esql_mysql_x64_rt_path->text()).exists()) &&
+		(esql_mysql_x86_rt_path->text().isEmpty() || QDir(esql_mysql_x86_rt_path->text()).exists()) &&
+
+		(esql_odbc_x64_rt_path->text().isEmpty() || QDir(esql_odbc_x64_rt_path->text()).exists()) &&
+		(esql_odbc_x86_rt_path->text().isEmpty() || QDir(esql_odbc_x86_rt_path->text()).exists()) &&
+
+		(esql_pgsql_x64_rt_path->text().isEmpty() || QDir(esql_pgsql_x64_rt_path->text()).exists()) &&
+		(esql_pgsql_x86_rt_path->text().isEmpty() || QDir(esql_pgsql_x86_rt_path->text()).exists());
 }
 
 void SettingsDialog::choosePath(QLabel* l, bool is_dir)

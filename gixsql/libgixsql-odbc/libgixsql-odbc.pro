@@ -4,8 +4,8 @@ win32:TARGET = libgixsql-odbc
 
 INCLUDEPATH += . ../libgixsql
 
-CONFIG(debug,debug|release) DESTDIR = ../../x64/Debug
-CONFIG(release,debug|release) DESTDIR = ../../x64/Release
+CONFIG(debug,debug|release) DESTDIR = ../../$$(HOST_PLATFORM)/Debug
+CONFIG(release,debug|release) DESTDIR = ../../$$(HOST_PLATFORM)/Release
 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic
 linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17

@@ -1,6 +1,6 @@
 /*
 This file is part of QtWebApp
-Copyright (C) 2010-2019 Stefan Frings
+Copyright (C) 2010-2021 Stefan Frings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QStringList>
 #include <QDir>
 #include <QSet>
+#include <QTextStream>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    #include <QRegularExpression>
+#else
+    #include <QRegExp>
+#endif
 
 using namespace stefanfrings;
 
@@ -55,7 +61,7 @@ TemplateLoader::TemplateLoader(const QSettings *settings, QObject *parent)
     {
        textCodec=QTextCodec::codecForName(encoding.toLocal8Bit());
    }
-   qDebug("TemplateLoader: path=%s, codec=%s",qPrintable(templatePath),textCodec->name().data());
+    qDebug("TemplateLoader: path=%s, codec=%s",qPrintable(templatePath),qPrintable(encoding));
 }
 
 TemplateLoader::~TemplateLoader()
@@ -86,12 +92,21 @@ QString TemplateLoader::tryFile(QString localizedName)
 Template TemplateLoader::getTemplate(QString templateName, QString locales)
 {
     QSet<QString> tried; // used to suppress duplicate attempts
+
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        QStringList locs=locales.split(',',Qt::SkipEmptyParts);
+    #else
     QStringList locs=locales.split(',',QString::SkipEmptyParts);
+    #endif
 
     // Search for exact match
     foreach (QString loc,locs)
     {
+        #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            loc.replace(QRegularExpression(";.*"),"");
+        #else
         loc.replace(QRegExp(";.*"),"");
+        #endif
         loc.replace('-','_');
         QString localizedName=templateName+"-"+loc.trimmed();
         if (!tried.contains(localizedName))
@@ -107,7 +122,11 @@ Template TemplateLoader::getTemplate(QString templateName, QString locales)
     // Search for correct language but any country
     foreach (QString loc,locs)
     {
+        #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            loc.replace(QRegularExpression("[;_-].*"),"");
+        #else
         loc.replace(QRegExp("[;_-].*"),"");
+        #endif
         QString localizedName=templateName+"-"+loc.trimmed();
         if (!tried.contains(localizedName))
         {

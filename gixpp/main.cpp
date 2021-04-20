@@ -114,7 +114,6 @@ public slots:
 				gp.setOpt("anonymous_params", parser.isSet("a"));
 				gp.setOpt("preprocess_copy_files", parser.isSet("p"));
 				gp.addStep(new TPESQLProcessing(&gp));
-					QString e = parser.value("E");
 				copy_resolver.setExtensions(parser.value("E").split(","));
 			}
 

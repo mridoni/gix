@@ -30,6 +30,10 @@ USA.
 #include "StdStreamRedirect.h"
 #include "OutputWindow.h"
 #include "GixDebugger.h"
+#include "TPESQLProcessing.h"
+#include "ESQLConfiguration.h"
+#include "utils.h"
+#include "linq/linq.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include "windows.h"
@@ -38,6 +42,7 @@ USA.
 #include <QThread>
 #include <QCoreApplication>
 #include <QRegularExpression>
+#include <QGuiApplication>
 #include <QMouseEvent>
 #include <QMetaEnum>
 #include <ServerConfig.h>
@@ -77,20 +82,36 @@ void DebugManager::setDebuggingEnabled(bool f)
 	is_debugging_enabled = f;
 }
 
-bool DebugManager::start(Project *prj, QString build_configuration, QString target_platform)
+bool DebugManager::start(Project *prj, QString _build_configuration, QString _target_platform)
 {
 	QSettings settings;
+
+	build_configuration = _build_configuration;
+	target_platform = _target_platform;
 
 	debugged_prj = prj;
 
 	bool dbg_stop_at_first_line = prj->PropertyGetValue("dbg_stop_at_first_line").toBool();
 	bool dbg_separate_console = prj->PropertyGetValue("dbg_separate_console").toBool();
 
-	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform);
-	if (compiler_cfg == nullptr) {
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Invalid compiler configuration", QLogger::LogLevel::Error);
+	QString gix_build_platform = SysUtils::getGixBuildPlatform();
+	if (is_debugging_enabled && target_platform != gix_build_platform) {
+		QString msg = QString(tr("Architecture mismatch. Only projects for the following platforms can be debugged: %1")).arg(gix_build_platform);
+		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		UiUtils::ErrorDialog(msg);
 		return false;
 	}
+
+	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform);
+	if (compiler_cfg == nullptr) {
+		QString msg(tr("Invalid compiler configuration"));
+		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		UiUtils::ErrorDialog(msg);
+		return false;
+	}
+
+
+	get_module_sources();
 
 	QMap<QString, QVariant> build_env;
 	build_env.insert("configuration", build_configuration);
@@ -136,53 +157,41 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 	SysUtils::mergeEnvironmentVariable(env, "PATH", compiler_cfg->binDirPath);
 	SysUtils::mergeEnvironmentVariable(env, "PATH", compiler_cfg->libDirPath);
-	SysUtils::mergeEnvironmentVariable(env, "PATH", GixGlobals::getGixLibDir(target_platform));
+	SysUtils::mergeEnvironmentVariable(env, "PATH", GixGlobals::getGixRuntimeLibDir(compiler_cfg->getCompilerEnvironment(), target_platform), true);
 
 	env.insert("COB_EXIT_WAIT", "Y");
 
 	if (prj->isEsql()) {
-		QString esql_default_driver = prj->PropertyGetValue("esql_default_driver").toString();
-		if (esql_default_driver.isEmpty()) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, tr("ESQL default driver not set"), QLogger::LogLevel::Error);
+
+		QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+		CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
+		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
+
+		ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Using ESQL driver: %1")).arg(esql_cfg_id), QLogger::LogLevel::Trace);
+
+		QString esql_driver_type = prj->PropertyGetValue("esql_default_driver").toString();
+		if ((esql_cfg_id == ESQLConfigurationType::GixInternal || esql_cfg_id == ESQLConfigurationType::GixExternal) && esql_driver_type.isEmpty()) {
+			ide_task_manager->logMessage(GIX_CONSOLE_LOG, tr("ESQL DBMS driver not set for gixsql driver"), QLogger::LogLevel::Error);
 			return false;
 		}
+		QMap<QString, QString> esql_env = esql_cfg->getEnvironment(esql_driver_type);
 
-		if (esql_default_driver == "_GIXSQL_DB_MODE") {
-			QString db_mode = qgetenv("GIXSQL_DB_MODE");
-			if (db_mode.isEmpty()) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Invalid value for ESQL default driver in GIXSQL_DB_MODE: %1")).arg(db_mode), QLogger::LogLevel::Error);
-				return false;
-			}
+		for (auto it = esql_env.begin(); it != esql_env.end(); ++it) {
+			env.insert(it.key(), it.value());
 		}
-		else
-			if (esql_default_driver == "_URL") {
-				// Do nothing
-			}
-			else
-				if (esql_default_driver == "ODBC") {
-					env.insert("GIXSQL_DB_MODE", "ODBC");
-					ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg("ODBC"), QLogger::LogLevel::Trace);
-				}
-				else
-					if (esql_default_driver == "MYSQL") {
-						env.insert("GIXSQL_DB_MODE", "MYSQL");
-						ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg("MYSQL"), QLogger::LogLevel::Trace);
-					}
-					else
-						if (esql_default_driver == "PGSQL") {
-							env.insert("GIXSQL_DB_MODE", "PGSQL");
-							ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg("PGSQL"), QLogger::LogLevel::Trace);
-						}
-						else {
-							ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Invalid value for ESQL default driver: %1")).arg(esql_default_driver), QLogger::LogLevel::Error);
-							return false;
-						}
+
+		for (QString v : esql_cfg->getRuntimeLibPathList(esql_driver_type)) {
+			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Loading ESQL runtime libraries from %1")).arg(v), QLogger::LogLevel::Debug);
+			SysUtils::mergeEnvironmentVariable(env, "PATH", v);
+		}
+
+		if (esql_cfg_id == ESQLConfigurationType::GixInternal || esql_cfg_id == ESQLConfigurationType::GixExternal) {
+			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg(esql_env.value("GIXSQL_DB_MODE")), QLogger::LogLevel::Debug);
+		}
 	}
 
-
-
-	QString build_dir = prj->getBuildDirectory(build_configuration, target_platform);
-	QString working_dir = (prj->PropertyGetValue("dbg_working_dir").toString().isEmpty()) ? build_dir : prj->PropertyGetValue("dbg_working_dir").toString();
+	build_dir = prj->getBuildDirectory(build_configuration, target_platform);
+	working_dir = (prj->PropertyGetValue("dbg_working_dir").toString().isEmpty()) ? build_dir : prj->PropertyGetValue("dbg_working_dir").toString();
 
 	QString output_path = prj->PropertyGetValue("output_path").toString();
 	if (output_path.isEmpty())
@@ -193,7 +202,9 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 	QString target_full_path = mm.translate(target);
 
 	if (!QFile::exists(target_full_path)) {
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Invalid target path " + target_full_path, QLogger::LogLevel::Error);
+		QString msg = QString(tr("Invalid target path (%1), please (re)build your project before running or debugging")).arg(target_full_path);
+		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		UiUtils::ErrorDialog(msg);
 		return false;
 	}
 
@@ -231,7 +242,7 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 	ProjectFile *main_module_obj = prj->getStartupItem();
 
 	if (main_module_obj && main_module_obj->isHttpService()) {
-		cmd = "gix-http";
+		cmd = PathUtils::combine(GixGlobals::getGixBinDir(), "gix-http");
 		tmp_cfg_path = PathUtils::combine(QDir::tempPath(), "gix_http_" + SysUtils::randomString(6) + ".config");
 
 		QString program_id = CobolUtils::extractProgramId(main_module_obj->GetFileFullPath());
@@ -249,7 +260,7 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 		ServerConfig svr;
 		svr.setAddress("127.0.0.1");
 		svr.setPort(http_port);
-		svr.setRuntimePath(compiler_cfg->homeDir);
+		svr.setRuntimePath(compiler_cfg->binDirPath);	// we point directly to the location of libcob.dll/.so
 		svr.setDebugEnabled(is_debugging_enabled);
 		svr.setLog(PathUtils::combine(PathUtils::getDirectory(target_full_path),
 			svr.getAddressString().replace(".", "_") + "__" + QString::number(svr.getPort()) + ".log"));
@@ -330,6 +341,12 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 	cobcrun_opts.append(cmd_args);
 
 	GixDebugger *gd = GixDebugger::get();
+	if (!gd) {
+		QString msg = tr("Cannot create a debugger instance. Unsupported platform?");
+		QLogger::QLog_Error(GIX_CONSOLE_LOG, msg);
+		UiUtils::ErrorDialog(msg);
+		return false;
+	}
 	gd->setVerbose(ide_task_manager->isDebugOutputEnabled());
 
 	QMap<QString, QString> dbg_env;
@@ -337,6 +354,9 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 	for (auto k : env.keys()) {
 		QString v = env.value(k);
 		dbg_env[k] = v;
+#if _DEBUG
+		ide_task_manager->logMessage(GIX_CONSOLE_LOG, k + "=" + v, QLogger::LogLevel::Trace);
+#endif
 	}
 	gd->setEnvironment(dbg_env);
 	gd->setProperty("symformat", compiler_cfg->isVsBased ? "pdb" : "dwarf");
@@ -353,8 +373,13 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 
 	QObject::connect(debug_driver, &DebugDriver::DebuggerProcessFinished, this, [this](QString m, int l) { debuggedProcessFinished(l, m); }, Qt::ConnectionType::QueuedConnection);
 	QObject::connect(debug_driver, &DebugDriver::DebuggerProcessStarted, this, [this](QString m) { debuggedProcessStarted(); }, Qt::ConnectionType::QueuedConnection);
-	QObject::connect(debug_driver, &DebugDriver::DebuggerProcessError, this, [this](QString m, int l) { debuggedProcessError(l, m); }, Qt::ConnectionType::QueuedConnection);
-	QObject::connect(debug_driver, &DebugDriver::DebuggerReady, debug_driver, [this](QString socket_id) {});
+	QObject::connect(debug_driver, &DebugDriver::DebuggerProcessError, this, [this](QString m, int l) { 
+		debuggedProcessError(l, m); 
+		QGuiApplication::restoreOverrideCursor();
+	}, Qt::ConnectionType::QueuedConnection);
+	QObject::connect(debug_driver, &DebugDriver::DebuggerReady, debug_driver, [this](QString socket_id) {
+		QGuiApplication::restoreOverrideCursor();
+	});
 	QObject::connect(debug_driver, &QThread::finished, debug_driver, &QThread::deleteLater);
 
 	QObject::connect(debug_driver, &DebugDriver::DebuggerStdOutAvailable, this, [this](QString m) { ide_task_manager->consoleWriteStdOut(m); }, Qt::ConnectionType::QueuedConnection);
@@ -371,6 +396,7 @@ bool DebugManager::start(Project *prj, QString build_configuration, QString targ
 
 	ide_task_manager->consoleClear();
 
+	QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	debug_driver->start();
 
 	return true;
@@ -445,7 +471,7 @@ void DebugManager::debug_break(QString module_name, QString src_file, int ln)
 
 	bool bkp_located = false;
 
-	CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
+	CobolModuleMetadata *cmm = dbg_metadata_by_module.contains(module_name) ? dbg_metadata_by_module[module_name] : nullptr;
 	if (cmm) {
 		if (!cmm->isPreprocessedESQL()) {	// Type 1
 			cur_src_file = src_file;
@@ -550,11 +576,108 @@ void DebugManager::saveDebugManagerState()
 	Ide::TaskManager()->setWatchedVars(watched_vars);
 }
 
+CobolModuleMetadata *DebugManager::processDebugMetadata(ProjectFile *pf)
+{
+	if (!pf)
+		return nullptr;
+
+	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Scanning " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+
+	if (!QFile::exists(pf->GetFileFullPath())) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "No such file " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+		return nullptr;
+	}
+
+	QString program_id = CobolUtils::extractProgramId(pf->GetFileFullPath());
+	if (program_id.isEmpty()) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Invalid program ID in " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+		return nullptr;
+	}
+
+	CobolModuleMetadata *metadata = dbg_metadata_by_module.contains(program_id) ? dbg_metadata_by_module[program_id] : nullptr;
+	if (metadata && metadata->isUpToDate()) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Metadata for module %1 (%2) is up to date").arg(program_id).arg(pf->GetFileFullPath()), QLogger::LogLevel::Trace);
+		return metadata;
+	}
+
+	Project *prj = pf->getParentProject();
+
+	GixPreProcessor gp;
+	CopyResolver copy_resolver;
+
+	copy_resolver.setCopyDirs(prj->getCopyDirList());
+	copy_resolver.setExtensions(prj->getCopyExtList());
+	gp.setCopyResolver(&copy_resolver);
+
+	gp.setOpt("no_output", true);
+	gp.setOpt("preprocess_copy_files", prj->PropertyGetValue("esql_preprocess_copy_files", false).toBool());
+
+	gp.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true));
+	gp.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true));
+
+	TPESQLProcessing *pp = new TPESQLProcessing(&gp);
+	gp.addStep(pp);
+
+	gp.setOpt("emit_debug_info", true);
+	gp.verbose = false;
+	gp.verbose_debug = false;
+
+	gp.setInputFile(pf->GetFileFullPath());
+	gp.setOutputFile("");
+
+	bool b = gp.process();
+	if (!b) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while retrieving metadata for module %1 (%2)").arg(program_id).arg(gp.err_code), QLogger::LogLevel::Trace);
+		for (auto errmsg : gp.err_messages) {
+			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + errmsg, QLogger::LogLevel::Trace);
+		}
+		return nullptr;
+	}
+
+	CobolModuleMetadata *cmm = dbg_metadata_by_module.contains(program_id) ? dbg_metadata_by_module[program_id] : nullptr;
+	if (cmm) {
+		QString filename = cmm->originalFile();
+		dbg_metadata_by_filename.remove(filename);
+		dbg_metadata_by_module.remove(program_id);
+		delete cmm;
+	}
+
+	cmm = CobolModuleMetadata::build(pf, pp);
+	if (!cmm) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while building metadata for module %1 (%2)").arg(program_id).arg(gp.err_code), QLogger::LogLevel::Trace);
+		for (auto errmsg : gp.err_messages) {
+			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + errmsg, QLogger::LogLevel::Trace);
+		}
+		return nullptr;
+	}
+
+	dbg_metadata_by_module.insert(cmm->getModuleName(), cmm);
+	dbg_metadata_by_filename.insert(cmm->originalFile(), cmm);
+
+
+	return cmm;
+}
+
 QString DebugManager::driverWrite(const QString &msg)
 {
 	//driver_client.write(msg.toLocal8Bit().constData());
 	debug_driver->write(msg);
 	return "OK";
+}
+
+void DebugManager::get_module_sources()
+{
+	ProjectCollection *prj_coll = Ide::TaskManager()->getCurrentProjectCollection();
+	auto prjs = cpplinq::from(*(prj_coll->GetChildren())).where([](ProjectItem *a) { return a->GetItemType() == ProjectItemType::TProject;  }).to_vector();
+	for (ProjectItem *ppi : prjs) {
+		Project *prj = (Project *)ppi;
+
+		for (ProjectFile *pf : prj->getAllCompilableFiles()) {
+			QString program_id = CobolUtils::extractProgramId(pf->GetFileFullPath());
+			if (!program_id.isEmpty())
+				dbg_module_srcs.insert(program_id, pf);
+		}
+	}
 }
 
 QStringList DebugManager::parseArguments(QString args)
@@ -604,9 +727,24 @@ QMap<QString, QString> DebugManager::getPrintableVarListContent(QStringList vlis
 	if (debug_driver->debuggerInstance()->getVariables(var_req)) {
 		for (VariableData *vd : var_req) {
 			// TODO: format data
-			res[vd->var_name] = ((char *)vd->data) ? (char *)vd->data : "N/A";
+			if (vd->data) {
+
+				char *copy = (char *)malloc(vd->storage_length + 1);
+				memcpy(copy, vd->data, vd->storage_length);
+				copy[vd->storage_length] = 0;
+
+				res[vd->var_name] = QString(copy);
+				free(copy);
+
+				delete vd->data;
+			}
+			else {
+				res[vd->var_name] = "N/A";
+			}
 		}
 	}
+
+	qDeleteAll(var_req);
 
 	return res;
 }
@@ -650,10 +788,16 @@ QStringList DebugManager::getTranslatedBreakpoints()
 	breakpoints.append(Ide::TaskManager()->getBreakpoints());
 
 	QString module_name = debug_driver->debuggerInstance()->getCurrentCobolModuleName();
-	CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
+
+
+	CobolModuleMetadata *cmm = dbg_metadata_by_module.contains(module_name) ? dbg_metadata_by_module[module_name] : nullptr;
 	if (!cmm) {
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Cannot locate symbol data for module %1, no breakpoints avalable")).arg(module_name), QLogger::LogLevel::Warning);
-		return QStringList();
+		ProjectFile * pf = dbg_module_srcs.contains(module_name) ? dbg_module_srcs[module_name] : nullptr;
+		cmm = processDebugMetadata(pf);	
+		if (!cmm) {
+			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Cannot locate symbol data for module %1, no breakpoints avalable")).arg(module_name), QLogger::LogLevel::Warning);
+			return QStringList();
+		}
 	}
 
 	bool is_esql = cmm->isPreprocessedESQL();
@@ -685,7 +829,14 @@ QStringList DebugManager::translateBreakpoints(CobolModuleMetadata *cmm, const Q
 		if (!cmm->getFileById(running_file_id, running_file))
 			continue;
 
+		if (running_file.startsWith("#")) {
+			running_file =  PathUtils::combine(build_dir, running_file.mid(1));
+		}
+
 		QString tx_bkp = QString::number(running_line) + "@" + running_file;
+#if defined(_WIN32) && defined(_DEBUG)
+		OutputDebugStringA(("BKP : " + bkp + "-> " + tx_bkp + "\n").toLocal8Bit().constData());
+#endif
 		tx_bkps.append(tx_bkp);
 	}
 	return tx_bkps;

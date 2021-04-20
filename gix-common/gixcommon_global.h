@@ -23,13 +23,13 @@ USA.
 #include <QtCore/qglobal.h>
 
 #if defined(GIXCOMMON_LIB)
-	#if defined(WIN32) && !defined(__MINGW32__)  
+	#if defined(_WIN32) && !defined(__MINGW32__)  
 		#define GIXCOMMON_EXPORT Q_DECL_EXPORT
 	#else
 		#define GIXCOMMON_EXPORT	
 	#endif
 #else
-	#if defined(WIN32) && !defined(__MINGW32__)  
+	#if defined(_WIN32) && !defined(__MINGW32__)  
 		#define GIXCOMMON_EXPORT Q_DECL_IMPORT
 	#else
 		#define GIXCOMMON_EXPORT	

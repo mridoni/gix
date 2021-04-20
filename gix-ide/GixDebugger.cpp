@@ -19,10 +19,12 @@ USA.
 */
 
 #include "GixDebugger.h"
-#if defined(_WIN32) || defined(_WIN64)
-#include "GixDebuggerWin64.h"
-#else
+#if defined(_WIN32)
+#include "GixDebuggerWin.h"
+#elif defined(__linux__)
 #include "GixDebuggerLinux.h"
+#else
+#pragma warning Unsupported debugger platform 
 #endif
 
 #include <QMap>
@@ -45,12 +47,10 @@ GixDebugger *GixDebugger::get()
 {
 	GixDebugger *gd = NULL;
 
-#if defined(_WIN32) || defined(_WIN64)
-	gd = new GixDebuggerWin64();
-#else
-
-	gd = new GixDebuggerLinux();
-
+#if defined(_WIN32)
+	gd = new GixDebuggerWin();
+#elif defined(__linux__)
+	//gd = new GixDebuggerLinux();
 #endif
 
 	return gd;
@@ -153,7 +153,8 @@ void GixDebugger::getAndResolveUserBreakpoints()
 
 GixDebugger::~GixDebugger()
 {
-
+	if (libcob_info)
+		delete libcob_info;
 }
 
 void GixDebugger::setDebuggingEnabled(bool b)
@@ -237,6 +238,11 @@ QString GixDebugger::getModuleDirectory()
 DebuggedModuleType GixDebugger::getDebuggedModuleType()
 {
 	return debuggee_type;
+}
+
+void GixDebugger::printMessage(QString msg)
+{
+	if_blk->debuggerMessage(this, msg, 0);
 }
 
 SharedModuleInfo::~SharedModuleInfo()

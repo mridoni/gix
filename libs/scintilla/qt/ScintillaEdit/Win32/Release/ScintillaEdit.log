@@ -1,0 +1,15 @@
+﻿Build started 20/04/2021 14:23:37.
+Logging verbosity is set to: Normal.     1>Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" on node 2 (Clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "Win32\Release\ScintillaEdit.tlog\ScintillaEdit.lastbuildstate".
+       QtClean:
+         Deleting file "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\Win32\Release\qt_work.log".
+       QtVarsClean:
+         Removing directory "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\Win32\Release\qmake".
+     1>Done Building Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (Clean target(s)).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.04

@@ -38,6 +38,8 @@ public:
 	virtual void setInput(QString in_file);
 	virtual void setOutput(QString out_file);
 
+	GixPreProcessor *getOwner();
+
 
 protected:
 

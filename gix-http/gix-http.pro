@@ -1,8 +1,8 @@
 TEMPLATE = app
 TARGET = gix-http
 
-CONFIG(release,debug|release) DESTDIR = ../x64/Release
-CONFIG(debug,debug|release) DESTDIR = ../x64/Debug
+CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
+CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
 
 QT += core xml network gui xmlpatterns concurrent
 CONFIG += c++17
@@ -19,7 +19,7 @@ linux:INCLUDEPATH +=
 linux:LIBPATH +=$(DESTDIR) 
 linux:LIBS += -L$(DESTDIR) -lgix-common -ldl
 
-win32:DEFINES += _UNICODE WIN64 QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _HAS_STD_BYTE=0
+win32:DEFINES += QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _HAS_STD_BYTE=0
 win32:INCLUDEPATH +=
 win32:RC_FILE =
 win32:LIBPATH += $(DESTDIR)
@@ -31,7 +31,7 @@ win32:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
 win32:DEFINES -= UNICODE _UNICODE
 
 macx:LIBS += -F $(HOME)/Projects/scintilla/bin -framework ScintillaEdit -lgixutils -lgixixpp -lgix-common -lgixsql
-macx:QMAKE_POST_LINK = mkdir -p ../x64/Debug/gix-ide.app/Contents/Frameworks && cp -frvp ../../scintilla/bin/ScintillaEdit.framework ../x64/Debug/gix-ide.app/Contents/Frameworks
+macx:QMAKE_POST_LINK = mkdir -p ../$$(HOST_PLATFORM)/Debug/gix-ide.app/Contents/Frameworks && cp -frvp ../../scintilla/bin/ScintillaEdit.framework ../$$(HOST_PLATFORM)/Debug/gix-ide.app/Contents/Frameworks
 macx:INCLUDEPATH += ../gixsql/libgixsql 
 macx:LIBPATH += ../libs/scintilla/src/scintilla/bin ../gix-common $(DESTDIR) 
 

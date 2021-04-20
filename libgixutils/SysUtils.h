@@ -40,8 +40,9 @@ public:
 	static bool isWindows();
 	static bool isMacOs();
 	static bool isLinux();
-	static void mergeEnvironmentVariable(QProcessEnvironment&, QString, QString, QChar sep = QDir::listSeparator());
-	static QString mergeEnvironmentVariable(QString name, QString value, QChar  sep = QDir::listSeparator());
+	static QString getGixBuildPlatform();
+	static void mergeEnvironmentVariable(QProcessEnvironment&, QString, QString, bool prepend = false, QChar sep = QDir::listSeparator());
+	static QString mergeEnvironmentVariable(QString name, QString value, bool prepend = false, QChar sep = QDir::listSeparator());
 	static QString mergeEnvironmentVariableValue(QString cur_value, QString value, QChar sep = QDir::listSeparator());
 	static QString FileReadAllText(QString filename);
 	static QStringList FileReadAllLines(QString filename);
@@ -51,7 +52,6 @@ public:
 	static QByteArray FileReadAll(QString filename);
 	static QString RegistryGetValue(QString keypath, QString value, QString default_value = QString());
 	static void mergeMaps(QMap<QString, QVariant>& m1, const QMap<QString, QVariant> m2);
-	static QString getSysCopyDir();
 	static QString serializeMap(QVariantMap *);
 	static QMap<QString, QVariant> * deserializeMap(QString);
 	static QVariant getSubProperty(QString serialized_sub_props, QString sub_prop_id);
@@ -65,19 +65,18 @@ public:
 	template<typename T> static const char* enum_val_to_str(int v);
 };
 
-inline QString SysUtils::getSysCopyDir()
+inline QString SysUtils::getGixBuildPlatform()
 {
-	QString v = QProcessEnvironment::systemEnvironment().value("GIX_COPY_DIR", QString());
-	if (!v.isEmpty())
-		return v;
+	QString a = QSysInfo::buildCpuArchitecture();
+	if (a == "x86_64")
+		return "x64";
 
-	QDir appDir(QCoreApplication::applicationDirPath());
-	appDir.cdUp();
-	if (appDir.cd("copy"))
-		return appDir.currentPath();
+	if (a == "i386")
+		return "x86";
 
-	return QString();
+	return a;
 }
+
 
 inline QString SysUtils::serializeMap(QVariantMap * m)
 {
@@ -158,20 +157,28 @@ inline bool SysUtils::isLinux()
 #endif
 }
 
-inline void SysUtils::mergeEnvironmentVariable(QProcessEnvironment& env, QString name, QString value, QChar sep)
+inline void SysUtils::mergeEnvironmentVariable(QProcessEnvironment& env, QString name, QString value, bool prepend, QChar sep)
 {
 	QString cur_value = env.value(name, "");
 	QStringList components = cur_value.split(sep);
-	components.append(value);
+	if (prepend)
+		components.insert(0, value);
+	else
+		components.append(value);
+
 	components.removeAll("");
 	env.insert(name, components.join(sep));
 }
 
-inline QString SysUtils::mergeEnvironmentVariable(QString name, QString value, QChar sep)
+inline QString SysUtils::mergeEnvironmentVariable(QString name, QString value, bool prepend, QChar sep)
 {
 	QString cur_value(qgetenv(name.toUtf8().constData()));
 	QStringList components = cur_value.split(sep);
-	components.append(value);
+	if (prepend)
+		components.insert(0, value);
+	else
+		components.append(value);
+
 	components.removeAll("");
 	return components.join(sep);
 }

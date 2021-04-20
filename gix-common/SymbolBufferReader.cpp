@@ -32,6 +32,9 @@ QString SymbolBufferReader::readString()
 
 	uint8_t b = 0;
 
+	if (!data)
+		return QString();
+
 	while (*(data + curpos) != 0 && curpos < datalen) {
 		b = *(data + curpos);
 		curpos++;
@@ -45,6 +48,9 @@ QString SymbolBufferReader::readString()
 
 int SymbolBufferReader::readInt()
 {
+	if (!data)
+		return 0;
+
 	if (curpos + 4 >= datalen)
 		return false;
 

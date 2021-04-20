@@ -18,9 +18,6 @@
       <Extensions>qrc;*</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
-    <Filter Include="ESQL">
-      <UniqueIdentifier>{e6702522-8930-4102-9efc-83441d7c7225}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="main.cpp">
@@ -28,8 +25,8 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Makefile">
-      <Filter>ESQL</Filter>
-    </None>
+    <ClCompile Include="dummy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

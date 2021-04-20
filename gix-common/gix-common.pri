@@ -14,6 +14,7 @@ HEADERS +=  ./CobolVar.h \
 			./utils.h \
 			./WebModuleMetadata.h \
 			./XPathParser.h \
+			./ESQLConfiguration.h \
 			./projectsystem/IPersistableProjectItem.h \
 			./projectsystem/MultiBinaryProject.h \
 			./projectsystem/PrjCollPropertyDefinitionCollection.h \
@@ -45,6 +46,7 @@ HEADERS +=  ./CobolVar.h \
 			./buildsystem/BuildTarget.h \
 			./buildsystem/CompilerConfiguration.h \
 			./buildsystem/CompilerDefinition.h \
+			./buildsystem/CompilerEnvironment.h \
 			./buildsystem/CompilerManager.h \
 			./buildsystem/IBuildableItem.h \
 			./buildsystem/LogOutputType.h \
@@ -68,6 +70,7 @@ SOURCES +=  ./GixGlobals.cpp \
 			./PropertyConsts.cpp \
 			./RsrcUtils.cpp \
 			./utils.cpp \
+			./ESQLConfiguration.cpp \
 			./projectsystem/Project.cpp \
 			./projectsystem/WebProject.cpp \
 			./projectsystem/SingleBinaryProject.cpp \

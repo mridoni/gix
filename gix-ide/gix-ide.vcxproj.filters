@@ -213,7 +213,7 @@
     <ClCompile Include="GixDebugger.cpp">
       <Filter>Source Files\debugger</Filter>
     </ClCompile>
-    <ClCompile Include="GixDebuggerWin64.cpp">
+    <ClCompile Include="GixDebuggerWin.cpp">
       <Filter>Source Files\debugger\Windows</Filter>
     </ClCompile>
     <ClCompile Include="imagehlp_funcs.cpp">
@@ -229,6 +229,9 @@
       <Filter>Source Files\debugger\Windows</Filter>
     </ClCompile>
     <ClCompile Include="AddCompilerDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StackWalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -296,7 +299,7 @@
     <ClInclude Include="GixDebugger.h">
       <Filter>Header Files\debugger</Filter>
     </ClInclude>
-    <ClInclude Include="GixDebuggerWin64.h">
+    <ClInclude Include="GixDebuggerWin.h">
       <Filter>Header Files\debugger\Windows</Filter>
     </ClInclude>
     <ClInclude Include="ISymbolProvider.h">
@@ -309,6 +312,15 @@
       <Filter>Header Files\debugger\Windows</Filter>
     </ClInclude>
     <ClInclude Include="MetadataLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GixVersion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NoWheelComboBox.h">
+      <Filter>Header Files\components</Filter>
+    </ClInclude>
+    <ClInclude Include="StackWalker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -611,6 +623,8 @@
     <None Include="templates\COPY.cpy">
       <Filter>Resource Files\templates</Filter>
     </None>
+    <None Include="gix-ide.rc.tpl" />
+    <None Include="GixVersion.h.tpl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gix-ide.rc" />

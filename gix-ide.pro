@@ -1,5 +1,5 @@
-CONFIG(release,debug|release) DESTDIR = x64/Release
-CONFIG(debug,debug|release) DESTDIR = x64/Debug
+CONFIG(release,debug|release) DESTDIR = $$(HOST_PLATFORM)/Release
+CONFIG(debug,debug|release) DESTDIR = $$(HOST_PLATFORM)/Debug
 
 CONFIG += ordered c++17
 
@@ -27,7 +27,7 @@ libgixsql-odbc.subdir  = gixsql/libgixsql-odbc
 libgixsql-mysql.subdir  = gixsql/libgixsql-mysql			
 libgixsql-pgsql.subdir  = gixsql/libgixsql-pgsql			
 gix-common.subdir  = gix-common			
-scintilla.subdir = libs/scintilla/src/scintilla/qt/ScintillaEdit
+scintilla.subdir = libs/scintilla/qt/ScintillaEdit
 gix-ide.subdir = gix-ide
 gix-ide.depends = libgixpp libgixutils gix-common gix-debugger libgixsql scintilla
 

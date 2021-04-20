@@ -130,9 +130,6 @@
     <ClCompile Include="WebModuleMetadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="metadata\MetadataWorker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="metadata\MetadataManager.cpp">
       <Filter>Source Files\metadata</Filter>
     </ClCompile>
@@ -141,6 +138,12 @@
     </ClCompile>
     <ClCompile Include="SymbolBufferReader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ESQLConfiguration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="metadata\MetadataWorker.cpp">
+      <Filter>Source Files\metadata</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +295,9 @@
     <ClInclude Include="buildsystem\CompilerManager.h">
       <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
+    <ClInclude Include="buildsystem\CompilerEnvironment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -346,6 +352,9 @@
     </QtMoc>
     <QtMoc Include="metadata\MetadataManager.h">
       <Filter>Header Files\metadata</Filter>
+    </QtMoc>
+    <QtMoc Include="ESQLConfiguration.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

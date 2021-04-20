@@ -25,7 +25,7 @@ USA.
 #include <QFileInfo>
 
 #if _DEBUG
-#define DEBUG_PARSER true
+#define DEBUG_PARSER false
 #else
 #define DEBUG_PARSER false
 #endif

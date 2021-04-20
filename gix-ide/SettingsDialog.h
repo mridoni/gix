@@ -39,6 +39,9 @@ public:
 
 	void accept();
 
+public slots:
+	void updateCompilerInfo(int t, int idx);
+
 private:
 		void GnuCobolCfgTab_LoadSettings();
 		bool GnuCobolCfgTab_CheckSettings();

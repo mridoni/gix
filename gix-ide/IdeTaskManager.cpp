@@ -304,6 +304,8 @@ void IdeTaskManager::runProject(Project *prj, QString configuration, QString pla
 	if (rc) {
 		debug_manager = nullptr;
 	}
+	else
+		debugError();
 }
 
 void IdeTaskManager::debugStep()
@@ -821,37 +823,21 @@ void IdeTaskManager::gotoDefinition(CodeEditor *ce, QString def_path, int ln)
 
 void IdeTaskManager::gotoDefinition(Paragraph* p)
 {
+
+	QString file_to_open;
+	int file_id;
+
 	int lline = 0;
-	if (p == nullptr || p->file == nullptr || p->line == 0)
+	if (p == nullptr || p->file.isEmpty())
 		return;
 
-	ProjectFile* pf = current_project_collection->locateProjectFileByPath(p->file, true);
-	if (!pf)
-		return;
+	file_to_open = p->file;
+	lline = p->line;
 
-	CobolModuleMetadata* cfm = GixGlobals::getMetadataManager()->getModuleMetadataBySource(pf->GetFileFullPath());
-	if (!cfm)
-		return;
-
-	if (cfm->isPreprocessedESQL()) {
-		ModuleDebugInfo* mdi = cfm->getDebugInfo();
-		if (!mdi)
-			return;
-
-		//if (!mdi->hasSrcLineMapEntry(p->line))
-		//	return;
-		//else
-		//	lline = mdi->getSourceLineMapEntry(p->line);
-	}
-	else
-		lline = p->line;
-
-	MdiChild* mdiChild = openFileNoSignals(p->file);
+	MdiChild *mdiChild = openFileNoSignals(file_to_open);
 
 	if (!mdiChild)
 		return;
-
-	this->logMessage(GIX_CONSOLE_LOG, QString("Going to line %1").arg(lline), QLogger::LogLevel::Trace);
 
 	mdiChild->highlightSymbol(lline, p->name);
 }
@@ -866,13 +852,10 @@ void IdeTaskManager::gotoDefinition(DataEntry* e)
 		return;
 
 	if (e->owner->isPreprocessedESQL()) {
-		CobolModuleMetadata *cmm = e->owner;
-		if (!cmm->runningToOriginal(e->fileid, e->line, &file_id, &lline))
-			return;
+		//CobolModuleMetadata *cmm = e->owner;
 
-		if (!cmm->getFileById(file_id, file_to_open))
-			return;
-
+		file_to_open = e->filename;
+		lline = e->line;
 	}
 	else {
 		file_to_open = e->filename;
@@ -883,8 +866,6 @@ void IdeTaskManager::gotoDefinition(DataEntry* e)
 
 	if (!mdiChild)
 		return;
-
-
 
 	mdiChild->highlightSymbol(lline, e->name);
 }
@@ -900,23 +881,6 @@ void IdeTaskManager::gotoFileLine(QString filename, int ln)
 	ProjectFile *pf = current_project_collection->locateProjectFileByPath(filename, true);
 	if (!pf)
 		return;
-
-	//this->main_window->blockMdiSignals(true);
-	//bool b = this->main_window->openFile(e->file);
-	//this->main_window->blockMdiSignals(false);
-	//if (!b)
-	//	return;
-
-	//QMdiSubWindow* c = this->main_window->findMdiChild(e->file);
-	//if (!c)
-	//	return;
-
-	//MdiChild* mdiChild = qobject_cast<MdiChild*>(c->widget());
-	//this->main_window->blockMdiSignals(true);
-	//mdiChild->activateWindow();
-	//this->main_window->blockMdiSignals(false);
-	//if (!mdiChild->isActiveWindow())
-	//	return;
 
 	MdiChild* mdiChild = openFileNoSignals(filename);
 	if (!mdiChild)

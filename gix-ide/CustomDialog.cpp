@@ -919,13 +919,11 @@ void CustomDialog::addVarToVarList(DialogElement & e)
 
 void CustomDialog::removeVarFromVarList(DialogElement & e)
 {
-	auto l = e.lstStrings->selectedItems();
+	auto l = e.lstStrings->selectionModel()->selectedIndexes();
 	if (l.size() == 1) {
-		auto w = l.at(0);
-		int idx = l.indexOf(w);
+		int idx = l.at(0).row();
 		if (idx >= 0) {
-			e.lstStrings->takeItem(idx);
-			delete(w);
+			delete(e.lstStrings->item(idx));
 			e.returnStringList->removeAt(idx);
 		}
 	}

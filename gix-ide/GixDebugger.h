@@ -52,6 +52,7 @@ public:
 	std::function<bool(GixDebugger *, int, QString)> debuggerError;
 	std::function<bool(GixDebugger *, int, QString)> debuggerProcessExit;
 	std::function<bool(GixDebugger *, QString)> debuggerProcessStarted;
+	std::function<bool(GixDebugger *, QString)> debuggerReady;
 	std::function<bool(GixDebugger *, QString)> debuggerStdOutAvailable;
 	std::function<bool(GixDebugger *, QString)> debuggerStdErrAvailable;
 
@@ -146,6 +147,23 @@ struct VariableData
 	uint8_t *data = nullptr;
 };
 
+/*
+	Strict typing for these functions is not actually needed, since we'll be calling them in the debugeee's context,
+	but just in case...
+*/
+typedef const char *(*f_libcob_version_ptr);
+typedef const char *(*f_cob_get_field_str_ptr)(const void *f, char *buffer, size_t size);
+typedef int (*f_cob_put_field_str_ptr)(const void *dst, const char *str);
+typedef void(*f_cob_runtime_error_ptr)(const char *fmt, ...);
+
+struct LibCobInfo
+{
+	f_libcob_version_ptr f_libcob_version = nullptr;
+	f_cob_get_field_str_ptr f_cob_get_field_str = nullptr;
+	f_cob_put_field_str_ptr f_cob_put_field_str = nullptr;
+	f_cob_runtime_error_ptr f_cob_runtime_error = nullptr;
+};
+
 class GixDebugger
 {
 public:
@@ -171,6 +189,8 @@ public:
 	QString getModuleDirectory();
 
 	DebuggedModuleType getDebuggedModuleType();
+
+	void printMessage(QString msg);
 
 	virtual int start() = 0;
 	virtual int stop() = 0;
@@ -221,6 +241,8 @@ protected:
 
 	bool is_debugging_enabled = false;
 	bool use_external_console = false;
+
+	LibCobInfo *libcob_info = nullptr;
 
 private:
 

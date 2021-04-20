@@ -22,6 +22,8 @@ USA.
 
 #include "BuildActionHandler.h"
 
+class ESQLConfiguration;
+
 class BuildActionLinkHandler : public BuildActionHandler
 {
 public:
@@ -32,8 +34,8 @@ public:
 	virtual bool startBuild() override;
 
 private:
-	QStringList retrieve_link_dirs();
-	QStringList retrieve_link_libs();
+	QStringList retrieve_link_dirs(ESQLConfiguration *esql_cfg);
+	QStringList retrieve_link_libs(ESQLConfiguration *esql_cfg);
 
 		
 	bool generateDebugHelperObj(QStringList srclist, QString target_path, QString build_dir, QString &dbg_helper_obj);

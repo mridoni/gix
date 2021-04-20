@@ -95,6 +95,11 @@ CompilerConfiguration * CompilerConfiguration::get(QString build_configuration, 
 	return getCompilerById(id, target_platform);
 }
 
+CompilerEnvironment CompilerConfiguration::getCompilerEnvironment()
+{
+	return (isVsBased) ? CompilerEnvironment::VisualStudio : CompilerEnvironment::Gcc;
+}
+
 QProcessEnvironment CompilerConfiguration::getEnvironment(BuildDriver *builder)
 {
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -118,7 +123,7 @@ QProcessEnvironment CompilerConfiguration::getEnvironment(BuildDriver *builder)
 
 	if (isVsBased) {
 		env.insert("COB_CFLAGS", "/I \"" + this->includeDirPath + "\"");
-		env.insert("COB_LIB_PATHS", "/LIBPATH:\"" + this->libDirPath + "\"");
+		env.insert("COB_LIB_PATHS", "/LIBPATH:\"" + QDir::toNativeSeparators(this->libDirPath) + "\"");
 #if !defined(__MINGW32__) && (defined(_WIN32) || defined(_WIN64))
 		if (!add_vs_environment(builder, env)) {
 			builder->log_build_message("Cannot setup environment for Visual Studio", QLogger::LogLevel::Error);
@@ -153,7 +158,7 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 
 	if (!SUCCEEDED(hresult) || setupConfig == nullptr)
 	{
-		builder->log_build_message("Visual Studio '15' may not be installed (Component creation failed)", QLogger::LogLevel::Error);
+		builder->log_build_message("Visual Studio may not be installed (Component creation failed)", QLogger::LogLevel::Error);
 		return false;
 	}
 
@@ -161,7 +166,7 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 	CComQIPtr<ISetupHelper> setupHelper(setupConfig);
 	if (!setupConfig2 || !setupHelper)
 	{
-		builder->log_build_message("Unsupported version of Visual Studio '15' may be installed (ISetupConfiguration2 or ISetupHelper unavailable)", QLogger::LogLevel::Error);
+		builder->log_build_message("Unsupported version of Visual Studio may be installed (ISetupConfiguration2 or ISetupHelper unavailable)", QLogger::LogLevel::Error);
 		return false;
 	}
 
@@ -169,7 +174,7 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 	setupConfig2->EnumAllInstances(&enumInstances);
 	if (!enumInstances)
 	{
-		builder->log_build_message("No VS '15' version is installed (EnumAllInstances returned null)", QLogger::LogLevel::Error);
+		builder->log_build_message("No VS version is installed (EnumAllInstances returned null)", QLogger::LogLevel::Error);
 		return false;
 	}
 
@@ -336,18 +341,22 @@ bool CompilerConfiguration::add_bin(QProcessEnvironment& env, QString host, QStr
 QString CompilerConfiguration::get_win_sdk_path(QString p, QString& version)
 {
 	QStringFuncCoalescer c;
+#ifdef _WIN64
 	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\" + p, "InstallationFolder"); });
 	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\" + p, "InstallationFolder"); });
+#endif
 	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\" + p, "InstallationFolder"); });
 	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_CURRENT_USER\\SOFTWARE\\" + p, "InstallationFolder"); });
 
 	QString sdk_path = c.get();
 
 	c.clear();
+#ifdef _WIN64
 	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\" + p, "ProductVersion"); });
-	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\" + p, "ProductVersion"); });
-	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\" + p, "ProductVersion"); });
-	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\" + p, "ProductVersion"); });
+	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_CURRENT_USER\\SOFTWARE\\Wow6432Node\\" + p, "ProductVersion"); });
+#endif
+	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\" + p, "ProductVersion"); });
+	c.push_back([&] { return SysUtils::RegistryGetValue("HKEY_CURRENT_USER\\SOFTWARE\\" + p, "ProductVersion"); });
 
 	version = c.get();
 
@@ -359,7 +368,7 @@ std::string bstr_to_str(BSTR source) {
 	//source = L"lol2inside";
 	_bstr_t wrapped_bstr = _bstr_t(source);
 	int length = wrapped_bstr.length();
-	char* char_array = new char[length];
+	char* char_array = new char[length+1];
 	strcpy_s(char_array, length + 1, wrapped_bstr);
 	return char_array;
 }
@@ -402,7 +411,7 @@ bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2>& instance2, 
 		}
 
 		out_installation_path = bstr_to_str(bstrInstallationPath);
-		builder->log_build_message("Visual Studio installation path: " + QString(out_installation_path.c_str()), QLogger::LogLevel::Trace);
+		builder->log_build_message("Visual Studio installation path: " + QString::fromStdString(out_installation_path), QLogger::LogLevel::Trace);
 		return true;
 	}
 

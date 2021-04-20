@@ -32,6 +32,10 @@ USA.
 
 #define SYM_FILE_FMT_VER_1_0 ((uint16_t) 0x0100)
 
+#define FLAG_M_BASE					0
+#define FLAG_M_PREPROCD_ESQL		1
+#define FLAG_M_PREPROCD_COPY		2
+
 class Project;
 class Paragraph;
 class ProjectFile;
@@ -78,6 +82,8 @@ public:
 	bool isUpToDate();
 	
 	void clear();
+
+	uint32_t getFlags();
 	
 	DataEntry *findDefinition(QString def_path, bool use_path = false);
 	QString getDebugLocalSymbolName(QString n);
@@ -91,7 +97,7 @@ public:
 
 private:
 	int format_version;
-	uint32_t flags;
+	uint32_t flags = 0;
 
 	bool is_preprocessed;
 

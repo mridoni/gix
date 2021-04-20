@@ -48,6 +48,11 @@ void CompilerManager::init()
 
 
 	QString cdir = GixGlobals::getCompilerDefsDir();
+	if (cdir.isEmpty()) {
+		logger->logMessage(GIX_CONSOLE_LOG, "Compiler definitions directory is not set", QLogger::LogLevel::Error);
+		return;
+	}
+
 	QDir compiler_defs_dir(QDir::fromNativeSeparators(cdir));
 	if (!compiler_defs_dir.exists()) {
 		logger->logMessage(GIX_CONSOLE_LOG, "Cannot locate compiler definitions directory: " + cdir, QLogger::LogLevel::Error);

@@ -30,6 +30,7 @@ USA.
 #include "MetadataManager.h"
 #include "SymbolMappingEntry.h"
 #include "SysUtils.h"
+#include "ESQLConfiguration.h"
 #include "linq/linq.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -47,6 +48,8 @@ BuildActionLinkHandler::~BuildActionLinkHandler()
 
 bool BuildActionLinkHandler::startBuild()
 {
+	QSettings settings;
+
 	if (target->dependencies()->size() < 1)
 		return false;
 
@@ -70,13 +73,21 @@ bool BuildActionLinkHandler::startBuild()
 		return false;
 	}
 
+	QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+	CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
+	QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
+	if (esql_cfg.isNull()) {
+		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		return false;
+	}
+
 	QProcessEnvironment env = compiler_cfg->getEnvironment(build_driver);
 
 	QStringList cobc_opts;
 	QString cobc = compiler_cfg->executablePath;
 	build_driver->log_build_message(QString(tr("Using compiler %1")).arg(cobc), QLogger::LogLevel::Trace);
 
-	QStringList link_dirs = retrieve_link_dirs();
+	QStringList link_dirs = retrieve_link_dirs(esql_cfg.get());
 	if (SysUtils::isLinux()) {
 		link_dirs.append(compiler_cfg->libDirPath);
 	}
@@ -88,7 +99,7 @@ bool BuildActionLinkHandler::startBuild()
 		}
 	}
 
-	QStringList link_libs = retrieve_link_libs();
+	QStringList link_libs = retrieve_link_libs(esql_cfg.get());
 	if (link_libs.size() > 0) {
 		for (QString link_lib : link_libs) {
 			cobc_opts.append("-l");
@@ -112,6 +123,12 @@ bool BuildActionLinkHandler::startBuild()
 	else
 		cobc_opts.append("-b");
 
+#if _DEBUG_VERBOSE
+	cobc_opts.append("-v");
+	cobc_opts.append("-v");
+	cobc_opts.append("-v");
+#endif
+
 	if (build_configuration == "debug") {
 		cobc_opts.append("-g");
 		cobc_opts.append("-debug");
@@ -120,12 +137,12 @@ bool BuildActionLinkHandler::startBuild()
 		if (compiler_cfg->isVsBased) {
 			cobc_opts.append("-A");
 			cobc_opts.append("/DEBUG:FULL");
-			//cobc_opts.append("-A");
-			//cobc_opts.append("/OPT:NOREF ");
 		}
 		else {
 			cobc_opts.append("-A");
-			cobc_opts.append("-Og");
+			cobc_opts.append("-O0");
+			//cobc_opts.append("-A");
+			//cobc_opts.append("-gdwarf-2");
 		}
 	}
 
@@ -133,13 +150,7 @@ bool BuildActionLinkHandler::startBuild()
 	cobc_opts.append(target_final_path);
 
 	QList<BuildTarget *> *deps;
-#ifdef USES_ENH_WS_BUILD
-	if (target->dependencies()->at(0)->provides() == BuildConsts::TYPE_SOAP_MODULE || target->dependencies()->at(0)->provides() == BuildConsts::TYPE_REST_MODULE) {
-		deps = target->dependencies()->at(0)->dependencies();
-	}
-	else
-#endif
-		deps = target->dependencies();
+	deps = target->dependencies();
 
 	std::vector<QString> obj_list = from(*deps).where([](BuildTarget *b) { return b->providesOneOf({ BuildConsts::TYPE_OBJ, BuildConsts::TYPE_OBJ_MAIN }); }).select([](BuildTarget *bt) { return bt->filename(); }).to_vector();
 	for (QString s : obj_list) {
@@ -230,38 +241,26 @@ bool BuildActionLinkHandler::startBuild()
 	return true;
 }
 
-QStringList BuildActionLinkHandler::retrieve_link_dirs()
+QStringList BuildActionLinkHandler::retrieve_link_dirs(ESQLConfiguration *esql_cfg)
 {
 	QStringList res;
 
 	// TODO: user libs
 
-	if (environment.contains("preprocess_esql") && environment["preprocess_esql"].toBool()) {
-		QSettings global_settings;
-		QString linklib = global_settings.value("ESQL_LinkLibPath", "").toString();
-		if (!linklib.isEmpty()) {
-			QString f = QFileInfo(linklib).absoluteDir().absolutePath();
-			if (!res.contains(f))
-				res.append(f);
-		}
+	if (environment.value("preprocess_esql", false).toBool()) {
+		res.append(esql_cfg->getLinkLibPathList());
 	}
 	return res;
 }
 
-QStringList BuildActionLinkHandler::retrieve_link_libs()
+QStringList BuildActionLinkHandler::retrieve_link_libs(ESQLConfiguration *esql_cfg)
 {
 	QStringList res;
 
 	// TODO: user libs
 
-	if (environment.contains("preprocess_esql") && environment["preprocess_esql"].toBool()) {
-		QSettings global_settings;
-		QString linklib = global_settings.value("ESQL_LinkLibPath", "").toString();
-		if (!linklib.isEmpty()) {
-			QString f = QFileInfo(linklib).baseName();
-			if (!res.contains(f))
-				res.append(f);
-		}
+	if (environment.value("preprocess_esql", false).toBool()) {
+		res.append(esql_cfg->getLinkLibNameList());
 	}
 	return res;
 }
@@ -327,13 +326,25 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 
 	if (compiler_cfg->isVsBased) {
 		for (CobolModuleMetadata *cmm : mod_list) {
-			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_M\"));\n").arg(cmm->getModuleName());	// Mapping (size)
-			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MC\"));\n").arg(cmm->getModuleName());	// Mapping (data)
-			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MS\"));\n").arg(cmm->getModuleName());	// Mapping (count)
+			// Some VS weirdness at work: VS decorates names for x86 .obj symbols, but not for x64
+			if (target_platform != "x86") {
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_M\"));\n").arg(cmm->getModuleName());	// Mapping (size)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MC\"));\n").arg(cmm->getModuleName());	// Mapping (data)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MS\"));\n").arg(cmm->getModuleName());	// Mapping (count)
 
-			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_E\"));\n").arg(cmm->getModuleName());	// Entries (data)
-			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_EC\"));\n").arg(cmm->getModuleName());	// Entries (count)
-			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_ES\"));\n").arg(cmm->getModuleName());	// Entries (size)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_E\"));\n").arg(cmm->getModuleName());	// Entries (data)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_EC\"));\n").arg(cmm->getModuleName());	// Entries (count)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_ES\"));\n").arg(cmm->getModuleName());	// Entries (size)
+			}
+			else {
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_M=___GIX_SYM_%1_M\"));\n").arg(cmm->getModuleName());	// Mapping (size)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MC=___GIX_SYM_%1_MC\"));\n").arg(cmm->getModuleName());	// Mapping (data)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MS=___GIX_SYM_%1_MS\"));\n").arg(cmm->getModuleName());	// Mapping (count)
+
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_E=___GIX_SYM_%1_E\"));\n").arg(cmm->getModuleName());	// Entries (data)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_EC=___GIX_SYM_%1_EC\"));\n").arg(cmm->getModuleName());	// Entries (count)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_ES=___GIX_SYM_%1_ES\"));\n").arg(cmm->getModuleName());	// Entries (size)
+			}
 		}
 	}
 

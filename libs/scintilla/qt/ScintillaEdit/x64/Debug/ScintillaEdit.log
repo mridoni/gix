@@ -1,0 +1,390 @@
+﻿Build started 14/04/2021 16:21:01.
+Logging verbosity is set to: Normal.     1>Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" on node 4 (Build target(s)).
+     1>InitializeBuildStatus:
+         Creating "x64\Debug\ScintillaEdit.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       QtVars:
+         WHERE /Q cl.exe
+         Directory "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\x64\Debug\qmake\temp" doesn't exist. Skipping.
+         Creating directory "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\x64\Debug\qmake\temp".
+         
+         ==== HostExec: Microsoft.Build.Tasks.Exec
+         WorkingDirectory: C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\x64\Debug\qmake\temp
+         Command: ("C:/Qt/5.14.2/msvc2017_64/bin/qmake" -query) 1> props.txt
+         ("C:/Qt/5.14.2/msvc2017_64/bin/qmake" -query) 1> props.txt
+         == OK ExitCode: 0
+         
+         Reading Qt configuration (C:/Qt/5.14.2/msvc2017_64/bin/qmake)
+         
+         ==== HostExec: Microsoft.Build.Tasks.Exec
+         WorkingDirectory: C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\x64\Debug\qmake\temp
+         Command: ("C:/Qt/5.14.2/msvc2017_64/bin/qmake" -early "CONFIG -= debug release debug_and_release" "CONFIG += debug" qtvars.pro) 1> qtvars.log 2>&1
+         ("C:/Qt/5.14.2/msvc2017_64/bin/qmake" -early "CONFIG -= debug release debug_and_release" "CONFIG += debug" qtvars.pro) 1> qtvars.log 2>&1
+         == OK ExitCode: 0
+         
+         Copying file from "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\x64\Debug\qmake\temp\qtvars_x64_Debug.props" to "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\x64\Debug\qmake\qtvars_x64_Debug.props".
+     1>Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (1) is building "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (1:2) on node 4 (Build target(s)).
+     1>InitializeBuildStatus:
+         Touching "x64\Debug\ScintillaEdit.tlog\unsuccessfulbuild".
+       QtRccFilterSetModified:
+       Skipping target "QtRccFilterSetModified" because it has no outputs.
+       QtRccFilter:
+       Skipping target "QtRccFilter" because it has no outputs.
+       QtQmlSetModified:
+       Skipping target "QtQmlSetModified" because it has no outputs.
+       QtQml:
+       Skipping target "QtQml" because it has no outputs.
+       QtWork:
+         moc ScintillaDocument.h
+         moc ScintillaEdit.h
+         moc ..\ScintillaEditBase\ScintillaEditBase.h
+         moc ..\ScintillaEditBase\ScintillaQt.h
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29910\bin\HostX86\x64\CL.exe /c /Ix64\Debug\moc /IC:\Qt\5.14.2\msvc2017_64\include /IC:\Qt\5.14.2\msvc2017_64\include\QtWidgets /IC:\Qt\5.14.2\msvc2017_64\include\QtGui /IC:\Qt\5.14.2\msvc2017_64\include\QtANGLE /IC:\Qt\5.14.2\msvc2017_64\include\QtCore /I/include /I"C:\Qt\5.14.2\msvc2017_64\mkspecs\win32-msvc" /Ix64\Debug\moc /I.\GeneratedFiles\Debug /I.\GeneratedFiles /I. /I..\ScintillaEdit /I..\ScintillaEditBase /I..\..\include /I..\..\src /I..\..\lexlib /I"C:\Qt\5.14.2\msvc2017_64\mkspecs\win32-msvc" /IC:\Qt\5.14.2\msvc2017_64\include /Zi /nologo /W1 /WX- /diagnostics:column /MP /O2 /D _WINDOWS /D WIN32 /D WIN64 /D _ENABLE_EXTENDED_ALIGNED_STORAGE /D SCINTILLA_QT=1 /D MAKING_LIBRARY=1 /D SCI_LEXER=1 /D _CRT_SECURE_NO_DEPRECATE=1 /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"x64\Debug\\" /Fd"x64\Debug\vc142.pdb" /Gd /TP /FC /errorReport:prompt ..\..\lexlib\Accessor.cxx ..\..\src\AutoComplete.cxx ..\..\src\CallTip.cxx ..\..\src\CaseConvert.cxx ..\..\src\CaseFolder.cxx ..\..\src\Catalogue.cxx ..\..\src\CellBuffer.cxx ..\..\src\CharClassify.cxx ..\..\lexlib\CharacterCategory.cxx ..\..\lexlib\CharacterSet.cxx ..\..\src\ContractionState.cxx ..\..\src\DBCS.cxx ..\..\src\Decoration.cxx ..\..\lexlib\DefaultLexer.cxx ..\..\src\Document.cxx ..\..\src\EditModel.cxx ..\..\src\EditView.cxx ..\..\src\Editor.cxx ..\..\src\ExternalLexer.cxx ..\..\src\Indicator.cxx ..\..\src\KeyMap.cxx ..\..\lexers\LexA68k.cxx ..\..\lexers\LexAPDL.cxx ..\..\lexers\LexASY.cxx ..\..\lexers\LexAU3.cxx ..\..\lexers\LexAVE.cxx ..\..\lexers\LexAVS.cxx ..\..\lexers\LexAbaqus.cxx ..\..\lexers\LexAda.cxx ..\..\lexers\LexAsm.cxx ..\..\lexers\LexAsn1.cxx ..\..\lexers\LexBaan.cxx ..\..\lexers\LexBash.cxx ..\..\lexers\LexBasic.cxx ..\..\lexers\LexBatch.cxx ..\..\lexers\LexBibTeX.cxx ..\..\lexers\LexBullant.cxx ..\..\lexers\LexCIL.cxx ..\..\lexers\LexCLW.cxx ..\..\lexers\LexCOBOL.cxx ..\..\lexers\LexCPP.cxx ..\..\lexers\LexCSS.cxx ..\..\lexers\LexCaml.cxx ..\..\lexers\LexCmake.cxx ..\..\lexers\LexCoffeeScript.cxx ..\..\lexers\LexConf.cxx ..\..\lexers\LexCrontab.cxx ..\..\lexers\LexCsound.cxx ..\..\lexers\LexD.cxx ..\..\lexers\LexDMAP.cxx ..\..\lexers\LexDMIS.cxx ..\..\lexers\LexDataflex.cxx ..\..\lexers\LexDiff.cxx ..\..\lexers\LexECL.cxx ..\..\lexers\LexEDIFACT.cxx ..\..\lexers\LexEScript.cxx ..\..\lexers\LexEiffel.cxx ..\..\lexers\LexErlang.cxx ..\..\lexers\LexErrorList.cxx ..\..\lexers\LexFlagship.cxx ..\..\lexers\LexForth.cxx ..\..\lexers\LexFortran.cxx ..\..\lexers\LexGAP.cxx ..\..\lexers\LexGui4Cli.cxx ..\..\lexers\LexHTML.cxx ..\..\lexers\LexHaskell.cxx ..\..\lexers\LexHex.cxx ..\..\lexers\LexHollywood.cxx ..\..\lexers\LexIndent.cxx ..\..\lexers\LexInno.cxx ..\..\lexers\LexJSON.cxx ..\..\lexers\LexKVIrc.cxx ..\..\lexers\LexKix.cxx ..\..\lexers\LexLaTeX.cxx ..\..\lexers\LexLisp.cxx ..\..\lexers\LexLout.cxx ..\..\lexers\LexLua.cxx ..\..\lexers\LexMMIXAL.cxx ..\..\lexers\LexMPT.cxx ..\..\lexers\LexMSSQL.cxx ..\..\lexers\LexMagik.cxx ..\..\lexers\LexMake.cxx ..\..\lexers\LexMarkdown.cxx ..\..\lexers\LexMatlab.cxx ..\..\lexers\LexMaxima.cxx ..\..\lexers\LexMetapost.cxx ..\..\lexers\LexModula.cxx ..\..\lexers\LexMySQL.cxx ..\..\lexers\LexNim.cxx ..\..\lexers\LexNimrod.cxx ..\..\lexers\LexNsis.cxx ..\..\lexers\LexNull.cxx ..\..\lexers\LexOScript.cxx ..\..\lexers\LexOpal.cxx ..\..\lexers\LexPB.cxx ..\..\lexers\LexPLM.cxx ..\..\lexers\LexPO.cxx ..\..\lexers\LexPOV.cxx ..\..\lexers\LexPS.cxx ..\..\lexers\LexPascal.cxx ..\..\lexers\LexPerl.cxx ..\..\lexers\LexPowerPro.cxx ..\..\lexers\LexPowerShell.cxx ..\..\lexers\LexProgress.cxx ..\..\lexers\LexProps.cxx ..\..\lexers\LexPython.cxx ..\..\lexers\LexR.cxx ..\..\lexers\LexRaku.cxx ..\..\lexers\LexRebol.cxx ..\..\lexers\LexRegistry.cxx ..\..\lexers\LexRuby.cxx ..\..\lexers\LexRust.cxx ..\..\lexers\LexSAS.cxx ..\..\lexers\LexSML.cxx ..\..\lexers\LexSQL.cxx ..\..\lexers\LexSTTXT.cxx ..\..\lexers\LexScriptol.cxx ..\..\lexers\LexSmalltalk.cxx ..\..\lexers\LexSorcus.cxx ..\..\lexers\LexSpecman.cxx ..\..\lexers\LexSpice.cxx ..\..\lexers\LexStata.cxx ..\..\lexers\LexTACL.cxx ..\..\lexers\LexTADS3.cxx ..\..\lexers\LexTAL.cxx ..\..\lexers\LexTCL.cxx ..\..\lexers\LexTCMD.cxx ..\..\lexers\LexTeX.cxx ..\..\lexers\LexTxt2tags.cxx ..\..\lexers\LexVB.cxx ..\..\lexers\LexVHDL.cxx ..\..\lexers\LexVerilog.cxx ..\..\lexers\LexVisualProlog.cxx ..\..\lexers\LexX12.cxx ..\..\lexers\LexYAML.cxx ..\..\lexlib\LexerBase.cxx ..\..\lexlib\LexerModule.cxx ..\..\lexlib\LexerNoExceptions.cxx ..\..\lexlib\LexerSimple.cxx ..\..\src\LineMarker.cxx ..\..\src\MarginView.cxx ..\..\src\PerLine.cxx ..\ScintillaEditBase\PlatQt.cpp ..\..\src\PositionCache.cxx ..\..\lexlib\PropSetSimple.cxx ..\..\src\RESearch.cxx ..\..\src\RunStyles.cxx ..\..\src\ScintillaBase.cxx ScintillaDocument.cpp ScintillaEdit.cpp ..\ScintillaEditBase\ScintillaEditBase.cpp ..\ScintillaEditBase\ScintillaQt.cpp ..\..\src\Selection.cxx ..\..\src\Style.cxx ..\..\lexlib\StyleContext.cxx ..\..\src\UniConversion.cxx ..\..\src\UniqueString.cxx ..\..\src\ViewStyle.cxx ..\..\lexlib\WordList.cxx ..\..\src\XPM.cxx
+         Accessor.cxx
+         AutoComplete.cxx
+         CallTip.cxx
+         CaseConvert.cxx
+         CaseFolder.cxx
+         Catalogue.cxx
+         CellBuffer.cxx
+         CharClassify.cxx
+         CharacterCategory.cxx
+         CharacterSet.cxx
+         ContractionState.cxx
+         DBCS.cxx
+         Decoration.cxx
+         DefaultLexer.cxx
+         Document.cxx
+         EditModel.cxx
+         EditView.cxx
+         Editor.cxx
+         ExternalLexer.cxx
+         Indicator.cxx
+         KeyMap.cxx
+         LexA68k.cxx
+         LexAPDL.cxx
+         LexASY.cxx
+         LexAU3.cxx
+         LexAVE.cxx
+         LexAVS.cxx
+         LexAbaqus.cxx
+         LexAda.cxx
+         LexAsm.cxx
+         LexAsn1.cxx
+         LexBaan.cxx
+         LexBash.cxx
+         LexBasic.cxx
+         LexBatch.cxx
+         LexBibTeX.cxx
+         LexBullant.cxx
+         LexCIL.cxx
+         LexCLW.cxx
+         LexCOBOL.cxx
+         LexCPP.cxx
+         LexCSS.cxx
+         LexCaml.cxx
+         LexCmake.cxx
+         LexCoffeeScript.cxx
+         LexConf.cxx
+         LexCrontab.cxx
+         LexCsound.cxx
+         LexD.cxx
+         LexDMAP.cxx
+         LexDMIS.cxx
+         LexDataflex.cxx
+         LexDiff.cxx
+         LexECL.cxx
+         LexEDIFACT.cxx
+         LexEScript.cxx
+         LexEiffel.cxx
+         LexErlang.cxx
+         LexErrorList.cxx
+         LexFlagship.cxx
+         LexForth.cxx
+         LexFortran.cxx
+         LexGAP.cxx
+         LexGui4Cli.cxx
+         LexHTML.cxx
+         LexHaskell.cxx
+         LexHex.cxx
+         LexHollywood.cxx
+         LexIndent.cxx
+         LexInno.cxx
+         LexJSON.cxx
+         LexKVIrc.cxx
+         LexKix.cxx
+         LexLaTeX.cxx
+         LexLisp.cxx
+         LexLout.cxx
+         LexLua.cxx
+         LexMMIXAL.cxx
+         LexMPT.cxx
+         LexMSSQL.cxx
+         LexMagik.cxx
+         LexMake.cxx
+         LexMarkdown.cxx
+         LexMatlab.cxx
+         LexMaxima.cxx
+         LexMetapost.cxx
+         LexModula.cxx
+         LexMySQL.cxx
+         LexNim.cxx
+         LexNimrod.cxx
+         LexNsis.cxx
+         LexNull.cxx
+         LexOScript.cxx
+         LexOpal.cxx
+         LexPB.cxx
+         LexPLM.cxx
+         LexPO.cxx
+         LexPOV.cxx
+         LexPS.cxx
+         LexPascal.cxx
+         LexPerl.cxx
+         LexPowerPro.cxx
+         LexPowerShell.cxx
+         LexProgress.cxx
+         LexProps.cxx
+         LexPython.cxx
+         LexR.cxx
+         LexRaku.cxx
+         LexRebol.cxx
+         LexRegistry.cxx
+         LexRuby.cxx
+         LexRust.cxx
+         LexSAS.cxx
+         LexSML.cxx
+         LexSQL.cxx
+         LexSTTXT.cxx
+         LexScriptol.cxx
+         LexSmalltalk.cxx
+         LexSorcus.cxx
+         LexSpecman.cxx
+         LexSpice.cxx
+         LexStata.cxx
+         LexTACL.cxx
+         LexTADS3.cxx
+         LexTAL.cxx
+         LexTCL.cxx
+         LexTCMD.cxx
+         LexTeX.cxx
+         LexTxt2tags.cxx
+         LexVB.cxx
+         LexVHDL.cxx
+         LexVerilog.cxx
+         LexVisualProlog.cxx
+         LexX12.cxx
+         LexYAML.cxx
+         LexerBase.cxx
+         LexerModule.cxx
+         LexerNoExceptions.cxx
+         LexerSimple.cxx
+         LineMarker.cxx
+         MarginView.cxx
+         PerLine.cxx
+         PlatQt.cpp
+         PositionCache.cxx
+         PropSetSimple.cxx
+         RESearch.cxx
+         RunStyles.cxx
+         ScintillaBase.cxx
+         ScintillaDocument.cpp
+         ScintillaEdit.cpp
+         ScintillaEditBase.cpp
+         ScintillaQt.cpp
+         Selection.cxx
+         Style.cxx
+         StyleContext.cxx
+         UniConversion.cxx
+         UniqueString.cxx
+         ViewStyle.cxx
+         WordList.cxx
+         XPM.cxx
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29910\bin\HostX86\x64\CL.exe /c /Ix64\Debug\moc /I"C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\\" /IC:\Qt\5.14.2\msvc2017_64\include /IC:\Qt\5.14.2\msvc2017_64\include\QtWidgets /IC:\Qt\5.14.2\msvc2017_64\include\QtGui /IC:\Qt\5.14.2\msvc2017_64\include\QtANGLE /IC:\Qt\5.14.2\msvc2017_64\include\QtCore /I/include /I"C:\Qt\5.14.2\msvc2017_64\mkspecs\win32-msvc" /Ix64\Debug\moc /I.\GeneratedFiles\Debug /I.\GeneratedFiles /I. /I..\ScintillaEdit /I..\ScintillaEditBase /I..\..\include /I..\..\src /I..\..\lexlib /I"C:\Qt\5.14.2\msvc2017_64\mkspecs\win32-msvc" /IC:\Qt\5.14.2\msvc2017_64\include /Zi /nologo /W1 /WX- /diagnostics:column /MP /O2 /D _WINDOWS /D WIN32 /D WIN64 /D _ENABLE_EXTENDED_ALIGNED_STORAGE /D SCINTILLA_QT=1 /D MAKING_LIBRARY=1 /D SCI_LEXER=1 /D _CRT_SECURE_NO_DEPRECATE=1 /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"x64\Debug\\" /Fd"x64\Debug\vc142.pdb" /Gd /TP /FC /errorReport:prompt x64\Debug\moc\moc_ScintillaDocument.cpp x64\Debug\moc\moc_ScintillaEdit.cpp x64\Debug\moc\moc_ScintillaEditBase.cpp x64\Debug\moc\moc_ScintillaQt.cpp
+         moc_ScintillaDocument.cpp
+         moc_ScintillaEdit.cpp
+         moc_ScintillaEditBase.cpp
+         moc_ScintillaQt.cpp
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\rc.exe /l"0x0409" /nologo /fo"x64\Debug\ScintillaEdit_resource.res" "C:\Users\marchetto\source\repos\gix-ide\\libs\scintilla\qt\ScintillaEdit\ScintillaEdit_resource.rc" 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29910\bin\HostX86\x64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\marchetto\source\repos\gix-ide\x64\Debug\\ScintillaEdit4.dll" /VERSION:"4.3" /NOLOGO /LIBPATH:C:\openssl\lib /LIBPATH:"C:\Utils\my_sql\mysql-5.7.25-winx64\lib" /LIBPATH:C:\Utils\postgresql\pgsql\lib C:\Qt\5.14.2\msvc2017_64\lib\Qt5Widgetsd.lib C:\Qt\5.14.2\msvc2017_64\lib\Qt5Guid.lib C:\Qt\5.14.2\msvc2017_64\lib\Qt5Cored.lib C:\Qt\5.14.2\msvc2017_64\lib\qtmaind.lib shell32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG:FULL /PDB:"C:\Users\marchetto\source\repos\gix-ide\x64\Debug\ScintillaEdit4.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\marchetto\source\repos\gix-ide\x64\Debug\ScintillaEdit4.lib" /MACHINE:X64 /DLL x64\Debug\ScintillaEdit_resource.res
+         x64\Debug\Accessor.obj
+         x64\Debug\AutoComplete.obj
+         x64\Debug\CallTip.obj
+         x64\Debug\CaseConvert.obj
+         x64\Debug\CaseFolder.obj
+         x64\Debug\Catalogue.obj
+         x64\Debug\CellBuffer.obj
+         x64\Debug\CharClassify.obj
+         x64\Debug\CharacterCategory.obj
+         x64\Debug\CharacterSet.obj
+         x64\Debug\ContractionState.obj
+         x64\Debug\DBCS.obj
+         x64\Debug\Decoration.obj
+         x64\Debug\DefaultLexer.obj
+         x64\Debug\Document.obj
+         x64\Debug\EditModel.obj
+         x64\Debug\EditView.obj
+         x64\Debug\Editor.obj
+         x64\Debug\ExternalLexer.obj
+         x64\Debug\Indicator.obj
+         x64\Debug\KeyMap.obj
+         x64\Debug\LexA68k.obj
+         x64\Debug\LexAPDL.obj
+         x64\Debug\LexASY.obj
+         x64\Debug\LexAU3.obj
+         x64\Debug\LexAVE.obj
+         x64\Debug\LexAVS.obj
+         x64\Debug\LexAbaqus.obj
+         x64\Debug\LexAda.obj
+         x64\Debug\LexAsm.obj
+         x64\Debug\LexAsn1.obj
+         x64\Debug\LexBaan.obj
+         x64\Debug\LexBash.obj
+         x64\Debug\LexBasic.obj
+         x64\Debug\LexBatch.obj
+         x64\Debug\LexBibTeX.obj
+         x64\Debug\LexBullant.obj
+         x64\Debug\LexCIL.obj
+         x64\Debug\LexCLW.obj
+         x64\Debug\LexCOBOL.obj
+         x64\Debug\LexCPP.obj
+         x64\Debug\LexCSS.obj
+         x64\Debug\LexCaml.obj
+         x64\Debug\LexCmake.obj
+         x64\Debug\LexCoffeeScript.obj
+         x64\Debug\LexConf.obj
+         x64\Debug\LexCrontab.obj
+         x64\Debug\LexCsound.obj
+         x64\Debug\LexD.obj
+         x64\Debug\LexDMAP.obj
+         x64\Debug\LexDMIS.obj
+         x64\Debug\LexDataflex.obj
+         x64\Debug\LexDiff.obj
+         x64\Debug\LexECL.obj
+         x64\Debug\LexEDIFACT.obj
+         x64\Debug\LexEScript.obj
+         x64\Debug\LexEiffel.obj
+         x64\Debug\LexErlang.obj
+         x64\Debug\LexErrorList.obj
+         x64\Debug\LexFlagship.obj
+         x64\Debug\LexForth.obj
+         x64\Debug\LexFortran.obj
+         x64\Debug\LexGAP.obj
+         x64\Debug\LexGui4Cli.obj
+         x64\Debug\LexHTML.obj
+         x64\Debug\LexHaskell.obj
+         x64\Debug\LexHex.obj
+         x64\Debug\LexHollywood.obj
+         x64\Debug\LexIndent.obj
+         x64\Debug\LexInno.obj
+         x64\Debug\LexJSON.obj
+         x64\Debug\LexKVIrc.obj
+         x64\Debug\LexKix.obj
+         x64\Debug\LexLaTeX.obj
+         x64\Debug\LexLisp.obj
+         x64\Debug\LexLout.obj
+         x64\Debug\LexLua.obj
+         x64\Debug\LexMMIXAL.obj
+         x64\Debug\LexMPT.obj
+         x64\Debug\LexMSSQL.obj
+         x64\Debug\LexMagik.obj
+         x64\Debug\LexMake.obj
+         x64\Debug\LexMarkdown.obj
+         x64\Debug\LexMatlab.obj
+         x64\Debug\LexMaxima.obj
+         x64\Debug\LexMetapost.obj
+         x64\Debug\LexModula.obj
+         x64\Debug\LexMySQL.obj
+         x64\Debug\LexNim.obj
+         x64\Debug\LexNimrod.obj
+         x64\Debug\LexNsis.obj
+         x64\Debug\LexNull.obj
+         x64\Debug\LexOScript.obj
+         x64\Debug\LexOpal.obj
+         x64\Debug\LexPB.obj
+         x64\Debug\LexPLM.obj
+         x64\Debug\LexPO.obj
+         x64\Debug\LexPOV.obj
+         x64\Debug\LexPS.obj
+         x64\Debug\LexPascal.obj
+         x64\Debug\LexPerl.obj
+         x64\Debug\LexPowerPro.obj
+         x64\Debug\LexPowerShell.obj
+         x64\Debug\LexProgress.obj
+         x64\Debug\LexProps.obj
+         x64\Debug\LexPython.obj
+         x64\Debug\LexR.obj
+         x64\Debug\LexRaku.obj
+         x64\Debug\LexRebol.obj
+         x64\Debug\LexRegistry.obj
+         x64\Debug\LexRuby.obj
+         x64\Debug\LexRust.obj
+         x64\Debug\LexSAS.obj
+         x64\Debug\LexSML.obj
+         x64\Debug\LexSQL.obj
+         x64\Debug\LexSTTXT.obj
+         x64\Debug\LexScriptol.obj
+         x64\Debug\LexSmalltalk.obj
+         x64\Debug\LexSorcus.obj
+         x64\Debug\LexSpecman.obj
+         x64\Debug\LexSpice.obj
+         x64\Debug\LexStata.obj
+         x64\Debug\LexTACL.obj
+         x64\Debug\LexTADS3.obj
+         x64\Debug\LexTAL.obj
+         x64\Debug\LexTCL.obj
+         x64\Debug\LexTCMD.obj
+         x64\Debug\LexTeX.obj
+         x64\Debug\LexTxt2tags.obj
+         x64\Debug\LexVB.obj
+         x64\Debug\LexVHDL.obj
+         x64\Debug\LexVerilog.obj
+         x64\Debug\LexVisualProlog.obj
+         x64\Debug\LexX12.obj
+         x64\Debug\LexYAML.obj
+         x64\Debug\LexerBase.obj
+         x64\Debug\LexerModule.obj
+         x64\Debug\LexerNoExceptions.obj
+         x64\Debug\LexerSimple.obj
+         x64\Debug\LineMarker.obj
+         x64\Debug\MarginView.obj
+         x64\Debug\PerLine.obj
+         x64\Debug\PlatQt.obj
+         x64\Debug\PositionCache.obj
+         x64\Debug\PropSetSimple.obj
+         x64\Debug\RESearch.obj
+         x64\Debug\RunStyles.obj
+         x64\Debug\ScintillaBase.obj
+         x64\Debug\ScintillaDocument.obj
+         x64\Debug\ScintillaEdit.obj
+         x64\Debug\ScintillaEditBase.obj
+         x64\Debug\ScintillaQt.obj
+         x64\Debug\Selection.obj
+         x64\Debug\Style.obj
+         x64\Debug\StyleContext.obj
+         x64\Debug\UniConversion.obj
+         x64\Debug\UniqueString.obj
+         x64\Debug\ViewStyle.obj
+         x64\Debug\WordList.obj
+         x64\Debug\XPM.obj
+         x64\Debug\moc_ScintillaDocument.obj
+         x64\Debug\moc_ScintillaEdit.obj
+         x64\Debug\moc_ScintillaEditBase.obj
+         x64\Debug\moc_ScintillaQt.obj
+            Creating library C:\Users\marchetto\source\repos\gix-ide\x64\Debug\ScintillaEdit4.lib and object C:\Users\marchetto\source\repos\gix-ide\x64\Debug\ScintillaEdit4.exp
+         ScintillaEdit.vcxproj -> C:\Users\marchetto\source\repos\gix-ide\x64\Debug\ScintillaEdit4.dll
+       FinalizeBuildStatus:
+         Deleting file "x64\Debug\ScintillaEdit.tlog\unsuccessfulbuild".
+         Touching "x64\Debug\ScintillaEdit.tlog\ScintillaEdit.lastbuildstate".
+     1>Done Building Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (Build target(s)).
+     1>FinalizeBuildStatus:
+         Touching "x64\Debug\ScintillaEdit.tlog\ScintillaEdit.lastbuildstate".
+     1>Done Building Project "C:\Users\marchetto\source\repos\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit.vcxproj" (Build target(s)).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:24.69

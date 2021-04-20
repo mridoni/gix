@@ -38,41 +38,15 @@
        EXEC SQL 
             INCLUDE SQLCA 
        END-EXEC. 
-              
+      *  declare cursor for select 
+           EXEC SQL
+               DECLARE EMPTBL CURSOR FOR
+               SELECT * 
+                 FROM EMPTABLE
+               ORDER BY LNAME
+           END-EXEC              
        PROCEDURE DIVISION. 
-       
-       EXEC SQL DECLARE C_VARIABLE
-                CURSOR FOR
-                    SELECT  COMMUNITYID,
-                            VARIABLEID,
-                            DESCRIPTION,
-                            TO_CHAR (STARTDATE,'YYYY-MM-DD'),
-                            TO_CHAR (ENDDATE,'YYYY-MM-DD'),
-                            DOMAINID,
-                            DEFINITIONSETID,
-                            UNIVERSALVALUE,
-                            CIRCULARITY,
-                            REPETITIVE,
-                            PROVFG,
-                            COMPOSED,
-                            TRASC,
-                            UTILCOE,
-                            UTILBIL,
-                            UTILBILIAS,
-                            UTILANAC,
-                            ISCODED,
-                            UTILCR
-                      FROM  P_VARIABLE
-                     WHERE
-                            DOMAINID    <>    'AUTODESCRIPTIVE'
-                     AND  COMMUNITYID =     :VARC
-                     AND  DATARILDA   <=    TO_DATE(:VARD, 'YYYY-MM-DD')
-                     AND  DATARILA    >     TO_DATE(:VARD, 'YYYY-MM-DD')
-                     AND  DATAVALDA   <=    TO_DATE(:VARD, 'YYYY-MM-DD')
-                     AND  DATAVALA    >     TO_DATE(:VARD, 'YYYY-MM-DD')
-                     AND  FLAGTEC     =     'T'
-                     ORDER BY VARIABLEID
-       END-EXEC.       
+ 
        000-CONNECT.
          DISPLAY "DBNAME" UPON ENVIRONMENT-NAME.
          ACCEPT DBNAME FROM ENVIRONMENT-VALUE.
@@ -93,13 +67,10 @@
               GO TO 100-EXIT
            END-IF.
        100-MAIN.
-      *  declare cursor for select 
+
            EXEC SQL
-               DECLARE EMPTBL CURSOR FOR
-               SELECT * 
-                 FROM EMPLOYEE
-               ORDER BY LNAME
-           END-EXEC
+              START TRANSACTION
+	       END-EXEC.                                                    
        
       *  open cursor
            EXEC SQL
@@ -107,6 +78,7 @@
            END-EXEC 
            MOVE SQLCODE TO DISP-CODE
            DISPLAY 'open ' DISP-CODE.
+           DISPLAY 'open ' SQLERRM.
        
       *  fetch a data item 
            EXEC SQL
@@ -126,14 +98,14 @@
       *  display the record
            MOVE PAYRATE TO DISP-RATE
            MOVE COM TO DISP-COM
-           DISPLAY 'department ' DEPT 
-           DISPLAY 'last name ' LNAME 
-           DISPLAY 'first name ' FNAME 
-           DISPLAY 'street ' STREET 
-           DISPLAY 'city ' CITY 
-           DISPLAY 'state ' ST 
-           DISPLAY 'zip code ' ZIP 
-           DISPLAY 'payrate ' DISP-RATE 
+           DISPLAY 'department: [' DEPT ']'
+           DISPLAY 'last name : [' LNAME ']'
+           DISPLAY 'first name: [' FNAME ']'
+           DISPLAY 'street    : [' STREET ']'
+           DISPLAY 'city      : [' CITY ']'
+           DISPLAY 'state     : [' ST ']'
+           DISPLAY 'zip code  : [' ZIP ']'
+           DISPLAY 'payrate   : [' DISP-RATE ']'
            IF COM-NULL-IND < 0 
                DISPLAY 'commission is null' 
            ELSE 

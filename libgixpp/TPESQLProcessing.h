@@ -30,7 +30,7 @@ USA.
 #include "ESQLCall.h"
 
 class gix_esql_driver;
-//class ESQLCall;
+
 enum class ESQL_Command;
 
 class TPESQLProcessing : public ITransformationStep
@@ -83,6 +83,7 @@ private:
 
 	int outputESQL();
 	cb_exec_sql_stmt_ptr find_exec_sql_stmt(const QString filename, int i);
+	cb_exec_sql_stmt_ptr find_esql_cmd(QString cmd, int idx);
 	QString comment_line(const QString &comment, const QString &line);
 
 	void put_output_line(const QString &line);

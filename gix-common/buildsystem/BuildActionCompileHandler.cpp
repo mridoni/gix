@@ -26,8 +26,10 @@ USA.
 #include "PathUtils.h"
 #include "SysUtils.h"
 #include "BuildConsts.h"
+#include "GixGlobals.h"
 #include "PropertyConsts.h"
 #include "MacroManager.h"
+#include "ESQLConfiguration.h"
 #include "linq/linq.hpp"
 
 using namespace cpplinq;
@@ -41,6 +43,7 @@ BuildActionCompileHandler::~BuildActionCompileHandler()
 
 bool BuildActionCompileHandler::startBuild()
 {
+	QSettings settings;
 	QString target_final_path;
 
 	importProjectEnvironment();
@@ -73,6 +76,14 @@ bool BuildActionCompileHandler::startBuild()
 		return false;
 	}
 
+	QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+	CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
+	QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
+	if (esql_cfg.isNull()) {
+		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		return false;
+	}
+
 	QProcessEnvironment env = compiler_cfg->getEnvironment(build_driver);
 
 	QStringList cobc_opts;
@@ -98,12 +109,18 @@ bool BuildActionCompileHandler::startBuild()
 		else {
 			cobc_opts.append("-A");
 			cobc_opts.append("-O0");
+			//cobc_opts.append("-A");
+			//cobc_opts.append("-gdwarf");
 		}
 	}
 
+#if _DEBUG
+	cobc_opts.append("-v");
+#endif
+
 	MacroManager mm(environment);
 
-	QStringList copy_dirs = retrieve_copy_dirs();
+	QStringList copy_dirs = retrieve_copy_dirs(esql_cfg.get());
 	if (copy_dirs.size() > 0) {
 		for (QString copy_dir : copy_dirs) {
 			copy_dir = mm.translate(copy_dir);
@@ -209,16 +226,15 @@ bool BuildActionCompileHandler::startBuild()
 	return true;
 }
 
-QStringList BuildActionCompileHandler::retrieve_copy_dirs()
+QStringList BuildActionCompileHandler::retrieve_copy_dirs(ESQLConfiguration *esql_cfg)
 {
 	QStringList pv = environment["copy_include_path"].toStringList();
 
-	if (environment.contains("preprocess_esql") && environment["preprocess_esql"].toBool()) {
-		QString copy_dir = SysUtils::getSysCopyDir();
-		if (!copy_dir.isEmpty() && !pv.contains(copy_dir))
-			pv.append(copy_dir);
+	// TODO: user libs
+
+	if (environment.value("preprocess_esql", false).toBool()) {
+		pv.append(esql_cfg->getCopyPathList());
 	}
 
 	return pv;
-
 }

@@ -126,7 +126,7 @@ DataEntry *DataEntry::fromCobolRawField(cb_field_ptr p)
 				break;
 
 			case PIC_NUMERIC:
-				e->type = WsEntryType::Alphabetic;
+				e->type = WsEntryType::Numeric;
 				e->display_size = p->picnsize + (p->have_sign ? 1 : 0) + (p->scale > 0 ? 1 : 0);	// TODO: this is most likely wrong
 				QString sign = p->have_sign ? "S" : "";
 				format = "PIC " + sign + "9(" + QString::number(p->picnsize) + ")";
@@ -140,7 +140,33 @@ DataEntry *DataEntry::fromCobolRawField(cb_field_ptr p)
 					switch (p->usage) {
 						case Usage::Binary:
 							format += " USAGE BINARY";
-							e->storage_type = WsEntryStorageType::Comp5;
+							e->storage_type = WsEntryStorageType::Comp;
+							if (bsize == 1) {	// 1 byte
+								e->storage_size = 1;
+							}
+							else {
+								if (bsize == 2) {	// 1 byte
+									e->storage_size = 2;
+								}
+								else {
+									if (bsize == 3 || bsize == 4) {	// 2 bytes
+										e->storage_size = 2;
+									}
+									else {
+										if (bsize >= 5 && bsize <= 9) {	// 4 bytes
+											e->storage_size = 4;
+										}
+										else {
+											if (bsize >= 10 && bsize <= 18) {	// 8 bytes
+												e->storage_size = 8;
+											}
+											else {
+												// Should never happen
+											}
+										}
+									}
+								}
+							}
 							break;
 						case Usage::Float:
 							format += " USAGE COMP-1";

@@ -20,6 +20,8 @@ USA.
 
 #include "CodeviewSymbolProvider.h"
 #include "SymbolBufferReader.h"
+#include "StackWalker.h"
+#include "GixDebuggerWin.h"
 #include <utils.h>
 #include <QDir>
 //#include <libcob.h>
@@ -30,6 +32,13 @@ static BOOL __stdcall DLL_SymEnumerateLocalSymbolsCallback(PSYMBOL_INFO pSymInfo
 
 
 extern void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions);
+
+// Just in case: MSVC has some symbol decoration issue in x86/x64
+#ifdef _WIN64
+#define COB_MODULE_GLOBAL_ENTER "cob_module_global_enter"
+#else
+#define COB_MODULE_GLOBAL_ENTER "cob_module_global_enter"
+#endif
 
 bool CodeviewSymbolProvider::deinit(GixDebugger *gd, void *hproc)
 {
@@ -56,73 +65,110 @@ BOOL __stdcall _ProcessMemoryReader(HANDLE  hProcess,
 
 }
 
+static class BufferedStackWalker : public StackWalker
+{
+public:
+	BufferedStackWalker(DWORD dwProcessId, HANDLE hProcess) : StackWalker(dwProcessId, hProcess) {}
+	QStringList lines;
+
+protected:
+	virtual void OnOutput(LPCSTR szText)
+	{
+		lines.append(szText);
+		StackWalker::OnOutput(szText);
+	}
+};
+
 
 QString CodeviewSymbolProvider::dumpStackFrame(GixDebugger *gd, void *hproc, void *hthread)
 {
-	QString res;
+	GixDebuggerWin *gdw = (GixDebuggerWin *)gd;
 
-	STACKFRAME64 stack = { 0 };
-	DWORD64 dwDisplacement64 = 0;
-	DWORD dwDisplacement = 0;
+	BufferedStackWalker sw(gdw->getProcessId(), hproc);
+	sw.ShowCallstack(hthread);
+	return sw.lines.join("\n");
 
-	CONTEXT context;
-	context.ContextFlags = CONTEXT_FULL;
-	GetThreadContext(hthread, &context);
+//#ifdef _WIN64
+//	DWORD machine_type = IMAGE_FILE_MACHINE_AMD64;
+//#else
+//	DWORD machine_type = IMAGE_FILE_MACHINE_I386;
+//#endif
+//	QString res;
+//
+//	STACKFRAME64 stack = { 0 };
+//	DWORD64 dwDisplacement64 = 0;
+//	DWORD dwDisplacement = 0;
+//
+//	CONTEXT context;
+//	context.ContextFlags = CONTEXT_FULL;
+//	GetThreadContext(hthread, &context);
+//
+//#ifdef _WIN64
+//	// Must be like this
+//	stack.AddrPC.Offset = context.Rip; // EIP - Instruction Pointer
+//	stack.AddrPC.Mode = AddrModeFlat;
+//	stack.AddrFrame.Offset = context.Rbp; // EBP
+//	stack.AddrFrame.Mode = AddrModeFlat;
+//	stack.AddrStack.Offset = context.Rsp; // ESP - Stack Pointer
+//	stack.AddrStack.Mode = AddrModeFlat;
+//#elif defined(_WIN32)
+//	// Must be like this
+//	stack.AddrPC.Offset = context.Eip; // EIP - Instruction Pointer
+//	stack.AddrPC.Mode = AddrModeFlat;
+//	stack.AddrFrame.Offset = context.Ebp; // EBP
+//	stack.AddrFrame.Mode = AddrModeFlat;
+//	stack.AddrStack.Offset = context.Esp; // ESP - Stack Pointer
+//	stack.AddrStack.Mode = AddrModeFlat;
+//#else
+//#error There's something wrong with the build environment
+//#endif
+//	BOOL bSuccess;
+//	do {
+//		bSuccess = StackWalk64(machine_type, hproc, hthread, &stack,
+//			&context, (PREAD_PROCESS_MEMORY_ROUTINE64)&_ProcessMemoryReader, SymFunctionTableAccess64,
+//			SymGetModuleBase64, 0);
+//
+//		if (!bSuccess)
+//			break;
+//
+//		// Symbol retrieval code goes here.
+//
+//		// 1
+//		IMAGEHLP_MODULE64 module = { 0 };
+//		module.SizeOfStruct = sizeof(module);
+//		SymGetModuleInfo64(hproc, (DWORD64)stack.AddrPC.Offset, &module);
+//
+//		// 2
+//		IMAGEHLP_SYMBOL64 *pSymbol;
+//		DWORD dwDisplacement;
+//		pSymbol = (IMAGEHLP_SYMBOL64 *)new BYTE[sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME];
+//
+//		memset(pSymbol, 0, sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME);
+//		pSymbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64); // Required
+//		pSymbol->MaxNameLength = MAX_SYM_NAME;             // Required
+//
+//		SymGetSymFromAddr64(hproc, stack.AddrPC.Offset,
+//			&dwDisplacement64, pSymbol); // Retruns true on success
+//
+//		// 3
+//		IMAGEHLP_LINE64 line;
+//		line.SizeOfStruct = sizeof(line);
+//
+//		bSuccess = SymGetLineFromAddr64(hproc,
+//			stack.AddrPC.Offset,
+//			&dwDisplacement, &line);
+//
+//		if (bSuccess) {
+//			res += QString("%1:%2\n").arg(line.FileName).arg(line.LineNumber);
+//		}
+//
+//
+//	} while (stack.AddrReturn.Offset != 0);
 
-	// Must be like this
-	stack.AddrPC.Offset = context.Rip; // EIP - Instruction Pointer
-	stack.AddrPC.Mode = AddrModeFlat;
-	stack.AddrFrame.Offset = context.Rbp; // EBP
-	stack.AddrFrame.Mode = AddrModeFlat;
-	stack.AddrStack.Offset = context.Rsp; // ESP - Stack Pointer
-	stack.AddrStack.Mode = AddrModeFlat;
-
-	BOOL bSuccess;
-	do {
-		bSuccess = StackWalk64(IMAGE_FILE_MACHINE_AMD64, hproc, hthread, &stack,
-			&context, (PREAD_PROCESS_MEMORY_ROUTINE64)&_ProcessMemoryReader, SymFunctionTableAccess64,
-			SymGetModuleBase64, 0);
-
-		if (!bSuccess)
-			break;
-
-		// Symbol retrieval code goes here.
-
-		// 1
-		IMAGEHLP_MODULE64 module = { 0 };
-		module.SizeOfStruct = sizeof(module);
-		SymGetModuleInfo64(hproc, (DWORD64)stack.AddrPC.Offset, &module);
-
-		// 2
-		IMAGEHLP_SYMBOL64 *pSymbol;
-		DWORD dwDisplacement;
-		pSymbol = (IMAGEHLP_SYMBOL64 *)new BYTE[sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME];
-
-		memset(pSymbol, 0, sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME);
-		pSymbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64); // Required
-		pSymbol->MaxNameLength = MAX_SYM_NAME;             // Required
-
-		SymGetSymFromAddr64(hproc, stack.AddrPC.Offset,
-			&dwDisplacement64, pSymbol); // Retruns true on success
-
-		// 3
-		IMAGEHLP_LINE64 line;
-		line.SizeOfStruct = sizeof(line);
-
-		bSuccess = SymGetLineFromAddr64(hproc,
-			stack.AddrPC.Offset,
-			&dwDisplacement, &line);
-
-		if (bSuccess) {
-			res += QString("%1:%2\n").arg(line.FileName).arg(line.LineNumber);
-		}
-
-
-	} while (stack.AddrReturn.Offset != 0);
-
-	return res;
+	//return res;
 }
 
+#ifdef _WIN64
 void *CodeviewSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi, uint64_t frame_ptr, VariableResolverData *vrootvar, VariableResolverData *vvar)
 {
 	int err = 0;
@@ -141,11 +187,31 @@ void *CodeviewSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void 
 	return (void *)addr;
 }
 
+#else
+void *CodeviewSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi, uint64_t frame_ptr, VariableResolverData *vrootvar, VariableResolverData *vvar)
+{
+	int err = 0;
+	IMAGEHLP_STACK_FRAME isf;
+	ZeroMemory(&isf, sizeof(IMAGEHLP_STACK_FRAME));
+
+	DWORD mod_address = (DWORD)getSymbolAddress(gd, hproc, NULL, cmi->name + "_", NULL, &err);
+	isf.InstructionOffset = mod_address;
+	SymSetContext(hproc, &isf, NULL);
+
+	DWORD root_addr = (DWORD)getSymbolAddress(gd, hproc, NULL, vrootvar->local_sym_name, NULL, 0);
+
+//	unsigned long addr = ((frame_ptr + root_addr + vvar->local_addr) - 1); // x64 only
+	return (void *)(root_addr + vvar->local_addr);
+}
+#endif
+
 bool CodeviewSymbolProvider::initialize(GixDebugger *gd, void *hproc, void *userdata)
 {
+	dbg_instance = gd;
+
 	QString wd = QDir::toNativeSeparators(gd->getWorkingDirectory());
 #if _DEBUG	
-	SymSetOptions(SYMOPT_DEBUG);
+	//SymSetOptions(SYMOPT_DEBUG);
 #endif
 	return SymInitialize(hproc, wd.toLocal8Bit().constData(), false);
 }
@@ -157,6 +223,8 @@ static BOOL __stdcall DLL_GetSymbolFromDLL(PSYMBOL_INFO pSymInfo, ULONG SymbolSi
 	return false;
 }
 
+
+
 bool CodeviewSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void *hmod, void *userdata, int *err)
 {
 	bool res = true;
@@ -166,14 +234,17 @@ bool CodeviewSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void
 	pSymbol->MaxNameLen = MAX_SYM_NAME;
 	ZeroMemory(pSymbol, sizeof(SYMBOL_INFO) + MAX_SYM_NAME);
 
-	if (!SymEnumSymbols(hproc, (ULONG64)hmod, "cob_module_global_enter", DLL_GetSymbolFromDLL, pSymbol)) {
+	if (!SymEnumSymbols(hproc, (ULONG64)hmod, COB_MODULE_GLOBAL_ENTER, DLL_GetSymbolFromDLL, pSymbol)) {
 		gd->printLastError();
 		delete[](BYTE *)pSymbol;
 		return false;
 	}
 
+#if _WIN64
 	res &= ((bool)(pSymbol->Flags & 0x400000));
-
+#else
+	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags == 0);
+#endif
 	return res;
 }
 
@@ -209,6 +280,11 @@ void *CodeviewSymbolProvider::loadSymbols(GixDebugger *gd, void *hproc, void *hm
 
 	*err = 0x00;
 	return (void *)hSymbols;
+}
+
+bool CodeviewSymbolProvider::unloadSymbols(GixDebugger *gd, void *hproc, void *hmod, const QString &mod_path, void *userdata, int *err)
+{
+	return SymUnloadModule64((HANDLE)hproc, (DWORD64)hmod);
 }
 
 SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err)
@@ -251,9 +327,12 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 	ZeroMemory(&isf, sizeof(IMAGEHLP_STACK_FRAME));
 
 	QList<QString> cml;
+
+	// TODO: This "undecorates" symbols on x86, we should remove it and switch to a dbghelp-supported function
 	ListDLLFunctions(mod_path, cml);
+
 	for (auto m : cml) {
-		if (m.startsWith("__GIX_SYM_"))
+		if (m.contains("_GIX_SYM_"))	// see the TODO comment above
 			continue;
 
 		CobolModuleInfo *cmi = new CobolModuleInfo();
@@ -265,14 +344,58 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 		cmi->entry_breakpoint->address = cmi->entry_point;
 		cmi->entry_breakpoint->automatic = true;
 		cmi->entry_breakpoint->key = QString(m) + ":0";
-		cmi->entry_breakpoint->line = 0;
 		cmi->entry_breakpoint->orig_instr = 0x00;
 		cmi->entry_breakpoint->owner = mi;
-		cmi->entry_breakpoint->source_file = "";
 
-		initCobolModuleLocalInfo(gd, hproc, cmi);
+/*
+		 TODO: locate entry point line in COBOL source
+		IMAGEHLP_LINE64 ln;
+		DWORD  dwDisplacement;
+		ZeroMemory(&ln, sizeof(IMAGEHLP_LINE64));
+		ln.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+		ln.Address = (DWORD64)cmi->entry_point;
+		if (SymGetLineFromAddr64(hproc, (DWORD64)cmi->entry_point, &dwDisplacement, &ln)) {
+			QString c_src_file = ln.FileName;	// These are C source locations
+			mi->owner->
+
+		}
+		else {
+			cmi->entry_breakpoint->source_file = "";
+			cmi->entry_breakpoint->line = 0;
+		}
+*/
+		cmi->entry_breakpoint->source_file = "";
+		cmi->entry_breakpoint->line = 0;
+
+		if (!initCobolModuleLocalInfo(gd, hproc, cmi)) {
+			gd->printMessage("ERROR: cannot parse module debug info (source lines)\n");
+			delete cmi;
+			delete mi;
+			return nullptr;
+		}
 	}
 	return mi;
+}
+
+LibCobInfo *CodeviewSymbolProvider::extractLibCobInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err)
+{
+	void *f_libcob_version = (void *)getSymbolAddress(gd, hproc, hmod, "libcob_version", NULL, err);
+	void *f_cob_get_field_str = (void *)getSymbolAddress(gd, hproc, hmod, "cob_get_field_str", NULL, err);
+	void *f_cob_put_field_str = (void *)getSymbolAddress(gd, hproc, hmod, "cob_put_field_str", NULL, err);
+	void *f_cob_runtime_error = (void *)getSymbolAddress(gd, hproc, hmod, "cob_runtime_error", NULL, err);
+
+	if (f_libcob_version && f_cob_get_field_str && f_cob_put_field_str && f_cob_runtime_error) {
+		LibCobInfo *lci = new LibCobInfo();
+
+		lci->f_libcob_version = (f_libcob_version_ptr) f_libcob_version;
+		lci->f_cob_get_field_str = (f_cob_get_field_str_ptr) f_cob_get_field_str;
+		lci->f_cob_put_field_str = (f_cob_put_field_str_ptr) f_libcob_version;
+		lci->f_cob_runtime_error = (f_cob_runtime_error_ptr) f_libcob_version;
+
+		return lci;
+	}
+
+	return nullptr;
 }
 
 void * CodeviewSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err)
@@ -294,14 +417,16 @@ void * CodeviewSymbolProvider::getSymbolAddress(GixDebugger *gd, void *hproc, vo
 
 int CodeviewSymbolProvider::readSymbolValueAsInt(void *hproc, const QString &s)
 {
-	DWORD64 addr = (DWORD64)getSymbolAddress(NULL, hproc, NULL, s, NULL, 0);
-	if (!addr)
+	void *addr = getSymbolAddress(NULL, hproc, NULL, s, NULL, 0);
+	if (!addr) {
+		this->dbg_instance->printMessage("Cannot locate symbol [" + s + "]");
 		return -1;
+	}
 
 	SIZE_T st;
 	uint8_t bfr[sizeof(int)];
 	if (!ReadProcessMemory(hproc, (LPVOID)addr, &bfr, sizeof(int), &st))
-		return -1;
+		return -2;
 
 	int i = *((int *)&bfr);
 	return i;
@@ -333,6 +458,11 @@ bool CodeviewSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hpr
 
 	uint8_t *__GIX_SYM_MOD_E = readSymbolValueInBuffer(hproc, "__GIX_SYM_" + cmi->name + "_E", __GIX_SYM_MOD_ES);
 	uint8_t *__GIX_SYM_MOD_M = readSymbolValueInBuffer(hproc, "__GIX_SYM_" + cmi->name + "_M", __GIX_SYM_MOD_MS);
+
+	if (__GIX_SYM_MOD_EC < 0|| __GIX_SYM_MOD_ES < 0 || __GIX_SYM_MOD_MC < 0 || __GIX_SYM_MOD_MS < 0 || !__GIX_SYM_MOD_E || !__GIX_SYM_MOD_M) {
+		gd->printMessage("ERROR: cannot parse module debug info (COBOL variable data)\n");
+		return false;
+	}
 
 	SymbolBufferReader sr(__GIX_SYM_MOD_E, __GIX_SYM_MOD_ES);
 	for (int i = 0; i < __GIX_SYM_MOD_EC; i++) {

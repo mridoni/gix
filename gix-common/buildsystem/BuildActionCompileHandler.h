@@ -26,6 +26,8 @@ USA.
 
 #include "BuildActionHandler.h"
 
+class ESQLConfiguration;
+
 class BuildActionCompileHandler : public BuildActionHandler
 {
 public:
@@ -36,6 +38,6 @@ public:
 	virtual bool startBuild() override;
 
 private:
-	QStringList retrieve_copy_dirs();
+	QStringList retrieve_copy_dirs(ESQLConfiguration *esql_cfg);
 
 };

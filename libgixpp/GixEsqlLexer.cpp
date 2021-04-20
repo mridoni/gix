@@ -184,7 +184,9 @@ int yyFlexLexer::yywrap()
 		srcLocation loc = p->driver->lexer.src_location_stack.pop();
 
 		p->driver->hostlineno = loc.line;
-		p->driver->file = loc.filename.toStdString();
+		// Used to be:
+		// p->driver->file = loc.filename.toStdString();
+		p->driver->file = p->driver->lexer.src_location_stack.top().filename.toStdString();
 		yylineno = loc.line;
 
 		if (p->driver->pp_inst->verbose_debug)

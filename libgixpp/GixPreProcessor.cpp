@@ -149,9 +149,9 @@ bool GixPreProcessor::setOutputFile(QString outfile)
 	return true;
 }
 
-QVariant GixPreProcessor::getOpt(QString id)
+QVariant GixPreProcessor::getOpt(QString id, QVariant v)
 {
-	return opts[id];
+	return (opts.contains(id)) ? opts[id] : v;
 }
 
 void GixPreProcessor::setOpt(QString id, QVariant v)

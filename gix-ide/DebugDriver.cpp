@@ -141,6 +141,12 @@ void DebugDriver::run()
 		return true;
 	};
 
+	ib.debuggerReady = [this](GixDebugger *gd, QString msg) {
+		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Debugger has loaded symbols and is ready to run %1").arg(msg), (QLogger::LogLevel) 0);
+		emit DebuggerReady(msg);
+		return true;
+	};
+
 	ib.debuggerProcessExit = [this](GixDebugger *gd, int rc, QString msg) {
 		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Program %1 terminated with result code: %2").arg(msg).arg(rc), (QLogger::LogLevel) 0);
 		emit DebuggerProcessFinished(msg, rc);
@@ -185,8 +191,6 @@ void DebugDriver::run()
 	debugger_instance->setInterfaceBlock(&ib);
 
 	//local_server->listen("gix-debugger");
-
-	emit DebuggerReady("gix-debugger");
 
 	int rc = debugger_instance->start();
 

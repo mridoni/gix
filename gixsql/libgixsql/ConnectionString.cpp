@@ -135,7 +135,7 @@ LIBGIXSQL_API void ConnectionString::setPassword(std::string pwd)
 	this->password = pwd;
 }
 
-LIBGIXSQL_API ConnectionString* ConnectionString::parseEx(const std::string& cs)
+LIBGIXSQL_API ConnectionString* ConnectionString::parseEx(std::string cs)
 {
 	// Format: type://user/password@host[:port]/database?default_schema
 	// e.g. pgsql://user:password@localhost:5432/postgres?public

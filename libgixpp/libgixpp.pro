@@ -3,8 +3,8 @@ CONFIG += staticlib
 TARGET = gixpp
 INCLUDEPATH += . ../libgixutils
 
-CONFIG(debug,debug|release) DESTDIR = ../x64/Debug
-CONFIG(release,debug|release) DESTDIR = ../x64/Release
+CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
+CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic -Wl,--whole-archive
 linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas

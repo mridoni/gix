@@ -1,6 +1,6 @@
 /*
 This file is part of QtWebApp
-Copyright (C) 2010-2019 Stefan Frings
+Copyright (C) 2010-2021 Stefan Frings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #if !defined(DECLSPEC)
     #define DECLSPEC
 #endif
+
+//#if __cplusplus < 201103L
+//    #define nullptr 0
+//#endif
 
 #endif // TEMPLATEGLOBAL_H
 
