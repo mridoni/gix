@@ -98,8 +98,8 @@ int DbInterfaceODBC::init(ILogger* _logger)
 	// set NTS if possible to avoid extra moves
 	rc = SQLSetEnvAttr(env_handle, SQL_ATTR_OUTPUT_NTS, (SQLPOINTER)SQL_FALSE, 0);
 	if (last_rc != SQL_SUCCESS) {
-		LOG_DEBUG(__FILE__, __func__, "WARNING: Cannot set ODBC version");
-		LOG_ERROR("WARNING: Cannot set ODBC version");
+		LOG_DEBUG(__FILE__, __func__, "WARNING: Cannot set NTS");
+		LOG_ERROR("WARNING: Cannot set ODBC NTS");
 	}
 
 	rc = SQLAllocHandle(SQL_HANDLE_DBC, env_handle, &conn_handle);
