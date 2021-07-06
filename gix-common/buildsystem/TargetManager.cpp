@@ -81,9 +81,6 @@ void TargetManager::init()
 */
 BuildTarget *TargetManager::composeBuildTarget(BuildTarget *parent, const QString &target_type, QVariantMap *props, IBuildableItem *bi)
 {
-	if (target_type == "webm") {
-		int n = 999;
-	}
 	auto bi_props = dynamic_cast<PropertySource *>(bi)->PropertyGetCurrentValues();
 	for (QVariantMap::iterator it = bi_props->begin(); it != bi_props->end(); ++it) {
 		props->insert(it.key(), it.value());

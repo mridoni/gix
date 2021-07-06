@@ -134,7 +134,8 @@ DataEntry *DataEntry::fromCobolRawField(cb_field_ptr p)
 				if (p->scale)
 					format += "V(" + QString::number(p->scale) + ")";
 
-				int bsize = p->picnsize + p->scale;	// TODO: verify this
+				//int bsize = p->picnsize + p->scale;	// TODO: verify this
+				int bsize = p->picnsize;	// TODO: verify this
 
 				if (p->usage != Usage::None) {
 					switch (p->usage) {

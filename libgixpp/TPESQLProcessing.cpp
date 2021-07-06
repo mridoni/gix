@@ -375,6 +375,9 @@ QString take_max(QString &s, int n)
 
 void TPESQLProcessing::put_query_defs()
 {
+	if (emitted_query_defs)
+		return;
+
 	for (int i = 1; i <= ws_query_list.size(); i++) {
 		QString qry = ws_query_list.at(i - 1);
 		int qry_len = qry.length();
@@ -400,6 +403,8 @@ void TPESQLProcessing::put_query_defs()
 
 		put_output_line(code_tag + QString("     02  FILLER PIC X(1) VALUE X\"00\"."));
 	}
+
+	emitted_query_defs = true;
 }
 
 void TPESQLProcessing::put_procedure_division()

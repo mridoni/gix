@@ -111,7 +111,26 @@ QString PathUtils::rebasePath(QString child, QString parent)
 	}
 	else {
 		return c;
-	}
+    }
+}
+
+QString PathUtils::findFile(const QString &bdir, const QString &f)
+{
+    QDir dir(bdir);
+    if (!dir.exists())
+        return QString();
+
+    if (QFile(PathUtils::combine(bdir, f)).exists())
+        return bdir;
+
+    for (QString sd : dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
+        QString subdir = PathUtils::combine(bdir, sd);
+        QString res = findFile(subdir, f);
+        if (!res.isEmpty())
+            return res;
+    }
+
+    return QString();
 }
 
 

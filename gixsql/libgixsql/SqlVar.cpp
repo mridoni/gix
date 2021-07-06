@@ -22,6 +22,7 @@
 #include <math.h>
 #include <string>
 #include <cstring>
+#include <locale.h>
 
 #include "SqlVar.h"
 #include "utils.h"
@@ -51,6 +52,11 @@
 #define CBL_FIELD_FLAG_VARLEN	0x80
 
 #define ASCII_ZERO ((unsigned char)0x30)
+
+const char SqlVar::_decimal_point = [] {
+    struct lconv	*lc = localeconv();
+    return lc->decimal_point[0];
+}();
 
 SqlVar::SqlVar()
 {
@@ -439,6 +445,7 @@ void* SqlVar::getAddr()
 	return addr;
 }
 
+
 void SqlVar::createCobolData(char* retstr)
 {
 	void* addr = this->addr;
@@ -460,10 +467,10 @@ void SqlVar::createCobolData(char* retstr)
 			// before decimal point
 			int beforedp = 0;
 			for (ptr = retstr; *ptr != '\0'; ptr++) {
-				if (*ptr == '.') {
+                if (*ptr == _decimal_point) {
 					break;
 				}
-				else {
+                else {
 					beforedp++;
 				}
 			}
@@ -532,7 +539,7 @@ void SqlVar::createCobolData(char* retstr)
 			// before decimal point
 			int beforedp = 0;
 			for (ptr = value; *ptr != '\0'; ptr++) {
-				if (*ptr == '.') {
+                if (*ptr == _decimal_point) {
 					break;
 				}
 				else {
@@ -611,7 +618,7 @@ void SqlVar::createCobolData(char* retstr)
 			// before decimal point
 			int beforedp = 0;
 			for (ptr = value; *ptr != '\0'; ptr++) {
-				if (*ptr == '.') {
+                if (*ptr == _decimal_point) {
 					break;
 				}
 				else {
@@ -658,219 +665,16 @@ void SqlVar::createCobolData(char* retstr)
 
 		case COBOL_TYPE_UNSIGNED_NUMBER_PD:
 		{
-			//char* value = retstr;
-			char* ptr;
-			int is_negative = false;
-
-			int fillzero;
-			//int zcount;
-			char* pre_final;
-			//char* final;
-
-			double dlength;
-			int skip_first;
-			int i;
-			unsigned char ubit = 0xF0;
-			unsigned char lbit = 0x0F;
-
-			dlength = ceil(((double)length + 1) / 2);
-			skip_first = ((int)length + 1) % 2; // 1 -> skip first 4 bits
-
-			int pre_final_sz = (int)(length + 1) + TERMINAL_LENGTH;
-			pre_final = (char*)calloc(pre_final_sz, sizeof(char));
-
-			// before decimal point
-			int beforedp = 0;
-			for (ptr = retstr; *ptr != '\0'; ptr++) {
-				if (*ptr == '.') {
-					break;
-				}
-				else {
-					beforedp++;
-				}
-			}
-
-			fillzero = length - beforedp + power;
-			//for (zcount = 0; zcount < fillzero; zcount++) {
-			//	strcat(pre_final, "0");
-			//}
-			memset(pre_final, ASCII_ZERO, fillzero);
-
-			memcpy(pre_final + fillzero, retstr, beforedp);
-
-			if (power < 0) {
-				int afterdp = 0;
-
-				if (*ptr != '\0') {
-					ptr++;
-
-					// after decimal point
-					for (; *ptr != '\0'; ptr++) {
-						afterdp++;
-					}
-					memcpy(pre_final + fillzero + beforedp,
-						retstr + beforedp + DECIMAL_LENGTH, afterdp);
-				}
-
-				// fill zero
-				fillzero = -power - afterdp;
-				//for (zcount = 0; zcount < fillzero; zcount++) {
-				//	strcat(pre_final, "0");
-				//}
-				uint8_t* pptr = ((uint8_t *)pre_final + fillzero + beforedp) + afterdp;
-				memset(pptr, ASCII_ZERO, fillzero);
-			}
-
-			// format setting
-			//final = (char*)calloc((int)dlength + TERMINAL_LENGTH, sizeof(char));
-			ptr = pre_final;
-			uint8_t* addr_ptr = (uint8_t*)addr;
-			for (i = 0; i < dlength; i++) {
-				unsigned char vubit = 0x00;
-				unsigned char vlbit = 0x00;
-
-				if (i == 0 && skip_first) {
-					vubit = 0x00;
-				}
-				else {
-					vubit = (*ptr) << 4;
-					vubit = vubit & ubit;
-					ptr++;
-				}
-
-				if (i != dlength - 1) {
-					vlbit = *ptr;
-					vlbit = vlbit & lbit;
-					ptr++;
-				}
-				else {
-					vlbit = 0x0F;
-				}
-
-				addr_ptr[i] = vubit | vlbit;
-			}
-
-			//memcpy(addr, final, (int)dlength);
-			free(pre_final);
-			//free(final);
+			display_to_comp3(retstr, false);
 			break;
-		} // *********************** FINO A QUI
+		} 
 
 		case COBOL_TYPE_SIGNED_NUMBER_PD:
 		{
-			char* value;
-			char* ptr;
-			int is_negative = false;
-
-			int fillzero;
-			//int zcount;
-			char* pre_final;
-			//char* final;
-
-			double dlength;
-			int skip_first;
-			int i;
-			unsigned char ubit = 0xF0;
-			unsigned char lbit = 0x0F;
-
-			dlength = ceil((double)(length + 1) / 2);
-			skip_first = ((int)length + 1) % 2; // 1 -> skip first 4 bits
-
-			if (retstr[0] == '-') {
-				is_negative = true;
-				value = retstr + 1;
-			}
-			else {
-				value = retstr;
-			}
-
-
-			//int pre_final_sz = (int)dlength + TERMINAL_LENGTH;
-			int pre_final_sz = (int)(length + 1) + TERMINAL_LENGTH;
-			pre_final = (char*)calloc(pre_final_sz, sizeof(char));
-
-			// before decimal point
-			int beforedp = 0;
-			for (ptr = value; *ptr != '\0'; ptr++) {
-				if (*ptr == '.') {
-					break;
-				}
-				else {
-					beforedp++;
-				}
-			}
-
-			fillzero = length - beforedp + power;
-			//for (zcount = 0; zcount < fillzero; zcount++) {
-			//	strcat(pre_final, "0");
-			//}
-			memset(pre_final, ASCII_ZERO, fillzero);
-
-			memcpy(pre_final + fillzero, value, beforedp);
-
-			if (power < 0) {
-				int afterdp = 0;
-
-				if (*ptr != '\0') {
-					ptr++;
-
-					// after decimal point
-					for (; *ptr != '\0'; ptr++) {
-						afterdp++;
-					}
-					memcpy(pre_final + fillzero + beforedp,
-						value + beforedp + DECIMAL_LENGTH, afterdp);
-				}
-
-				// fill zero
-				fillzero = -power - afterdp;
-				//for (zcount = 0; zcount < fillzero; zcount++) {
-				//	strcat(pre_final, "0");
-				//}
-				uint8_t* pptr = ((uint8_t * )pre_final + fillzero + beforedp) + afterdp;
-				memset(pptr, ASCII_ZERO, fillzero);
-
-			}
-
-			// format setting
-			//final = (char*)calloc((int)dlength + TERMINAL_LENGTH, sizeof(char));
-			ptr = pre_final;
-			uint8_t* addr_ptr = (uint8_t*)addr;
-			for (i = 0; i < dlength; i++) {
-				unsigned char vubit = 0x00;
-				unsigned char vlbit = 0x00;
-
-				if (i == 0 && skip_first) {
-					vubit = 0x00;
-				}
-				else {
-					vubit = (*ptr) << 4;
-					vubit = vubit & ubit;
-					ptr++;
-				}
-
-				if (i != dlength - 1) {
-					vlbit = *ptr;
-					vlbit = vlbit & lbit;
-					ptr++;
-				}
-				else {
-					if (is_negative) {
-						vlbit = 0x0D;
-					}
-					else {
-						vlbit = 0x0C;
-					}
-				}
-
-				addr_ptr[i] = vubit | vlbit;
-			}
-
-			//memcpy(addr, final, (int)dlength);
-			free(pre_final);
-			//free(final);
+			display_to_comp3(retstr, true);
 			break;
 		}
+
 		case COBOL_TYPE_ALPHANUMERIC:
 			// 文字の長さだけメモリコピー
 			if (!is_variable_length) {
@@ -987,17 +791,6 @@ void SqlVar::createCobolData(char* retstr)
 		default:
 			break;
 	}
-//#ifndef NDEBUG
-//	char* tmp;
-//	if (type == COBOL_TYPE_JAPANESE) {
-//		tmp = oc_strndup((char*)addr, length * 2);
-//	}
-//	else {
-//		tmp = oc_strndup((char*)addr, length);
-//	}
-//	LOG_DEBUG(__FILE__, __func__, "%d %d#%s#%s#\n", type, length, retstr, tmp);
-//	if (tmp) free(tmp);
-//#endif
 }
 
 void SqlVar::createCobolDataLowValue()
@@ -1013,5 +806,89 @@ int SqlVar::getType()
 int SqlVar::getLength()
 {
 	return length;
+}
+
+void SqlVar::display_to_comp3(const char *data, bool has_sign) // , int total_len, int scale, int has_sign, uint8_t *addr
+{
+	uint8_t *addr = (uint8_t *) this->addr;
+	bool is_negative = false;
+	bool data_has_sign = false;
+
+	// normalize
+
+	uint8_t *tmp = (uint8_t *)malloc(this->length + 1);
+	memset(tmp, ASCII_ZERO, this->length);
+	tmp[this->length] = 0;
+
+	int data_intpart_len = 0, data_decpart_len = 0;
+	int *dlen = &data_intpart_len;
+
+	for (uint8_t *ptr = (uint8_t *)data; *ptr != '\0'; ptr++) {
+		if (*ptr == '-' || *ptr == '+')
+			continue;
+
+		if (*ptr == _decimal_point) {
+			dlen = &data_decpart_len;
+		}
+		else {
+			(*dlen)++;
+		}
+	}
+
+	unsigned int disp_intpart_len = this->length - this->power;
+
+	data_has_sign = (has_sign && (*data == '-') || (*data == '+'));
+	if (has_sign && *data == '-') {
+		is_negative = true;
+	}
+
+	memcpy(tmp + (disp_intpart_len - data_intpart_len), data + (data_has_sign ? 1 : 0), data_intpart_len);
+	memcpy(tmp + disp_intpart_len, data + data_intpart_len + DECIMAL_LENGTH + (data_has_sign ? 1 : 0), data_decpart_len);
+
+	// convert
+	int i; // string index
+	int j; // byte array index
+	bool nibble_ordinal = false;
+	char ch1;
+	uint8_t nibble;
+
+	uint8_t *pknum = addr;
+
+	i = this->length - 1;
+	int comp3_len = (this->length / 2) + 1;
+	j = comp3_len - 1; /* byte index */
+
+	pknum[j] = has_sign ? 0x0c : 0x0f; // start with positive sign (if unsigned), otherwise 0x0f)
+
+	while (i > -1) {
+		ch1 = *(tmp + i);
+		if ('0' <= ch1 && '9' >= ch1) {
+			if (j < 0) {
+				fprintf(stderr, "Invalid COMP-3 data");
+				return;
+			}
+			nibble = (uint8_t)(ch1 - '0');
+			if (nibble_ordinal) {
+				pknum[j] = (uint8_t)(pknum[j] | nibble);
+				nibble_ordinal ^= true;
+			}
+			else {
+				pknum[j] = (uint8_t)(pknum[j] | nibble << 4);
+				nibble_ordinal ^= true;
+				--j;
+			}
+			--i; // get next char
+		}
+		else {
+			--i; // get next char
+		}
+	}
+
+	if (is_negative) {
+		pknum[comp3_len - 1] = (uint8_t)(pknum[comp3_len - 1] & 0xf0);
+		pknum[comp3_len - 1] = (uint8_t)(pknum[comp3_len - 1] | 0x0d);
+	}
+
+	free(tmp);
 }
 

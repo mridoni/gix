@@ -50,7 +50,7 @@ GixDebugger *GixDebugger::get()
 #if defined(_WIN32)
 	gd = new GixDebuggerWin();
 #elif defined(__linux__)
-	//gd = new GixDebuggerLinux();
+    gd = new GixDebuggerLinux();
 #endif
 
 	return gd;
@@ -63,7 +63,12 @@ GixDebugger *GixDebugger::get()
 bool GixDebugger::existsBreakpoint(const QString &src_file, int ln)
 {
 	QString k = src_file + ":" + QString::number(ln);
-	return (breakpoints.find(k) != breakpoints.end());
+    return (breakpoints.find(k) != breakpoints.end());
+}
+
+void GixDebugger::writeToProcess(QString s)
+{
+    // Nothing here
 }
 
 UserBreakpoint *GixDebugger::findBreakpointByAddress(void *addr)
@@ -97,6 +102,12 @@ void GixDebugger::getAndResolveUserBreakpoints()
 {
 	QList<QPair<QString, int>> new_bkps;
 	if_blk->getBreakpoints(this, new_bkps);
+
+    fprintf(stderr, "IDE is resolving user breakpoints (%d user breakpoint(s) received)\n", new_bkps.size());
+    for (auto it = new_bkps.begin(); it != new_bkps.end(); ++it) {
+        QPair<QString, int> newbp = *it;
+        fprintf(stderr, "IDE says: user breakpoint at %d@%s\n", newbp.second, newbp.first.toLocal8Bit().data());
+    }
 
 	// First: find all resolved breakpoints that have been deleted
 	QList<UserBreakpoint *> to_be_removed;
@@ -148,6 +159,22 @@ void GixDebugger::getAndResolveUserBreakpoints()
 			installHardwareBreakpoint(bkp);
 		}
 	}
+}
+
+
+bool GixDebugger::isCblEntryPoint(void *addr, CobolModuleInfo **cmi)
+{
+    for (auto mi : shared_modules) {
+        for (auto it = mi->cbl_modules.begin(); it != mi->cbl_modules.end(); ++it) {
+            fprintf(stderr, "isCblEntryPoint - entry_point: %p - addr: %p\n",it.value()->entry_point, addr);
+            if (it.value()->entry_point == addr) {
+                fprintf(stderr, "isCblEntryPoint - current COBOL module is %s\n", it.value()->name.toLocal8Bit().data());
+                *cmi = it.value();
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 
@@ -222,7 +249,17 @@ void GixDebugger::setUseExternalConsole(bool b)
 
 void GixDebugger::setDebuggedModuleType(DebuggedModuleType b)
 {
-	debuggee_type = b;
+    debuggee_type = b;
+}
+
+bool GixDebugger::usesExternalConsole()
+{
+    return use_external_console;
+}
+
+GixDebuggerInterfaceBlock *GixDebugger::getInterfaceBlock()
+{
+    return if_blk;
 }
 
 QString GixDebugger::getWorkingDirectory()

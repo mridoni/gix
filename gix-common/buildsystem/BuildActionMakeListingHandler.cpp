@@ -37,7 +37,7 @@ bool BuildActionMakeListingHandler::startBuild()
 
 	importProjectEnvironment();
 
-	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform));
+	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
 		return false;

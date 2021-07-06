@@ -6,6 +6,11 @@ INCLUDEPATH += . ../libgixutils
 CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
 CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
 
+linux:include(flex.pri)
+linux:include(bison.pri)
+linux:FLEXSOURCES = gix_esql_scanner.ll
+linux:BISONSOURCES = gix_esql_parser.yy
+
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic -Wl,--whole-archive
 linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
 
@@ -30,4 +35,4 @@ HEADERS += ESQLCall.h  ESQLDefinitions.h  FileData.h  GixPreProcessor.h  ITransf
 
 SOURCES += ESQLCall.cpp  FileData.cpp  GixEsqlLexer.cpp  GixPreProcessor.cpp \
 			ITransformationStep.cpp  libgixpp.cpp  TPESQLProcessing.cpp  TPSourceConsolidation.cpp \
-			gix_esql_driver.cc gix_esql_parser.cc  gix_esql_scanner.cc	
+			gix_esql_driver.cc

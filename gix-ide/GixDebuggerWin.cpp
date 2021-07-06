@@ -73,6 +73,26 @@ struct stPipeThreadData
 static struct stPipeThreadData threadDataOut;
 static struct stPipeThreadData threadDataErr;
 
+#if _DEBUG
+typedef BOOL(WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType, CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+
+void create_minidump(struct _EXCEPTION_POINTERS *apExceptionInfo, DWORD thread_id)
+{
+	HMODULE mhLib = ::LoadLibrary(_T("dbghelp.dll"));
+	MINIDUMPWRITEDUMP pDump = (MINIDUMPWRITEDUMP)::GetProcAddress(mhLib, "MiniDumpWriteDump");
+
+	HANDLE  hFile = ::CreateFile(_T("core.dmp"), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+
+	_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
+	ExInfo.ThreadId = thread_id;
+	ExInfo.ExceptionPointers = apExceptionInfo;
+	ExInfo.ClientPointers = FALSE;
+
+	pDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpWithFullMemoryInfo, &ExInfo, NULL, NULL);
+	::CloseHandle(hFile);
+}
+#endif
 
 GixDebuggerWin::GixDebuggerWin()
 {
@@ -186,9 +206,6 @@ int GixDebuggerWin::start()
 
 	DWORD createFlags = NORMAL_PRIORITY_CLASS | DEBUG_ONLY_THIS_PROCESS;
 	
-	//if (is_debugging_enabled)
-	//	createFlags |= DEBUG_ONLY_THIS_PROCESS;
-
 	if (use_external_console)
 		createFlags |= CREATE_NEW_CONSOLE;
 
@@ -431,6 +448,8 @@ int GixDebuggerWin::start()
 						if (exception.ExceptionRecord.ExceptionCode == 0x406D1388)	// Handle SetThreadName-generated exceptions
 							break;
 
+						fprintf(stderr, "Exception code: %08x", exception.ExceptionRecord.ExceptionCode);
+
 						if (exception.dwFirstChance == 1) {
 							if (is_debugging_enabled) {
 
@@ -441,14 +460,19 @@ int GixDebuggerWin::start()
 									stack_dump = "not available";
 								else
 									stack_dump = "\n" + stack_dump;
-
-								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %x, exception-code: 0x%08x\nStack frame: %s\n",
+#if _DEBUG
+								EXCEPTION_POINTERS eptrs;
+								GetThreadContext(h_exc_thread, eptrs.ContextRecord);
+								eptrs.ExceptionRecord = &exception.ExceptionRecord;
+								create_minidump(&eptrs, debug_event.dwThreadId);
+#endif
+								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %x, exception-code: 0x%08x\nStack frame: %s\n================\n",
 									exception.ExceptionRecord.ExceptionAddress,
 									exception.ExceptionRecord.ExceptionCode,
 									stack_dump.toLocal8Bit().constData()));
 							}
 							else {
-								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %x, exception-code: 0x%08x\nStack frame: not available\n",
+								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %x, exception-code: 0x%08x\nStack frame: not available\n================\n",
 									exception.ExceptionRecord.ExceptionAddress,
 									exception.ExceptionRecord.ExceptionCode));
 							}
@@ -526,6 +550,8 @@ int GixDebuggerWin::start()
 
 	return 0;
 }
+
+
 
 void GixDebuggerWin::setupEnvironmentBlock()
 {
@@ -686,30 +712,24 @@ bool GixDebuggerWin::getVariables(QList<VariableData *> var_list)
 		// Resolve COBOL variable name to a local symbol in the current stack frame + offset
 		if (current_cbl_module->locals.contains(vd->var_name)) {
 
-			VariableResolverData *vvar = current_cbl_module->locals[vd->var_name];
-			if (current_cbl_module->locals.contains(vvar->base_var_name)) {
+			VariableResolverData *vrd = current_cbl_module->locals[vd->var_name];
+			if (current_cbl_module->locals.contains(vrd->base_var_name)) {
 				
-				VariableResolverData *vrootvar = current_cbl_module->locals[vvar->base_var_name];
+				VariableResolverData *vrootvar = current_cbl_module->locals[vrd->base_var_name];
 #ifdef _WIN64
-				unsigned long long addr = (unsigned long long) sym_provider->resolveLocalVariableAddress(this, the_process, current_cbl_module, frame_ptr, vrootvar, vvar);
+				unsigned long long addr = (unsigned long long) sym_provider->resolveLocalVariableAddress(this, the_process, current_cbl_module, frame_ptr, vrootvar, vrd);
 #else
-				unsigned long addr = (unsigned long) sym_provider->resolveLocalVariableAddress(this, the_process, current_cbl_module, frame_ptr, vrootvar, vvar);
+				unsigned long addr = (unsigned long) sym_provider->resolveLocalVariableAddress(this, the_process, current_cbl_module, frame_ptr, vrootvar, vrd);
 #endif
-				vd->data = new uint8_t[vvar->storage_len];
-				vd->storage_length = vvar->storage_len;
+				vd->data = new uint8_t[vrd->storage_len];
+				vd->resolver_data = vrd;
 
-				memset(vd->data, 0x20, vvar->storage_len);
+				memset(vd->data, 0x00, vrd->storage_len);
 
-				if (!ReadProcessMemory(the_process, (LPCVOID)addr, vd->data, vvar->storage_len, &dwReadBytes)) {
+				if (!ReadProcessMemory(the_process, (LPCVOID)addr, vd->data, vrd->storage_len, &dwReadBytes)) {
 					this->printLastError();
 					continue;
 				}
-#if _DEBUG
-				vd->data[vvar->storage_len-1] = 0;
-				char bfr[256];
-				sprintf(bfr, "%s : [%s]\n", vd->var_name.toLocal8Bit().constData(), vd->data);
-				OutputDebugStringA(bfr);
-#endif
 			}
 		}
 	}
@@ -883,19 +903,6 @@ void *GixDebuggerWin::getSymbolAddress(const char *sym_name)
 {
 	//return (void *)sym_provider->getSymbolAddress(this, the_process, libcob_base, sym_name, NULL, NULL);
 	return nullptr;
-}
-
-bool GixDebuggerWin::isCblEntryPoint(void *addr, CobolModuleInfo **cmi)
-{
-	for (auto mi : shared_modules) {
-		for (auto it = mi->cbl_modules.begin(); it != mi->cbl_modules.end(); ++it) {
-			if (it.value()->entry_point == addr) {
-				*cmi = it.value();
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 uint32_t GixDebuggerWin::extract_base_of_code(HANDLE hProc, void *dll_base)

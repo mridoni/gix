@@ -33,6 +33,7 @@ typedef unsigned char byte;
 #include "CompilerEnvironment.h"
 
 class BuildDriver;
+class CompilerDefinition;
 
 class GIXCOMMON_EXPORT CompilerConfiguration {
 
@@ -53,12 +54,18 @@ public:
 
 	CompilerEnvironment getCompilerEnvironment();
 	QProcessEnvironment getEnvironment(BuildDriver *);
+	bool getInfo(QStringList& info);
+    QString getLibCobDir();
+
+    bool isVersionGreaterThanOrEqualTo(int major, int minor, int release);
 	
-	static CompilerConfiguration *get(QString build_configuration, QString target_platform);
+	static CompilerConfiguration *get(QString build_configuration, QString target_platform, QVariantMap env);
+	static CompilerConfiguration *get(CompilerDefinition *cd, QString target_platform);
 
 private:
 	static CompilerConfiguration* getCompilerById(QString compiler_id, QString target_platform = "x64");
 
+    QString version;
 #if !defined(__MINGW32__) && (defined(_WIN32) || defined(_WIN64))
 	bool add_vs_environment(BuildDriver *builder, QProcessEnvironment& env);
 	bool add_libpath(QProcessEnvironment & env, QString host, QString target, QString install_path, QString version, BuildDriver * builder);

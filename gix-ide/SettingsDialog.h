@@ -25,6 +25,7 @@ USA.
 #include <QLabel>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QWizard>
 #include <QList>
 
 #include "ui_Settings.h"
@@ -70,6 +71,11 @@ private:
 		bool settingsSetValue(QString n, int v);
 
 		void addCompiler();
+		void addCompilerManually();
 		void initCompilers();
+
+		QWizardPage *createIntroPage();
+		QWizardPage *createCompilerOptsPage();
+		QWizardPage *createConclusionPage();
 };
 

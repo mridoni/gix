@@ -38,5 +38,6 @@ public:
 	static QString quote(QString s);
 	static QString changeExtension(QString, QString);
 	static QString rebasePath(QString child, QString parent);
+    static QString findFile(const QString &bdir, const QString &f);
 };
 

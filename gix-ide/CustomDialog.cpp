@@ -884,13 +884,11 @@ void CustomDialog::addPathToPathList(DialogElement& e)
 
 void CustomDialog::removePathFromPathList(DialogElement& e)
 {
-	auto l = e.lstStrings->selectedItems();
+    auto l = e.lstStrings->selectionModel()->selectedIndexes();
 	if (l.size() == 1) {
-		auto w = l.at(0);
-		int idx = l.indexOf(w);
+        int idx = l.at(0).row();
 		if (idx >= 0) {
 			e.lstStrings->takeItem(idx);
-			delete(w);
 			e.returnStringList->removeAt(idx);
 		}
 	}

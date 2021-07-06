@@ -23,6 +23,9 @@ USA.
 #include <QCommandLineOption>
 #include <QSplashScreen>
 #include <QDesktopWidget>
+#include <QTimer>
+
+//#include <QDebug>
 
 #if defined(Q_OS_LINUX) && defined(_DEBUG)
 #include <execinfo.h>
@@ -37,21 +40,67 @@ USA.
 #include "GixGlobals.h"
 #include "IGixLogManager.h"
 #include "IdeLogManager.h"
+#include "GixVersion.h"
+
+
+//class GixApplication final : public QApplication {
+//public:
+//    GixApplication(int& argc, char** argv) : QApplication(argc, argv) {}
+//    virtual bool notify(QObject *receiver, QEvent *e) override {
+//        try {
+//            return QApplication::notify(receiver, e);
+//        }
+//        catch(std::runtime_error e)
+//        {
+//            qDebug() << "std::runtime_error in thread : " << QThread::currentThreadId();
+//            qDebug() << e.what();
+//        }
+//        catch(std::exception e)
+//        {
+//            qDebug() << "std::exception in thread : " << QThread::currentThreadId();
+//            qDebug() << e.what();
+//        }
+//        catch(...)
+//        {
+//            qDebug() << "exception thread : " << QThread::currentThreadId();
+//        }
+
+//        qDebug() << "catch in notify ";
+//        return false;
+//    }
+//};
 
 #if defined(Q_OS_LINUX) && defined(_DEBUG)
 void handler(int sig) {
-  void *array[10];
+  void *array[50];
   size_t size;
 
   // get void*'s for all entries on the stack
-  size = backtrace(array, 10);
+  size = backtrace(array, 50);
 
   // print out all the frames to stderr
   fprintf(stderr, "Error: signal %d:\n", sig);
   backtrace_symbols_fd(array, size, STDERR_FILENO);
   exit(1);
 }
+
+void
+handler_t()
+{
+    void *trace_elems[50];
+    int trace_elem_count(backtrace( trace_elems, 50 ));
+    char **stack_syms(backtrace_symbols( trace_elems, trace_elem_count ));
+    for ( int i = 0 ; i < trace_elem_count ; ++i )
+    {
+        std::cout << stack_syms[i] << "\n";
+    }
+    free( stack_syms );
+
+    exit(1);
+}
+
 #endif
+
 
 int main(int argc, char *argv[])
 {
@@ -62,22 +111,37 @@ int main(int argc, char *argv[])
 	Q_INIT_RESOURCE(icons);
 
 #if defined(Q_OS_LINUX) && defined(_DEBUG)
-    signal(SIGSEGV, handler);   // install our handler
+//    signal(SIGSEGV, handler);   // install our handler
+    std::set_terminate( handler_t );
 #endif
 
-	//QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, false);
+#if defined(__linux__)
+	if (!qgetenv("QT_FONT_DPI").size())
+		qputenv("QT_FONT_DPI", "72");
+#endif
 
-	QApplication app(argc, argv);
+    QApplication app(argc, argv);
+
+	//QFont appfont("Courier New");
+	//appfont.setStyleHint(QFont::Monospace);
+	//QApplication::setFont(appfont);
 
 	QPixmap pixmap(":/icons/splash.png");
-	QSplashScreen splash(pixmap);
+	QPainter painter(&pixmap);
+	QFont font("Trebuchet MS", 8);
+	font.setBold(true);
+	painter.setFont(font);
+	painter.setPen(QColor::fromRgb(52, 125, 180));
+	painter.drawText(QPoint(282, 212), "v" + getGixIdePrintableVersion());
 
+	QSplashScreen splash(pixmap);
 	splash.show();
+
 	app.processEvents();
 
 	QCoreApplication::setApplicationName("gix-ide");
 	QCoreApplication::setOrganizationName("MediumGray");
-	QCoreApplication::setApplicationVersion("0.0.1");
+    QCoreApplication::setApplicationVersion(getGixIdePrintableVersion());
 
 #ifdef Q_OS_MACOS
     QApplication::setStyle("macintosh");
@@ -98,13 +162,19 @@ int main(int argc, char *argv[])
 	Ide::init();
 
 	MainWindow mainWin;
+	mainWin.setWindowFlags(Qt::WindowTitleHint | 
+						   Qt::WindowMinimizeButtonHint | 
+						   Qt::WindowMaximizeButtonHint | 
+						   Qt::WindowCloseButtonHint | 
+						   Qt::WindowSystemMenuHint);
 
 	foreach(const QString &fileName, parser.positionalArguments())
 		mainWin.openFile(fileName);
-	
+
 	mainWin.show();
-	
 	splash.finish(&mainWin);
 
-	return app.exec();
+    return app.exec();
+
+
 }

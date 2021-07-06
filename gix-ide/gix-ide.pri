@@ -15,10 +15,10 @@ HEADERS += \
 	./DebugDriverUtils.h \
 	./DebugManager.h \
 	./DependenciesWindow.h \
-	./DwarfSymbolProvider.h \
 	./ElidedLabel.h \
 	./EolMode.h \
 	./GixDebugger.h \
+	./GixVersion.h \
 	./IdeDbManager.h \
 	./Ide.h \
 	./IdeLogManager.h \
@@ -49,7 +49,9 @@ HEADERS += \
 	./UiUtils.h \
 	./WatchWindow.h \
 	./AddCompilerDialog.h \
-	./NoWheelComboBox.h
+	./NoWheelComboBox.h \
+	./AddCompilerWizard.h \
+	./IdeStatusSyncSetter.h
 
 SOURCES += \
     ./Changeling.cpp \
@@ -66,9 +68,9 @@ SOURCES += \
 	./DebugDriverUtils.cpp \
 	./DebugManager.cpp \
 	./DependenciesWindow.cpp \
-	./DwarfSymbolProvider.cpp \
 	./ElidedLabel.cpp \
 	./GixDebugger.cpp \
+	./GixVersion.cpp \
 	./Ide.cpp \
 	./IdeDbManager.cpp \
 	./IdeLogManager.cpp \
@@ -95,7 +97,9 @@ SOURCES += \
 	./TargetDefinition.cpp \
 	./UiUtils.cpp \
 	./WatchWindow.cpp \
-	./AddCompilerDialog.cpp
+	./AddCompilerDialog.cpp \
+	./AddCompilerWizard.cpp \
+	./IdeStatusSyncSetter.cpp
 
 FORMS += ./NewProject.ui \
 	./Settings.ui  \

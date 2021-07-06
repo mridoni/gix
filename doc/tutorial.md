@@ -51,6 +51,11 @@ Now go to "GnuCOBOL" tab. This is where you can set up compilers. You can set up
 ![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-02-compilers.png)
 
 If you want to add a new compiler install to those available, click on the "Add a compiler" button.
+
+From version 1.0.2 on, this will launch a wizard that will help you to locate a compiler install of your choice, will test it to look for problems and will add it to Gix-IDE.
+
+If you want, you can still add a compiler manually, just select the dropdown menu on the right of the "Add Compiler" button.
+ 
 ![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-03-add-compiler.png)
 Fill in all the fields, then click on the "+" button to add at least one platform (e.g. x64)
 

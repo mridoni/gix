@@ -127,9 +127,6 @@
     <ClCompile Include="projectsystem\WebProject.cpp">
       <Filter>Source Files\projectsystem\projecttypes</Filter>
     </ClCompile>
-    <ClCompile Include="WebModuleMetadata.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="metadata\MetadataManager.cpp">
       <Filter>Source Files\metadata</Filter>
     </ClCompile>
@@ -263,9 +260,6 @@
       <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\WebProject.h">
-      <Filter>Header Files\projectsystem</Filter>
-    </ClInclude>
-    <ClInclude Include="WebModuleMetadata.h">
       <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="metadata\ListingFileParser.h">

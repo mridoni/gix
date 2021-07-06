@@ -27,6 +27,7 @@ USA.
 #include "GixGlobals.h"
 
 #include <QSettings>
+#include <QDirIterator>
 
 #if !defined(__MINGW32__) && (defined(_WIN32) || defined(_WIN64))
 
@@ -46,53 +47,76 @@ using namespace ATL;
 #endif
 #include <CompilerDefinition.h>
 
-CompilerConfiguration * CompilerConfiguration::getCompilerById(QString compiler_id, QString target_platform)
+CompilerConfiguration *CompilerConfiguration::getCompilerById(QString compiler_id, QString target_platform)
 {
 	QSettings settings;
 	CompilerConfiguration *cfg = nullptr;
 	if (!compiler_id.isEmpty()) {
-		CompilerDefinition* cd = GixGlobals::getCompilerManager()->getCompilers().take(compiler_id);
+		CompilerDefinition *cd = GixGlobals::getCompilerManager()->getCompilers().take(compiler_id);
 		if (!cd)
 			return nullptr;
 
-		//QString homedir = settings.value(QString("GnuCOBOL_C%1_HomeDir").arg(compiler_id), "").toString();
-		//QString arch = target_platform == "x64" ? "_x64" : "";
-		CompilerPlatformDefinition* cpd = cd->getPlatform(target_platform);
-		if (!cpd)
-			return nullptr;
-
-		QString bindir = cpd->getBinDirPath();
-
-		QString ext = QSysInfo::productType() == "windows" ? ".exe" : "";
-		QString compiler_path = QDir::cleanPath(PathUtils::combine(bindir, QString("/cobc%1").arg(ext)));
-		if (QFile(compiler_path).exists()) {
-			cfg = new CompilerConfiguration();
-			cfg->executablePath = compiler_path;
-			cfg->homeDir = cd->getHomedir();
-			cfg->binDirPath = cpd->getBinDirPath();
-			cfg->libDirPath = cpd->getLibDirPath();
-			cfg->configDirPath = cpd->getConfigDirPath();
-			cfg->copyDirPath = cpd->getConfigDirPath();
-			cfg->includeDirPath = cpd->getIncludeDirPath();
-			cfg->runnerPath = QDir::cleanPath(PathUtils::combine(bindir, QString("/cobcrun%1").arg(ext)));
-			cfg->host_platform = target_platform; // GnuCOBOL does NOT cross-compile
-			cfg->target_platform = target_platform;
-			cfg->executablePath = compiler_path;
-			cfg->isVsBased = (!SysUtils::isWindows()) ? false : cd->isVsBased();
-		}
+		cfg = CompilerConfiguration::get(cd, target_platform);
 	}
 	return cfg;
 }
 
-CompilerConfiguration * CompilerConfiguration::get(QString build_configuration, QString target_platform)
+CompilerConfiguration *CompilerConfiguration::get(QString build_configuration, QString target_platform, QVariantMap env)
 {
 	QSettings settings;
 	QString path;
+
+	if (build_configuration == "test-compiler-config") {
+		if (!env.contains("__compiler_test_cfg"))
+			return nullptr;
+
+		QVariant v = env.value("__compiler_test_cfg");
+		if (v.isNull())
+			return nullptr;
+		
+		CompilerDefinition *cd = (CompilerDefinition *) v.value<void *>();
+		if (!cd)
+			return nullptr;
+
+		return CompilerConfiguration::get(cd, target_platform);
+	}
+
 	QString id = (build_configuration == "release") ? settings.value("ReleaseCompilerId", "").toString() : settings.value("DebugCompilerId", "").toString();
 	if (id.isEmpty())
 		return nullptr;
 
 	return getCompilerById(id, target_platform);
+}
+
+CompilerConfiguration *CompilerConfiguration::get(CompilerDefinition *cd, QString target_platform)
+{
+	CompilerConfiguration *cfg = nullptr;
+	CompilerPlatformDefinition *cpd = cd->getPlatform(target_platform);
+	if (!cpd)
+		return nullptr;
+
+	QString bindir = cpd->getBinDirPath();
+
+	QString ext = QSysInfo::productType() == "windows" ? ".exe" : "";
+	QString compiler_path = QDir::cleanPath(PathUtils::combine(bindir, QString("/cobc%1").arg(ext)));
+	if (QFile(compiler_path).exists()) {
+		cfg = new CompilerConfiguration();
+		cfg->executablePath = compiler_path;
+		cfg->homeDir = cd->getHomedir();
+		cfg->binDirPath = cpd->getBinDirPath();
+		cfg->libDirPath = cpd->getLibDirPath();
+		cfg->configDirPath = cpd->getConfigDirPath();
+		cfg->copyDirPath = cpd->getConfigDirPath();
+		cfg->includeDirPath = cpd->getIncludeDirPath();
+		cfg->runnerPath = QDir::cleanPath(PathUtils::combine(bindir, QString("/cobcrun%1").arg(ext)));
+		cfg->host_platform = target_platform; // GnuCOBOL does NOT cross-compile
+		cfg->target_platform = target_platform;
+		cfg->executablePath = compiler_path;
+		cfg->isVsBased = (!SysUtils::isWindows()) ? false : cd->isVsBased();
+        cfg->version = cd->getVersion();
+	}
+
+	return cfg;
 }
 
 CompilerEnvironment CompilerConfiguration::getCompilerEnvironment()
@@ -111,7 +135,7 @@ QProcessEnvironment CompilerConfiguration::getEnvironment(BuildDriver *builder)
 	env.insert("COB_MAIN_DIR", homeDir);
 	env.insert("COB_CONFIG_DIR", this->configDirPath);
 	env.insert("COB_COPY_DIR", this->copyDirPath);
-	
+
 	if (!isVsBased) {
 		QString mingw_basedir = homeDir.replace("([A-Za-z])\\:", "\\/\\1\\/");
 		env.insert("COB_CONFIG_DIR", this->configDirPath);
@@ -142,38 +166,101 @@ QProcessEnvironment CompilerConfiguration::getEnvironment(BuildDriver *builder)
 	return env;
 }
 
+bool CompilerConfiguration::getInfo(QStringList &info)
+{
+	QStringList output;
+	QProcess p;
+	p.setProgram(this->executablePath);
+	p.setArguments(QStringList() << "--info");
+
+#if defined(__linux__)
+    QProcessEnvironment env = p.processEnvironment();
+    env.insert("LD_LIBRARY_PATH", this->libDirPath);
+    p.setProcessEnvironment(env);
+#endif
+
+#if defined(__APPLE__)
+    QProcessEnvironment env = p.processEnvironment();
+    env.insert("DYLD_FALLBACK_LIBRARY_PATH", this->libDirPath);
+    p.setProcessEnvironment(env);
+#endif
+
+	p.start();
+	p.waitForFinished(); // sets current thread to sleep and waits for pingProcess end
+    if (p.exitCode() != 0) {
+        QStringList err_lines = QString::fromLocal8Bit(p.readAllStandardError()).split('\n');
+		return false;
+    }
+	
+	QStringList lines = QString::fromLocal8Bit(p.readAllStandardOutput()).split('\n');
+	info.clear();
+	info.append(lines);
+
+    return true;
+}
+
+QString CompilerConfiguration::getLibCobDir()
+{
+#ifdef _WIN32
+    QString libcob_name = "libcob.dll";
+#else
+    QString libcob_name = "libcob.so";
+#endif
+    QDirIterator it(this->homeDir, QStringList() << libcob_name, QDir::Files, QDirIterator::Subdirectories);
+    if (it.hasNext()) {
+        return PathUtils::getDirectory(it.next());
+    }
+
+    return QString();
+}
+
+bool CompilerConfiguration::isVersionGreaterThanOrEqualTo(int major, int minor, int release)
+{
+    QStringList v_items = version.split(".");
+    if (v_items.size() == 1) {
+        return v_items[0].toInt() >= major;
+    }
+
+    if (v_items.size() == 2) {
+        return v_items[0].toInt() >= major && v_items[1].toInt() >= minor;
+    }
+
+    if (v_items.size() >= 3) {
+        return v_items[0].toInt() >= major && v_items[1].toInt() >= minor && v_items[2].toInt() >= release;
+    }
+
+    return false;
+}
+
 #if !defined(__MINGW32__) && (defined(_WIN32) || defined(_WIN64))
 int option = 0;
 bool vcToolsFound = false;
 CComBSTR vcInstance;
 
-bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2>& instance2, CComPtr<ISetupHelper>& setupHelper, std::string& out_version, std::string& out_installation_path);
+bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2> &instance2, CComPtr<ISetupHelper> &setupHelper, std::string &out_version, std::string &out_installation_path);
 
-bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnvironment& env)
+bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnvironment &env)
 {
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
 	CComPtr<ISetupConfiguration> setupConfig = nullptr;
 	auto hresult = setupConfig.CoCreateInstance(__uuidof(SetupConfiguration), nullptr, CLSCTX_INPROC_SERVER);
 
-	if (!SUCCEEDED(hresult) || setupConfig == nullptr)
-	{
+	if (!SUCCEEDED(hresult) || setupConfig == nullptr) 	{
 		builder->log_build_message("Visual Studio may not be installed (Component creation failed)", QLogger::LogLevel::Error);
 		return false;
 	}
 
 	CComQIPtr<ISetupConfiguration2> setupConfig2(setupConfig);
 	CComQIPtr<ISetupHelper> setupHelper(setupConfig);
-	if (!setupConfig2 || !setupHelper)
-	{
+	if (!setupConfig2 || !setupHelper) 	{
 		builder->log_build_message("Unsupported version of Visual Studio may be installed (ISetupConfiguration2 or ISetupHelper unavailable)", QLogger::LogLevel::Error);
 		return false;
 	}
 
 	CComPtr<IEnumSetupInstances> enumInstances;
 	setupConfig2->EnumAllInstances(&enumInstances);
-	if (!enumInstances)
-	{
+	if (!enumInstances) 	{
 		builder->log_build_message("No VS version is installed (EnumAllInstances returned null)", QLogger::LogLevel::Error);
 		return false;
 	}
@@ -218,7 +305,7 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 }
 
 
-bool CompilerConfiguration::add_libpath(QProcessEnvironment& env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
+bool CompilerConfiguration::add_libpath(QProcessEnvironment &env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
 {
 	SysUtils::mergeEnvironmentVariable(env, "LIBPATH", "C:\\Program Files(x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.13.26128\\ATLMFC\\lib\\x64");
 	SysUtils::mergeEnvironmentVariable(env, "LIBPATH", "C:\\Program Files(x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.13.26128\\lib\\x64");
@@ -228,7 +315,7 @@ bool CompilerConfiguration::add_libpath(QProcessEnvironment& env, QString host, 
 	return true;
 }
 
-bool CompilerConfiguration::add_lib(QProcessEnvironment& env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
+bool CompilerConfiguration::add_lib(QProcessEnvironment &env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
 {
 	// MSVC
 	QString msvc_home = PathUtils::combine(install_path, "VC");
@@ -255,7 +342,7 @@ bool CompilerConfiguration::add_lib(QProcessEnvironment& env, QString host, QStr
 	return false;
 }
 
-bool CompilerConfiguration::add_include(QProcessEnvironment& env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
+bool CompilerConfiguration::add_include(QProcessEnvironment &env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
 {
 	// MSVC
 	QString msvc_home = PathUtils::combine(install_path, "VC");
@@ -288,7 +375,7 @@ bool CompilerConfiguration::add_include(QProcessEnvironment& env, QString host, 
 	return false;
 }
 
-bool CompilerConfiguration::add_bin(QProcessEnvironment& env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
+bool CompilerConfiguration::add_bin(QProcessEnvironment &env, QString host, QString target, QString install_path, QString version, BuildDriver *builder)
 {
 	QString major_version = version.left(version.indexOf("."));
 
@@ -338,7 +425,7 @@ bool CompilerConfiguration::add_bin(QProcessEnvironment& env, QString host, QStr
 }
 
 
-QString CompilerConfiguration::get_win_sdk_path(QString p, QString& version)
+QString CompilerConfiguration::get_win_sdk_path(QString p, QString &version)
 {
 	QStringFuncCoalescer c;
 #ifdef _WIN64
@@ -364,16 +451,17 @@ QString CompilerConfiguration::get_win_sdk_path(QString p, QString& version)
 }
 
 
-std::string bstr_to_str(BSTR source) {
+std::string bstr_to_str(BSTR source)
+{
 	//source = L"lol2inside";
 	_bstr_t wrapped_bstr = _bstr_t(source);
 	int length = wrapped_bstr.length();
-	char* char_array = new char[length+1];
+	char *char_array = new char[length + 1];
 	strcpy_s(char_array, length + 1, wrapped_bstr);
 	return char_array;
 }
 
-bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2>& instance2, CComPtr<ISetupHelper>& setupHelper, std::string& out_version, std::string& out_installation_path)
+bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2> &instance2, CComPtr<ISetupHelper> &setupHelper, std::string &out_version, std::string &out_installation_path)
 {
 	USES_CONVERSION;
 	vcToolsFound = false;
@@ -395,15 +483,13 @@ bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2>& instance2, 
 		builder->log_build_message("Error reading version", QLogger::LogLevel::Error);
 		return false;
 	}
-	else
-	{
+	else 	{
 		out_version = bstr_to_str(bstrVersion);
 		builder->log_build_message("Visual Studio version: " + QString(out_version.c_str()), QLogger::LogLevel::Trace);
 	}
 
 	// Reboot may have been required before the installation path was created.
-	if ((eLocal & state) == eLocal)
-	{
+	if ((eLocal & state) == eLocal) 	{
 		CComBSTR bstrInstallationPath;
 		if (FAILED(instance2->GetInstallationPath(&bstrInstallationPath))) {
 			builder->log_build_message("Error getting installation path", QLogger::LogLevel::Error);

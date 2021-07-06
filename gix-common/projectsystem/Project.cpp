@@ -64,7 +64,8 @@ Project* Project::newProject(ProjectType type, ProjectFileType add_filetype, QSt
 		prj->filepath = PathUtils::changeExtension(prj_filepath, "") + "/" + prj_filepath + ".gixprj";
 
 		for (auto pdef : property_defs.getAll()) {
-			prj->properties->insert(pdef->Name, pdef->DefaultValue);
+			if (!opts.contains(pdef->Name))
+				prj->properties->insert(pdef->Name, pdef->DefaultValue);
 		}
 
 		QString basename = QFileInfo(prj->filepath).fileName();
@@ -87,6 +88,10 @@ Project* Project::newProject(ProjectType type, ProjectFileType add_filetype, QSt
 
 		prj->runtime_properties["prj.path"] = prj->GetFileFullPath();
 		prj->runtime_properties["prj.basedir"] = prj->GetBaseDir();
+		
+		prj->runtime_properties["gix.basedir"] = GixGlobals::getGixHomeDir();
+		prj->runtime_properties["gix.copydir"] = GixGlobals::getGixCopyDir();
+		prj->runtime_properties["gix.datadir"] = GixGlobals::getGixDataDir();
 	}
 
 
@@ -142,6 +147,10 @@ Project* Project::loadProject(ProjectItem* owner, QString filepath)
 
 	prj->runtime_properties["prj.path"] = prj->GetFileFullPath();
 	prj->runtime_properties["prj.basedir"] = prj->GetBaseDir();
+
+	prj->runtime_properties["gix.basedir"] = GixGlobals::getGixHomeDir();
+	prj->runtime_properties["gix.copydir"] = GixGlobals::getGixCopyDir();
+	prj->runtime_properties["gix.datadir"] = GixGlobals::getGixDataDir();
 
 	return prj;
 }

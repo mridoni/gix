@@ -38,10 +38,12 @@
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PlatformToolset>v142</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PlatformToolset>v142</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -200,7 +202,6 @@
     <ClCompile Include="ServerConfig.cpp" />
     <ClCompile Include="SymbolBufferReader.cpp" />
     <ClCompile Include="utils.cpp" />
-    <ClCompile Include="WebModuleMetadata.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="buildsystem\BuildActionCompileHandler.h" />
@@ -211,7 +212,6 @@
     <ClInclude Include="PropertyConsts.h" />
     <ClInclude Include="SymbolBufferReader.h" />
     <ClInclude Include="SymbolMappingEntry.h" />
-    <ClInclude Include="WebModuleMetadata.h" />
     <QtMoc Include="buildsystem\BuildActionHandler.h" />
     <ClInclude Include="buildsystem\BuildActionLinkHandler.h" />
     <ClInclude Include="buildsystem\BuildActionMakeListingHandler.h" />

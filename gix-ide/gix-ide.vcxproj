@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddCompilerDialog.cpp" />
+    <ClCompile Include="AddCompilerWizard.cpp" />
     <ClCompile Include="Changeling.cpp" />
     <ClCompile Include="CodeviewSymbolProvider.cpp" />
     <ClCompile Include="ConsoleWidget.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="DwarfSymbolProvider.cpp" />
     <ClCompile Include="GixDebugger.cpp" />
     <ClCompile Include="GixDebuggerWin.cpp" />
+    <ClCompile Include="GixVersion.cpp" />
     <ClCompile Include="IdeDbManager.cpp" />
     <ClCompile Include="DbManagerWindow.cpp" />
     <ClCompile Include="DebugDriver.cpp">
@@ -53,11 +55,11 @@
     <ClCompile Include="Ide.cpp" />
     <ClCompile Include="IdeLogManager.cpp" />
     <ClCompile Include="IdeSearchManager.cpp" />
+    <ClCompile Include="IdeStatusSyncSetter.cpp" />
     <ClCompile Include="IdeTaskManager.cpp" />
     <ClCompile Include="CodeEditor.cpp" />
     <ClCompile Include="CustomDialog.cpp" />
     <ClCompile Include="ElidedLabel.cpp" />
-    <ClCompile Include="imagehlp_funcs.cpp" />
     <ClCompile Include="MetadataLoader.cpp" />
     <ClCompile Include="NavigationWindow.cpp" />
     <ClCompile Include="NewProjectDialog.cpp" />
@@ -88,6 +90,7 @@
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtSql</IncludePath>
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;Win32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_DEBUG_LOG_ON;%(PreprocessorDefinitions)</Define>
     </QtMoc>
+    <ClInclude Include="AddCompilerWizard.h" />
     <ClInclude Include="CodeviewSymbolProvider.h" />
     <ClInclude Include="DwarfSymbolProvider.h" />
     <ClInclude Include="GixDebugger.h" />
@@ -98,6 +101,7 @@
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;Win32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_DEBUG_LOG_ON;%(PreprocessorDefinitions)</Define>
     </QtMoc>
     <ClInclude Include="GixVersion.h" />
+    <ClInclude Include="IdeStatusSyncSetter.h" />
     <ClInclude Include="ISymbolProvider.h" />
     <ClInclude Include="NoWheelComboBox.h" />
     <ClInclude Include="StackWalker.h" />
@@ -112,7 +116,20 @@
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)gix-common;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtSql</IncludePath>
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UNICODE;_UNICODE;Win32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;%(PreprocessorDefinitions)</Define>
     </QtMoc>
-    <ClInclude Include="ConsoleWindow.h" />
+    <QtMoc Include="ConsoleWindow.h">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
+      <ExecutionDescription Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc'ing %(Identity)...</ExecutionDescription>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(NOINHERIT)</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_GCDEBUGGER_NET_DEBUG;%(PreprocessorDefinitions)</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtSql;$(QTDIR)\include\QtXmlPatterns;C:\Users\marchetto\Documents\Visual Studio 2017\Projects\gix-ide\libs\libdwarf</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">WIN32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_GCDEBUGGER_NET_DEBUG;%(PreprocessorDefinitions)</Define>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</OutputFile>
+      <ExecutionDescription Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc'ing %(Identity)...</ExecutionDescription>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(NOINHERIT)</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_GCDEBUGGER_NET_DEBUG;%(PreprocessorDefinitions)</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-debugger;$(SolutionDir)gixsql\libgixsql;$(SolutionDir)\libgixpp;$(SolutionDir)\libgixutils;$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns;$(QTDIR)\include\QtSql</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">WIN32;WIN64;_HAS_STD_BYTE=0;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;QT_NO_DEBUG;NDEBUG;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_UITOOLS_LIB;QT_WIDGETS_LIB;QT_WINEXTRAS_LIB;QT_XML_LIB;QT_XMLPATTERNS_LIB;_DEBUG_LOG_ON;%(PreprocessorDefinitions)</Define>
+    </QtMoc>
     <QtMoc Include="IdeSearchManager.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)libs\scintilla\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtXml;$(QTDIR)\include\QtXmlPatterns</IncludePath>

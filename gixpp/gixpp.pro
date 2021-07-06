@@ -9,6 +9,7 @@ CONFIG += c++17
 INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build \
 				 ../libgixutils ../libgixpp
 
+linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"					 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic
 linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
 linux:QMAKE_LFLAGS_RELEASE+= 

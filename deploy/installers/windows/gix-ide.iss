@@ -1,6 +1,6 @@
 #define QTDIR GetEnv('QTDIR')
 #define WORKSPACE GetEnv('WORKSPACE')
-#define SVN_REVISION GetEnv('SVN_REVISION')
+#define GIX_REVISION GetEnv('GIX_REVISION')
 #define VER_GIXIDEMAJ GetEnv('GIXIDEMAJ')
 #define VER_GIXIDEMIN GetEnv('GIXIDEMIN')
 #define VER_GIXIDEREL GetEnv('GIXIDEREL')
@@ -28,11 +28,11 @@
 
 [Setup]
 AppName=Gix-Ide
-AppVersion={#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#SVN_REVISION}
+AppVersion={#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}
 AppCopyright=Marco Ridoni
 DefaultDirName={pf}\Gix-IDE
 OutputDir={#WORKSPACE}\deploy\installers\msvc-{#HOST_PLATFORM}
-OutputBaseFilename=Gix-IDE-{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#SVN_REVISION}-installer
+OutputBaseFilename=Gix-IDE-{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}-installer
 ArchitecturesInstallIn64BitMode=x64
 DefaultGroupName=Gix-IDE
 LicenseFile={#WORKSPACE}\GPL-3.0.txt
@@ -106,7 +106,7 @@ Filename: "{tmp}\redist\ms\common\vs_buildtools_2019.exe"; Parameters: "--passiv
 #endif
 
 [Registry]
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "1.0.{#SVN_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "1.0.{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{autoappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 #if "1" == INCLUDE_COMPILERS

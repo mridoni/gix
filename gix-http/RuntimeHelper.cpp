@@ -50,15 +50,20 @@ bool RuntimeHelper::loadRuntime(ServerConfig *svr)
 			return false;
 		}
 		else {
-			cob_setenv("COB_LIBRARY_PATH", svr->getBasePath().toLocal8Bit().constData(), 1);
-			cob_init(0, NULL);
+//            cob_setenv("COB_LIBRARY_PATH", svr->getBasePath().toLocal8Bit().constData(), 1);
+
 			return true;
 		}
 	}
 	else {
 		return false;
 	}
-	// Library not freed here
+    // Library not freed here
+}
+
+void RuntimeHelper::init()
+{
+    cob_init(0, NULL);
 }
 
 void RuntimeHelper::cleanup()

@@ -50,7 +50,7 @@ DataWindow::DataWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 	this->cur_file = nullptr;
 
 	this->setWindowTitle("Data");
-	this->setMinimumWidth(300);
+	this->setMinimumWidth(250);
 	this->setWindowFlags(Qt::Widget);
 	QToolBar* toolBar = new QToolBar(this);
 	this->addToolBar(toolBar);
@@ -284,24 +284,3 @@ void DataWindow::prepareMenu(const QPoint & pos)
 		menu->exec(tree->mapToGlobal(pos));
 	}
 }
-
-//
-//void DataWindow::addButtonClicked()
-//{
-//	bool ok;
-//	QString text = QInputDialog::getText(this, tr("Enter a variable/file name"),
-//		tr("Variable/field name:"), QLineEdit::Normal,
-//		"", &ok);
-//
-//	if (!ok)
-//		return;
-//
-//	if (text.isEmpty()) {
-//		UiUtils::ErrorDialog(tr("Invalid variable/field name"));
-//		return;
-//	}
-//
-//	Ide::TaskManager()->getDebugManager()->addWatchedVar(text);
-//
-//	refreshContent();
-//}

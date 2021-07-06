@@ -22,6 +22,7 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #include "gixcommon_global.h"
 
@@ -49,6 +50,8 @@ char *safe_strdup(char * s);
 bool is_commit_or_rollback_statement(std::string query);
 bool is_dml_statement(std::string query);
 bool is_begin_transaction_statement(std::string query);
+
+std::vector<std::string> split_with_quotes(const std::string& s);
 
 void ltrim(std::string &s);
 

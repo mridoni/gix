@@ -130,7 +130,7 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 		QSettings settings;
 		QString configuration = GixGlobals::getCurrentConfiguration();
 		QString platform = GixGlobals::getCurrentPlatform();
-		QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform));
+		QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, QVariantMap()));
 		
 		QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
 		CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
@@ -187,6 +187,8 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 	}
 
 	GixGlobals::getMetadataManager()->addModuleMetadata(cmm);
+
+    GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Finished scanning " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
 
 	return cmm;
 }

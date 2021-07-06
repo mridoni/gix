@@ -58,6 +58,7 @@ public:
 	static IGixLogManager *getLogManager();
 	static QString getGixHomeDir();
 	static QString getGixBinDir();
+	static QString getGixCopyDir();
 	static QString getGixRuntimeLibDir(CompilerEnvironment env, QString target_platform);
 	static QString getGixDataDir();
 	static QString getCompilerDefsDir();

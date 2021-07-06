@@ -95,6 +95,8 @@ public:
 	void setBreakpoints(QStringList);
 	bool existsBreakpoint(QString, int);
 
+	void addWatchedVar(QString);
+	void removeWatchedVar(QString);
 	void setWatchedVars(QStringList);
 	QStringList getWatchedVars();
 	void refreshWatchWindow();
@@ -208,5 +210,7 @@ private:
 	BuildTarget *current_debug_target = nullptr;
 
 	QMap<QString, QVariant> ide_element_info_map;
+
+	int last_build_result = 0;
 };
 

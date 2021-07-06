@@ -75,6 +75,11 @@ DependenciesWindow::DependenciesWindow(QWidget *parent, MainWindow *mw)
 			if (tab_widget->currentIndex() == 1)
 				updateProjectDependencies();
 	});
+
+	connect(Ide::TaskManager(), &IdeTaskManager::projectCollectionClosed, this, [this] {
+		this->updateProjectDependencies();
+		this->updateFileDependencies();
+	});
 }
 
 DependenciesWindow::~DependenciesWindow()
@@ -86,45 +91,46 @@ void DependenciesWindow::updateFileDependencies()
 {
 	this->file_dataWidget->clear();
 
+	if (!Ide::TaskManager()->getCurrentProjectCollection())
+		return;
+
 	UiUtils::setTreeViewFont(file_dataWidget);
 
 	if (mainWindow->activeMdiChild() != nullptr) {
 		QString f = mainWindow->activeMdiChild()->currentFile();
 
 		ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
-		if (ppj != nullptr) {
-			ProjectFile *pf = ppj->locateProjectFileByPath(f, true);
-			if (!pf)
-				return;
+		ProjectFile *pf = ppj->locateProjectFileByPath(f, true);
+		if (!pf)
+			return;
 
-			QMap<QString, QStringList> deps;
-			if (!get_project_dependencies(deps))
-				return;
+		QMap<QString, QStringList> deps;
+		if (!get_project_dependencies(deps))
+			return;
 
-			if (!deps.contains(pf->GetFileFullPath()))
-				return;
+		if (!deps.contains(pf->GetFileFullPath()))
+			return;
 
-			QDockWidget *qdw = dynamic_cast<QDockWidget *>(this->parent());
-			if (qdw && qdw->isVisible()) {
+		QDockWidget *qdw = dynamic_cast<QDockWidget *>(this->parent());
+		if (qdw && qdw->isVisible()) {
 
-				QBrush _style_not_existing(Qt::red);
+			QBrush _style_not_existing(Qt::red);
 
-				QTreeWidgetItem *fileItem = new QTreeWidgetItem(file_dataWidget, QStringList(pf->GetDisplayName()), 0);
-				fileItem->setText(0, pf->GetDisplayName());
-				file_dataWidget->addTopLevelItem(fileItem);
+			QTreeWidgetItem *fileItem = new QTreeWidgetItem(file_dataWidget, QStringList(pf->GetDisplayName()), 0);
+			fileItem->setText(0, pf->GetDisplayName());
+			file_dataWidget->addTopLevelItem(fileItem);
 
-				for (QString dep_file : deps[pf->GetFileFullPath()]) {
-					QTreeWidgetItem *depItem = new QTreeWidgetItem((QTreeWidget *)0, QStringList(PathUtils::getFilename(dep_file)));
-					depItem->setIcon(0, QIcon(":/icons/cblfile.png"));
-					depItem->setData(0, Qt::UserRole, dep_file);
-					if (!QFile::exists(dep_file)) {
-						depItem->setForeground(0, _style_not_existing);
-					}
-					fileItem->addChild(depItem);
+			for (QString dep_file : deps[pf->GetFileFullPath()]) {
+				QTreeWidgetItem *depItem = new QTreeWidgetItem((QTreeWidget *)0, QStringList(PathUtils::getFilename(dep_file)));
+				depItem->setIcon(0, QIcon(":/icons/cblfile.png"));
+				depItem->setData(0, Qt::UserRole, dep_file);
+				if (!QFile::exists(dep_file)) {
+					depItem->setForeground(0, _style_not_existing);
 				}
-				fileItem->setExpanded(true);
-
+				fileItem->addChild(depItem);
 			}
+			fileItem->setExpanded(true);
+
 		}
 
 	}
@@ -135,41 +141,42 @@ void DependenciesWindow::updateProjectDependencies()
 {
 	this->prj_dataWidget->clear();
 
+	if (!Ide::TaskManager()->getCurrentProjectCollection())
+		return;
+
 	UiUtils::setTreeViewFont(prj_dataWidget);
 
 	if (mainWindow->activeMdiChild() != nullptr) {
 		QString f = mainWindow->activeMdiChild()->currentFile();
 
 		ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
-		if (ppj != nullptr) {
-			ProjectFile *pf = ppj->locateProjectFileByPath(f, true);
-			if (!pf)
-				return;
+		ProjectFile *pf = ppj->locateProjectFileByPath(f, true);
+		if (!pf)
+			return;
 
-			QMap<QString, QStringList> deps;
-			if (!get_project_dependencies(deps))
-				return;
+		QMap<QString, QStringList> deps;
+		if (!get_project_dependencies(deps))
+			return;
 
-			QDockWidget *qdw = dynamic_cast<QDockWidget *>(this->parent());
-			if (qdw && qdw->isVisible()) {
+		QDockWidget *qdw = dynamic_cast<QDockWidget *>(this->parent());
+		if (qdw && qdw->isVisible()) {
 
-				QBrush _style_not_existing(Qt::red);
+			QBrush _style_not_existing(Qt::red);
 
-				QTreeWidgetItem *fileItem = new QTreeWidgetItem(prj_dataWidget, QStringList(pf->getParentProject()->GetDisplayName()), 0);
-				prj_dataWidget->addTopLevelItem(fileItem);
+			QTreeWidgetItem *fileItem = new QTreeWidgetItem(prj_dataWidget, QStringList(pf->getParentProject()->GetDisplayName()), 0);
+			prj_dataWidget->addTopLevelItem(fileItem);
 
-				for (QString cbl_file : deps.keys()) {
-					for (QString dep_file : deps[cbl_file]) {
-						QTreeWidgetItem *depItem = new QTreeWidgetItem((QTreeWidget *)0, QStringList(PathUtils::getFilename(dep_file)));
-						depItem->setIcon(0, QIcon(":/icons/cblfile.png"));
-						depItem->setData(0, Qt::UserRole, dep_file);
-						if (!QFile::exists(dep_file)) {
-							depItem->setForeground(0, _style_not_existing);
-						}
-						fileItem->addChild(depItem);
+			for (QString cbl_file : deps.keys()) {
+				for (QString dep_file : deps[cbl_file]) {
+					QTreeWidgetItem *depItem = new QTreeWidgetItem((QTreeWidget *)0, QStringList(PathUtils::getFilename(dep_file)));
+					depItem->setIcon(0, QIcon(":/icons/cblfile.png"));
+					depItem->setData(0, Qt::UserRole, dep_file);
+					if (!QFile::exists(dep_file)) {
+						depItem->setForeground(0, _style_not_existing);
 					}
-					fileItem->setExpanded(true);
+					fileItem->addChild(depItem);
 				}
+				fileItem->setExpanded(true);
 			}
 		}
 	}

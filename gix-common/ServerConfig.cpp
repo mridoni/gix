@@ -84,7 +84,6 @@ ServerConfig* ServerConfig::read(QString path)
 		cfg->log_level = jserver.value("log_level").toString();
 		cfg->log = jserver.value("log").toString();
 		cfg->runtime_path = jserver["runtime_path"].toString();
-		cfg->runtime_path_debug = jserver["runtime_path_debug"].toString();
 		cfg->search_path = jserver["search_path"].toString();
 		cfg->log_console_echo = jserver["log_console_echo"].toBool();
 		if (jserver.keys().contains("environment")) {
@@ -230,7 +229,6 @@ bool ServerConfig::write(QString file_path)
 	jserver.insert("log_level", log_level);
 	jserver.insert("log", log);
 	jserver.insert("runtime_path", runtime_path);
-	jserver.insert("runtime_path_debug", runtime_path_debug);
 	jserver.insert("search_path", search_path);
 	QJsonArray svr_env;
 
@@ -411,7 +409,7 @@ int GIXCOMMON_EXPORT ServerConfig::getCacheSize()
 
 QString GIXCOMMON_EXPORT ServerConfig::getRuntimePath()
 {
-	return debug ? runtime_path_debug : runtime_path;
+    return runtime_path;
 }
 
 bool GIXCOMMON_EXPORT ServerConfig::isLogConsoleEchoEnabled()

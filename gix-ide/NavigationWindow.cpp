@@ -33,7 +33,7 @@ USA.
 NavigationWindow::NavigationWindow(QWidget* parent, MainWindow* mw)
 {
 	this->setWindowTitle(tr("Navigator"));
-	this->setMinimumWidth(300);
+	this->setMinimumWidth(250);
 	this->setWindowFlags(Qt::Widget);
 	QToolBar* toolBar = new QToolBar(this);
 	this->addToolBar(toolBar);

@@ -41,6 +41,7 @@ class RuntimeHelper
 {
 public:
 	bool loadRuntime(ServerConfig *svr);
+    void init();
 
 	void cleanup();
 

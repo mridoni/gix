@@ -10,9 +10,10 @@ INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build ./http ./templateengine
 				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata \
 				 ../libgixutils ../libgixpp
 
+linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"					 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic
 linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
-linux:QMAKE_LFLAGS_RELEASE+= 
+linux:QMAKE_LFLAGS_RELEASE+= -rdynamic
 linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
 linux:DEFINES += QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _GCDEBUGGER_NET_DEBUG _DEBUG
 linux:INCLUDEPATH +=
@@ -23,7 +24,7 @@ win32:DEFINES += QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB 
 win32:INCLUDEPATH +=
 win32:RC_FILE =
 win32:LIBPATH += $(DESTDIR)
-win32:LIBS += -lwsock32 -lgix-common -lgixutils -lz -limagehlp
+win32:LIBS += -lwsock32 -lgix-common -lgixutils -lz
 win32:QMAKE_LFLAGS_DEBUG += -rdynamic
 win32:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
 win32:QMAKE_LFLAGS_RELEASE+=

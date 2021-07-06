@@ -216,9 +216,6 @@
     <ClCompile Include="GixDebuggerWin.cpp">
       <Filter>Source Files\debugger\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="imagehlp_funcs.cpp">
-      <Filter>Source Files\debugger\Windows</Filter>
-    </ClCompile>
     <ClCompile Include="IdeLogManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -232,6 +229,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StackWalker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GixVersion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddCompilerWizard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IdeStatusSyncSetter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -284,9 +290,6 @@
     <ClInclude Include="DbCodeGenerator.h">
       <Filter>Header Files\dbmanager</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DebugDriverUtils.h">
       <Filter>Header Files\debugger</Filter>
     </ClInclude>
@@ -321,6 +324,12 @@
       <Filter>Header Files\components</Filter>
     </ClInclude>
     <ClInclude Include="StackWalker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddCompilerWizard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IdeStatusSyncSetter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -395,6 +404,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="AddCompilerDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ConsoleWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

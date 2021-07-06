@@ -43,7 +43,6 @@ public:
 	void setDebuggingEnabled(bool);
 
 	bool start(Project *prj, QString configuration, QString platform);
-	//bool startHttpService(Project* prj, QString build_configuration, QString target_platform);
 	void step();
 	void stop();
 	void continue_running();
@@ -59,12 +58,19 @@ public:
 	QStringList getWatchedVarList();
 	QStringList getTranslatedBreakpoints();
 	void setUserInititatedStop(bool b);
+    void writeToProcess(QString s);
+
+    void debug_break(QString module_name, QString m, int l);
+    void debug_module_changed(QString m, int l);
+    void debug_program_exit(QString m, int l);
 
 signals:
 	void debugStopped();
 	void debugStarted();
 	void debugProgramExit();
-	void debugError();
+    void debugError();
+
+    void startDriver();
 
 private slots:
 	void debuggedProcessFinished(int rc, QString s);
@@ -80,15 +86,14 @@ private:
 	bool is_debugging_enabled;
 	bool is_user_initiated_stop;
 
-	DebugDriver *debug_driver;
+    DebugDriver *debug_driver = nullptr;
+    QThread *debug_driver_thread = nullptr;
+
 	IdeTaskManager *ide_task_manager;
 
 	void readStdErr();
 	void readStdOut();
 
-    void debug_break(QString module_name, QString m, int l);
-	void debug_module_changed(QString m, int l);
-	void debug_program_exit(QString m, int l);
 
 	bool parsePosition(QString pos, QString& module, int *line);
 	void loadDebugManagerState();
@@ -120,6 +125,9 @@ private:
 
 	QStringList translateBreakpoints(CobolModuleMetadata *cmm, const QStringList &orig_bkps);
 	bool translateBreakpointReverse(CobolModuleMetadata *cmm, const QString &running_file, int running_ln, QString &orig_file, int *orig_ln);
+
+	char *comp3_to_display(int total_len, int scale, int has_sign, uint8_t *addr);
+	char *comp5_to_display(int total_len, int scale, int has_sign, uint8_t *addr);
 
 };
 

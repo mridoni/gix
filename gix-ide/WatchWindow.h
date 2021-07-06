@@ -40,6 +40,7 @@ public:
 public slots:
 	void addButtonClicked();
 	void removeButtonClicked();
+	void refreshButtonClicked();
 	void IdeStatusChanged(IdeStatus);
 	void onDebuggerBreak();
 

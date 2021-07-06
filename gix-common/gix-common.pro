@@ -8,6 +8,8 @@ CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
 
 DEFINES += GIXCOMMON_LIB
 
+CONFIG += c++17
+
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic -Wl,--whole-archive -lgixutils -lgixpp -Wl,--no-whole-archive
 linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas 
 

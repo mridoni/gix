@@ -74,5 +74,9 @@ private:
 
 	// Level 49 support
 	bool is_variable_length;
+
+    static const char _decimal_point;
+
+	void display_to_comp3(const char *data, bool has_sign);	// , int total_len, int scale, int has_sign, uint8_t *addr
 };
 

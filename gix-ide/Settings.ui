@@ -268,7 +268,7 @@
         <x>10</x>
         <y>20</y>
         <width>431</width>
-        <height>22</height>
+        <height>26</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -588,31 +588,6 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QPushButton" name="btnAddCompiler">
-     <property name="geometry">
-      <rect>
-       <x>357</x>
-       <y>440</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Add compiler...</string>
-     </property>
-    </widget>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="geometry">
       <rect>
@@ -687,6 +662,31 @@
       </layout>
      </widget>
     </widget>
+    <widget class="QToolButton" name="btnAddCompiler">
+     <property name="geometry">
+      <rect>
+       <x>348</x>
+       <y>440</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add compiler...</string>
+     </property>
+     <property name="popupMode">
+      <enum>QToolButton::MenuButtonPopup</enum>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextOnly</enum>
+     </property>
+     <property name="autoRaise">
+      <bool>false</bool>
+     </property>
+     <property name="arrowType">
+      <enum>Qt::NoArrow</enum>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
@@ -726,7 +726,7 @@
           <x>9</x>
           <y>13</y>
           <width>411</width>
-          <height>237</height>
+          <height>246</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -978,7 +978,7 @@
           <x>9</x>
           <y>13</y>
           <width>411</width>
-          <height>237</height>
+          <height>246</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1268,8 +1268,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>490</width>
-       <height>71</height>
+       <width>507</width>
+       <height>78</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">

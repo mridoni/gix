@@ -202,34 +202,37 @@ int main(int argc, char* argv[])
 
 bool init_server_environment()
 {
-	QString libcob_path = config->getRuntimePath();
-	QString env_path = SysUtils::mergeEnvironmentVariable(QString("PATH"), libcob_path);
+    // Search path for COBOL modules (COB_LIBRARY_PATH)
+    QString search_path = config->getSearchPath();
+    if (search_path.isEmpty() || !QDir(config->getSearchPath()).exists()) {
+        QLogger::QLog_Error(SERVER_LOG, "Search path [" + search_path + "] not found, server will not be started");
+        return false;
+    }
 
-	QString search_path = config->getSearchPath();
+    // GnuCOBOL runtime path (libcob.dll/so)
+    QString libcob_path = config->getRuntimePath();
 
-	if (!search_path.isEmpty()) {
-		if (!QDir(config->getSearchPath()).exists()) {
-			QLogger::QLog_Error(SERVER_LOG, "Search path [" + search_path + "] not found, server will not be started");
-			return false;
-		}
-		else {
-			env_path = SysUtils::mergeEnvironmentVariableValue(env_path, search_path);
-			//qputenv("COB_LIBRARY_PATH", search_path.toUtf8());
-		}
+#if defined(_WIN32)
+    QString env_path = SysUtils::mergeEnvironmentVariable(QString("PATH"), libcob_path);
+    qputenv("PATH", env_path.toUtf8());
+#elif defined(__linux__)
+    QString ld_lib_path = SysUtils::mergeEnvironmentVariable("LD_LIBRARY_PATH", libcob_path);
+    qputenv("LD_LIBRARY_PATH", ld_lib_path.toUtf8());
+#elif defined(__APPLE__)
+    QString ld_lib_path = SysUtils::mergeEnvironmentVariable("DYLD_FALLBACK_LIBRARY_PATH", libcob_path);
+    qputenv("DYLD_FALLBACK_LIBRARY_PATH", ld_lib_path.toUtf8());
+#endif
 
-	}
+    // Runtime initialization
+    runtime = new RuntimeHelper();
 
-	QLogger::QLog_Debug(SERVER_LOG, "PATH for server is: " + env_path);
-
-	qputenv("PATH", env_path.toUtf8());
-
-	runtime = new RuntimeHelper();
 	if (!runtime->loadRuntime(config)) {
 		QLogger::QLog_Error(SERVER_LOG, "Cannot initialize GnuCOBOL runtime");
 		return false;
 	}
 
-	runtime->cob_setenv("COB_LIBRARY_PATH", search_path.toUtf8().constData(), 1);
+    runtime->cob_setenv("COB_LIBRARY_PATH", search_path.toLocal8Bit().constData(), 1);
+    runtime->init();
 
 	return true;
 }

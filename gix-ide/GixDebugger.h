@@ -25,6 +25,7 @@ USA.
 #include <QMap>
 #include <QList>
 #include <QStringList>
+#include <QObject>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -66,7 +67,7 @@ class UserBreakpoint
 public:
 	QString key;
 	QString source_file;
-	int line;
+    int line = 0;
 
 	void *address = 0x00000000;
 	uint8_t orig_instr = 0x00;
@@ -74,6 +75,8 @@ public:
 	uint8_t automatic = false;
 
 	SharedModuleInfo *owner = nullptr;
+
+    bool isInstalled() { return orig_instr != 0x00; }
 };
 
 class SharedModuleInfo
@@ -123,6 +126,17 @@ struct VariableResolverData
 	QString var_name;
 	QString var_path;
 
+	int type = 0;
+	int level = 0;
+	int display_size = 0;
+	int is_signed = 0;
+	int decimals = 0;
+	QString format;
+	int storage_type = 0;
+	QString storage;
+	int occurs = 0;
+	QString redefines;
+
 	// The "root" variable
 	QString base_var_name;
 
@@ -131,6 +145,10 @@ struct VariableResolverData
 	
 	int storage_len = 0;
 
+	bool toDisplayFormat(const uint8_t *data, int data_len, uint8_t display_bfr, int display_len)
+	{
+		return false;
+	}
 };
 
 enum class DebuggedModuleType
@@ -142,7 +160,8 @@ enum class DebuggedModuleType
 struct VariableData
 {
 	QString var_name;
-	int storage_length = 0;
+	//int storage_length = 0;
+	VariableResolverData *resolver_data = nullptr;
 
 	uint8_t *data = nullptr;
 };
@@ -164,7 +183,7 @@ struct LibCobInfo
 	f_cob_runtime_error_ptr f_cob_runtime_error = nullptr;
 };
 
-class GixDebugger
+class GixDebugger : public QObject
 {
 public:
 	GixDebugger();
@@ -185,6 +204,8 @@ public:
 	void setUseExternalConsole(bool b);
 	void setDebuggedModuleType(DebuggedModuleType b);
 
+    bool usesExternalConsole();
+    GixDebuggerInterfaceBlock *getInterfaceBlock();
 	QString getWorkingDirectory();
 	QString getModuleDirectory();
 
@@ -211,6 +232,8 @@ public:
 
 	virtual bool readProcessMemory(void *addr, void *bfr, int size) = 0;
 
+    virtual void writeToProcess(QString s);
+
 	QMap<void *, SourceLineInfo *>		source_lines_by_addr;
 	QMap<QString, SourceLineInfo *> source_lines;
 	QList<QString> src_file_types;
@@ -227,6 +250,7 @@ protected:
 	DebuggedModuleType debuggee_type = DebuggedModuleType::Shared;
 	GixDebuggerInterfaceBlock *if_blk;
 	QMap<QString, QString> environment;
+    int exit_code = 0;
 	QString exepath;
 	QString working_dir;
 	QString module_dir;
@@ -243,6 +267,8 @@ protected:
 	bool use_external_console = false;
 
 	LibCobInfo *libcob_info = nullptr;
+
+    bool isCblEntryPoint(void *addr, CobolModuleInfo **cmi);
 
 private:
 

@@ -32,6 +32,7 @@ USA.
 #include "MetadataLoader.h"
 #include "DataEntry.h"
 #include "GixGlobals.h"
+#include "IdeStatusSyncSetter.h"
 #include "linq/linq.hpp"
 
 #include <QComboBox>
@@ -45,6 +46,7 @@ USA.
 #include <QApplication>
 #include <QMetaEnum>
 #include <QMdiArea>
+#include <QTimer>
 #include "QLogger.h"
 
 IdeTaskManager::IdeTaskManager()
@@ -62,7 +64,7 @@ IdeTaskManager::IdeTaskManager()
 
 	current_bookmark = 0;
 
-    qRegisterMetaType<QLogger::LogLevel>();
+	qRegisterMetaType<QLogger::LogLevel>();
 	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");
 
 	//log_manager = QLogger::QLoggerManager::getInstance();
@@ -70,7 +72,7 @@ IdeTaskManager::IdeTaskManager()
  //   connect(log_manager, &QLogger::QLoggerManager::logMessage, this, &IdeTaskManager::logMessage);
 
 
-	connect(this, &IdeTaskManager::fileAddedToProject, this, [this] (ProjectFile *pf) { prjcoll_window->refreshContent(); });
+	connect(this, &IdeTaskManager::fileAddedToProject, this, [this](ProjectFile *pf) { prjcoll_window->refreshContent(); });
 
 	/*
 	connect(this, &IdeTaskManager::fileSaved, this, [this] (ProjectFile * pf){
@@ -87,7 +89,7 @@ IdeTaskManager::IdeTaskManager()
 			//logMessage(GIX_CONSOLE_LOG, QString("Started updating metadata for %1").arg(pf->GetFileFullPath()), QLogger::LogLevel::Debug);
 			//mu->start();
 		}
-		
+
 	});*/
 }
 
@@ -106,38 +108,36 @@ void IdeTaskManager::setCurrentProjectCollection(ProjectCollection *ppj)
 {
 	current_project_collection_data.clear();
 	current_project_collection = ppj;
-	if (ppj != nullptr)
-		ide_status = IdeStatus::Editing;
 }
 
-ProjectCollection * IdeTaskManager::getCurrentProjectCollection()
+ProjectCollection *IdeTaskManager::getCurrentProjectCollection()
 {
 	return current_project_collection;
 }
 
-Project* IdeTaskManager::getCurrentProject()
+Project *IdeTaskManager::getCurrentProject()
 {
-	ProjectCollection* ppj = getCurrentProjectCollection();
-	if (!ppj) 
+	ProjectCollection *ppj = getCurrentProjectCollection();
+	if (!ppj)
 		return nullptr;
 
-	ProjectItem* pi = prjcoll_window->getCurrentSelection();
+	ProjectItem *pi = prjcoll_window->getCurrentSelection();
 	if (pi && pi->GetItemType() == ProjectItemType::TProject)
-		return (Project*)pi;
+		return (Project *)pi;
 
-	MdiChild* c = main_window->activeMdiChild();
+	MdiChild *c = main_window->activeMdiChild();
 	if (!c)
 		return nullptr;
 
-	ProjectFile* pf = ppj->locateProjectFileByPath(c->currentFile(), true);
+	ProjectFile *pf = ppj->locateProjectFileByPath(c->currentFile(), true);
 	if (!pf)
 		return nullptr;
 
-	Project* prj = pf->getParentProject();
+	Project *prj = pf->getParentProject();
 	return prj;
 }
 
-void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow* cw, WatchWindow *ww, NavigationWindow *nw)
+void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow *ww, NavigationWindow *nw)
 {
 	main_window = mw;
 	output_window = ow;
@@ -159,6 +159,8 @@ void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWin
 		}
 
 	});
+
+	connect((QLogger::QLoggerManager *)GixGlobals::getLogManager(), &QLogger::QLoggerManager::logMessage, this, &IdeTaskManager::logMessage);
 }
 
 void IdeTaskManager::buildAll(QString configuration, QString platform)
@@ -171,15 +173,15 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	int build_res = 0;
 	QList<QPair<QString, QString>> tl;
 
-	auto compiler_cfg = CompilerConfiguration::get(configuration, platform);
-    if (!compiler_cfg) {
-        QString err_msg = QString("Invalid compiler configuration for configuration \"%1\"").arg(configuration);
-        this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
-        UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
-        setStatus(IdeStatus::Editing);
-        emit buildFinished(build_res);
-        return;
-    }
+	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
+	if (!compiler_cfg) {
+		QString err_msg = QString("Invalid compiler configuration for configuration \"%1\"").arg(configuration);
+		this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
+		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
+		setStatus(IdeStatus::Editing);
+		emit buildFinished(build_res);
+		return;
+	}
 
 	QVariantMap props;
 	props.insert("sys.objext", SysUtils::isWindows() && compiler_cfg->isVsBased ? ".obj" : ".o");
@@ -191,6 +193,15 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	props.insert("platform", platform);
 
 	BuildTarget *build_target = current_project_collection->getBuildTarget(props, nullptr);
+	if (!build_target) {
+		QString err_msg = QString("Invalid build target");
+		this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
+		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
+		setStatus(IdeStatus::Editing);
+		emit buildFinished(build_res);
+		return;
+	}
+
 	this->logMessage(GIX_CONSOLE_LOG, build_target->toString(), QLogger::LogLevel::Trace);
 
 	BuildDriver builder;
@@ -200,13 +211,14 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	connect(this, &IdeTaskManager::stopBuildInvoked, &builder, &BuildDriver::stopBuild);
 
 	builder.setBuildEnvironment(props);
-		
+	last_build_result = 0;
+
 	builder.execute(build_target, BuildOperation::Build);
 
 	build_res += builder.getBuildResult().getStatus();
 
 	if (builder.getBuildResult().getStatus() != 0) {
-
+		last_build_result = builder.getBuildResult().getStatus();
 	}
 
 	tl << builder.getBuiltTargetList();
@@ -221,7 +233,7 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 	if (current_project_collection == nullptr || !current_project_collection->HasChildren())
 		return;
 
-	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(configuration, platform);
+	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
 		logMessage(GIX_CONSOLE_LOG, tr("Please check your compiler configuration"), QLogger::LogLevel::Error);
 		return;
@@ -244,6 +256,8 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 
 	builder.setBuildEnvironment(props);
 
+	last_build_result = 0;
+
 	builder.execute(build_target, BuildOperation::Clean);
 
 	setStatus(IdeStatus::Editing);
@@ -256,7 +270,12 @@ void IdeTaskManager::buildStop()
 
 void IdeTaskManager::debugProject(Project *prj, QString configuration, QString platform)
 {
-	auto compiler_cfg = CompilerConfiguration::get(configuration, platform);
+	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
+
+	if (!compiler_cfg->isVersionGreaterThanOrEqualTo(3, 1, 0)) {
+		UiUtils::ErrorDialog(tr("Debugging is only supported when using GnuCOBOL 3.1.0 or greater"));
+		return;
+	}
 
 	QMap<QString, QVariant> build_env;
 	build_env.insert("configuration", configuration);
@@ -269,14 +288,24 @@ void IdeTaskManager::debugProject(Project *prj, QString configuration, QString p
 
 	current_debug_target = prj->getBuildTarget(build_env, nullptr);
 	if (!current_debug_target->isUpToDate()) {
-
+		buildAll(configuration, platform);
+		if (last_build_result != 0) {
+			UiUtils::ErrorDialog(tr("Build failed, the debug session will not be started"));
+			return;
+		}
 	}
 
 	setStatus(IdeStatus::Starting);
 
 	debug_manager = new DebugManager(this);
-	connect(debug_manager, &DebugManager::debugStopped, this, [this] { debugStopped();  } , static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection | Qt::ConnectionType::UniqueConnection));
-	connect(debug_manager, &DebugManager::debugError, this, [this] { debugError();  } , static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection | Qt::ConnectionType::UniqueConnection));
+	connect(debug_manager, &DebugManager::debugStopped, this, [this] { debugStopped();  }, static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection | Qt::ConnectionType::UniqueConnection));
+	connect(debug_manager, &DebugManager::debugError, this, [this] { debugError();  }, static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection | Qt::ConnectionType::UniqueConnection));
+
+#if defined(__linux__)
+	connect(console_window, &ConsoleWindow::inputAvailable, this, [this](QString s) {
+		debug_manager->writeToProcess(s);
+	});
+#endif
 
 	bool rc = debug_manager->start(prj, configuration, platform);
 	if (rc) {
@@ -293,16 +322,45 @@ void IdeTaskManager::runProject(Project *prj, QString configuration, QString pla
 		debug_manager->deleteLater();
 	}
 
+	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
+
+
+	QMap<QString, QVariant> build_env;
+	build_env.insert("configuration", configuration);
+	build_env.insert("platform", platform);
+	build_env.insert("sys.objext", SysUtils::isWindows() && compiler_cfg->isVsBased ? ".obj" : ".o");
+	build_env.insert("sys.dllext", SysUtils::isWindows() ? ".dll" : ".so");
+	build_env.insert("sys.exeext", SysUtils::isWindows() ? ".exe" : "");
+	build_env.insert("prj.build_dir", "${prj.basedir}/bin/${configuration}/${platform}");
+	build_env.insert("module_name", PathUtils::toModuleName(prj->GetFilename()));
+
+	current_debug_target = prj->getBuildTarget(build_env, nullptr);
+	if (!current_debug_target->isUpToDate()) {
+		buildAll(configuration, platform);
+		if (last_build_result != 0) {
+			UiUtils::ErrorDialog(tr("Build failed, the debug session will not be started"));
+			return;
+		}
+	}
+
 	setStatus(IdeStatus::Starting);
 
 	debug_manager = new DebugManager(this);
 	connect(debug_manager, &DebugManager::debugStopped, this, &IdeTaskManager::debugStopped, static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection | Qt::ConnectionType::UniqueConnection));
 	connect(debug_manager, &DebugManager::debugError, this, &IdeTaskManager::debugError, static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection | Qt::ConnectionType::UniqueConnection));
 	connect(debug_manager, &DebugManager::debugStarted, this, &IdeTaskManager::debugStarted, static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection | Qt::ConnectionType::UniqueConnection));
+
+#if defined(__linux__)
+	connect(console_window, &ConsoleWindow::inputAvailable, this, [this](QString s) {
+		if (debug_manager)
+			debug_manager->writeToProcess(s);
+	});
+#endif
+
 	debug_manager->setDebuggingEnabled(false);
 	bool rc = debug_manager->start(prj, configuration, platform);
 	if (rc) {
-		debug_manager = nullptr;
+		//		debug_manager = nullptr;
 	}
 	else
 		debugError();
@@ -318,9 +376,9 @@ void IdeTaskManager::debugStep()
 
 void IdeTaskManager::debugStop()
 {
-	if (debug_manager == nullptr || (ide_status != IdeStatus::Debugging && 
-									ide_status != IdeStatus::DebuggingOnBreak &&
-									ide_status != IdeStatus::Running)) {
+	if (debug_manager == nullptr || (ide_status != IdeStatus::Debugging &&
+		ide_status != IdeStatus::DebuggingOnBreak &&
+		ide_status != IdeStatus::Running)) {
 		debug_manager = nullptr;
 		return;
 	}
@@ -375,6 +433,8 @@ void IdeTaskManager::debugStopped()
 
 bool IdeTaskManager::loadProjectCollection(QString fileName)
 {
+	IdeStatusSyncSetter status_sync(IdeStatus::LoadingOrSaving, IdeStatus::Editing, true);
+
 	if (getCurrentProjectCollection() != nullptr) {
 		if (!closeCurrentProjectCollection())
 			return false;
@@ -388,7 +448,6 @@ bool IdeTaskManager::loadProjectCollection(QString fileName)
 		prjcoll_window->setContent(ppj);
 		setCurrentProjectCollection(ppj);
 		loadProjectCollectionState(ppj);
-		setStatus(IdeStatus::Editing, true);
 
 		emit projectCollectionLoaded();
 
@@ -420,7 +479,7 @@ void IdeTaskManager::loadProjectCollectionState(ProjectCollection *ppj)
 	else {
 		main_window->cbPlatform->setCurrentIndex(0);
 	}
-	
+
 	QStringList watched_vars;
 	int nvars = settings.value("debug/watch_count", 0).toInt();
 	for (int i = 0; i < nvars; i++) {
@@ -455,6 +514,14 @@ void IdeTaskManager::loadProjectCollectionState(ProjectCollection *ppj)
 			main_window->openFile(filename);
 		}
 	}
+
+	QString foreground_file = settings.value("editor/foreground_file").toString();
+	if (!foreground_file.isEmpty()) {
+		MdiChild *c = (MdiChild * ) main_window->findMdiChild(foreground_file);
+		if (c)
+			main_window->openFile(foreground_file);
+	}
+
 }
 
 
@@ -472,9 +539,9 @@ void IdeTaskManager::resetCurrentProjectCollectionState()
 void IdeTaskManager::clearModuleMetadata()
 {
 	if (module_metadata_filemap.size()) {
-		QMap<QString, CobolModuleMetadata*>::iterator i;
+		QMap<QString, CobolModuleMetadata *>::iterator i;
 		for (i = module_metadata_filemap.begin(); i != module_metadata_filemap.end(); ++i) {
-			CobolModuleMetadata* cfm = i.value();
+			CobolModuleMetadata *cfm = i.value();
 			if (cfm)
 				delete cfm;
 		}
@@ -487,7 +554,7 @@ void IdeTaskManager::clearModuleMetadata()
 bool IdeTaskManager::closeCurrentProjectCollection()
 {
 	if (getCurrentProjectCollection() != nullptr) {
-		ProjectCollection * ppj = getCurrentProjectCollection();
+		ProjectCollection *ppj = getCurrentProjectCollection();
 		if (!ppj->save(nullptr, ppj->GetFileFullPath())) {
 			QString msg = QString(tr("Cannot close/save project collection %1 or one of its dependent projects")).arg(ppj->GetDisplayName());
 			UiUtils::ErrorDialog(msg);
@@ -497,6 +564,7 @@ bool IdeTaskManager::closeCurrentProjectCollection()
 		saveCurrentProjectCollectionState();
 
 		main_window->mdiArea->closeAllSubWindows();
+		consoleClear();
 
 		resetCurrentProjectCollectionState();
 
@@ -514,14 +582,45 @@ IdeStatus IdeTaskManager::getStatus()
 	return ide_status;
 }
 
+
+QString IdeStatusDescription(IdeStatus s)
+{
+	switch (s) {
+		case IdeStatus::Started:
+			return "Started";
+
+		case IdeStatus::Editing:
+			return "Editing";
+
+		case IdeStatus::Building:
+			return "Building";
+
+		case IdeStatus::Debugging:
+			return "Debugging";
+
+		case IdeStatus::DebuggingOnBreak:
+			return "DebuggingOnBreak";
+
+		case IdeStatus::Running:
+			return "Running";
+
+		case IdeStatus::Starting:
+			return "Starting";
+
+	}
+
+	return QString();
+}
+
 void IdeTaskManager::setStatus(IdeStatus s, bool force_signal)
 {
 	if (s != ide_status || force_signal) {
 		ide_status = s;
 		emit IdeStatusChanged(ide_status);
-		logMessage(GIX_CONSOLE_LOG, QString("Ide status set to %1").arg(s), QLogger::LogLevel::Debug); //SysUtils::enum_val_to_str<IdeStatus>(s)
+		logMessage(GIX_CONSOLE_LOG, QString("Ide status set to %1 (%2)").arg((int)s).arg(IdeStatusDescription(s)), QLogger::LogLevel::Debug); //SysUtils::enum_val_to_str<IdeStatus>(s)
 
 		switch (s) {
+			case IdeStatus::LoadingOrSaving:
 			case IdeStatus::Building:
 			case IdeStatus::Debugging:
 			case IdeStatus::DebuggingOnBreak:
@@ -585,6 +684,34 @@ bool IdeTaskManager::existsBreakpoint(QString src_file, int line)
 {
 	QString bkpdef = QString::number(line) + "@" + src_file;
 	return (getBreakpoints().contains(bkpdef));
+}
+
+void IdeTaskManager::addWatchedVar(QString v)
+{
+	QStringList wvs;
+	if (!current_project_collection_data.contains("watched_vars")) {
+		wvs.append(v);
+		current_project_collection_data.insert("watched_vars", wvs);
+	}
+	else {
+		wvs = current_project_collection_data["watched_vars"].toStringList();
+		if (!wvs.contains(v)) {
+			wvs.append(v);
+			current_project_collection_data.insert("watched_vars", wvs);
+		}
+	}
+}
+
+void IdeTaskManager::removeWatchedVar(QString v)
+{
+	if (!current_project_collection_data.contains("watched_vars"))
+		return;
+
+	QStringList wvs = current_project_collection_data["watched_vars"].toStringList();
+	if (wvs.contains(v)) {
+		wvs.removeAll(v);
+		current_project_collection_data.insert("watched_vars", wvs);
+	}
 }
 
 void IdeTaskManager::setWatchedVars(QStringList l)
@@ -779,7 +906,7 @@ void IdeTaskManager::consoleClear()
 void IdeTaskManager::flushLog()
 {
 	while (!log_backlog.isEmpty()) {
-		LogBacklogEntry* lbl = log_backlog.dequeue();
+		LogBacklogEntry *lbl = log_backlog.dequeue();
 		this->logMessage(lbl->module, lbl->msg, lbl->level);
 		delete lbl;
 	}
@@ -804,24 +931,24 @@ void IdeTaskManager::gotoDefinition(CodeEditor *ce, QString def_path, int ln)
 	if (!current_project_collection)
 		return;
 
-	MdiChild* c = dynamic_cast<MdiChild*>(ce);
+	MdiChild *c = dynamic_cast<MdiChild *>(ce);
 	if (def_path.isEmpty())
 		return;
 
-	ProjectFile* pf = current_project_collection->locateProjectFileByPath(c->currentFile(), true);
+	ProjectFile *pf = current_project_collection->locateProjectFileByPath(c->currentFile(), true);
 	if (!pf)
 		return;
 
-	CobolModuleMetadata* cfm = GixGlobals::getMetadataManager()->getModuleMetadataBySource(pf->GetFileFullPath());
+	CobolModuleMetadata *cfm = GixGlobals::getMetadataManager()->getModuleMetadataBySource(pf->GetFileFullPath());
 	if (!cfm)
 		return;
 
-	DataEntry* e = cfm->findDefinition(def_path);
+	DataEntry *e = cfm->findDefinition(def_path, false);
 	if (e)
-		gotoDefinition(e); 
+		gotoDefinition(e);
 }
 
-void IdeTaskManager::gotoDefinition(Paragraph* p)
+void IdeTaskManager::gotoDefinition(Paragraph *p)
 {
 
 	QString file_to_open;
@@ -842,7 +969,7 @@ void IdeTaskManager::gotoDefinition(Paragraph* p)
 	mdiChild->highlightSymbol(lline, p->name);
 }
 
-void IdeTaskManager::gotoDefinition(DataEntry* e)
+void IdeTaskManager::gotoDefinition(DataEntry *e)
 {
 	QString file_to_open;
 	int file_id;
@@ -862,7 +989,7 @@ void IdeTaskManager::gotoDefinition(DataEntry* e)
 		lline = e->line;
 	}
 
-	MdiChild* mdiChild = openFileNoSignals(file_to_open);
+	MdiChild *mdiChild = openFileNoSignals(file_to_open);
 
 	if (!mdiChild)
 		return;
@@ -882,7 +1009,7 @@ void IdeTaskManager::gotoFileLine(QString filename, int ln)
 	if (!pf)
 		return;
 
-	MdiChild* mdiChild = openFileNoSignals(filename);
+	MdiChild *mdiChild = openFileNoSignals(filename);
 	if (!mdiChild)
 		return;
 
@@ -924,17 +1051,17 @@ void IdeTaskManager::startLoadingMetadata(ProjectItem *pi)
 
 bool IdeTaskManager::isFileOpen(QString filename)
 {
-	QMdiSubWindow* c = this->main_window->findMdiChild(filename);
+	QMdiSubWindow *c = this->main_window->findMdiChild(filename);
 	return (c != nullptr);
 }
 
 bool IdeTaskManager::isFileModified(QString filename)
 {
-	QMdiSubWindow* c = this->main_window->findMdiChild(filename);
+	QMdiSubWindow *c = this->main_window->findMdiChild(filename);
 	return (c != nullptr) ? c->isWindowModified() : false;
 }
 
-MdiChild* IdeTaskManager::openFileNoSignals(QString filename)
+MdiChild *IdeTaskManager::openFileNoSignals(QString filename)
 {
 	if (filename.isEmpty())
 		return nullptr;
@@ -945,11 +1072,11 @@ MdiChild* IdeTaskManager::openFileNoSignals(QString filename)
 	if (!b)
 		return nullptr;
 
-	QMdiSubWindow* c = this->main_window->findMdiChild(filename);
+	QMdiSubWindow *c = this->main_window->findMdiChild(filename);
 	if (!c)
 		return nullptr;
 
-	MdiChild* mdiChild = qobject_cast<MdiChild*>(c->widget());
+	MdiChild *mdiChild = qobject_cast<MdiChild *>(c->widget());
 	this->main_window->blockMdiSignals(true);
 	mdiChild->activateWindow();
 	this->main_window->blockMdiSignals(false);
@@ -961,16 +1088,16 @@ MdiChild* IdeTaskManager::openFileNoSignals(QString filename)
 
 void IdeTaskManager::logMessage(QString module, QString msg, QLogger::LogLevel log_level)
 {
-    if (this->receivers(SIGNAL(print(QString, QLogger::LogLevel)))) {
-        emit this->print(msg, log_level);
-    }
-    else {
-        LogBacklogEntry* lbl = new LogBacklogEntry();
-        lbl->module = module;
-        lbl->msg = msg;
-        lbl->level = log_level;
-        log_backlog.enqueue(lbl);
-    }
+	if (this->receivers(SIGNAL(print(QString, QLogger::LogLevel)))) {
+		emit this->print(msg, log_level);
+	}
+	else {
+		LogBacklogEntry *lbl = new LogBacklogEntry();
+		lbl->module = module;
+		lbl->msg = msg;
+		lbl->level = log_level;
+		log_backlog.enqueue(lbl);
+	}
 }
 
 void IdeTaskManager::saveCurrentProjectCollectionState()
@@ -996,9 +1123,12 @@ void IdeTaskManager::saveCurrentProjectCollectionState()
 
 	settings.setValue("edit_files/count", open_files.size());
 	int n = 1;
-	for(QString open_file : open_files) {
+	for (QString open_file : open_files) {
 		settings.setValue("edit_files/file" + QString::number(n++), open_file);
 	}
+
+	QString foreground_file = open_files.size() == 0 ? "" : main_window->activeMdiChild()->currentFile();
+	settings.setValue("editor/foreground_file", foreground_file);
 
 	settings.beginGroup("debug");
 	settings.remove("");

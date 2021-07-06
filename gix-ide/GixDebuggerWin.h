@@ -82,7 +82,6 @@ private:
 	DWORD dwThreadReadStdErrId = 0;
 
 	char *envBlock = NULL;
-	int exit_code = 0;
 
 	bool error_exit = false;
 
@@ -92,8 +91,6 @@ private:
 	bool stop_reading_pipes = false;
 
 	virtual void *getSymbolAddress(const char *sym_name) override;
-
-	bool isCblEntryPoint(void *addr, CobolModuleInfo **cmi);
 
 	bool processImage(HANDLE hProc, HANDLE imageBase, DWORD64 hSym, QString imageName);
 

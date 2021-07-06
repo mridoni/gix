@@ -170,8 +170,8 @@ int DbInterfaceODBC::connect(IConnectionString* conn_string, int autocommit, str
 		driver_has_num_rows_support = 0;
 	}
 
-	const char* disable_dynamic_cursor_emulation = getenv("GIXSQL_DISABLE_DYN_CRSR_EMU");
-	if (!disable_dynamic_cursor_emulation || strcmp(disable_dynamic_cursor_emulation, "1") != 0) {
+	const char* enable_dynamic_cursor_emulation = getenv("GIXSQL_DYN_CRSR_EMU");
+	if (enable_dynamic_cursor_emulation && strcmp(enable_dynamic_cursor_emulation, "1") == 0) {
 		if (strncmp(dbms_name, "PostgreSQL", strlen("PostgreSQL")) == 0) {
 			LOG_DEBUG(__FILE__, __func__, "INFO: Driver will emulate dynamic (updatable) cursors");
 			dynamic_cursor_emulation = true;

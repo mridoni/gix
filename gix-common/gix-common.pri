@@ -12,7 +12,6 @@ HEADERS +=  ./CobolVar.h \
 			./SymbolBufferReader.h \
 			./SymbolMappingEntry.h \
 			./utils.h \
-			./WebModuleMetadata.h \
 			./XPathParser.h \
 			./ESQLConfiguration.h \
 			./projectsystem/IPersistableProjectItem.h \
@@ -65,7 +64,6 @@ SOURCES +=  ./GixGlobals.cpp \
 			./SymbolBufferReader.cpp			 \
 			./DataEntry.cpp \
 			./ServerConfig.cpp \
-			./WebModuleMetadata.cpp \
 			./CobolVar.cpp \
 			./PropertyConsts.cpp \
 			./RsrcUtils.cpp \
@@ -106,3 +104,5 @@ SOURCES +=  ./GixGlobals.cpp \
 			./metadata/CobolModuleMetadata.cpp \
 			./metadata/MetadataManager.cpp \
 			./metadata/ListingFileParserResult.cpp
+
+RESOURCES += ./general.qrc

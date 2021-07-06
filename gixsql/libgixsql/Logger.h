@@ -45,8 +45,8 @@ private:
 
 };
 
-#define LOG_DEBUG(file, func, format, ...) logger.log_debug(file, func, format, __VA_ARGS__)
-#define LOG_ERROR(format, ...) logger.log_error(format, __VA_ARGS__)
+#define LOG_DEBUG(file, func, format, ...) logger.log_debug(file, func, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...) logger.log_error(format, ##__VA_ARGS__)
 
 #define DECLARE_LOGGER(_l) Logger _l
 #define DECLARE_LOGGER_STATIC(_l) static Logger _l

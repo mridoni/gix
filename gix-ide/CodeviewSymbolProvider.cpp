@@ -28,10 +28,6 @@ USA.
 
 static BOOL __stdcall DLL_EnumSourceFilesProc(PSOURCEFILE pSourceFile, PVOID UserContext);
 static BOOL __stdcall DLL_EnumLinesProc(PSRCCODEINFO LineInfo, PVOID UserContext);
-static BOOL __stdcall DLL_SymEnumerateLocalSymbolsCallback(PSYMBOL_INFO pSymInfo, ULONG SymbolSize, PVOID UserContext);
-
-
-extern void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions);
 
 // Just in case: MSVC has some symbol decoration issue in x86/x64
 #ifdef _WIN64
@@ -159,13 +155,16 @@ QString CodeviewSymbolProvider::dumpStackFrame(GixDebugger *gd, void *hproc, voi
 //			&dwDisplacement, &line);
 //
 //		if (bSuccess) {
-//			res += QString("%1:%2\n").arg(line.FileName).arg(line.LineNumber);
+//			res += QString("%1 - %2:%3\n").arg(QString::fromLocal8Bit(pSymbol->Name)).arg(line.FileName).arg(line.LineNumber);
+//		}
+//		else {
+//			res += QString("%1\n").arg(QString::fromLocal8Bit(pSymbol->Name));
 //		}
 //
 //
 //	} while (stack.AddrReturn.Offset != 0);
-
-	//return res;
+//
+//	return res;
 }
 
 #ifdef _WIN64
@@ -183,7 +182,12 @@ void *CodeviewSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void 
 	if (!root_addr)
 		return 0;
 
-	unsigned long long addr = ((frame_ptr + root_addr + vvar->local_addr) - 1);
+	//unsigned long long addr_1 = ((frame_ptr + root_addr + vvar->local_addr) - 1);	// DLL
+	unsigned long long addr = ((frame_ptr + root_addr + vvar->local_addr));	// EXE
+
+	if (gd->getDebuggedModuleType() == DebuggedModuleType::Shared)
+		addr -= 1;
+
 	return (void *)addr;
 }
 
@@ -328,12 +332,22 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 
 	QList<QString> cml;
 
-	// TODO: This "undecorates" symbols on x86, we should remove it and switch to a dbghelp-supported function
-	ListDLLFunctions(mod_path, cml);
+	int __GIX_SYM_MODULES_C = readSymbolValueAsInt(hproc, "__GIX_SYM_MODULES_C");
+	int __GIX_SYM_MODULES_S = readSymbolValueAsInt(hproc, "__GIX_SYM_MODULES_S");
+	uint8_t *__GIX_SYM_MODULES = readSymbolValueInBuffer(hproc, "__GIX_SYM_MODULES", __GIX_SYM_MODULES_S);
+
+	if (!__GIX_SYM_MODULES || __GIX_SYM_MODULES_C < 0 || __GIX_SYM_MODULES_S < 0) {
+		gd->printMessage("ERROR: cannot parse module debug info (module info)\n");
+		delete mi;
+		return nullptr;
+	}
+
+	SymbolBufferReader sr(__GIX_SYM_MODULES, __GIX_SYM_MODULES_S);
+	for (int i = 0; i < __GIX_SYM_MODULES_C; i++) {
+		cml.append(sr.readString());
+	}
 
 	for (auto m : cml) {
-		if (m.contains("_GIX_SYM_"))	// see the TODO comment above
-			continue;
 
 		CobolModuleInfo *cmi = new CobolModuleInfo();
 		cmi->name = m;
@@ -469,20 +483,20 @@ bool CodeviewSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hpr
 		VariableResolverData *rd = new VariableResolverData();
 		rd->var_name = sr.readString();
 		rd->var_path = sr.readString();
-		int rd_type = sr.readInt();
-		int rd_level = sr.readInt();
+		rd->type = sr.readInt();
+		rd->level = sr.readInt();
 		rd->base_var_name = sr.readString();
 		rd->local_addr = sr.readInt();
 		rd->storage_len = sr.readInt();
 
-		int display_size = sr.readInt();
-		int is_signed = sr.readInt();
-		int decimals = sr.readInt();
-		QString format = sr.readString();
-		int storage_type = sr.readInt();
-		QString storage = sr.readString();
-		int occurs = sr.readInt();
-		QString redefines = sr.readString();
+		rd->display_size = sr.readInt();
+		rd->is_signed = sr.readInt();
+		rd->decimals = sr.readInt();
+		rd->format = sr.readString();
+		rd->storage_type = sr.readInt();
+		rd->storage = sr.readString();
+		rd->occurs = sr.readInt();
+		rd->redefines = sr.readString();
 
 		cmi->locals[rd->var_name] = rd;
 	}

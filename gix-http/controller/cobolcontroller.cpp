@@ -82,6 +82,8 @@ void CobolController::service(ServiceConfig *svc, HttpRequest &request, HttpResp
 #endif
 	QString prg = svc->getProgram();
 
+//    QDir::setCurrent(svc->getServerConfig()->getSearchPath());
+
 	void *entry_point = (void *)runtime->cob_resolve((char *)prg.toLocal8Bit().constData());
 	if (entry_point == NULL) {
 		response.setStatus(500);

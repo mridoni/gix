@@ -229,7 +229,6 @@ private:
 	QString log;
 	bool debug;
 	QString runtime_path;
-	QString runtime_path_debug;
 	QMap<QString, QString> environment;
 	QString search_path;
 	QMap<QString, ServiceConfig *> services;

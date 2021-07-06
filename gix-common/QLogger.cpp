@@ -239,7 +239,13 @@ namespace QLogger
 
 	void QLoggerWriter::write(const QString& module, const QString& message, const LogLevel& messageLogLevel)
 	{
-		const auto dtFormat = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss.zzz");
+        auto dt = QDateTime::currentDateTime();
+        QString dtFormat;
+
+        if (dt.isValid())
+            dtFormat = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss.zzz");
+        else
+            dtFormat = "00-00-0000 00:00:00.000";
 
 		write(module, message, messageLogLevel, dtFormat);
 	}

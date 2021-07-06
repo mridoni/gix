@@ -240,15 +240,6 @@ void MainWindow::openPrj(QString fileName)
 	}
 
 	bool rc = Ide::TaskManager()->loadProjectCollection(fileName);
-
-	//ProjectCollection *ppj = new ProjectCollection();
-	//if (ppj->load(nullptr, fileName)) {
-	//	MainWindow::prependToRecentProjects(fileName);
-	//	prjcoll_window->setContent(ppj);
-	//	Ide::TaskManager()->setCurrentProjectCollection(ppj);
-	//	Ide::TaskManager()->loadProjectCollectionState(ppj);
-	//	Ide::TaskManager()->setStatus(IdeStatus::Editing, true);
-	//}
 }
 
 void MainWindow::editSettings()
@@ -275,27 +266,11 @@ bool MainWindow::openFile(const QString &fileName)
 		return true;
 	}
 	const bool succeeded = loadFile(fileName);
-	if (succeeded)
+	if (succeeded) {
 		statusBar()->showMessage(tr("File loaded"), 2000);
-
-	//QStringList bms = Ide::TaskManager()->getBookmarks(fileName);
-	//for (QString bm : bms) {
-	//	MdiChild* c = (MdiChild*)findMdiChild(fileName);
-	//	if (c) {
-	//		if (bm.isEmpty())
-	//			continue;
-
-	//		int lpos = bm.lastIndexOf(":");
-	//		if (lpos == -1 || lpos >= (bm.size() - 1))
-	//			continue;
-
-	//		int ln = bm.mid(lpos + 1).toInt();
-	//		if (!ln)
-	//			continue;
-
-	//		c->showBookmarkAtLine(ln);
-	//	}
-	//}
+		if (Ide::TaskManager()->getStatus() != IdeStatus::LoadingOrSaving)
+			Ide::TaskManager()->saveCurrentProjectCollectionState();
+	}
 
 	return succeeded;
 }
@@ -777,6 +752,9 @@ void MainWindow::updateWindowMenu()
 	windowMenu->addAction(propwin_dock->toggleViewAction());
 	windowMenu->addAction(output_dock->toggleViewAction());
 	windowMenu->addAction(dbmanager_dock->toggleViewAction());
+	windowMenu->addAction(navigation_dock->toggleViewAction());
+	windowMenu->addAction(deps_dock->toggleViewAction());
+	windowMenu->addAction(console_dock->toggleViewAction());
 
 	if (Ide::TaskManager()->getStatus() == IdeStatus::Debugging || Ide::TaskManager()->getStatus() == IdeStatus::DebuggingOnBreak)
 		windowMenu->addAction(watch_dock->toggleViewAction());
@@ -1158,10 +1136,20 @@ void MainWindow::createActions()
 	cbConfiguration->setCurrentIndex(DEFAULT_TARGET_CONFIG);	// 0 = Release, 1 = Debug
 	buildToolBar->addWidget(cbConfiguration);
 
+	connect(cbConfiguration, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i) {
+		if (Ide::TaskManager()->getStatus() != IdeStatus::LoadingOrSaving)
+			Ide::TaskManager()->saveCurrentProjectCollectionState();
+	});
+
 	cbPlatform = new QComboBox(this);
 	QStringList available_platforms = this->getPlatformsForConfiguration(cbConfiguration->itemData(DEFAULT_TARGET_CONFIG).toString());
 	for (QString p : available_platforms)
 		cbPlatform->addItem(p, p);
+
+	connect(cbPlatform, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i) {
+		if (Ide::TaskManager()->getStatus() != IdeStatus::LoadingOrSaving)
+			Ide::TaskManager()->saveCurrentProjectCollectionState();
+	});
 
 	buildToolBar->addWidget(cbPlatform);
 
@@ -1324,16 +1312,16 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-	QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-	const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
-	if (geometry.isEmpty()) {
+    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
+    if (geometry.isEmpty()) {
 		const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
 		resize(availableGeometry.width(), availableGeometry.height());
 		showMaximized();
-	}
-	else {
-		restoreGeometry(geometry);
-	}
+    }
+    else {
+        restoreGeometry(geometry);
+    }
 }
 
 void MainWindow::writeSettings()
@@ -1389,70 +1377,6 @@ QStringList MainWindow::getPlatformsForConfiguration(QString config)
 	return c->getTargetPlatforms().keys();
 }
 
-/*
-void MainWindow::loadProjectCollectionState(ProjectCollection *ppj)
-{
-	QString ppj_file = ppj->GetFileFullPath();
-	QString state_file = PathUtils::changeExtension(ppj_file, ".gixstate");
-	QFile sf(state_file);
-	if (!sf.exists())
-		return;
-
-	QSettings settings(state_file, QSettings::IniFormat, this);
-	QString configuration = settings.value("ide/configuration", "").toString();
-	QString platform = settings.value("ide/platform", "").toString();
-
-	if (configuration != "" && cbConfiguration->findData(configuration) >= 0)
-		cbConfiguration->setCurrentIndex(cbConfiguration->findData(configuration));
-
-	if (platform != "" && cbPlatform->findData(platform) >= 0)
-		cbPlatform->setCurrentIndex(cbPlatform->findData(platform));
-
-	int nfiles = settings.value("edit_files/count", 0).toInt();
-	for (int i = 1; i <= nfiles; i++) {
-		QString filename = settings.value("edit_files/file" + QString::number(i), "").toString();
-		if (QFile(filename).exists()) {
-			openFile(filename);
-		}
-	}
-
-	QStringList watched_vars;
-	int nvars = settings.value("debug/watch_count", 0).toInt();
-	for (int i = 0; i < nvars; i++) {
-		QString s = settings.value("debug/watched_var_" + QString::number(i + 1), "").toString();
-		if (s != "")
-			watched_vars.append(s);
-	}
-	Ide::TaskManager()->setWatchedVars(watched_vars);
-
-	QStringList breakpoints;
-	int nbkps = settings.value("debug/breakpoint_count", 0).toInt();
-	for (int i = 0; i < nbkps; i++) {
-		QString s = settings.value("debug/breakpoint_" + QString::number(i + 1), "").toString();
-		if (s != "")
-			breakpoints.append(s);
-	}
-	Ide::TaskManager()->setBreakpoints(breakpoints);
-}
-
-bool MainWindow::closeCurrentProjectCollection()
-{
-
-	if (Ide::TaskManager()->getCurrentProjectCollection() != nullptr) {
-		ProjectCollection * ppj = Ide::TaskManager()->getCurrentProjectCollection();
-		if (!ppj->save(nullptr, ppj->GetFileFullPath())) {
-			QString msg = QString(tr("Cannot close/save project collection %1 or one of its dependent projects")).arg(ppj->GetDisplayName());
-			UiUtils::ErrorDialog(msg);
-			return false;
-		}
-
-		Ide::TaskManager()->saveCurrentProjectCollectionState();
-	}
-
-	return true;
-}
-
-*/
 
 QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 {

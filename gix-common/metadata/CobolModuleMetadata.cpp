@@ -199,12 +199,10 @@ void CobolModuleMetadata::clear()
 DataEntry *CobolModuleMetadata::findDefinition(QString srch, bool use_path)
 {
 	QString search_obj;
-	if (use_path)
-		search_obj = srch.startsWith("*:") ? "WS:" + srch.mid(2) : srch;
-	else
-		search_obj = srch;
+	DataEntry *e = nullptr;
 
-	DataEntry* e = findEntry(working_storage->children, search_obj, use_path);
+	search_obj = srch.startsWith("*:") ? "WS:" + srch.mid(2) : srch;
+	e = findEntry(working_storage->children, search_obj, use_path);
 	if (e)
 		return e;
 
@@ -252,8 +250,14 @@ DataEntry *CobolModuleMetadata::findEntry(QList<DataEntry *> entries, QString sr
 				return e;
 		}
 		else {
-			if (e->name == srch)
-				return e;
+			if (srch.contains(":")) {
+				if (e->name == srch.mid(srch.indexOf(":") + 1))
+					return e;
+			}
+			else {
+				if (e->name == srch)
+					return e;
+			}
 		}
 
 		DataEntry *d = findEntry(e->children, srch, use_path);
@@ -449,7 +453,7 @@ void CobolModuleMetadata::dump_data_entries(const QList<DataEntry *> entries, QD
 void CobolModuleMetadata::dump_data_entry(const DataEntry *e, QDataStream &s)
 {
 	s << e->name;
-	s << e->type;
+	s << (int) e->type;
 	s << e->level;
 	s << e->storage_size;
 	s << e->display_size;
@@ -459,7 +463,7 @@ void CobolModuleMetadata::dump_data_entry(const DataEntry *e, QDataStream &s)
 	s << e->decimals;
 	s << e->is_required;
 	s << e->format;
-	s << e->storage_type;
+	s << (int) e->storage_type;
 	s << e->storage; // COMP, COMP-3...
 	s << e->occurs;
 	s << e->redefines;
@@ -589,12 +593,13 @@ void CobolModuleMetadata::load_data_entries(const CobolModuleMetadata *cmm, QLis
 void CobolModuleMetadata::load_data_entry(DataEntry *e, QMap<QString, QStringList> &rmap, QDataStream &s)
 {
 	int count;
+	int i;
 	QString parent_path, rel;
 
 	e->parent = nullptr;
 
 	s >> e->name;
-	s >> e->type;
+	s >> i; e->type = (WsEntryType) i;
 	s >> e->level;
 	s >> e->storage_size;
 	s >> e->display_size;
@@ -604,7 +609,7 @@ void CobolModuleMetadata::load_data_entry(DataEntry *e, QMap<QString, QStringLis
 	s >> e->decimals;
 	s >> e->is_required;
 	s >> e->format;
-	s >> e->storage_type;
+	s >> i; e->storage_type = (WsEntryStorageType) i;
 	s >> e->storage; // COMP, COMP-3...
 	s >> e->occurs;
 	s >> e->redefines;

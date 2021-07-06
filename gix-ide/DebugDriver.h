@@ -50,7 +50,10 @@ public:
 	//QStringList Breakpoints;
 };
 
-class DebugDriver : public QThread {
+class DebugDriver : public QObject {
+
+    Q_OBJECT
+
 public:
 	// Messages/Requests from debugged program to client debugger (VS, etc.)
 	const static QString CMD_DEBUGGER_STARTING;
@@ -74,9 +77,7 @@ public:
 	const static QString RESP_OK_WITH_RESULT;
 
 	const static QString RESP_KO;
-	const static QString RESP_KO_WITH_RESULT;
-
-	Q_OBJECT
+    const static QString RESP_KO_WITH_RESULT;
 
 public:
 	DebugDriver(DebugManager *);
@@ -88,22 +89,19 @@ public:
 	bool stop();
 	QString getLastResponse();
 	void write(QString);
+    void writeToProcess(QString);
     bool isRunning();
 
 	DebugDriverRunParameters RunParameters;
 
 	static bool is_ok_response(QString);
 
-//public slots:
-    void run() override;
+public slots:
+    void startDriver();
 
 signals:
 	void DebuggerReady(QString);
 	void DebuggerBreak(QString, QString, int);
-	//void DebuggerNewConnection(QString);
-	//void DebuggerCommandSent(QString);
-	//void DebuggerCommandReceived(QString);
-	//void DebuggerLogMessage(QString);
 	void DebuggerModuleChanged(QString, int);
 	void DebuggerModuleExit(QString, int);
 	void DebuggerProcessStarted(QString);

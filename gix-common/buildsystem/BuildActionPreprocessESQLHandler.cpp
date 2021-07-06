@@ -71,7 +71,7 @@ bool BuildActionPreprocessESQLHandler::startBuild()
 	QString target_platform = build_driver->getBuildEnvironment()["platform"].toString();
 	QString target_type = build_configuration + "/" + target_platform;
 
-	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform));
+	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
 		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);

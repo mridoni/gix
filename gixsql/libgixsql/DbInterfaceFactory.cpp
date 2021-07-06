@@ -134,7 +134,7 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 		// Library not freed here
 	}
 	else {
-		LOG_ERROR("ERROR while loading DB provider: %s\n", bfr);
+        LOG_ERROR("ERROR while loading DB provider: %s (%s)\n", bfr, dlerror());
 	}
 
 #endif

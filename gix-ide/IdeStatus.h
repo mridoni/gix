@@ -21,7 +21,8 @@ USA.
 #pragma once
 
 
-enum IdeStatus {
+enum class IdeStatus {
+	LoadingOrSaving,
 	Started,
 	Editing,
 	Building,

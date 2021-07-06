@@ -180,7 +180,7 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 				while (!q.isEmpty() && q.dequeue() == "OF") {
 					items.insert(0, q.dequeue());
 				}
-				items.insert(0, "XS");
+				items.insert(0, "*");
 				path = items.join(':').replace(".", "");
 				Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(1): %1").arg(word), QLogger::LogLevel::Trace);
 				Ide::TaskManager()->gotoDefinition(this, path, ln);
@@ -199,6 +199,40 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 			QString s = QString::fromUtf8(this->get_text_range(wstart, wend));
 			Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
 		});
+
+		QShortcut *qs3 = new QShortcut(QKeySequence("Ctrl+K"), this);
+		connect(qs3, &QShortcut::activated, this, [this]() {
+			sptr_t wstart = this->selectionStart();
+			sptr_t wend = this->selectionEnd();
+			int ln_start = this->lineFromPosition(wstart);
+			int ln_end = this->lineFromPosition(wend);
+
+			// we get the current status fom the first line in the selection
+			QByteArray qba = this->get_text_range(this->positionFromLine(ln_start), this->lineEndPosition(ln_start));
+			QString s = QString::fromUtf8(qba);
+			int is_currently_commented = (s.length() >= 7 && s[6] == '*');
+
+			for (int ln = ln_start; ln <= ln_end; ln++) {
+				QByteArray qba = this->get_text_range(this->positionFromLine(ln), this->lineEndPosition(ln));
+				QString s = QString::fromUtf8(qba);
+				int cur_line_len = s.length();
+
+				if (cur_line_len < 7) {
+					s = s.leftJustified(7);
+					this->setTargetStart(this->positionFromLine(ln));
+					this->setTargetEnd(this->positionFromLine(ln) + cur_line_len - 1);
+					this->replaceTarget(7, (s.left(6) + (is_currently_commented ? " " : "*")).toUtf8());
+				}
+				else {
+					this->setTargetStart(this->positionFromLine(ln) + 6);
+					this->setTargetEnd(this->positionFromLine(ln) + 7);
+					this->replaceTarget(1, is_currently_commented ? " " : "*");
+				}
+			}
+
+			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
+		});
+
 	}
 };
 

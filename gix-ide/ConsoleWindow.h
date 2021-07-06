@@ -26,23 +26,41 @@ USA.
 #include "MainWindow.h"
 #include "ConsoleWidget.h"
 
+#if defined(__linux__)
+#include <qtermwidget5/qtermwidget.h>
+#endif
+
 class ConsoleWindow : public QMainWindow
 {
+    Q_OBJECT
 
 public:
 	ConsoleWindow(QWidget* parent, MainWindow* mw);
-	void setConsoleFont();
-	~ConsoleWindow();
+    virtual ~ConsoleWindow();
 
+    void setEcho(bool b);
 	void clear();
+    void setConsoleFont();
 
 	void append(QString s, bool is_err = false);
 	void appendOut(QString s);
 	void appendErr(QString s);
 
+signals:
+    void inputAvailable(const QString& s);
+
 private:
-	ConsoleWidget* console;
+
+#if defined(__linux__)
+    QTermWidget *console;
+    QString console_buffer;
+#else
+    ConsoleWidget* console;
+#endif
+
 	MainWindow* mainWindow;
 	QToolBar* toolBar;
+
+    bool has_echo = true;
 };
 

@@ -75,38 +75,30 @@ GixDebugger *DebugDriver::debuggerInstance()
 	return debugger_instance;
 }
 
-void DebugDriver::run()
+void DebugDriver::startDriver()
 {
 	GixDebuggerInterfaceBlock ib;
 
-	//local_server = new QLocalServer();
-
-	//connect(local_server, &QLocalServer::newConnection, this, [this] { 
-	//	local_socket = this->local_server->nextPendingConnection(); 
-	//});
-
-
-
-
 	ib.debuggerBreak = [this](GixDebugger *gd, QString module_name, QString src_file, int line) {
 
-		emit DebuggerBreak(module_name, src_file, line);
+        fprintf(stderr, "DebugDriver is emitting DebuggerBreak\n");
+        emit this->DebuggerBreak(module_name, src_file, line);
 
-		while (true) {
-			cmd_line = "";
+        while (true) {
+            cmd_line = "";
 
-			cmd_mutex.lock();
-			Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver is waiting for commands", QLogger::LogLevel::Trace);
-			cmd_available.wait(&cmd_mutex);
-			cmd_mutex.unlock();
+            cmd_mutex.lock();
+            Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver is waiting for commands", QLogger::LogLevel::Trace);
+            cmd_available.wait(&cmd_mutex);
+            cmd_mutex.unlock();
 
-			Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver received: " + cmd_line, QLogger::LogLevel::Trace);
-			bool stop_processing = processCommand(cmd_line);
-			if (stop_processing) {
-				Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver will stop processing commands", QLogger::LogLevel::Trace);
-				break;
-			}
-		}
+            Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver received: " + cmd_line, QLogger::LogLevel::Trace);
+            bool stop_processing = processCommand(cmd_line);
+            if (stop_processing) {
+                Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver will stop processing commands", QLogger::LogLevel::Trace);
+                break;
+            }
+        }
 
 		return true;
 	};
@@ -154,12 +146,12 @@ void DebugDriver::run()
 	};
 
 	ib.debuggerStdOutAvailable = [this](GixDebugger *gd, QString msg) {
-		emit DebuggerStdOutAvailable(msg);
+        emit DebuggerStdOutAvailable(msg);
 		return true;
 	};
 
 	ib.debuggerStdErrAvailable = [this](GixDebugger *gd, QString msg) {
-		emit DebuggerStdErrAvailable(msg);
+        emit DebuggerStdErrAvailable(msg);
 		return true;
 	};
 
@@ -231,6 +223,9 @@ bool DebugDriver::is_response(QString s)
 bool DebugDriver::processCommand(const QString &cmd_line)
 {
 	QStringList cmd = cmd_line.split(' ');
+
+    fprintf(stderr, ">>> DebugDriver received \"%s\"\n", cmd_line.toLocal8Bit().data());
+
 	if (cmd.size() == 0 || cmd.at(0).trimmed() == "")
 		return false;
 
@@ -255,7 +250,12 @@ QString DebugDriver::getLastResponse()
 void DebugDriver::write(QString payload)
 {
 	cmd_line = payload;
-	cmd_available.wakeAll();
+    cmd_available.wakeAll();
+}
+
+void DebugDriver::writeToProcess(QString s)
+{
+    debugger_instance->writeToProcess(s);
 }
 
 bool DebugDriver::is_ok_response(QString s)

@@ -72,7 +72,7 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 		return runGixSqlInternal(build_driver, input_file, output_file, opts);
 
 	QString target_type = configuration + "/" + platform;
-	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform));
+	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, QVariantMap()));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
 		build_driver->log_build_message(QString(QCoreApplication::translate("gix", "Invalid compiler configuration for target %1")).arg(target_type), QLogger::LogLevel::Error, 1);
@@ -236,7 +236,15 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 	gp.verbose = true;
 	gp.verbose_debug = true;
 
-	gp.setCopyResolver(build_driver->getCopyResolver());
+	CopyResolver cr(*build_driver->getCopyResolver());
+	QString gix_copy_dir = PathUtils::combine(GixGlobals::getGixHomeDir(), "copy");
+	QStringList copy_dir_list = cr.getCopyDirs();
+	if (!copy_dir_list.contains(gix_copy_dir)) {
+		copy_dir_list.append(gix_copy_dir);
+		cr.setCopyDirs(copy_dir_list);
+	}
+		
+	gp.setCopyResolver(&cr);
 
 	gp.setOpt("emit_debug_info", true);
 	gp.setOpt("emit_static_calls", true);

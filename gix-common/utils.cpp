@@ -26,6 +26,9 @@
 #include <cctype>
 #include <locale>
 #include <cstring>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
 #include "utils.h"
 #include "gixcommon_global.h"
@@ -374,3 +377,14 @@ bool caseInsensitiveStringCompare(const std::string& str1, const std::string& st
 	return true;
 }
 
+std::vector<std::string> split_with_quotes(const std::string& in_s)
+{
+    std::istringstream iss(in_s);
+    std::vector<std::string> v;
+    std::string s;
+
+    while (iss >> std::quoted(s)) {
+        v.push_back(s);
+    }
+    return v;
+}

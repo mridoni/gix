@@ -131,5 +131,7 @@ private:
 	QMap<QString, QStringList> file_dependencies;
 
 	int current_input_line;
+
+	bool emitted_query_defs = false;
 };
 

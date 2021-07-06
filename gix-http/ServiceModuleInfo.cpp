@@ -31,16 +31,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <Windows.h>
 #include <imagehlp.h>
 #define LIBHANDLE HINSTANCE
-void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions);
 #else
 #include <dlfcn.h>
 #define LIBHANDLE void *
 #endif
 
+#if defined(_WIN32)
 #if defined(_WIN64)
 #define GIX_SYM_PFX "__GIX_SYM_"
 #else
 #define GIX_SYM_PFX "_GIX_SYM_"
+#endif
+#elif defined(__linux__)
+#define GIX_SYM_PFX "__GIX_SYM_"
 #endif
 
 
@@ -103,6 +106,66 @@ QList<DataEntry *> ServiceModuleInfo::getEntryList() const
 	return entries.values();
 }
 
+#if defined(_WIN32)
+int p_readSymbolValueAsInt(HMODULE libHandle, const QString &s)
+{
+	void *addr = (void *)GetProcAddress(libHandle, s.toLocal8Bit().constData());
+	if (!addr) {
+		return -1;
+	}
+
+	SIZE_T st;
+	uint8_t bfr[sizeof(int)];
+	memcpy(bfr, addr, sizeof(int));
+
+	int i = *((int *)&bfr);
+	return i;
+}
+
+uint8_t *p_readSymbolValueInBuffer(HMODULE libHandle, const QString &s, int bfrlen)
+{
+	void *addr = (void *)GetProcAddress(libHandle, s.toLocal8Bit().constData());
+	if (!addr)
+		return 0;
+
+	uint8_t *bfr = (uint8_t *)calloc(1, bfrlen);
+	SIZE_T st;
+
+	memcpy(bfr, addr, bfrlen);
+
+	return bfr;
+}
+
+#elif defined(__linux__)
+int p_readSymbolValueAsInt(void *libHandle, const QString &s)
+{
+    void *addr = (void *)dlsym(libHandle, s.toLocal8Bit().constData());
+    if (!addr) {
+        return -1;
+    }
+
+    size_t st;
+    uint8_t bfr[sizeof(int)];
+    memcpy(bfr, addr, sizeof(int));
+
+    int i = *((int *)&bfr);
+    return i;
+}
+
+uint8_t *p_readSymbolValueInBuffer(void *libHandle, const QString &s, int bfrlen)
+{
+    void *addr = (void *)dlsym(libHandle, s.toLocal8Bit().constData());
+    if (!addr)
+        return 0;
+
+    uint8_t *bfr = (uint8_t *)calloc(1, bfrlen);
+    size_t st;
+
+    memcpy(bfr, addr, bfrlen);
+
+    return bfr;
+}
+#endif
 
 ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &shared_module)
 {
@@ -110,12 +173,27 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 	//IDbInterface *dbi = NULL;
 	LIBHANDLE libHandle = NULL;
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32)
 	QStringList cob_module_list;
 
-	ListDLLFunctions(shared_module, cob_module_list);
-
 	libHandle = LoadLibrary(QDir::toNativeSeparators(shared_module).toLocal8Bit().constData());
+
+	//ListDLLFunctions(shared_module, cob_module_list);
+
+	int __GIX_SYM_MODULES_C = p_readSymbolValueAsInt(libHandle, "__GIX_SYM_MODULES_C");
+	int __GIX_SYM_MODULES_S = p_readSymbolValueAsInt(libHandle, "__GIX_SYM_MODULES_S");
+	uint8_t *__GIX_SYM_MODULES = p_readSymbolValueInBuffer(libHandle, "__GIX_SYM_MODULES", __GIX_SYM_MODULES_S);
+
+	if (!__GIX_SYM_MODULES || __GIX_SYM_MODULES_C < 0 || __GIX_SYM_MODULES_S < 0) {
+		FreeLibrary(libHandle);
+		return nullptr;
+	}
+
+	SymbolBufferReader sr(__GIX_SYM_MODULES, __GIX_SYM_MODULES_S);
+	for (int i = 0; i < __GIX_SYM_MODULES_C; i++) {
+		cob_module_list.append(sr.readString());
+	}
+
 
 	if (!libHandle)
 		return nullptr;
@@ -194,6 +272,100 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 
 
 #else
+    QStringList cob_module_list;
+
+    libHandle = dlopen(QDir::toNativeSeparators(shared_module).toLocal8Bit().constData(), RTLD_NOW);
+
+    //ListDLLFunctions(shared_module, cob_module_list);
+
+    int __GIX_SYM_MODULES_C = p_readSymbolValueAsInt(libHandle, "__GIX_SYM_MODULES_C");
+    int __GIX_SYM_MODULES_S = p_readSymbolValueAsInt(libHandle, "__GIX_SYM_MODULES_S");
+    uint8_t *__GIX_SYM_MODULES = p_readSymbolValueInBuffer(libHandle, "__GIX_SYM_MODULES", __GIX_SYM_MODULES_S);
+
+    if (!__GIX_SYM_MODULES || __GIX_SYM_MODULES_C < 0 || __GIX_SYM_MODULES_S < 0) {
+        dlclose(libHandle);
+        return nullptr;
+    }
+
+    SymbolBufferReader sr(__GIX_SYM_MODULES, __GIX_SYM_MODULES_S);
+    for (int i = 0; i < __GIX_SYM_MODULES_C; i++) {
+        cob_module_list.append(sr.readString());
+    }
+
+
+    if (!libHandle)
+        return nullptr;
+
+    for (QString module : cob_module_list) {
+        void *p__GIX_SYM_MOD_EC = (void *)dlsym(libHandle, (GIX_SYM_PFX + module + "_EC").toLocal8Bit().constData());
+        void *p__GIX_SYM_MOD_ES = (void *)dlsym(libHandle, (GIX_SYM_PFX + module + "_ES").toLocal8Bit().constData());
+
+        void *p__GIX_SYM_MOD_MC = (void *)dlsym(libHandle, (GIX_SYM_PFX + module + "_MC").toLocal8Bit().constData());
+        void *p__GIX_SYM_MOD_MS = (void *)dlsym(libHandle, (GIX_SYM_PFX + module + "_MS").toLocal8Bit().constData());
+
+        uint8_t *__GIX_SYM_MOD_E = (uint8_t *)dlsym(libHandle, (GIX_SYM_PFX + module + "_E").toLocal8Bit().constData());
+        uint8_t *__GIX_SYM_MOD_M = (uint8_t *)dlsym(libHandle, (GIX_SYM_PFX + module + "_M").toLocal8Bit().constData());
+
+        if (!p__GIX_SYM_MOD_EC || !p__GIX_SYM_MOD_ES || !p__GIX_SYM_MOD_MC || !p__GIX_SYM_MOD_MS || !__GIX_SYM_MOD_E || !__GIX_SYM_MOD_M) {
+            dlclose(libHandle);
+            return nullptr;
+        }
+        int __GIX_SYM_MOD_EC = *(int *)p__GIX_SYM_MOD_EC;
+        int __GIX_SYM_MOD_ES = *(int *)p__GIX_SYM_MOD_ES;
+        int __GIX_SYM_MOD_MC = *(int *)p__GIX_SYM_MOD_MC;
+        int __GIX_SYM_MOD_MS = *(int *)p__GIX_SYM_MOD_MS;
+
+        ServiceModuleInfo *smi = new ServiceModuleInfo();
+
+        SymbolBufferReader sr(__GIX_SYM_MOD_E, __GIX_SYM_MOD_ES);
+        for (int i = 0; i < __GIX_SYM_MOD_EC; i++) {
+            DataEntry *e = new DataEntry();
+
+            e->name = sr.readString();
+            e->path = sr.readString();
+            e->type = (WsEntryType)sr.readInt();
+            e->level = sr.readInt();
+            e->base_var_name = sr.readString();
+            e->offset_local = sr.readInt();
+
+            e->storage_size = sr.readInt();
+
+            e->display_size = sr.readInt();
+            e->is_signed = sr.readInt();
+            e->decimals = sr.readInt();
+            e->format = sr.readString();
+            e->storage_type = (WsEntryStorageType)sr.readInt();
+            e->storage = sr.readString();
+            e->occurs = sr.readInt();
+            e->redefines = sr.readString();
+
+            if (!e->path.startsWith("LS:")) {
+                delete e;
+                continue;
+            }
+
+            smi->entries.insert(e->name, e);
+        }
+
+        // Not needed here
+        //SymbolBufferReader sm(__GIX_SYM_MOD_M, __GIX_SYM_MOD_MS);
+        //for (int i = 0; i < __GIX_SYM_MOD_MC; i++) {
+        //	QString sym_name = sm.readString();
+        //	QString var_name = sm.readString();
+        //	int storage_size = sm.readInt();
+
+        //	if (!cmi->locals.contains(var_name))
+        //		continue;
+
+        //	VariableResolverData *rd = cmi->locals[var_name];
+        //	rd->local_sym_name = sym_name;
+        //}
+        // Not needed here (end)
+
+        dlclose(libHandle);
+
+        return smi;
+    }
 	// To be implemented
 	/*
 		strcat(bfr, ".so");
@@ -255,32 +427,3 @@ DataEntry *ServiceModuleInfo::buildInterfaceEntryTree(const QString &root_field_
 	return e;
 }
 
-#if defined(_WIN32) || defined(_WIN64)
-
-void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions)
-{
-	DWORD *dNameRVAs(0);
-	_IMAGE_EXPORT_DIRECTORY *ImageExportDirectory;
-	unsigned long cDirSize;
-	_LOADED_IMAGE LoadedImage;
-	QString sName;
-	slListOfDllFunctions.clear();
-	if (MapAndLoad(sADllName.toLocal8Bit().constData(), NULL, &LoadedImage, TRUE, TRUE)) {
-		ImageExportDirectory = (_IMAGE_EXPORT_DIRECTORY *)
-			ImageDirectoryEntryToData(LoadedImage.MappedAddress,
-				false, IMAGE_DIRECTORY_ENTRY_EXPORT, &cDirSize);
-		if (ImageExportDirectory != NULL) {
-			dNameRVAs = (DWORD *)ImageRvaToVa(LoadedImage.FileHeader,
-				LoadedImage.MappedAddress,
-				ImageExportDirectory->AddressOfNames, NULL);
-			for (size_t i = 0; i < ImageExportDirectory->NumberOfNames; i++) {
-				sName = (char *)ImageRvaToVa(LoadedImage.FileHeader,
-					LoadedImage.MappedAddress,
-					dNameRVAs[i], NULL);
-				slListOfDllFunctions.append(sName);
-			}
-		}
-		UnMapAndLoad(&LoadedImage);
-	}
-}
-#endif

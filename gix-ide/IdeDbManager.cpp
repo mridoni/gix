@@ -41,7 +41,7 @@ IdeDbManager::~IdeDbManager()
 bool IdeDbManager::init()
 {
 	QSettings settings;
-	std::unordered_set<QString> initialized_ids;
+	QSet<QString> initialized_ids;
 
 	connections.clear();
 	QString pfx = "dbmgr_conn_";

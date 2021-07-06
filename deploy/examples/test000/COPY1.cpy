@@ -1,4 +1,4 @@
-            01 A PIC X(99).
+            01 A PIC X(99) VALUE 'ABCD1234'.
             01 B PIC X(99).
             01 C PIC X(99).
             01 D PIC X(99).

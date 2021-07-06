@@ -20,20 +20,46 @@ USA.
 
 #include "ConsoleWindow.h"
 #include "UiUtils.h"
-
 #include <QSettings>
+
+#if defined(__linux__)
+#include <unistd.h>
+#endif
 
 ConsoleWindow::ConsoleWindow(QWidget* parent, MainWindow* mw)
 {
 	this->setWindowTitle("Output");
 	this->setMinimumHeight(100);
-	this->setMinimumWidth(500);
+	this->setMinimumWidth(250);
 	this->setWindowFlags(Qt::Widget); // <---------
 	toolBar = new QToolBar(this);
 	this->addToolBar(toolBar);
 	this->mainWindow = mw;
 
-	this->console = new ConsoleWidget(this);
+#if defined(__linux__)
+    this->console = new QTermWidget(0, this);
+
+    connect (this->console, &QTermWidget::sendData, this, [this](const char *s, int len) {
+        if (s && len) {
+            if (has_echo)
+                write(this->console->getPtySlaveFd(), s, strlen(s));
+
+            QByteArray qba = QByteArray::fromRawData(s, len);
+            console_buffer += QString::fromLocal8Bit(qba);
+            if (console_buffer.endsWith('\n') || console_buffer.endsWith('\r')) {
+                emit inputAvailable(console_buffer);
+                console_buffer.clear();
+            }
+        }
+    });
+
+    this->console->setColorScheme("GreenOnBlack");
+	this->console->setFlowControlEnabled(false);
+    this->console->startTerminalTeletype();
+
+#else
+    this->console = new ConsoleWidget(this);
+#endif
 	//this->console->setReadOnly(true);
 	
 	setConsoleFont();
@@ -64,7 +90,12 @@ void ConsoleWindow::setConsoleFont()
 
 ConsoleWindow::~ConsoleWindow()
 {
-	
+
+}
+
+void ConsoleWindow::setEcho(bool b)
+{
+    has_echo = b;
 }
 
 void ConsoleWindow::clear()
@@ -75,7 +106,12 @@ void ConsoleWindow::clear()
 
 void ConsoleWindow::append(QString s, bool is_err)
 {
-	console->putData(s.toUtf8());
+#if defined(__linux__)
+    const char *c = s.toLocal8Bit().constData();
+    write(this->console->getPtySlaveFd(), c, strlen(c));
+#else
+    console->putData(s.toUtf8());
+#endif
 }
 
 void ConsoleWindow::appendOut(QString s)
@@ -87,4 +123,3 @@ void ConsoleWindow::appendErr(QString s)
 {
 	append(s, true);
 }
-

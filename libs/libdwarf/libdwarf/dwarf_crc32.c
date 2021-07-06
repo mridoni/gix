@@ -46,8 +46,8 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #elif defined(_WIN32) && defined(_MSC_VER)
-#include <stdio.h>
 #include <io.h>
+#include <stdio.h>
 #include <basetsd.h>
 typedef SSIZE_T ssize_t; /* MSVC does not have POSIX ssize_t */
 #endif /* HAVE_UNISTD_H */

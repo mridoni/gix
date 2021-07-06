@@ -29,9 +29,15 @@ USA.
 #include "AddCompilerDialog.h"
 #include "GixGlobals.h"
 #include "ESQLConfiguration.h"
+#include "AddCompilerWizard.h"
 
 #include <QSettings>
 #include <QFileDialog>
+#include <QMenu>
+#include <QLineEdit>
+#include <QToolButton>
+
+class CompilerOptsWizardPage;
 
 SettingsDialog::SettingsDialog(QWidget* parent)
 {
@@ -82,6 +88,14 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	tHostPort->setVisible(false);
 	cbSkipCheckPackageVersionCheck->setVisible(false);
 
+	QMenu *menu = new QMenu(this);
+	QAction *act1 = new QAction(tr("Add compiler (manually)..."), this);
+	connect(act1, &QAction::triggered, this, [this] { addCompilerManually(); });
+	menu->addAction(act1);
+	btnAddCompiler->setMenu(menu);
+
+    connect(btnAddCompiler, &QToolButton::clicked, this, [this] { addCompiler(); });
+
 	connect(btn_esql_mysql_x64_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_mysql_x64_rt_path, true); });
 	connect(btn_esql_mysql_x86_rt_path, &QPushButton::clicked, this, [this] { choosePath(esql_mysql_x86_rt_path, true); });
 
@@ -95,10 +109,6 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
 	connect(cbReleaseCompiler, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i){ updateCompilerInfo(0, i); });
 	connect(cbDebugCompiler, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i){ updateCompilerInfo(1, i); });
-	
-
-	connect(btnAddCompiler, &QPushButton::clicked, this, [this] { addCompiler(); });
-
 }
 
 void SettingsDialog::updateCompilerInfo(int t, int idx)
@@ -149,6 +159,9 @@ void SettingsDialog::initCompilers()
 		cbDebugCompiler->addItem(cd->getName(), cd->getId());
 	}
 }
+
+
+
 
 void SettingsDialog::accept()
 {
@@ -415,16 +428,29 @@ bool SettingsDialog::settingsSetValue(QString n, int v)
 	return res;
 }
 
+
 void SettingsDialog::addCompiler()
+{
+	AddCompilerWizard *wizard = new AddCompilerWizard(this);
+	wizard->exec();
+
+	if (!wizard->new_compiler_id.isEmpty()) {
+		GixGlobals::getCompilerManager()->init();
+		initCompilers();
+		GnuCobolCfgTab_LoadSettings();
+	}
+}
+
+void SettingsDialog::addCompilerManually()
 {
 	std::string basedir;
 	bool b;
 	AddCompilerDialog *adlg = new AddCompilerDialog(this);
 
 	if (adlg->exec()) {
+		GixGlobals::getCompilerManager()->init();
 		initCompilers();
 		GnuCobolCfgTab_LoadSettings();
 	}
 
 }
-

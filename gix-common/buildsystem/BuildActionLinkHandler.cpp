@@ -66,7 +66,7 @@ bool BuildActionLinkHandler::startBuild()
 	QString target_platform = build_driver->getBuildEnvironment()["platform"].toString();
 	QString target_type = build_configuration + "/" + target_platform;
 
-	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform));
+	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
 		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
@@ -123,9 +123,7 @@ bool BuildActionLinkHandler::startBuild()
 	else
 		cobc_opts.append("-b");
 
-#if _DEBUG_VERBOSE
-	cobc_opts.append("-v");
-	cobc_opts.append("-v");
+#if _DEBUG
 	cobc_opts.append("-v");
 #endif
 
@@ -136,13 +134,17 @@ bool BuildActionLinkHandler::startBuild()
 
 		if (compiler_cfg->isVsBased) {
 			cobc_opts.append("-A");
-			cobc_opts.append("/DEBUG:FULL");
+			cobc_opts.append("/DEBUG:FULL");			
+			
+			cobc_opts.append("-A");
+			cobc_opts.append("/WHOLEARCHIVE");
+
+			cobc_opts.append("-A");
+			cobc_opts.append("/OPT:NOREF");
 		}
 		else {
 			cobc_opts.append("-A");
 			cobc_opts.append("-O0");
-			//cobc_opts.append("-A");
-			//cobc_opts.append("-gdwarf-2");
 		}
 	}
 
@@ -277,7 +279,7 @@ bool BuildActionLinkHandler::generateDebugHelperObj(QStringList srclist, QString
 	QString target_platform = build_driver->getBuildEnvironment()["platform"].toString();
 	QString target_type = build_configuration + "/" + target_platform;
 
-	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform));
+	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
 		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
@@ -325,12 +327,24 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 	}
 
 	if (compiler_cfg->isVsBased) {
+
+		if (target_platform != "x86") {
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES\"));\n");	// Module list
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_C\"));\n");	// Module list (count)
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_S\"));\n");	// Module list (size)
+		}
+		else {
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES=___GIX_SYM_MODULES\"));\n");		// Module list
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_C=___GIX_SYM_MODULES_C\"));\n");	// Module list (count)
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_S=___GIX_SYM_MODULES_S\"));\n");	// Module list (size)
+		}
+
 		for (CobolModuleMetadata *cmm : mod_list) {
 			// Some VS weirdness at work: VS decorates names for x86 .obj symbols, but not for x64
 			if (target_platform != "x86") {
-				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_M\"));\n").arg(cmm->getModuleName());	// Mapping (size)
-				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MC\"));\n").arg(cmm->getModuleName());	// Mapping (data)
-				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MS\"));\n").arg(cmm->getModuleName());	// Mapping (count)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_M\"));\n").arg(cmm->getModuleName());	// Mapping (data)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MC\"));\n").arg(cmm->getModuleName());	// Mapping (count)
+				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_MS\"));\n").arg(cmm->getModuleName());	// Mapping (size)
 
 				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_E\"));\n").arg(cmm->getModuleName());	// Entries (data)
 				fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_%1_EC\"));\n").arg(cmm->getModuleName());	// Entries (count)
@@ -348,6 +362,43 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 		}
 	}
 
+	int m_size = 0;
+	int m_count = mod_list.size();
+	QStringList m_names;
+	for (CobolModuleMetadata *cmm : mod_list) {
+		m_size += (cmm->getModuleName().size() + 1);
+		m_names.append(cmm->getModuleName());
+	}
+	m_size += 1;
+
+	// Module-list data
+
+	fs << QString("/* Modules: %1  */\n").arg(m_names.join(", "));
+
+	if (!compiler_cfg->isVsBased)
+		fs << "__attribute__((__used__)) ";
+#if _WIN32
+	if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
+#endif
+	fs << QString("int __GIX_SYM_MODULES_C = %1;\n").arg(m_count);
+
+	if (!compiler_cfg->isVsBased)
+		fs << "__attribute__((__used__)) ";
+#if _WIN32
+	if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
+#endif
+	fs << QString("int __GIX_SYM_MODULES_S = %1;\n").arg(m_size);
+
+	fs << QString("unsigned char __GIX_SYM_MODULES[] = {\n");
+	for (QString m_name : m_names) {
+		DUMP_QSTRING(m_name);
+	}
+	fs << "0\n";
+	fs << "};\n\n";
+
+
+	// Module-specific data
+
 	for (CobolModuleMetadata *cmm : mod_list) {
 		if (!compiler_cfg->isVsBased)
 			fs << "__attribute__((__used__)) ";
@@ -359,7 +410,7 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 		int size = 0;
 		for (int i = 0; i < cmm->getSymbolMappingTable().size(); i++) {
 			auto sm = cmm->getSymbolMappingTable().at(i);
-			size += (sm->id.length() + sm->cbl_var.length() + 2);
+			size += (sm->id.length() + sm->cbl_var.length() + sizeof(int) + 2);
 		}
 		size += 1;
 		if (!compiler_cfg->isVsBased)
@@ -484,12 +535,13 @@ bool BuildActionLinkHandler::rebuildMetadata(const QStringList &mod_src_list)
 
 	bool res;
 
-	QEventLoop loop;
-	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, [this, &res, &loop](bool b) {
-		loop.quit(); res = b;
-	});
+    QEventLoop loop;
+    connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, this, [this, &res, &loop](bool b) {
+        loop.quit(); 
+		res = b;
+    });
 
-	loop.exec();
+    loop.exec();
 
 	return res;
 
@@ -501,7 +553,7 @@ bool BuildActionLinkHandler::compileDebugHelperObj(QString build_dir, QString c_
 	QString target_platform = build_driver->getBuildEnvironment()["platform"].toString();
 	QString target_type = build_configuration + "/" + target_platform;
 
-	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform));
+	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
 		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);

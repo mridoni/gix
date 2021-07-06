@@ -12,7 +12,7 @@ WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+You should have received a bfr of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
@@ -48,6 +48,23 @@ USA.
 #include <ServerConfig.h>
 
 #define GET_VARS_LEN_SIZE	5
+#define ASCII_ZERO 0x30
+
+#if defined(unix) || defined(__unix__) || defined(__unix) || defined(__linux__)
+#include <byteswap.h>
+#define COB_BSWAP_16(val) (bswap_16 (val))
+#define COB_BSWAP_32(val) (bswap_32(val))
+#define COB_BSWAP_64(val) (bswap_64 (val))
+#elif defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
+#define COB_BSWAP_16(val) (OSSwapInt16(val))
+#define COB_BSWAP_32(val) (OSSwapInt32(val))
+#define COB_BSWAP_64(val) (OSSwapInt64(val))
+#else
+#define COB_BSWAP_16(val) (_byteswap_ushort (val))
+#define COB_BSWAP_32(val) (_byteswap_ulong (val))
+#define COB_BSWAP_64(val) (_byteswap_uint64 (val))
+#endif
 
 DebugManager::DebugManager(IdeTaskManager *_ide_task_manager)
 {
@@ -66,6 +83,11 @@ DebugManager::~DebugManager()
 	if (debug_driver) {
 		debug_driver->stop();
 	}
+
+    if (debug_driver_thread) {
+        debug_driver_thread->quit();
+        debug_driver_thread->wait();
+    }
 
 	for (ModuleDebugInfo *mdi : modules) {
 		delete mdi;
@@ -102,7 +124,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		return false;
 	}
 
-	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform);
+	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform, QVariantMap());
 	if (compiler_cfg == nullptr) {
 		QString msg(tr("Invalid compiler configuration"));
 		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
@@ -182,7 +204,11 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 
 		for (QString v : esql_cfg->getRuntimeLibPathList(esql_driver_type)) {
 			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Loading ESQL runtime libraries from %1")).arg(v), QLogger::LogLevel::Debug);
+#if defined(_WIN32)
 			SysUtils::mergeEnvironmentVariable(env, "PATH", v);
+#else
+			SysUtils::mergeEnvironmentVariable(env, "LD_LIBRARY_PATH", v);
+#endif
 		}
 
 		if (esql_cfg_id == ESQLConfigurationType::GixInternal || esql_cfg_id == ESQLConfigurationType::GixExternal) {
@@ -208,11 +234,11 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		return false;
 	}
 
-	SysUtils::mergeEnvironmentVariable(env, "COB_LIBRARY_PATH", output_path);
+	SysUtils::mergeEnvironmentVariable(env, "COB_LIBRARY_PATH", mm.translate(output_path));
 
-	if (SysUtils::isLinux()) {
+#if defined (__linux__)
 		SysUtils::mergeEnvironmentVariable(env, "LD_LIBRARY_PATH", compiler_cfg->libDirPath);
-	}
+#endif
 
 	QStringList dbg_run_env_vars = prj->PropertyGetValue("dbg_run_env_vars").toStringList();
 	for (QString var : dbg_run_env_vars) {
@@ -260,7 +286,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		ServerConfig svr;
 		svr.setAddress("127.0.0.1");
 		svr.setPort(http_port);
-		svr.setRuntimePath(compiler_cfg->binDirPath);	// we point directly to the location of libcob.dll/.so
+        svr.setRuntimePath(compiler_cfg->getLibCobDir());	// we point directly to the location of libcob.dll/.so
 		svr.setDebugEnabled(is_debugging_enabled);
 		svr.setLog(PathUtils::combine(PathUtils::getDirectory(target_full_path),
 			svr.getAddressString().replace(".", "_") + "__" + QString::number(svr.getPort()) + ".log"));
@@ -326,7 +352,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 				cmd = compiler_cfg->runnerPath;
 				cobcrun_opts.append("-M");
 				//cobcrun_opts.append(PathUtils::getDirectory(target));
-				cobcrun_opts.append(target);
+				cobcrun_opts.append(target_full_path);
 				cobcrun_opts.append(module_name);
 			}
 			else
@@ -355,7 +381,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		QString v = env.value(k);
 		dbg_env[k] = v;
 #if _DEBUG
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, k + "=" + v, QLogger::LogLevel::Trace);
+        //ide_task_manager->logMessage(GIX_CONSOLE_LOG, k + "=" + v, QLogger::LogLevel::Trace);
 #endif
 	}
 	gd->setEnvironment(dbg_env);
@@ -369,6 +395,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	gd->setUseExternalConsole(dbg_separate_console);
 
 	debug_driver = new DebugDriver(this);
+
 	debug_driver->setDebuggerInstance(gd);
 
 	QObject::connect(debug_driver, &DebugDriver::DebuggerProcessFinished, this, [this](QString m, int l) { debuggedProcessFinished(l, m); }, Qt::ConnectionType::QueuedConnection);
@@ -377,10 +404,10 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		debuggedProcessError(l, m); 
 		QGuiApplication::restoreOverrideCursor();
 	}, Qt::ConnectionType::QueuedConnection);
-	QObject::connect(debug_driver, &DebugDriver::DebuggerReady, debug_driver, [this](QString socket_id) {
+
+    QObject::connect(debug_driver, &DebugDriver::DebuggerReady, debug_driver, [this](QString msg) {
 		QGuiApplication::restoreOverrideCursor();
-	});
-	QObject::connect(debug_driver, &QThread::finished, debug_driver, &QThread::deleteLater);
+    }, Qt::ConnectionType::DirectConnection);   // This is direct to avoid a race condition
 
 	QObject::connect(debug_driver, &DebugDriver::DebuggerStdOutAvailable, this, [this](QString m) { ide_task_manager->consoleWriteStdOut(m); }, Qt::ConnectionType::QueuedConnection);
 	QObject::connect(debug_driver, &DebugDriver::DebuggerStdErrAvailable, this, [this](QString m) { ide_task_manager->consoleWriteStdErr(m); }, Qt::ConnectionType::QueuedConnection);
@@ -388,16 +415,25 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	if (is_debugging_enabled) {
 		loadDebugManagerState();
 
-		QObject::connect(debug_driver, &DebugDriver::DebuggerBreak, this, [this](QString m, QString s, int l) { debug_break(m, s, l); }, Qt::ConnectionType::QueuedConnection);
+        QObject::connect(debug_driver, &DebugDriver::DebuggerBreak, this, [this](QString m, QString s, int l) { debug_break(m, s, l); }, Qt::ConnectionType::QueuedConnection);
 		QObject::connect(debug_driver, &DebugDriver::DebuggerModuleChanged, this, [this](QString m, int l) { debug_module_changed(m, l); }, Qt::ConnectionType::QueuedConnection);
-
 		QObject::connect(debug_driver, &DebugDriver::DebuggerModuleExit, this, [this](QString m, int l) { debug_program_exit(m, l); }, Qt::ConnectionType::QueuedConnection);
 	}
 
 	ide_task_manager->consoleClear();
 
 	QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	debug_driver->start();
+
+    debug_driver_thread = new QThread(this);
+
+    debug_driver->moveToThread(debug_driver_thread);
+
+    connect(this, &DebugManager::startDriver, debug_driver, &DebugDriver::startDriver);
+    connect(debug_driver_thread, &QThread::finished, debug_driver, &QObject::deleteLater);
+
+    debug_driver_thread->start();
+
+    emit startDriver();
 
 	return true;
 }
@@ -467,6 +503,7 @@ void DebugManager::debug_program_exit(QString m, int l)
 
 void DebugManager::debug_break(QString module_name, QString src_file, int ln)
 {
+    fprintf(stderr, "DBG BREAK\n");
 	ide_task_manager->logMessage(GIX_CONSOLE_LOG, "DBG: BREAK @" + src_file + ":" + QString::number(ln), QLogger::LogLevel::Debug);
 
 	bool bkp_located = false;
@@ -726,15 +763,39 @@ QMap<QString, QString> DebugManager::getPrintableVarListContent(QStringList vlis
 
 	if (debug_driver->debuggerInstance()->getVariables(var_req)) {
 		for (VariableData *vd : var_req) {
+			VariableResolverData *vrd = vd->resolver_data;
+			char *s = nullptr;
+			int ndigits = 0;
+
 			// TODO: format data
-			if (vd->data) {
+			if (vd->data && vrd) {
+				switch ((WsEntryStorageType)vrd->storage_type) {
+					
+					case WsEntryStorageType::Literal:
+						s = (char *)malloc(vrd->storage_len + 1);
+						memcpy(s, vd->data, vrd->storage_len);
+						s[vrd->storage_len] = 0;
 
-				char *copy = (char *)malloc(vd->storage_length + 1);
-				memcpy(copy, vd->data, vd->storage_length);
-				copy[vd->storage_length] = 0;
+						res[vd->var_name] = QString(s);
+						free(s);
+						break;
 
-				res[vd->var_name] = QString(copy);
-				free(copy);
+					case WsEntryStorageType::Comp3:
+						ndigits = vrd->display_size - ((vrd->is_signed ? 1 : 0) + (vrd->decimals > 0 ? 1 : 0));
+						s = comp3_to_display(ndigits, vrd->decimals, vrd->is_signed, vd->data);
+						res[vd->var_name] = QString::fromLocal8Bit(s);
+						free(s);
+						break;
+
+					case WsEntryStorageType::Comp:
+						ndigits = vrd->display_size - ((vrd->is_signed ? 1 : 0) + (vrd->decimals > 0 ? 1 : 0));
+						s = comp5_to_display(ndigits, vrd->decimals, vrd->is_signed, vd->data);
+						res[vd->var_name] = QString::fromLocal8Bit(s);
+						free(s);
+						break;
+
+				}
+
 
 				delete vd->data;
 			}
@@ -795,7 +856,7 @@ QStringList DebugManager::getTranslatedBreakpoints()
 		ProjectFile * pf = dbg_module_srcs.contains(module_name) ? dbg_module_srcs[module_name] : nullptr;
 		cmm = processDebugMetadata(pf);	
 		if (!cmm) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Cannot locate symbol data for module %1, no breakpoints avalable")).arg(module_name), QLogger::LogLevel::Warning);
+			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Cannot locate symbol data for module %1, no breakpoints available")).arg(module_name), QLogger::LogLevel::Warning);
 			return QStringList();
 		}
 	}
@@ -810,7 +871,13 @@ QStringList DebugManager::getTranslatedBreakpoints()
 
 void DebugManager::setUserInititatedStop(bool b)
 {
-	is_user_initiated_stop = b;
+    is_user_initiated_stop = b;
+}
+
+void DebugManager::writeToProcess(QString s)
+{
+    if (debug_driver)
+        debug_driver->writeToProcess(s);
 }
 
 QStringList DebugManager::translateBreakpoints(CobolModuleMetadata *cmm, const QStringList &orig_bkps)
@@ -858,4 +925,109 @@ bool DebugManager::translateBreakpointReverse(CobolModuleMetadata *cmm, const QS
 	*orig_ln = r_orig_ln;
 
 	return true;
+}
+
+char *DebugManager::comp3_to_display(int total_len, int scale, int has_sign, uint8_t *addr)
+{
+	int display_len = total_len;
+
+	int bfrlen = display_len + (has_sign ? 1 : 0) + (scale > 0 ? 1 : 0);
+
+	char *copy = (char *)malloc(bfrlen + 1);
+	memset(copy, ASCII_ZERO, display_len);
+	uint8_t *ptr = (uint8_t *)copy;
+
+	int storage_len = (total_len / 2) + 1;
+
+	if (has_sign) {
+		uint8_t sign_byte = addr[storage_len - 1] & 0x0f;
+		char sign = (sign_byte == 0x0d) ? '-' : '+';
+		*(ptr++) = sign;
+
+	}
+
+	int ndigits = total_len;
+
+	int skip_first_nibble = ((ndigits + 1) % 2) > 0;
+	int ndigit = 0;
+	int decsep_pos = (total_len - scale) + (has_sign ? 1 : 0) - 1;
+	for (int i = 0; i < storage_len; i++) {
+
+		uint8_t b = addr[i];
+
+		if (i > 0 || !skip_first_nibble) {
+			uint8_t digit_l = (b & 0xf0) >> 4;
+			digit_l += ASCII_ZERO;
+			*(ptr++) = digit_l;
+			ndigit++;
+		}
+
+
+		if (ndigit == decsep_pos) {
+			*(ptr++) = '.';
+		}
+
+		uint8_t digit_r = (b & 0x0f);
+		digit_r += ASCII_ZERO;
+		*(ptr++) = digit_r;
+
+		ndigit++;
+		if (ndigit == decsep_pos) {
+			*(ptr++) = '.';
+		}
+	}
+
+	copy[bfrlen] = '\0';
+
+	return copy;
+}
+
+char *DebugManager::comp5_to_display(int total_len, int scale, int has_sign, uint8_t *addr)
+{
+	int display_len = total_len;
+
+	int bfrlen = display_len + (has_sign ? 1 : 0) + (scale > 0 ? 1 : 0);
+
+	char *bfr = (char *)malloc(bfrlen + 1);
+	memset(bfr, ASCII_ZERO, display_len);
+	uint8_t *ptr = (uint8_t *)bfr;
+
+	if (total_len == 1) {	// 1 byte
+		uint8_t n8 = *((uint8_t *)addr);
+		snprintf((char *)bfr, total_len, "%d", n8);
+	}
+	else {
+		if (total_len == 2) {	// 1 byte
+			uint8_t n8 = *((uint8_t *)addr);
+			snprintf((char *)bfr, total_len, "%d", n8);
+		}
+		else {
+			if (total_len == 3 || total_len == 4) {	// 2 bytes
+				uint16_t n16 = *((uint16_t *)addr);
+				n16 = COB_BSWAP_16(n16);
+				snprintf((char *)bfr, total_len, "%d", n16);
+			}
+			else {
+				if (total_len >= 5 || total_len <= 9) {	// 4 bytes
+					uint32_t n32 = *((uint32_t *)addr);
+					n32 = COB_BSWAP_32(n32);
+					snprintf((char *)bfr, total_len, "%d", n32);
+				}
+				else {
+					if (total_len >= 10 || total_len <= 18) {	// 8 bytes
+						uint64_t n64 = *((uint64_t *)addr);
+						n64 = COB_BSWAP_64(n64);
+						snprintf((char *)bfr, total_len, "%d", n64);
+					}
+					else {
+						// Should never happen
+					}
+				}
+			}
+		}
+	}
+
+	bfr[bfrlen] = '\0';
+
+	return bfr;
 }

@@ -113,6 +113,7 @@ class GIXCOMMON_EXPORT CompilerDefinition
 {
 public:
 	static CompilerDefinition* load(QString def_path);
+	static bool testConfiguration(QString home_dir, QStringList &info, CompilerDefinition **cdef);
 
 	CompilerDefinition();
 	~CompilerDefinition();
@@ -120,6 +121,8 @@ public:
 	void setDefinitionFile(QString f) { def_file = f; }
 
 	bool save();
+
+	bool testConfiguration(QStringList &info);
 
 	QString getId() {
 		return id;

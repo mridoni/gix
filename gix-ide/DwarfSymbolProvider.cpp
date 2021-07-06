@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
+
 #include "DwarfSymbolProvider.h"
 
 #include <QDir>
@@ -72,8 +73,6 @@ static bool list_funcs_in_file(Dwarf_Debug dbg, QMap<QString, void *> &funcinfo)
 static bool locate_cobol_modules(module_dwarf_private_data *md, QMap<QString, void *> &funcinfo);
 static Dwarf_Die find_top_level_die(const QString &target_die_name, Dwarf_Debug dbg);
 static int get_form_values(Dwarf_Debug dbg, Dwarf_Attribute attrib, Dwarf_Half *theform, Dwarf_Half *directform, Dwarf_Error *err);
-
-extern void ListDLLFunctions(QString sADllName, QList<QString> &slListOfDllFunctions);
 
 QMap<QString, struct module_dwarf_private_data *> DwarfSymbolProvider::module_data;
 
@@ -209,12 +208,21 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 				shared_module->source_files.push_back(qp.filename);
 
 			DWARF_ADDR_T dwarf_addr = (DWARF_ADDR_T)qp.lineaddr;
+//            fprintf(stderr, "DWARF addr                 : %p\n", (uint64_t)dwarf_addr);
+//            fprintf(stderr, "shared_module->dll_base    : %p\n", (uint64_t)shared_module->dll_base);
+//            fprintf(stderr, "md->base_offset            : %p\n", (uint64_t)md->base_offset);
+//            fprintf(stderr, "shared_module->base_of_code: %p\n", (uint64_t)shared_module->base_of_code);
 
-#if defined(_WIN64)
+#ifdef _WIN32
+#if  BITNESS == 64
 			DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + (dwarf_addr - md->base_offset) + ((DWARF_ADDR_T) shared_module->base_of_code);	// 0x1000
 #else
 			DWARF_ADDR_T addr = dwarf_addr;
 #endif
+#elif defined(__linux__)
+            DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + dwarf_addr;
+#endif
+
 
 			SourceLineInfo *li = new SourceLineInfo();
 			li->module = shared_module;
@@ -227,7 +235,7 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 			shared_module->owner->source_lines[k] = li;
 			shared_module->owner->source_lines_by_addr[li->addr] = li;
 
-			//fprintf(stderr, "%s : 0x%s\n", k.c_str(), DbgUtils::to_hex((uint64_t)li->addr).c_str());
+            fprintf(stderr, "%s : %p\n", k.toLocal8Bit().data(), (uint64_t)li->addr);
 
 			UserBreakpoint *bkp = new UserBreakpoint();
 			bkp->owner = shared_module;
@@ -249,14 +257,22 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 		for (auto m : funcinfo.keys()) {
 			DWARF_ADDR_T dwarf_addr = (DWARF_ADDR_T)funcinfo[m];
 
+            fprintf(stderr, "Trying to register COBOL module %s from %s\n", m.toLocal8Bit().data(), shared_module->dll_path.toLocal8Bit().data());
+
 			CobolModuleInfo *cmi = new CobolModuleInfo();
 			cmi->name = m;
 			cmi->owner = shared_module;
-#if defined(_WIN64)
+
+#ifdef _WIN32
+#if  BITNESS == 64
 			cmi->entry_point = (void *)(((DWARF_ADDR_T)shared_module->dll_base) + (dwarf_addr - md->base_offset) + shared_module->base_of_code);	// 0x1000
 #else
 			cmi->entry_point = (void *)dwarf_addr;
 #endif
+#elif defined(__linux__)
+            cmi->entry_point = (void *)((DWARF_ADDR_T)shared_module->dll_base + dwarf_addr);
+#endif
+
 			cmi->entry_breakpoint = new UserBreakpoint();
 			cmi->entry_breakpoint->address = cmi->entry_point;
 			cmi->entry_breakpoint->automatic = true;
@@ -351,11 +367,16 @@ int DwarfSymbolProvider::readSymbolValueAsInt(GixDebugger *gd, CobolModuleInfo *
 	if (!dwarf_addr)
 		return -1;
 
-#if _WIN64
+#ifdef _WIN32
+#if  BITNESS == 64
 	DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + (dwarf_addr - md->base_offset) + shared_module->base_of_code;	// 0x1000
 #else
 	DWARF_ADDR_T addr = dwarf_addr;
 #endif
+#elif defined(__linux__)
+    DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + dwarf_addr;
+#endif
+
 	int res = 0;
 	if (!gd->readProcessMemory((void *)addr, &res, sizeof(int)))
 		return -1;
@@ -380,10 +401,14 @@ uint8_t *DwarfSymbolProvider::readSymbolValueInBuffer(GixDebugger *gd, CobolModu
 	if (!dwarf_addr)
 		return 0;
 
-#if _WIN64
+#ifdef _WIN32
+#if  BITNESS == 64
 	DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + (dwarf_addr - md->base_offset) + shared_module->base_of_code;	// 0x1000
 #else
 	DWARF_ADDR_T addr = dwarf_addr;
+#endif
+#elif defined(__linux__)
+    DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + dwarf_addr;
 #endif
 
 	uint8_t *bfr = (uint8_t *)calloc(1, bfrlen);
@@ -416,20 +441,20 @@ bool DwarfSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hproc,
 		VariableResolverData *rd = new VariableResolverData();
 		rd->var_name = sr.readString();
 		rd->var_path = sr.readString();
-		int rd_type = sr.readInt();
-		int rd_level = sr.readInt();
+		rd->type = sr.readInt();
+		rd->level = sr.readInt();
 		rd->base_var_name = sr.readString();
 		rd->local_addr = sr.readInt();
 		rd->storage_len = sr.readInt();
 
-		int display_size = sr.readInt();
-		int is_signed = sr.readInt();
-		int decimals = sr.readInt();
-		QString format = sr.readString();
-		int storage_type = sr.readInt();
-		QString storage = sr.readString();
-		int occurs = sr.readInt();
-		QString redefines = sr.readString();
+		rd->display_size = sr.readInt();
+		rd->is_signed = sr.readInt();
+		rd->decimals = sr.readInt();
+		rd->format = sr.readString();
+		rd->storage_type = sr.readInt();
+		rd->storage = sr.readString();
+		rd->occurs = sr.readInt();
+		rd->redefines = sr.readString();
 
 		cmi->locals[rd->var_name] = rd;
 	}
@@ -997,7 +1022,7 @@ void *DwarfSymbolProvider::get_local_var_addr(CobolModuleInfo *cmi, const QStrin
 	return 0;
 }
 
-void *DwarfSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi, uint64_t _frame_ptr, VariableResolverData *rootvar, VariableResolverData *vvar)
+void *DwarfSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void *procid, CobolModuleInfo *cmi, uint64_t addr1, VariableResolverData *rootvar, VariableResolverData *vvar)
 {
 	DWARF_ADDR_T dll_base = (DWARF_ADDR_T)cmi->owner->dll_base;
 
@@ -1017,6 +1042,13 @@ void *DwarfSymbolProvider::resolveLocalVariableAddress(GixDebugger *gd, void *hp
 	uint32_t var_addr = root_addr + vvar->local_addr;
 	return (void *)var_addr;
 #endif
+#elif defined(__linux__)
+
+    uint64_t load_address = addr1;
+    uint64_t var_addr = root_addr + vvar->local_addr;
+    var_addr += (uint64_t)cmi->owner->dll_base;
+
+    return (void *)var_addr;
 #endif
 
 	return nullptr;

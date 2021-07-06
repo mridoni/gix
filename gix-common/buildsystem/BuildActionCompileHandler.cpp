@@ -69,7 +69,7 @@ bool BuildActionCompileHandler::startBuild()
 	QString target_type = build_configuration + "/" + target_platform;
 	bool is_web_project = environment["__project_type_id"].toInt() == (int)ProjectType::Web;
 
-	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform));
+	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
 		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
@@ -98,9 +98,12 @@ bool BuildActionCompileHandler::startBuild()
 	if (build_configuration == "debug") {
 		cobc_opts.append("-g");
 		cobc_opts.append("-debug");
-		cobc_opts.append("-O0");
-		cobc_opts.append("--fgen-c-line-directives");
-		cobc_opts.append("--fgen-c-labels");
+
+        if (compiler_cfg->isVersionGreaterThanOrEqualTo(3, 1, 0)) {
+            cobc_opts.append("-O0");
+            cobc_opts.append("--fgen-c-line-directives");
+            cobc_opts.append("--fgen-c-labels");
+        }
 
 		if (compiler_cfg->isVsBased) {
 			cobc_opts.append("-A");

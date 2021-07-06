@@ -29,7 +29,7 @@ OutputWindow::OutputWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent
 {
 	this->setWindowTitle("Output");
 	this->setMinimumHeight(100);
-	this->setMinimumWidth(500);
+	this->setMinimumWidth(250);
 	this->setWindowFlags(Qt::Widget); // <---------
 	toolBar = new QToolBar(this);
 	this->addToolBar(toolBar);
@@ -56,16 +56,15 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
 {
-#if defined(_DEBUG) || defined(_DEBUG_LOG_ON)
+#if defined(_DEBUG_LOG_ON)
+    fprintf(stderr, "%s\n", msg.toUtf8().constData());
 #if defined(_WIN32) || defined(_WIN64)
     OutputDebugStringA(QString("[" + QLogger::QLoggerManager::levelToText(log_level) + "] ").toUtf8().constData());
 	OutputDebugStringA(msg.toUtf8().constData());
     OutputDebugStringA("\n");
-#else
-    //fprintf(stderr, "%s\n", msg.toUtf8().constData());
 #endif
 #endif
-    
+
     if (!Ide::TaskManager()->isDebugOutputEnabled() && (log_level == QLogger::LogLevel::Debug || log_level == QLogger::LogLevel::Trace))
         return;
 
@@ -95,6 +94,7 @@ void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
     textArea->setTextColor(textColor);
     textArea->append(msg);
     textArea->ensureCursorVisible();
+
 }
 
 void OutputWindow::clearAll()

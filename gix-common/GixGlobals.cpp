@@ -114,6 +114,22 @@ QString GixGlobals::getGixBinDir()
     return theDir.absolutePath();
 }
 
+QString GixGlobals::getGixCopyDir()
+{
+#ifdef _DEBUG
+    auto qba = qgetenv("GIX_COPY_DIR");
+    if (!qba.isEmpty())
+        return QString::fromUtf8(qba);
+#endif
+
+    QDir theDir(PathUtils::combine({ getGixHomeDir(), "lib", "copy" }));
+    QString d = theDir.absolutePath();
+    if (theDir.exists())
+        return theDir.absolutePath();
+
+    return QString();
+}
+
 // This is also used for link libraries at link time
 QString GixGlobals::getGixRuntimeLibDir(CompilerEnvironment env, QString target_platform)
 {

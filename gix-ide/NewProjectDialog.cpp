@@ -18,10 +18,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
-
-//#include <QString>
-
-
 #include "NewProjectDialog.h"
 #include "SysUtils.h"
 #include "UiUtils.h"
@@ -113,7 +109,7 @@ void NewProjectDialog::accept()
 				if (rbNoProject->isChecked())
 					main_prj_type = ProjectType::NoProject;
 
-	opts["output_path"] = "bin/${configuration}/${platform}";
+	//opts["output_path"] = "bin/${configuration}/${platform}";
 
 	if (!prj_collection) {
 		prj_collection = ProjectCollection::newProjectCollection(main_prj_type, prjFile->text(), opts);

@@ -35,6 +35,13 @@ USA.
 
 #include <utility>
 
+#ifdef _DEBUG
+#define LOG_DEBUG(format, ...)	fprintf(stderr, format, ##__VA_ARGS__)
+#else
+#define LOG_DEBUG(format, ...)
+#endif
+
+
 class SysUtils {
 public:
 	static bool isWindows();
@@ -61,6 +68,8 @@ public:
 	static bool isWritableFile(const QString path);
 	static bool isWritableDir(const QString path);
 	static bool existsIntersection(const QStringList &l1, const QStringList &l2);
+    static QString toHexString(uint32_t i32);
+    static QString toHexString(uint64_t i64);
 	
 	template<typename T> static const char* enum_val_to_str(int v);
 };
@@ -170,9 +179,9 @@ inline void SysUtils::mergeEnvironmentVariable(QProcessEnvironment& env, QString
 	env.insert(name, components.join(sep));
 }
 
-inline QString SysUtils::mergeEnvironmentVariable(QString name, QString value, bool prepend, QChar sep)
+inline QString SysUtils::mergeEnvironmentVariable(QString var_name, QString value, bool prepend, QChar sep)
 {
-	QString cur_value(qgetenv(name.toUtf8().constData()));
+    QString cur_value(qgetenv(var_name.toUtf8().constData()));
 	QStringList components = cur_value.split(sep);
 	if (prepend)
 		components.insert(0, value);
@@ -371,5 +380,15 @@ inline bool SysUtils::existsIntersection(const QStringList &l1, const QStringLis
 		if (l2.contains(s))
 			return true;
 	}
-	return false;
+    return false;
+}
+
+inline QString SysUtils::toHexString(uint32_t i32)
+{
+    return QString("0x%1").arg(i32, 8, 16, QLatin1Char( '0' ));
+}
+
+inline QString SysUtils::toHexString(uint64_t i64)
+{
+    return QString("0x%1").arg(i64, 16, 16, QLatin1Char( '0' ));
 }

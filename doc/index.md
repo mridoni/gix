@@ -2,7 +2,7 @@
 Gix-IDE (or Gix) is an IDE and platform for GnuCOBOL, providing a native debugger, ESQL and HTTP REST services.
 
 ## Current state, development and plans for the future
-Gix-IDE is "mostly working" but it probably has many bugs lurking below the surface (or not really below) and several features missing. I want to improve it, make it more stable and add more features (e.g.  reintegrating macOS and Linux support - including a native debugger, adding SOAP support, a better DB manager); and there is a lot of documetation to write...
+Gix-IDE is "mostly working" but it probably has many bugs lurking below the surface (or not really below) and several features missing. I want to improve it, make it more stable and add more features (e.g.  reintegrating macOS support - including a native debugger, adding SOAP support, a better DB manager); and there is a lot of documentation to write...
 
 I am releasing it because, in order to do this, I need to put it out in the wild, to get some feedback, but also to find some form of sponsorship to help the development along.
 
@@ -37,7 +37,7 @@ Gix-IDE is GPL 3 licensed, with some exceptions:
 
 ## Documentation
 
- - [Building and/or installing](building_and_installing.md)
- - [Tutorial](tutorial.md)
- - [GixSQL](gixsql.md)
+ - [Building and/or installing](doc/building_and_installing.md)
+ - [Tutorial](doc/tutorial.md)
+ - [GixSQL](doc/gixsql.md)
 

@@ -70,7 +70,8 @@ WatchWindow::WatchWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 	header->hide();
 
 	connect(bAdd, &QPushButton::clicked, this, &WatchWindow::addButtonClicked);
-	connect(bAdd, &QPushButton::clicked, this, &WatchWindow::removeButtonClicked);
+	connect(bRemove, &QPushButton::clicked, this, &WatchWindow::removeButtonClicked);
+	connect(bRefresh, &QPushButton::clicked, this, &WatchWindow::refreshButtonClicked);
 }
 
 
@@ -155,9 +156,14 @@ void WatchWindow::addButtonClicked()
 		return;
 	}
 
-	Ide::TaskManager()->getDebugManager()->addWatchedVar(text);
+	Ide::TaskManager()->addWatchedVar(text);
+	if (Ide::TaskManager()->getDebugManager())
+		Ide::TaskManager()->getDebugManager()->addWatchedVar(text);
+
 
 	refreshContent();
+
+	Ide::TaskManager()->saveCurrentProjectCollectionState();
 }
 
 void WatchWindow::removeButtonClicked()
@@ -169,9 +175,19 @@ void WatchWindow::removeButtonClicked()
 	for (int i = 0; i < selected.size(); i++) {
 		QTableWidgetItem *item = selected.at(i);
 		QString text = item->text();
-		if (!text.isEmpty())
-			Ide::TaskManager()->getDebugManager()->removeWatchedVar(text);
+		if (!text.isEmpty()) {
+			Ide::TaskManager()->removeWatchedVar(text);
+			if (Ide::TaskManager()->getDebugManager())
+				Ide::TaskManager()->getDebugManager()->removeWatchedVar(text);
+		}
 	}
 
+	refreshContent();
+
+	Ide::TaskManager()->saveCurrentProjectCollectionState();
+}
+
+void WatchWindow::refreshButtonClicked()
+{
 	refreshContent();
 }
