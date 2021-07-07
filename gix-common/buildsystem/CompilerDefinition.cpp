@@ -375,7 +375,7 @@ QString findCopyDir(const QString &b)
 
 QString findConfigDir(const QString &b)
 {
-	QString s("cobol85.conf");
+	QString s("default.conf");
     return PathUtils::findFile(b, s);
 }
 
