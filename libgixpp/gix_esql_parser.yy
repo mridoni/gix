@@ -19,7 +19,7 @@
 */
 
 %skeleton "lalr1.cc" /* -*- c++ -*- */
-%require "3.2"
+%require "3.7"
 %defines
 %define parser_class_name {gix_esql_parser}
 
