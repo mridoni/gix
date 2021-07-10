@@ -10,10 +10,10 @@ GixSQL is available both as an integrated module in Gix-IDE and as an external s
 
 ### Architecture
 
-GixSQL comprises a preprocessor (a standalone executable or a library) and a set of runtime libraries. libgixmysql.dll/.so is the main library and it is the one that will be linked to your COBOL modules. The other libraries (e.g. libgisql-odbc.dll/.so) will be dynamically loaded at runtime depending on the DB you chose in your configuration (see below). It is possible, if so desired, to develop additional libraries for specific DBMSs not covered in the standard install.
+GixSQL comprises a preprocessor (a standalone executable or a library) and a set of runtime libraries. libgixsql.dll/.so is the main library and it is the one that will be linked to your COBOL modules. The other libraries (e.g. libgisql-odbc.dll/.so) will be dynamically loaded at runtime depending on the DB you chose in your configuration (see below). It is possible, if so desired, to develop additional libraries for specific DBMSs not covered in the standard install.
 
 ### Using GixSQL from Gix-IDE
-When you create a project in Gix-IDE, you are asked whether yo want to enable it for ESQL preprocessing. This is not an absolute requirement. At any point you can set the project property "Preprocess for ESQL" (under "General") to "Yes". There are several properties you can configure here:
+When you create a project in Gix-IDE, you are asked whether you want to enable it for ESQL preprocessing. This is not an absolute requirement. At any point you can set the project property "Preprocess for ESQL" (under "General") to "Yes". There are several properties you can configure here:
 
 - **Default driver**: the database driver to be loaded and used. You can choose between:
 	- MySQL
@@ -21,8 +21,8 @@ When you create a project in Gix-IDE, you are asked whether yo want to enable it
 	- ODBC
 	- Dynamically selected (based on a "connection string" supplied to the driver)
 	- Dynamically selected (based on the GIXSQL_DB_MODE environment variable)
-- **Preprocess COPY files**: if set to "Yes" all copy files (not only those in EXEC SQL INCLUDE sections) will be parsed by the ESQL preprocessor. This is useful when you have copy files containing code that include EXEC SQL statements.
-- **Use anonymous parameters**: if set to "Yes", parameters in SQL statments will be represented as "?", otherwire a numeric indicator (i.e "$1") will be used.
+- **Preprocess COPY files**: if set to "Yes" all copy files (not only those in EXEC SQL INCLUDE sections) will be parsed by the ESQL preprocessor. This is useful when you have copy files containing code that includes EXEC SQL statements.
+- **Use anonymous parameters**: if set to "Yes", parameters in SQL statments will be represented as "?", otherwise a numeric indicator (i.e "$1") will be used.
 - **Emit static calls**: if set to "Yes", the calls to the gixsql library functions will be emitted as static. This should be normally set to "Yes".
 
 ### Connecting to a database from COBOL
@@ -35,7 +35,7 @@ There is no "bind" procedure in GixSQL, you will have to manually open a connect
       CONNECT TO :DBNAME USER :DBAUTH
     END-EXEC. 
 
-In this case the two values are retrieved from the environment and passed to the CONNECT function.
+In this case the two values are retrieved from the environment variables DBNAME and DBAUTH and passed to the CONNECT function.
 
 DBAUTH is a "connection string"-style alphanumeric field, whose format is basically
 
@@ -54,13 +54,17 @@ User name and password are provided in the second parameter (DBAUTH in this case
 (yes, that's a dot)
 *Note: I acknowledge this is rather simplistic and should be improved with more options, parameters, etc.*
 
-When you run your code from the IDE, the path for the runtime libraries needed for the DBMS you chose are automatically added to your PATH. Obviously, when you are running outside outside the IDE, you will have to do this manually: the runtime libraries and their dependencies reside in `{gix-install-dir}\lib\{platform}\{architecture}` (**platform** can be either x64 or x86, **architecture** can either be mdvc or gcc, depending on the compiler type you are using).
+When you run your code from the IDE, the path for the runtime libraries needed for the DBMS you chose are automatically added to your PATH. Obviously, when you are running outside the IDE, you will have to do this manually: the runtime libraries and their dependencies reside in `{gix-install-dir}\lib\{platform}\{architecture}` (**platform** can be either x64 or x86, **architecture** can either be msvc or gcc, depending on the compiler type you are using).
 
 At the moment  Gix-IDE always uses its embedded version of GixSQL. In the future this will be extended to allow for other preprocessors.
 
+### Examples
+
+You can find a sample project collection for GixSQL (TEST001.gix) in the folder %USERPROFILE%\Documents\Gix\Examples ($HOME/Documents/gix/examples on Linux) that should have been created when you installed Gix-IDE. Under the project directory (%USERPROFILE%\Documents\Gix\Examples\TEST001 or $HOME/Documents/gix/examples/TEST001 on Linux) there is a SQL file with a DDL query and some data you can use to run the sample project.
+
 ### Using GixSQL outside Gix-IDE
 
-If you want to manually precompile COBOL programs for ESQL, you can use the preprocessor binary (**gixpp** or **gixpp.exe**) you will find in the **bin** folder in Gix-IDE's install directory. When you run it from the console, ensure you have the same **bin** directory in your PATH since it contains some libraries that are needed by **gixpp**. These are the command line options available, that correspond to those described earlier:
+If you want to manually precompile COBOL programs for ESQL, you can use the preprocessor binary (**gixpp** or **gixpp.exe**) you will find in the **bin** folder in Gix-IDE's install directory. When you run it from the console, ensure you have the same **bin** directory in your PATH/LD_LIBRARY_PATH since it contains some libraries that are needed by **gixpp**. These are the command line options available, that correspond to those described earlier:
 
     Usage: gixpp [options]
     
@@ -90,6 +94,6 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
       -v                                                      Verbose
       -d                                                      Verbose (debug)
 
-When you want to build and link from the console, remember also to add the `<gix-install-dir>/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixmysql** (and the appropriate path, depending on your architecture) to the compiler's command line.
+When you want to build and link from the console, remember also to add the `<gix-install-dir>/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.
 
 
