@@ -1,8 +1,8 @@
-﻿﻿## GixSQL
+## GixSQL
 
 GixSQL is an ESQL preprocessor and a series of runtime libraries to enable GnuCOBOL to access ODBC, MySQL, PostgreSQL databases.
 
-It originated as a (private) fork of OceSQL but has been almost completely rewritten: while the semantics related to the GnuCOBOL interface are similar and several support functions have been kept, the parser, scanner and library frameworks have been developed in C++ and have a different organization, with dynamically loadable modules as "database drivers".
+It originated as a (private) fork of [ocesql](https://github.com/GitMensch/Open-COBOL-ESQL) but has been almost completely rewritten: while the semantics related to the GnuCOBOL interface are similar and several support functions have been kept, the parser, scanner and library frameworks have been developed in C++ and have a different organization, with dynamically loadable modules as "database drivers".
 
 The core of GixSQL has been incorporated in a more generic "preprocessing library" (libgixpp) that is used in Gix-IDE to parse COBOL files and derive some metadata used for navigation and debugging.
 
@@ -22,22 +22,24 @@ When you create a project in Gix-IDE, you are asked whether you want to enable i
 	- Dynamically selected (based on a "connection string" supplied to the driver)
 	- Dynamically selected (based on the GIXSQL_DB_MODE environment variable)
 - **Preprocess COPY files**: if set to "Yes" all copy files (not only those in EXEC SQL INCLUDE sections) will be parsed by the ESQL preprocessor. This is useful when you have copy files containing code that includes EXEC SQL statements.
-- **Use anonymous parameters**: if set to "Yes", parameters in SQL statments will be represented as "?", otherwise a numeric indicator (i.e "$1") will be used.
+- **Use anonymous parameters**: if set to "Yes", parameters in SQL statments will be represented as `?`, otherwise a numeric indicator (i.e `$1`) will be used.
 - **Emit static calls**: if set to "Yes", the calls to the gixsql library functions will be emitted as static. This should be normally set to "Yes".
 
 ### Connecting to a database from COBOL
 
 There is no "bind" procedure in GixSQL, you will have to manually open a connection to a database. This is done with a syntax that is quite similar to the one used in Micro Focus COBOL:
 
+```cobol
     ACCEPT DBNAME FROM ENVIRONMENT-VALUE.                        
     ACCEPT DBAUTH FROM ENVIRONMENT-VALUE.                      
     EXEC SQL
       CONNECT TO :DBNAME USER :DBAUTH
-    END-EXEC. 
+    END-EXEC.
+```
 
-In this case the two values are retrieved from the environment variables DBNAME and DBAUTH and passed to the CONNECT function.
+In this case the two values are retrieved from the environment variables `DBNAME` and `DBAUTH` and passed to the CONNECT function.
 
-DBAUTH is a "connection string"-style alphanumeric field, whose format is basically
+`DBNAME` is a "connection string"-style alphanumeric field, whose format is basically
 
     localhost:5432/mydb
 
@@ -47,7 +49,7 @@ or
 
 if you want to specify a database type (that can be ODBC, MYSQL or PGSQL) instead of providing it in the environment variable named GIXSQL_DB_MODE.
 
-User name and password are provided in the second parameter (DBAUTH in this case) and follow the format:
+User name and password are provided in the second parameter (`DBAUTH` in this case) and follow the format:
 
     username.password
 
@@ -60,12 +62,14 @@ At the moment  Gix-IDE always uses its embedded version of GixSQL. In the future
 
 ### Examples
 
-You can find a sample project collection for GixSQL (TEST001.gix) in the folder %USERPROFILE%\Documents\Gix\Examples ($HOME/Documents/gix/examples on Linux) that should have been created when you installed Gix-IDE. Under the project directory (%USERPROFILE%\Documents\Gix\Examples\TEST001 or $HOME/Documents/gix/examples/TEST001 on Linux) there is a SQL file with a DDL query and some data you can use to run the sample project.
+You can find a sample project collection for GixSQL (TEST001.gix) in the folder `%USERPROFILE%\Documents\Gix\Examples` (`$HOME/Documents/gix/examples` on GNU/Linux) that should have been created when you installed Gix-IDE.  
+Under the project directory (`%USERPROFILE%\Documents\Gix\Examples\TEST001` or `$HOME/Documents/gix/examples/TEST001` on GNU/Linux) there is a SQL file with a DDL query and some data you can use to run the sample project.
 
 ### Using GixSQL outside Gix-IDE
 
 If you want to manually precompile COBOL programs for ESQL, you can use the preprocessor binary (**gixpp** or **gixpp.exe**) you will find in the **bin** folder in Gix-IDE's install directory. When you run it from the console, ensure you have the same **bin** directory in your PATH/LD_LIBRARY_PATH since it contains some libraries that are needed by **gixpp**. These are the command line options available, that correspond to those described earlier:
 
+```text
     Usage: gixpp [options]
     
     Options:
@@ -93,7 +97,6 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
       -k                                                      keep temporary files
       -v                                                      Verbose
       -d                                                      Verbose (debug)
+```
 
 When you want to build and link from the console, remember also to add the `<gix-install-dir>/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.
-
-
