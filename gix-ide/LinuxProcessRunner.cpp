@@ -19,6 +19,7 @@
 #include <sys/ptrace.h>
 
 #define LIBSTDBUF   "/usr/lib/x86_64-linux-gnu/coreutils/libstdbuf.so"
+#define GIXDBGHELPER   "/home/marchetto/gix-ide/deploy/examples/webtest001/bin/debug/x64/gixdbghelper.so"
 
 pid_t find_pid(QString prgname, QString astring);
 
@@ -221,10 +222,12 @@ bool LinuxProcessRunner::start(uint64_t *pid)
 #else
 bool LinuxProcessRunner::start(uint64_t *pid)
 {
-    if (QFile::exists(LIBSTDBUF)) {
-        environment.append(QString("LD_PRELOAD=%1").arg(LIBSTDBUF));
-        environment.append("_STDBUF_O=0");
-    }
+//    if (QFile::exists(LIBSTDBUF)) {
+//        environment.append(QString("LD_PRELOAD=%1").arg(LIBSTDBUF));
+//        environment.append("_STDBUF_O=0");
+//    }
+
+//    environment.append(QString("LD_PRELOAD=%1").arg(GIXDBGHELPER));
 
     pid_t childPid = fork();
 
@@ -275,7 +278,7 @@ bool LinuxProcessRunner::start(uint64_t *pid)
 //        raise(SIGSTOP);
         execve(progname, argv, env);
 
-        LOG_DEBUG("ERROR: %d\n", errno);
+        _DBG_OUT("ERROR: %d\n", errno);
 
         ::_exit(1);
 

@@ -34,6 +34,7 @@ public:
 
 	void resetCache();
 	void setCopyDirs(const QStringList& _copy_dirs);
+	void addCopyDir(const QString &copy_dir);
 	void setExtensions(const QStringList& _copy_exts);
 	void setBaseDir(const QString base_dir);
 	QStringList& getCopyDirs() const;

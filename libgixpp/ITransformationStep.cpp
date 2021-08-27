@@ -49,6 +49,6 @@ void ITransformationStep::setOutput(QString out_file)
 ITransformationStep::ITransformationStep(GixPreProcessor* gpp)
 {
 	this->owner = gpp;
-	this->owner->err_code = 0;
-	this->owner->err_messages.clear();
+	this->owner->err_data.err_code = 0;
+	this->owner->err_data.err_messages.clear();
 }

@@ -223,7 +223,6 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
             DWARF_ADDR_T addr = (DWARF_ADDR_T)shared_module->dll_base + dwarf_addr;
 #endif
 
-
 			SourceLineInfo *li = new SourceLineInfo();
 			li->module = shared_module;
 			li->source_file = qp.filename;
@@ -235,18 +234,18 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 			shared_module->owner->source_lines[k] = li;
 			shared_module->owner->source_lines_by_addr[li->addr] = li;
 
-            fprintf(stderr, "%s : %p\n", k.toLocal8Bit().data(), (uint64_t)li->addr);
+            // fprintf(stderr, "%s : %p\n", k.toLocal8Bit().data(), (uint64_t)li->addr);
 
-			UserBreakpoint *bkp = new UserBreakpoint();
+			UserBreakpoint *bkp = UserBreakpoint::createInstance();
 			bkp->owner = shared_module;
 			bkp->automatic = true;
 			bkp->address = li->addr;
 			bkp->key = k;
 			bkp->line = li->line;
 			bkp->source_file = li->source_file;
-			shared_module->owner->installHardwareBreakpoint(bkp);
-			shared_module->owner->breakpoints[k] = bkp;
 
+			shared_module->owner->breakPointAdd(bkp);
+            bkp->install();
 		}
 	}
 
@@ -273,7 +272,7 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
             cmi->entry_point = (void *)((DWARF_ADDR_T)shared_module->dll_base + dwarf_addr);
 #endif
 
-			cmi->entry_breakpoint = new UserBreakpoint();
+			cmi->entry_breakpoint = UserBreakpoint::createInstance();
 			cmi->entry_breakpoint->address = cmi->entry_point;
 			cmi->entry_breakpoint->automatic = true;
 			cmi->entry_breakpoint->key = QString(m) + ":0";
@@ -441,18 +440,17 @@ bool DwarfSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hproc,
 		VariableResolverData *rd = new VariableResolverData();
 		rd->var_name = sr.readString();
 		rd->var_path = sr.readString();
-		rd->type = sr.readInt();
+		rd->type = (WsEntryType) sr.readInt();
 		rd->level = sr.readInt();
 		rd->base_var_name = sr.readString();
 		rd->local_addr = sr.readInt();
-		rd->storage_len = sr.readInt();
+		rd->storage_size = sr.readInt();
 
 		rd->display_size = sr.readInt();
 		rd->is_signed = sr.readInt();
 		rd->decimals = sr.readInt();
 		rd->format = sr.readString();
 		rd->storage_type = sr.readInt();
-		rd->storage = sr.readString();
 		rd->occurs = sr.readInt();
 		rd->redefines = sr.readString();
 

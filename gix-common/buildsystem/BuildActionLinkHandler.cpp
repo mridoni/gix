@@ -31,6 +31,7 @@ USA.
 #include "SymbolMappingEntry.h"
 #include "SysUtils.h"
 #include "ESQLConfiguration.h"
+#include "DataEntry.h"
 #include "linq/linq.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -161,29 +162,32 @@ bool BuildActionLinkHandler::startBuild()
 
 	if (build_configuration == "debug" || is_web_project) {
 
-		std::vector<BuildTarget *> mod_bt_list = from(*deps).where([](BuildTarget *b) {  return b->providesOneOf({ BuildConsts::TYPE_OBJ, BuildConsts::TYPE_OBJ_MAIN }); }).select([](BuildTarget *bt) { return bt; }).to_vector();
+		//std::vector<BuildTarget *> mod_bt_list = from(*deps).where([](BuildTarget *b) {  return b->providesOneOf({ BuildConsts::TYPE_OBJ, BuildConsts::TYPE_OBJ_MAIN }); }).select([](BuildTarget *bt) { return bt; }).to_vector();
 
-		QStringList mod_src_list;
+		//QStringList mod_src_list;
 
-		for (auto mod_bt : mod_bt_list) {
-			if (environment.contains("preprocess_esql") && environment["preprocess_esql"].toBool()) {
-				auto cbsql_bt = mod_bt->getDependency(BuildConsts::TYPE_CBSQL);
-				if (cbsql_bt) {
-					auto cbl_bt = cbsql_bt->getDependency(BuildConsts::TYPE_COBOL);
-					if (cbl_bt) {
-						mod_src_list.append(cbl_bt->filename());
-					}
-				}
-			}
-			else {
-				auto cbl_bt = mod_bt->getDependency(BuildConsts::TYPE_COBOL);
-				if (cbl_bt) {
-					mod_src_list.append(cbl_bt->filename());
-				}
-			}
-		}
+		//for (auto mod_bt : mod_bt_list) {
+		//	if (environment.contains("preprocess_esql") && environment["preprocess_esql"].toBool()) {
+		//		auto cbsql_bt = mod_bt->getDependency(BuildConsts::TYPE_CBSQL);
+		//		if (cbsql_bt) {
+		//			auto cbl_bt = cbsql_bt->getDependency(BuildConsts::TYPE_COBOL);
+		//			if (cbl_bt) {
+		//				mod_src_list.append(cbl_bt->filename());
+		//			}
+		//		}
+		//	}
+		//	else {
+		//		auto cbl_bt = mod_bt->getDependency(BuildConsts::TYPE_COBOL);
+		//		if (cbl_bt) {
+		//			mod_src_list.append(cbl_bt->filename());
+		//		}
+		//	}
+		//}
 
-		bool md_status = rebuildMetadata(mod_src_list);
+		bool md_status = GixGlobals::getMetadataManager()->rebuildMetadata();
+
+		auto msfl = GixGlobals::getMetadataManager()->getModulesSourceMap().values();
+		QStringList mod_src_list = QStringList::fromStdList(from(msfl).select([](ProjectFile *pf) { return pf->GetFileFullPath();  }).to_list());
 
 		QString dbg_helper_obj;
 		if (generateDebugHelperObj(mod_src_list, target_final_path, build_dir, dbg_helper_obj))
@@ -475,8 +479,8 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 		int esize = 0;
 		for (DataEntry *e : entries) {
 			QString local_sym_name = e->getTopMostParent()->name;
-			fs << QString("/* \"%1\",  \"%2\", \"%3\", %4, %5, %6, %7, %8  */\n").arg(e->name).arg(e->path).arg(local_sym_name).arg(e->offset_local).arg(e->storage_size).arg(e->display_size).arg(e->is_signed).arg(e->decimals);
-			fs << QString("/* \"%1\",  %2, \"%3\", %4, \"%5\"  */\n").arg(e->format).arg((int)e->storage_type).arg(e->storage).arg(e->occurs).arg(e->redefines);
+			fs << QString("/* \"%1\", \"%2\", %3, %4, \"%5\", %6, %7 */\n").arg(e->name).arg(e->path).arg((uint32_t)e->type).arg(e->level).arg(local_sym_name).arg(e->offset_local).arg(e->storage_size);
+			fs << QString("/* %1, %2, %3, \"%4\", %5, %6, %7 */\n").arg(e->display_size).arg(e->is_signed).arg(e->decimals).arg(e->format).arg((int)e->storage_type).arg(e->occurs).arg(e->redefines);
 			DUMP_QSTRING(e->name); esize += (e->name.length() + 1);
 			DUMP_QSTRING(e->path); esize += (e->path.length() + 1);
 			DUMP_INT((uint32_t)e->type); esize += (sizeof(uint32_t));
@@ -490,7 +494,6 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 			DUMP_INT((uint32_t)e->decimals); esize += (sizeof(uint32_t));
 			DUMP_QSTRING(e->format); esize += (e->format.length() + 1);
 			DUMP_INT((uint32_t)e->storage_type); esize += (sizeof(uint32_t));
-			DUMP_QSTRING(e->storage); esize += (e->storage.length() + 1);
 			DUMP_INT((uint32_t)e->occurs); esize += (sizeof(uint32_t));
 			DUMP_QSTRING(e->redefines); esize += (e->redefines.length() + 1);
 
@@ -520,32 +523,7 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 	return res;
 }
 
-bool BuildActionLinkHandler::rebuildMetadata(const QStringList &mod_src_list)
-{
-	ProjectCollection *prj_coll = GixGlobals::getCurrentProjectCollection();
-	QList<ProjectFile *> pfiles;
 
-	for (QString file : mod_src_list) {
-		ProjectFile *pf = prj_coll->locateProjectFileByPath(file);
-		if (pf)
-			pfiles.append(pf);
-	}
-
-	emit GixGlobals::getMetadataManager()->scanModulesBatch(pfiles);
-
-	bool res;
-
-    QEventLoop loop;
-    connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, this, [this, &res, &loop](bool b) {
-        loop.quit(); 
-		res = b;
-    });
-
-    loop.exec();
-
-	return res;
-
-}
 
 bool BuildActionLinkHandler::compileDebugHelperObj(QString build_dir, QString c_filename, QString obj_filename)
 {

@@ -523,14 +523,6 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    
-    
-    
-    
-    
-    
-    
-    
     <CustomBuild Include="debug\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
@@ -539,6 +531,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="C:\Users\marchetto\Documents\Visual Studio 2017\Projects\gix-ide\libs\scintilla\qt\ScintillaEdit\ScintillaEdit_resource.rc" />
+    <ResourceCompile Include="$(SolutionDir)\libs\scintilla\qt\ScintillaEdit\ScintillaEdit_resource.rc" />
   </ItemGroup>
 </Project>

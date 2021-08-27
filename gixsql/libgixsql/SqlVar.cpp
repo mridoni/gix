@@ -339,10 +339,10 @@ void SqlVar::createRealData()
 			}
 			else {
 				void* actual_addr = (char*)addr + 2;
-				uint16_t* len = (uint16_t*)addr;
-
-				realdata = (char*)calloc((*len) + TERMINAL_LENGTH, sizeof(char));
-				memcpy(realdata, (char*)actual_addr, (*len));
+				uint16_t* len_addr = (uint16_t*)addr;
+				int actual_len = COB_BSWAP_16(*len_addr);
+				realdata = (char*)calloc(actual_len + TERMINAL_LENGTH, sizeof(char));
+				memcpy(realdata, (char*)actual_addr, actual_len);
 				LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
 			}
 		}
@@ -696,8 +696,8 @@ void SqlVar::createCobolData(char* retstr)
 					memset(actual_addr, ' ', actual_len);
 					memcpy(actual_addr, retstr, strlen(retstr));
 				}
-				uint16_t* fld_len = (uint16_t*)addr;
-				*fld_len = strlen(retstr);
+				int16_t* fld_len_addr = (int16_t *)addr;
+				*fld_len_addr = COB_BSWAP_16((int16_t) strlen(retstr));
 			}
 			break;
 		case COBOL_TYPE_JAPANESE:

@@ -46,9 +46,6 @@ USA.
 #include "GixGlobals.h"
 #include "GixVersion.h"
 
-// 0 = Release, 1 = Debug
-#define DEFAULT_TARGET_CONFIG 0
-
 using namespace cpplinq;
 
 //static IdeTaskManager ide_task_manager;
@@ -712,9 +709,6 @@ void MainWindow::subWindowActivated()
 
 		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Activated window for " + f, QLogger::LogLevel::Debug);
 
-		//bool update_working_storage_window = (working_storage_window->hasContent()) &&
-		//	((f == working_storage_window->cur_file->GetFileFullPath()) || (working_storage_window->cur_data->getCopyDeps().contains(f)));
-
 		ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
 		if (ppj != nullptr) {
 			ProjectFile *pf = ppj->locateProjectFileByPath(f, true);
@@ -832,6 +826,12 @@ void MainWindow::IdeStatusChanged(IdeStatus s)
 {
 	updateMenus();
 	watch_dock->setVisible(s == IdeStatus::Debugging || s == IdeStatus::DebuggingOnBreak);
+
+	if (s != IdeStatus::DebuggingOnBreak) {
+		MdiChild *cur = this->activeMdiChild();
+		if (cur)
+			cur->markerDeleteAll(MRKR_DBG_CURLINE);
+	}
 }
 
 void MainWindow::IdeEditorChangedPosition(QString src, int ln)
@@ -1297,6 +1297,7 @@ void MainWindow::createActions()
 		watch_window->IdeStatusChanged(s); 
 	});
 	connect(Ide::TaskManager(), &IdeTaskManager::IdeDebuggerBreak, this, [this] {
+		QApplication::alert(this);
 		watch_window->onDebuggerBreak(); 
 	});
 

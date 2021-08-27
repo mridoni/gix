@@ -30,7 +30,7 @@ USA.
 #include "TPESQLProcessing.h"
 
 
-#define SET_ERR(I,S) err_code = I; err_messages << QCoreApplication::translate("gix", S)
+#define SET_ERR(I,S) err_data.err_code = I; err_data.err_messages << QCoreApplication::translate("gix", S)
 
 GixPreProcessor::GixPreProcessor()
 {
@@ -39,7 +39,7 @@ GixPreProcessor::GixPreProcessor()
 	verbose = false;
 	verbose_debug = false;
 
-	err_code = 0;
+	err_data.err_code = 0;
 }
 
 GixPreProcessor::~GixPreProcessor()
@@ -152,6 +152,11 @@ bool GixPreProcessor::setOutputFile(QString outfile)
 QVariant GixPreProcessor::getOpt(QString id, QVariant v)
 {
 	return (opts.contains(id)) ? opts[id] : v;
+}
+
+QVariantMap& GixPreProcessor::getOpts() const
+{
+	return const_cast<QVariantMap&>(opts);
 }
 
 void GixPreProcessor::setOpt(QString id, QVariant v)

@@ -63,10 +63,10 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	cbEolMode->addItem(tr("Unix/Linux (LF)"), (int)EolMode::Unix);
 	cbEolMode->addItem(tr("Classic MacOS (CR)"), (int)EolMode::ClassicMacOS);
 
-	cbDebugStartupBehaviour->addItem(tr("Stop at breakpoints"), (int)0x01);
-	cbDebugStartupBehaviour->addItem(tr("Stop at the first line of the main module"), (int)0x02);
-	cbDebugStartupBehaviour->addItem(tr("Stop at the first line of every module"), (int)0x03);
-	cbSkipCheckPackageVersionCheck->setChecked(false);
+	//cbDebugStartupBehaviour->addItem(tr("Stop at breakpoints"), (int)0x01);
+	//cbDebugStartupBehaviour->addItem(tr("Stop at the first line of the main module"), (int)0x02);
+	//cbDebugStartupBehaviour->addItem(tr("Stop at the first line of every module"), (int)0x03);
+	//cbSkipCheckPackageVersionCheck->setChecked(false);
 
 	cb_esql_pp_driver_list->addItem("Gix (Internal)", "esql_driver_gix_internal");
 	cb_esql_pp_driver_list->addItem("Gix (External)", "esql_driver_gix_external");
@@ -82,11 +82,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	// For now, we do not show ESQL options
 	this->tabWidget->setTabEnabled(3, false);
 	this->setStyleSheet("QTabBar::tab::disabled {width: 0; height: 0; margin: 0; padding: 0; border: none;} ");
-	 
-	label_9->setVisible(false);
-	label_10->setVisible(false);
-	tHostPort->setVisible(false);
-	cbSkipCheckPackageVersionCheck->setVisible(false);
+
 
 	QMenu *menu = new QMenu(this);
 	QAction *act1 = new QAction(tr("Add compiler (manually)..."), this);
@@ -291,26 +287,28 @@ bool SettingsDialog::EditorCfgTab_SaveSettings()
 
 void SettingsDialog::DebugCfgTab_LoadSettings()
 {
-	QSettings settings;
-	cbDebugStartupBehaviour->setCurrentIndex(settings.value("debugger_startup_behaviour", 1).toInt()-1);
-	tHostPort->setText(settings.value("host_debugger_port", 13008).toString());
-	cbSkipCheckPackageVersionCheck->setChecked(settings.value("debugger_skip_package_version_check", false).toBool());
+	//QSettings settings;
+	//cbDebugStartupBehaviour->setCurrentIndex(settings.value("debugger_startup_behaviour", 1).toInt()-1);
+	//tHostPort->setText(settings.value("host_debugger_port", 13008).toString());
+	//cbSkipCheckPackageVersionCheck->setChecked(settings.value("debugger_skip_package_version_check", false).toBool());
 }
 
 bool SettingsDialog::DebugCfgTab_CheckSettings()
 {
-	bool ok;
-	int port = tHostPort->text().toInt(&ok, 10);
-	return (ok && port > 0 && port <= 65535);
+	return true;
+	//bool ok;
+	//int port = tHostPort->text().toInt(&ok, 10);
+	//return (ok && port > 0 && port <= 65535);
 }
 
 bool SettingsDialog::DebugCfgTab_SaveSettings()
 {
-	QSettings settings;
-	bool changed = settingsSetValue("host_debugger_port", tHostPort->text().toInt());
-	changed |= settingsSetValue("debugger_startup_behaviour", cbDebugStartupBehaviour->currentIndex() + 1);
-	changed |= settingsSetValue("debugger_skip_package_version_check", cbSkipCheckPackageVersionCheck->isChecked());
-	return changed;
+	return false;
+	//QSettings settings;
+	//bool changed = settingsSetValue("host_debugger_port", tHostPort->text().toInt());
+	//changed |= settingsSetValue("debugger_startup_behaviour", cbDebugStartupBehaviour->currentIndex() + 1);
+	//changed |= settingsSetValue("debugger_skip_package_version_check", cbSkipCheckPackageVersionCheck->isChecked());
+	//return changed;
 }
 
 void SettingsDialog::ESQLCfgTab_LoadSettings()

@@ -204,9 +204,6 @@
     <ClCompile Include="StdStreamRedirect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MetadataLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TargetDefinition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -313,9 +310,6 @@
     </ClInclude>
     <ClInclude Include="DwarfSymbolProvider.h">
       <Filter>Header Files\debugger\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="MetadataLoader.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GixVersion.h">
       <Filter>Header Files</Filter>
@@ -637,6 +631,12 @@
     </None>
     <None Include="gix-ide.rc.tpl" />
     <None Include="GixVersion.h.tpl" />
+    <None Include="templates\PROGRAM_WSVC.cbl">
+      <Filter>Resource Files\templates</Filter>
+    </None>
+    <None Include="templates\COPY_WSVC.cpy">
+      <Filter>Resource Files\templates</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gix-ide.rc" />

@@ -96,8 +96,13 @@ QString MetadataWorker::extract_program_id(const QString &filename)
 
 CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 {
+	bool metadata_was_built = false;
+
 	if (!pf)
 		return nullptr;
+
+	QString configuration = GixGlobals::getCurrentConfiguration();
+	QString platform = GixGlobals::getCurrentPlatform();
 
 	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Scanning " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
 
@@ -112,81 +117,37 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 		return nullptr;
 	}
 
-	CobolModuleMetadata *metadata = GixGlobals::getMetadataManager()->getModuleMetadata(program_id);
-
-	if (metadata && metadata->isUpToDate()) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Metadata for module %1 (%2) is up to date").arg(program_id).arg(pf->GetFileFullPath()), QLogger::LogLevel::Trace);
-		return metadata;
-	}
-
-	Project *prj = pf->getParentProject();
-
-	GixPreProcessor gp;
-	CopyResolver copy_resolver;
-
-	QStringList copy_dirs = prj->getCopyDirList();
-
-	if (prj->isEsql()) {
-		QSettings settings;
-		QString configuration = GixGlobals::getCurrentConfiguration();
-		QString platform = GixGlobals::getCurrentPlatform();
-		QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, QVariantMap()));
-		
-		QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
-		CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
-		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, configuration, platform));
-		if (!esql_cfg.isNull()) {
-			QStringList esql_copy_dirs = esql_cfg->getCopyPathList();
-			if (!esql_copy_dirs.isEmpty())
-				copy_dirs.append(esql_copy_dirs);
+	bool metadata_exists = GixGlobals::getMetadataManager()->existsMetadata(program_id);
+	if (metadata_exists) {
+		CobolModuleMetadata *metadata = GixGlobals::getMetadataManager()->getModuleMetadata(program_id);
+		if (metadata && metadata->isUpToDate()) {
+			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Metadata for module %1 (%2) is up to date").arg(program_id).arg(pf->GetFileFullPath()), QLogger::LogLevel::Trace);
+			return metadata;
 		}
-	}
-
-	copy_resolver.setCopyDirs(copy_dirs);
-	copy_resolver.setExtensions(prj->getCopyExtList());
-	gp.setCopyResolver(&copy_resolver);
-
-	gp.setOpt("no_output", true);
-	gp.setOpt("preprocess_copy_files", true);
-
-	gp.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true));
-	gp.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true));
-
-	TPESQLProcessing *pp = new TPESQLProcessing(&gp);
-	gp.addStep(pp);
-
-	gp.setOpt("emit_debug_info", true);
-	gp.verbose = false;
-	gp.verbose_debug = false;
-
-	gp.setInputFile(pf->GetFileFullPath());
-	gp.setOutputFile("");
-
-	bool b = gp.process();
-	if (!b) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while retrieving metadata for module %1 (%2)").arg(program_id).arg(gp.err_code), QLogger::LogLevel::Trace);
-		for (auto errmsg : gp.err_messages) {
-			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + errmsg, QLogger::LogLevel::Trace);
-		}
-		return nullptr;
-	}
-
-	CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(program_id);
-	if (cmm) {
+	}	
+	
+	if (metadata_exists) {
 		emit GixGlobals::getMetadataManager()->invalidateModuleMetadata(program_id, pf);
 		GixGlobals::getMetadataManager()->removeModuleMetadata(program_id);
 	}
 
-	cmm = CobolModuleMetadata::build(pf, pp);
+	Project *prj = pf->getParentProject();
+
+	ErrorData err_data;
+	CobolModuleMetadata *cmm = CobolModuleMetadata::build(pf, &err_data);
 	if (!cmm) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while building metadata for module %1 (%2)").arg(program_id).arg(gp.err_code), QLogger::LogLevel::Trace);
-		for (auto errmsg : gp.err_messages) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while building or retrieving metadata for module %1 (%2)").arg(program_id).arg(err_data.err_code), QLogger::LogLevel::Trace);
+		for (auto errmsg : err_data.err_messages) {
 			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + errmsg, QLogger::LogLevel::Trace);
 		}
 		return nullptr;
 	}
 
 	GixGlobals::getMetadataManager()->addModuleMetadata(cmm);
+#if _DEBUG
+	QString dump_file = PathUtils::combine(prj->getBuildDirectory(configuration, platform), cmm->getModuleName() + ".sym");
+	cmm->dumpToFile(dump_file, true);
+#endif
 
     GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Finished scanning " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
 

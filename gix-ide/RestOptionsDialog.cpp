@@ -67,18 +67,19 @@ bool RestOptionsDialog::show(ProjectItem* _pi, PropertyDefinition* _pd)
 	cbOutputCopy->addItem("(" + tr("none") + ")", QVariant());
 	for (int i = 0; i < files.size(); i++) {
 		ProjectFile* f = files.at(i);
-		cbInputCopy->addItem(f->GetDisplayName(), QVariant::fromValue<void *>(f));
-		cbOutputCopy->addItem(f->GetDisplayName(), QVariant::fromValue<void*>(f));
+		QString display_name = f->GetDisplayName();
+		cbInputCopy->addItem(display_name, QVariant::fromValue<void *>(f));
+		cbOutputCopy->addItem(display_name, QVariant::fromValue<void*>(f));
 	}
 
 	if (sub_properties->contains("interface_in_copy")) {
-		int i = cbInputCopy->findText(sub_properties->value("interface_in").toString());
+		int i = cbInputCopy->findText(sub_properties->value("interface_in_copy").toString());
 		if (i != -1)
 			cbInputCopy->setCurrentIndex(i);
 	}
 
 	if (sub_properties->contains("interface_out_copy")) {
-		int i = cbOutputCopy->findText(sub_properties->value("interface_out").toString());
+		int i = cbOutputCopy->findText(sub_properties->value("interface_out_copy").toString());
 		if (i != -1)
 			cbOutputCopy->setCurrentIndex(i);
 	}
@@ -123,6 +124,13 @@ bool RestOptionsDialog::show(ProjectItem* _pi, PropertyDefinition* _pd)
 void RestOptionsDialog::accept()
 {
 	bool ok;
+
+	if (cbInputCopy->currentData().isNull() || cbOutputCopy->currentData().isNull() ||
+		cbFieldIn->currentIndex() == 0 || cbFieldOut->currentIndex() == 0 ||
+		tbPort->text().isEmpty() || tbUrl->text().isEmpty()) {
+			UiUtils::ErrorDialog(tr("Please enter all the parameters"));
+			return;
+	}
 
 	if (!cbInputCopy->currentData().isNull()) {
 		ProjectFile* pf = (ProjectFile*)cbInputCopy->currentData().value<void*>();

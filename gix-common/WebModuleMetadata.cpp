@@ -178,7 +178,7 @@
 //	for (SymbolMappingEntry *sme : syms_to_dbg_syms) {
 //		s << sme->id;
 //		s << sme->cbl_var;
-//		s << sme->storage_len;
+//		s << sme->storage_size;
 //	}
 //}
 //
@@ -190,7 +190,7 @@
 //		SymbolMappingEntry *sme = new SymbolMappingEntry();
 //		s >> sme->id;
 //		s >> sme->cbl_var;
-//		s >> sme->storage_len;
+//		s >> sme->storage_size;
 //		cmm->syms_to_dbg_syms.append(sme);
 //	}
 //}

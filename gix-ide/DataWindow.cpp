@@ -22,7 +22,6 @@ USA.
 #include "DataEntry.h"
 #include "UiUtils.h"
 #include "PathUtils.h"
-#include "ListingFileParser.h"
 #include "Ide.h"
 #include "IdeTaskManager.h"
 #include "MetadataManager.h"
@@ -77,6 +76,10 @@ DataWindow::DataWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 			refreshContent(); 
 	});
 
+	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, this, [this](bool b) {
+		refreshContent();
+	});
+
 	connect(Ide::TaskManager(), &IdeTaskManager::fileActivated, this, [this](ProjectFile *pf) {
 		refreshContent();
 	});
@@ -107,6 +110,13 @@ DataWindow::DataWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 				Ide::TaskManager()->setIdeElementInfo(cur_file->GetFileFullPath() + ":" + v.toString(), 0);
 		}
 	});
+
+	connect(GixGlobals::getMetadataManager(), &MetadataManager::invalidateModuleMetadata, this, [this](QString program_id, ProjectFile *pf) {
+		if (pf == cur_file) {
+			dataWidget->clear();
+		}
+
+	}, Qt::ConnectionType::QueuedConnection);
 }
 
 

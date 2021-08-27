@@ -35,12 +35,15 @@ USA.
 
 #include <utility>
 
-#ifdef _DEBUG
-#define LOG_DEBUG(format, ...)	fprintf(stderr, format, ##__VA_ARGS__)
+#if _DEBUG
+#if defined(_WIN32)
+#define _DBG_OUT(format, ...) { char bfr[2048];	sprintf(bfr, format, ##__VA_ARGS__); OutputDebugStringA(bfr); }
 #else
-#define LOG_DEBUG(format, ...)
+#define _DBG_OUT(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
 #endif
-
+#else
+#define _DBG_OUT(format, ...)
+#endif
 
 class SysUtils {
 public:
@@ -61,7 +64,6 @@ public:
 	static void mergeMaps(QMap<QString, QVariant>& m1, const QMap<QString, QVariant> m2);
 	static QString serializeMap(QVariantMap *);
 	static QMap<QString, QVariant> * deserializeMap(QString);
-	static QVariant getSubProperty(QString serialized_sub_props, QString sub_prop_id);
 	static QString getjavaBinPath();
 	static QString getCbl2XmlPath();
 	static QString randomString(int len);
@@ -97,6 +99,9 @@ inline QString SysUtils::serializeMap(QVariantMap * m)
 
 inline QMap<QString, QVariant>* SysUtils::deserializeMap(QString s)
 {
+	if (s.isEmpty())
+		return nullptr;
+
 	QVariantMap *inMap = new QVariantMap();
 	QByteArray mapData = QByteArray::fromBase64(s.toLocal8Bit());
 
@@ -295,16 +300,6 @@ inline QString SysUtils::randomString(int len)
 		str[s] = QChar('A' + char(qrand() % ('Z' - 'A')));
 
 	return str;
-}
-
-
-inline QVariant SysUtils::getSubProperty(QString serialized_sub_props, QString sub_prop_id)
-{
-	auto sub_props = SysUtils::deserializeMap(serialized_sub_props);
-	if (sub_props && sub_props->contains(sub_prop_id) && !sub_props->value(sub_prop_id).isNull()) {
-		return sub_props->value(sub_prop_id);
-	}
-	return QVariant();
 }
 
 /*

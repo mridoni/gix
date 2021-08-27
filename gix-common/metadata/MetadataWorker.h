@@ -32,6 +32,8 @@ class MetadataWorker : public QObject
 {
     Q_OBJECT
 
+    friend class MetadataManager;
+
 public:
     explicit MetadataWorker(QObject *parent = nullptr);
     ~MetadataWorker();

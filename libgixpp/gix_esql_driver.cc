@@ -111,8 +111,8 @@ void gix_esql_driver::error (const yy::location& l, const std::string& m)
 {
 	QString msg = QString("ESQL parse error at line %1 of file %2: %3").arg(lexer.getLineNo()).arg(this->lexer.src_location_stack.top().filename).arg(QString::fromStdString(m));
     //std::cerr << l << ": " << m << std::endl;
-	this->pp_inst->err_messages << msg;
-	this->pp_inst->err_code = 1;
+	this->pp_inst->err_data.err_messages << msg;
+	this->pp_inst->err_data.err_code = 1;
 }
 
 void gix_esql_driver::error (const std::string& m)

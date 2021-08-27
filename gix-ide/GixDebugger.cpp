@@ -50,25 +50,63 @@ GixDebugger *GixDebugger::get()
 #if defined(_WIN32)
 	gd = new GixDebuggerWin();
 #elif defined(__linux__)
-    gd = new GixDebuggerLinux();
+	gd = new GixDebuggerLinux();
 #endif
 
 	return gd;
 }
 
-//typedef cob_global *(*libcob_cob_get_global_ptr_t)(void);
-//typedef int (*libcob_cob_is_initialized_t)(void);
-
-
 bool GixDebugger::existsBreakpoint(const QString &src_file, int ln)
 {
 	QString k = src_file + ":" + QString::number(ln);
-    return (breakpoints.find(k) != breakpoints.end());
+	return (breakpoints_by_line.contains(k));
 }
 
 void GixDebugger::writeToProcess(QString s)
 {
-    // Nothing here
+	// Nothing here
+}
+
+void GixDebugger::breakPointAdd(UserBreakpoint *bkp)
+{
+	if (!bkp)
+		return;
+
+	if (!breakpoints.contains(bkp))
+		breakpoints.append(bkp);
+
+#if BITNESS==64
+	uint64_t addr = (uint64_t)bkp->address;
+#else
+	uint32_t addr = (uint32_t)bkp->address;
+#endif
+	if (!breakpoints_by_addr.contains(addr))
+		breakpoints_by_addr.insert(addr, bkp);
+
+	if (!breakpoints_by_line.contains(bkp->key))
+		breakpoints_by_line.insert(bkp->key, bkp);
+}
+
+void GixDebugger::breakPointRemove(UserBreakpoint *bkp)
+{
+	if (!bkp)
+		return;
+
+	if (breakpoints.contains(bkp))
+		breakpoints.removeOne(bkp);
+
+#if BITNESS==64
+	uint64_t addr = (uint64_t)bkp->address;
+#else
+	uint32_t addr = (uint32_t)bkp->address;
+#endif
+	if (breakpoints_by_addr.contains(addr))
+		breakpoints_by_addr.remove(addr);
+
+	if (breakpoints_by_line.contains(bkp->key))
+		breakpoints_by_line.remove(bkp->key);
+
+	delete bkp;
 }
 
 UserBreakpoint *GixDebugger::findBreakpointByAddress(void *addr)
@@ -77,7 +115,7 @@ UserBreakpoint *GixDebugger::findBreakpointByAddress(void *addr)
 		return nullptr;
 
 	for (auto it = breakpoints.begin(); it != breakpoints.end(); ++it) {
-		UserBreakpoint *bkp = it.value();
+		UserBreakpoint *bkp = *it;
 
 		if (bkp->address == addr)
 			return bkp;
@@ -103,60 +141,58 @@ void GixDebugger::getAndResolveUserBreakpoints()
 	QList<QPair<QString, int>> new_bkps;
 	if_blk->getBreakpoints(this, new_bkps);
 
-    fprintf(stderr, "IDE is resolving user breakpoints (%d user breakpoint(s) received)\n", new_bkps.size());
-    for (auto it = new_bkps.begin(); it != new_bkps.end(); ++it) {
-        QPair<QString, int> newbp = *it;
-        fprintf(stderr, "IDE says: user breakpoint at %d@%s\n", newbp.second, newbp.first.toLocal8Bit().data());
-    }
+#if _DEBUG
+	_DBG_OUT("IDE is resolving user breakpoints (%d user breakpoint(s) received)\n", new_bkps.size());
+	for (auto it = new_bkps.begin(); it != new_bkps.end(); ++it) {
+		QPair<QString, int> newbp = *it;
+		_DBG_OUT("IDE says: user breakpoint at %d@%s\n", newbp.second, newbp.first.toLocal8Bit().data());
+	}
+#endif
 
-	// First: find all resolved breakpoints that have been deleted
-	QList<UserBreakpoint *> to_be_removed;
+
+	// First: find all resolved source line breakpoints that have been deleted from the user list
 	for (auto it = breakpoints.begin(); it != breakpoints.end(); ++it) {
-		UserBreakpoint *bkp = it.value();
+		UserBreakpoint *bkp = *it;
 		if (bkp->automatic)
 			continue;
 
 		auto itt = std::find_if(new_bkps.begin(), new_bkps.end(), [bkp](QPair<QString, int> s) { return s.first == bkp->source_file && s.second == bkp->line; });
 		if (itt == new_bkps.end()) {
-			to_be_removed.push_back(bkp);
+			bkp->automatic = true;
 		}
-	}
-
-	for (auto bkp : to_be_removed) {
-		bkp->automatic = true;
 	}
 
 	// Second: we add new breakpoints
 	for (auto it = new_bkps.begin(); it != new_bkps.end(); ++it) {
 		QPair<QString, int> newbp = *it;
-		//auto itt = std::find_if(breakpoints.begin(), breakpoints.end(), [newbp](QPair<QString, UserBreakpoint *> b) { return newbp.first == b.second->source_file && newbp.second == b.second->line; });
 		auto itt = std::find_if(breakpoints.begin(), breakpoints.end(), [newbp](UserBreakpoint *b) { return QDir::cleanPath(newbp.first) == QDir::cleanPath(b->source_file) && newbp.second == b->line; });
 		if (itt == breakpoints.end()) {
-			UserBreakpoint *bkp = new UserBreakpoint();
+			UserBreakpoint *bkp = UserBreakpoint::createInstance();
 			bkp->key = newbp.first + ":" + QString::number(newbp.second);
 			bkp->source_file = newbp.first;
 			bkp->line = newbp.second;
 			bkp->orig_instr = 0x00;
 			bkp->address = 0x00000000;
 			bkp->automatic = false;
-			breakpoints[bkp->key] = bkp;
+
+			breakPointAdd(bkp);
 		}
 		else {
-			itt.value()->automatic = false;
+			(*itt)->automatic = false;
 		}
 	}
 
 	// we resolve everything (where needed)
 	for (auto it = breakpoints.begin(); it != breakpoints.end(); ++it) {
-		UserBreakpoint *bkp = it.value();
+		UserBreakpoint *bkp = *it;
 		if (bkp->address)
 			continue;
 
-		if (source_lines.find(it.key()) != source_lines.end()) {
-			if_blk->debuggerMessage(this, "Resolved breakpoint (" + it.key() + ")" + QString::number((uint64_t)bkp->address), 0);
-			bkp->address = source_lines[it.key()]->addr;
+		if (source_lines.contains(bkp->key)) {
+			if_blk->debuggerMessage(this, "Resolved breakpoint (" + bkp->key + ")" + QString::number((uint64_t)bkp->address), 0);
+			bkp->address = source_lines[bkp->key]->addr;
 
-			installHardwareBreakpoint(bkp);
+			bkp->install();
 		}
 	}
 }
@@ -164,17 +200,17 @@ void GixDebugger::getAndResolveUserBreakpoints()
 
 bool GixDebugger::isCblEntryPoint(void *addr, CobolModuleInfo **cmi)
 {
-    for (auto mi : shared_modules) {
-        for (auto it = mi->cbl_modules.begin(); it != mi->cbl_modules.end(); ++it) {
-            fprintf(stderr, "isCblEntryPoint - entry_point: %p - addr: %p\n",it.value()->entry_point, addr);
-            if (it.value()->entry_point == addr) {
-                fprintf(stderr, "isCblEntryPoint - current COBOL module is %s\n", it.value()->name.toLocal8Bit().data());
-                *cmi = it.value();
-                return true;
-            }
-        }
-    }
-    return false;
+	for (auto mi : shared_modules) {
+		for (auto it = mi->cbl_modules.begin(); it != mi->cbl_modules.end(); ++it) {
+			fprintf(stderr, "isCblEntryPoint - entry_point: %p - addr: %p\n", it.value()->entry_point, addr);
+			if (it.value()->entry_point == addr) {
+				fprintf(stderr, "isCblEntryPoint - current COBOL module is %s\n", it.value()->name.toLocal8Bit().data());
+				*cmi = it.value();
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -249,17 +285,22 @@ void GixDebugger::setUseExternalConsole(bool b)
 
 void GixDebugger::setDebuggedModuleType(DebuggedModuleType b)
 {
-    debuggee_type = b;
+	debuggee_type = b;
+}
+
+void GixDebugger::setStdInFile(const QString &f)
+{
+	stdin_file = f;
 }
 
 bool GixDebugger::usesExternalConsole()
 {
-    return use_external_console;
+	return use_external_console;
 }
 
 GixDebuggerInterfaceBlock *GixDebugger::getInterfaceBlock()
 {
-    return if_blk;
+	return if_blk;
 }
 
 QString GixDebugger::getWorkingDirectory()
@@ -285,4 +326,13 @@ void GixDebugger::printMessage(QString msg)
 SharedModuleInfo::~SharedModuleInfo()
 {
 
+}
+
+UserBreakpoint *UserBreakpoint::createInstance()
+{
+#if defined(_WIN32)
+	return new WinUserBreakpoint();
+#elif defined(__linux__)
+	return new LinuxUserBreakpoint();
+#endif
 }

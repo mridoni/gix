@@ -274,7 +274,7 @@ void CodeEditor::setPlainText(QString text)
 void CodeEditor::ensureLineVisible(int ln)
 {
 	//this->lineVisible(ln);
-	this->gotoLine(ln);
+	this->gotoLine(--ln);
 }
 
 void CodeEditor::setFontFromSettings()

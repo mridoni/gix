@@ -27,6 +27,9 @@ USA.
 #include <QStringList>
 #include <QObject>
 
+#include "SysUtils.h"
+#include "DataEntry.h"
+
 #ifdef _WIN32
 #include <Windows.h>
 #include <psapi.h>
@@ -34,6 +37,33 @@ USA.
 #include <tchar.h>
 #endif
 
+
+#if defined(_MSC_VER) || (defined(__INTEL_COMPILER) && defined(_WIN32))
+#if defined(_M_X64)
+#define BITNESS 64
+#define LONG_SIZE 4
+#define DWARF_ADDR_T uint64_t
+#else
+#define BITNESS 32
+#define LONG_SIZE 4
+#define DWARF_ADDR_T uint32_t
+#endif
+#elif defined(__clang__) || defined(__INTEL_COMPILER) || defined(__GNUC__)
+#if defined(__x86_64)
+#define BITNESS 64
+#define DWARF_ADDR_T uint64_t
+#else
+#define BITNESS 32
+#define DWARF_ADDR_T uint32_t
+#endif
+#if __LONG_MAX__ == 2147483647L
+#define LONG_SIZE 4
+#define DWARF_ADDR_T uint32_t
+#else
+#define LONG_SIZE 8
+#define DWARF_ADDR_T uint64_t
+#endif
+#endif
 
 class GixDebugger;
 class SourceLineInfo;
@@ -77,6 +107,11 @@ public:
 	SharedModuleInfo *owner = nullptr;
 
     bool isInstalled() { return orig_instr != 0x00; }
+
+	static UserBreakpoint *createInstance();
+
+	virtual bool install() = 0;
+	virtual bool uninstall() = 0;
 };
 
 class SharedModuleInfo
@@ -126,7 +161,7 @@ struct VariableResolverData
 	QString var_name;
 	QString var_path;
 
-	int type = 0;
+	WsEntryType type = WsEntryType::Unknown;
 	int level = 0;
 	int display_size = 0;
 	int is_signed = 0;
@@ -143,7 +178,7 @@ struct VariableResolverData
 	QString local_sym_name;
 	int local_addr = 0;
 	
-	int storage_len = 0;
+	int storage_size = 0;
 
 	bool toDisplayFormat(const uint8_t *data, int data_len, uint8_t display_bfr, int display_len)
 	{
@@ -203,6 +238,7 @@ public:
 	void setVerbose(bool b);
 	void setUseExternalConsole(bool b);
 	void setDebuggedModuleType(DebuggedModuleType b);
+	void setStdInFile(const QString &f);
 
     bool usesExternalConsole();
     GixDebuggerInterfaceBlock *getInterfaceBlock();
@@ -227,9 +263,6 @@ public:
 
 	virtual void printLastError() = 0;
 
-	virtual void removeHardwareBreakpoint(UserBreakpoint *bkp) = 0;
-	virtual bool installHardwareBreakpoint(UserBreakpoint *bkp) = 0;
-
 	virtual bool readProcessMemory(void *addr, void *bfr, int size) = 0;
 
     virtual void writeToProcess(QString s);
@@ -238,10 +271,19 @@ public:
 	QMap<QString, SourceLineInfo *> source_lines;
 	QList<QString> src_file_types;
 
-	QMap<QString, UserBreakpoint *> breakpoints;
+	QList<UserBreakpoint *> breakpoints;
+	QMultiMap<QString, UserBreakpoint *> breakpoints_by_line;
+
+#if BITNESS==64
+	QMap<uint64_t, UserBreakpoint *> breakpoints_by_addr;
+#else
+	QMap<uint32_t, UserBreakpoint *> breakpoints_by_addr;
+#endif
+
+	void breakPointRemove(UserBreakpoint *bkp);
+	void breakPointAdd(UserBreakpoint *bkp);
 
 protected:
-
 
 	QMap<QString, QString> properties;
 
@@ -255,6 +297,7 @@ protected:
 	QString working_dir;
 	QString module_dir;
 	QString cmd_line_args;
+	QString stdin_file;
 
 	QList<SharedModuleInfo *> shared_modules;
 	QList<QString> sym_dirs;

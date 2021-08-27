@@ -43,13 +43,15 @@ public:
     CobolModuleMetadata *getModuleMetadataBySource(QString src_filename);
     bool removeModuleMetadata(QString module_name);
     bool addModuleMetadata(CobolModuleMetadata *cmm);
+    bool existsMetadata(const QString& module_name);
+    //bool rebuildMetadata(const QStringList &mod_src_list);
+    bool rebuildMetadata();
 
-    
+    const QMap<QString, ProjectFile *> &getModulesSourceMap();
+
+    void reset();
 
 signals:
-    // to use the service, just call this signal to send a request:
-    // logService->logEvent("event");
-    void logEvent(const QString &event);
     void scanCobolModule(ProjectFile *pf);
     void invalidateModuleMetadata(const QString& program_id, ProjectFile *pf);
     void updatedModuleMetadata(CobolModuleMetadata *cmm);
@@ -63,6 +65,9 @@ private:
 
     QMap<QString, CobolModuleMetadata *> by_module_map;
     QMap<QString, CobolModuleMetadata *> by_filename_map;
-    //QList<CobolModuleMetadata *> metadata;
+
+    QMap<QString, ProjectFile *> module_srcs;
+
+    void get_module_sources();
 };
 

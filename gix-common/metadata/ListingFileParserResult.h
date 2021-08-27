@@ -20,6 +20,8 @@ USA.
 
 #pragma once
 
+#if 0
+
 #include <QList>
 #include <QMap>
 #include <QString>
@@ -43,3 +45,4 @@ public:
 	QMap<QString, Paragraph *> paragraphs;
 };
 
+#endif

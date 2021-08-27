@@ -56,7 +56,7 @@ public:
 	QString extractModuleName();
 	QString getSymbolFilename(QString configuration = QString(), QString platform = QString());
 
-	bool writeSourceTemplate(QFile& f, ProjectFileType t);
+	bool writeSourceTemplate(Project * prj, QFile& f, ProjectFileType t);
 
 	// Inherited via ProjectItem
 	virtual ProjectItemType GetItemType() override;

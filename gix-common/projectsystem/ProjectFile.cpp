@@ -113,14 +113,12 @@ bool ProjectFile::isHttpService()
 
 bool ProjectFile::isRestService()
 {
-	auto sub_props = (*properties)["is_rest_ws"].toString();
-	return SysUtils::getSubProperty(sub_props, "enabled").toBool();
+	return this->getSubProperty("is_rest_ws", "enabled").toBool();
 }
 
 bool ProjectFile::isSoapService()
 {
-	auto sub_props = (*properties)["is_soap_ws"].toString();
-	return SysUtils::getSubProperty(sub_props, "enabled").toBool();
+	return this->getSubProperty("is_soap_ws", "enabled").toBool();
 }
 
 bool ProjectFile::isCompilable()
@@ -195,16 +193,16 @@ QString ProjectFile::locate_copy_file(QString cpy_name, const QStringList &copy_
 	return QString();
 }
 
-bool ProjectFile::writeSourceTemplate(QFile &f, ProjectFileType t)
+bool ProjectFile::writeSourceTemplate(Project * prj, QFile &f, ProjectFileType t)
 {
 	QString template_name;
 	switch (t) {
 		case ProjectFileType::Source:
-			template_name = ":/templates/PROGRAM.cbl";
+			template_name = (prj != nullptr && prj->getType() == ProjectType::Web) ? ":/templates/PROGRAM_WSVC.cbl" : ":/templates/PROGRAM.cbl";
 			break;
 
 		case ProjectFileType::Copy:
-			template_name = ":/templates/COPY.cpy";
+			template_name = (prj != nullptr && prj->getType() == ProjectType::Web) ? ":/templates/COPY_WSVC.cpy" : ":/templates/COPY.cpy";
 			break;
 	}
 	
@@ -360,6 +358,14 @@ ProjectFile *ProjectFile::newProjectFile(ProjectItem *owner, QString filepath, b
 			else
 				pf->PropertySetValue("build_action", "none");
 	}
+
+	pf->PropertySetValue("filepath", pf->GetFileFullPath());
+
+	pf->runtime_properties["prjfile.path"] = pf->GetFileFullPath();
+	pf->runtime_properties["prjfile.path.noext"] = PathUtils::changeExtension(pf->GetFileFullPath(), "");
+	pf->runtime_properties["prjfile.name.noext"] = PathUtils::changeExtension(pf->GetFilename(), "");
+	pf->runtime_properties["prjfile.basedir"] = pf->GetBaseDir();
+
 	return pf;
 }
 

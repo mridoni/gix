@@ -28,33 +28,6 @@ USA.
 
 #include <QDir>
 
-#if defined(_MSC_VER) || (defined(__INTEL_COMPILER) && defined(_WIN32))
-#if defined(_M_X64)
-#define BITNESS 64
-#define LONG_SIZE 4
-#define DWARF_ADDR_T uint64_t
-#else
-#define BITNESS 32
-#define LONG_SIZE 4
-#define DWARF_ADDR_T uint32_t
-#endif
-#elif defined(__clang__) || defined(__INTEL_COMPILER) || defined(__GNUC__)
-#if defined(__x86_64)
-#define BITNESS 64
-#define DWARF_ADDR_T uint64_t
-#else
-#define BITNESS 32
-#define DWARF_ADDR_T uint32_t
-#endif
-#if __LONG_MAX__ == 2147483647L
-#define LONG_SIZE 4
-#define DWARF_ADDR_T uint32_t
-#else
-#define LONG_SIZE 8
-#define DWARF_ADDR_T uint64_t
-#endif
-#endif
-
 #define BUFSIZE 65536
 
 QString GetFileNameFromHandle(HANDLE hFile);
@@ -143,11 +116,12 @@ int GixDebuggerWin::start()
 
 	QString fcl = exepath + " " + cmd_line_args;
 
+	SECURITY_ATTRIBUTES saAttr;
+	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+	saAttr.bInheritHandle = TRUE;
+	saAttr.lpSecurityDescriptor = NULL;
+
 	if (!use_external_console) {
-		SECURITY_ATTRIBUTES saAttr;
-		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-		saAttr.bInheritHandle = TRUE;
-		saAttr.lpSecurityDescriptor = NULL;
 
 		if (!CreatePipe(&hChildStd_OUT_Rd, &hChildStd_OUT_Wr, &saAttr, 0)) {
 			if_blk->debuggerError(this, 1, QString("Cannot open stdout pipe"));
@@ -203,19 +177,64 @@ int GixDebuggerWin::start()
 			return 1;
 		}
 	}
-
+	
 	DWORD createFlags = NORMAL_PRIORITY_CLASS | DEBUG_ONLY_THIS_PROCESS;
 	
 	if (use_external_console)
 		createFlags |= CREATE_NEW_CONSOLE;
 
-	if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, !use_external_console, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
+	if (!stdin_file.isEmpty() && QFile::exists(stdin_file)) {
+
+		if (!CreatePipe(&hChildStd_IN_Rd, &hChildStd_IN_Wr, &saAttr, 0)) {
+			if_blk->debuggerError(this, 1, QString("Cannot open stdin pipe"));
+			return 1;
+		}
+
+		if (!SetHandleInformation(hChildStd_IN_Wr, HANDLE_FLAG_INHERIT, 0)) {
+			if_blk->debuggerError(this, 1, QString("Cannot configure stdin pipe"));
+			return 1;
+		}
+
+		si.hStdInput = hChildStd_IN_Rd;
+		si.dwFlags |= STARTF_USESTDHANDLES;
+		if (use_external_console) {
+			si.hStdError = NULL;
+			si.hStdOutput = NULL;
+		}
+	}
+
+	// TODO: verify that this works in all cases (internal/external console, stdir redirected or not, etc.)
+	// WAS : if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, !use_external_console, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
+	if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, TRUE, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
 		TerminateThread(hThreadReadStdOut, 0);
 		TerminateThread(hThreadReadStdErr, 0);
 		
 		if_blk->debuggerError(this, 1, "Cannot start process");
 		printLastError();
 		return 1;
+	}
+
+	if (!stdin_file.isEmpty() && QFile::exists(stdin_file)) {
+		HANDLE hStdInFile = CreateFile(
+			stdin_file.toLocal8Bit().data(),
+			GENERIC_READ,
+			0,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_READONLY,
+			NULL);
+
+		if (hStdInFile == INVALID_HANDLE_VALUE) {
+			if_blk->debuggerError(this, 1, QString("Cannot open stdin file"));
+			return 1;
+		}
+
+		if (!WriteFileToPipe(hStdInFile, hChildStd_IN_Wr)) {
+			if_blk->debuggerError(this, 1, QString("Cannot read or pipe stdin file"));
+			return 1;
+		}
+
+		CloseHandle(hStdInFile);
 	}
 
 	if (!is_debugging_enabled) {
@@ -303,6 +322,12 @@ int GixDebuggerWin::start()
 					break;
 
 				QString sDLLName = GetFileNameFromHandle(debug_event.u.LoadDll.hFile);
+
+#if _DEBUG
+				char bfr[1024];
+				sprintf(bfr, "Gix-IDE debugger: loading DLL: %s at %p\n", sDLLName.toLocal8Bit().data(), debug_event.u.LoadDll.lpBaseOfDll);
+				OutputDebugStringA(bfr);
+#endif
 				QString cp = QDir::cleanPath(sDLLName);
 				if (properties["symformat"] == "dwarf" && !cp.startsWith(this->module_dir))
 					break;
@@ -326,6 +351,11 @@ int GixDebuggerWin::start()
 
 				SharedModuleInfo *mi = nullptr;
 				if (isLoadedGnuCOBOLImage(debug_event.u.UnloadDll.lpBaseOfDll, &mi)) {
+#if _DEBUG
+					char bfr[1024];
+					sprintf(bfr, "Gix-IDE debugger: unloading DLL: %s\n", mi->dll_path.toLocal8Bit().data());
+					OutputDebugStringA(bfr);
+#endif
 					unloadGnuCOBOLImage(mi);
 				}
 
@@ -350,6 +380,8 @@ int GixDebuggerWin::start()
 				else
 					strEventMessage = (LPSTR)msg;
 
+				_DBG_OUT(msg);
+
 				delete[]msg;
 			}
 
@@ -364,15 +396,18 @@ int GixDebuggerWin::start()
 				EXCEPTION_DEBUG_INFO &exception = debug_event.u.Exception;
 
 				switch (exception.ExceptionRecord.ExceptionCode) {
-					case EXCEPTION_BREAKPOINT:\
+					case EXCEPTION_BREAKPOINT:
 					{
 						if (!__breakpoint_0_hit) {
 							strEventMessage = "Break point 0";
 							__breakpoint_0_hit = true;
 							//inject_helper(the_process, the_thread);
 							if_blk->debuggerReady(this, exepath);
+							_DBG_OUT("EXCEPTION_BREAKPOINT: Breakpoint 0 hit\n");
 							break;
 						}
+
+						_DBG_OUT("EXCEPTION_BREAKPOINT: Breakpoint hit\n");
 
 						PVOID ex_addr = exception.ExceptionRecord.ExceptionAddress;
 
@@ -381,12 +416,24 @@ int GixDebuggerWin::start()
 						getAndResolveUserBreakpoints();
 						
 						UserBreakpoint *bp = findBreakpointByAddress(ex_addr);
-						if (!bp)	// This will probably lead to a crash
+						if (!bp) {	// This will probably lead to a crash
+#if _DEBUG
+							char bbfr[256];
+							sprintf(bbfr, "EXCEPTION_BREAKPOINT: Breakpoint not found: %p\n", ex_addr);
+							OutputDebugStringA(bbfr);
+#endif
 							break;
+						}
+
+						_DBG_OUT("EXCEPTION_BREAKPOINT: Breakpoint at address %p is at source line %d of %s\n", bp->address, bp->line, bp->source_file.toLocal8Bit().data());
 
 						CONTEXT lcContext;
 						lcContext.ContextFlags = CONTEXT_ALL;
-						GetThreadContext(process_info.hThread, &lcContext);
+						
+						// We need to get the handle of the thread that actually generated the breakpoint exception, 
+						// that not necessarily is the main application thread we stored
+						HANDLE h_exc_thread = OpenThread(THREAD_ALL_ACCESS, FALSE, debug_event.dwThreadId);
+						GetThreadContext(h_exc_thread, &lcContext);
 #ifdef _WIN64
 						DWORD64 dwWriteSize;
 						lcContext.Rip--; // Move back one byte, for 64bit
@@ -395,22 +442,16 @@ int GixDebuggerWin::start()
 						lcContext.Eip--; // Move back one byte, for 32bit
 #endif
 						lcContext.EFlags |= 0x100;
-						SetThreadContext(process_info.hThread, &lcContext);
 
-						WriteProcessMemory(process_info.hProcess, exception.ExceptionRecord.ExceptionAddress, &bp->orig_instr, 1, &dwWriteSize);
-						FlushInstructionCache(the_process, ex_addr, 1);
+						SetThreadContext(h_exc_thread, &lcContext);
+						CloseHandle(h_exc_thread);
+
+						bp->uninstall();
+						_DBG_OUT("EXCEPTION_BREAKPOINT: Hardware breakpoint uninstalled at %p\n", bp->address);
 
 						last_bkp = bp;
 						last_source_file = bp->source_file;
 						last_source_line = bp->line;
-
-						//if (is_cbl_entry_point && current_cbl_module) {
-						//	if_blk->debuggerMessage(this, "At entry point for module " + current_cbl_module->name, 0);
-						//	if (!current_cbl_module->initialized) {
-						//		bool b = initCobolModuleLocalInfo(this, the_process, current_cbl_module);
-						//	}
-						//}
-
 					}
 					break;
 
@@ -418,6 +459,8 @@ int GixDebuggerWin::start()
 					{
 						if (!is_debugging_enabled)
 							break;
+
+						_DBG_OUT("EXCEPTION_SINGLE_STEP: Breakpoint single-step\n");
 
 						is_on_break = true;
 #ifdef _WIN64
@@ -427,15 +470,20 @@ int GixDebuggerWin::start()
 #endif
 						uint8_t brk_inst = 0xcc;
 						if (last_bkp) {
-							WriteProcessMemory(process_info.hProcess, last_bkp->address, &brk_inst, 1, &dwWriteSize);
-							FlushInstructionCache(the_process, last_bkp->address, 1);
+							last_bkp->install();
+							_DBG_OUT("EXCEPTION_SINGLE_STEP: Reinstalled hardware breakpoint at %p\n", last_bkp->address);
 
 							if (!last_bkp->automatic || single_step) {
+								_DBG_OUT("EXCEPTION_SINGLE_STEP: User/single step breakpoint: yes\n");
 								if (this->source_lines_by_addr.find(last_bkp->address) != source_lines_by_addr.end()) {
+									_DBG_OUT("EXCEPTION_SINGLE_STEP: Successfully decoded source line info\n");
 									SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
 									if_blk->debuggerMessage(this, QString::fromStdString(std_string_format("Found breakpoint at 0x%08p (%s:%d)\n", last_bkp->address, sli->source_file, sli->line)), 0);
 									if_blk->debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
 								}
+							}
+							else {
+								_DBG_OUT("EXCEPTION_SINGLE_STEP: User/single step breakpoint: no\n");
 							}
 						}
 
@@ -447,6 +495,8 @@ int GixDebuggerWin::start()
 					default:
 						if (exception.ExceptionRecord.ExceptionCode == 0x406D1388)	// Handle SetThreadName-generated exceptions
 							break;
+
+						printLastError();
 
 						fprintf(stderr, "Exception code: %08x", exception.ExceptionRecord.ExceptionCode);
 
@@ -466,20 +516,20 @@ int GixDebuggerWin::start()
 								eptrs.ExceptionRecord = &exception.ExceptionRecord;
 								create_minidump(&eptrs, debug_event.dwThreadId);
 #endif
-								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %x, exception-code: 0x%08x\nStack frame: %s\n================\n",
+								CloseHandle(h_exc_thread);
+
+								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %016p, exception-code: 0x%08x\nStack frame: %s\n================\n",
 									exception.ExceptionRecord.ExceptionAddress,
 									exception.ExceptionRecord.ExceptionCode,
 									stack_dump.toLocal8Bit().constData()));
 							}
 							else {
-								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %x, exception-code: 0x%08x\nStack frame: not available\n================\n",
+								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %016p, exception-code: 0x%08x\nStack frame: not available\n================\n",
 									exception.ExceptionRecord.ExceptionAddress,
 									exception.ExceptionRecord.ExceptionCode));
 							}
 
 							error_exit = true;
-
-
 							if_blk->debuggerError(this, exception.ExceptionRecord.ExceptionCode, strEventMessage);
 						}
 						// else
@@ -565,6 +615,11 @@ void GixDebuggerWin::setupEnvironmentBlock()
 
 	envBlock = new char[sz];
 	for (auto it = environment.begin(); it != environment.end(); ++it) {
+#if _DEBUG
+		char bfr[65535];
+		sprintf(bfr, "Process environment - %s : %s\n", it.key().toLocal8Bit().constData(), it.value().toLocal8Bit().constData());
+		OutputDebugStringA(bfr);
+#endif
 		memcpy(envBlock + pos, it.key().toLocal8Bit().constData(), it.key().length()); pos += it.key().length();
 		*(envBlock + pos) = '='; pos++;
 
@@ -629,63 +684,6 @@ void GixDebuggerWin::printLastError()
 	LocalFree(lpDisplayBuf);
 }
 
-void GixDebuggerWin::removeHardwareBreakpoint(UserBreakpoint *bkp)
-{
-	uint8_t cInstruction;
-	SIZE_T dwWrittenBytes;
-
-	if (!bkp->address || !bkp->orig_instr)
-		return;
-
-	cInstruction = bkp->orig_instr;
-	if (!WriteProcessMemory(the_process, bkp->address, &cInstruction, 1, &dwWrittenBytes)) {
-		this->printLastError();
-	}
-	else {
-		if (!FlushInstructionCache(the_process, bkp->address, 1)) {
-			this->printLastError();
-		}
-	}
-}
-
-bool GixDebuggerWin::installHardwareBreakpoint(UserBreakpoint *bkp)
-{
-	uint8_t cInstruction = 0x00;
-	SIZE_T dwReadBytes;
-
-	if (!bkp->address)
-		return false;
-
-#if _DEBUG
-	char bfr[256];
-	sprintf(bfr, "Installing hardware breakpoint at 0x%p for %d@%s\n", bkp->address, bkp->line, bkp->source_file.toLocal8Bit().constData());
-	OutputDebugStringA(bfr);
-#endif
-
-	// Read the instruction    
-	if (!ReadProcessMemory(the_process, (void *)bkp->address, &cInstruction, 1, &dwReadBytes)) {
-		this->printLastError();
-		return false;
-	}
-
-	// Save it!
-	bkp->orig_instr = cInstruction;
-
-	// Replace it with Breakpoint
-	cInstruction = 0xCC;
-	if (!WriteProcessMemory(the_process, bkp->address, &cInstruction, 1, &dwReadBytes)) {
-		this->printLastError();
-		return false;
-	}
-
-	if (!FlushInstructionCache(the_process, bkp->address, 1)) {
-		this->printLastError();
-		return false;
-	}
-
-	return true;
-}
-
 bool GixDebuggerWin::getVariables(QList<VariableData *> var_list)
 {
 	if (!is_on_break)
@@ -721,12 +719,12 @@ bool GixDebuggerWin::getVariables(QList<VariableData *> var_list)
 #else
 				unsigned long addr = (unsigned long) sym_provider->resolveLocalVariableAddress(this, the_process, current_cbl_module, frame_ptr, vrootvar, vrd);
 #endif
-				vd->data = new uint8_t[vrd->storage_len];
+				vd->data = new uint8_t[vrd->storage_size];
 				vd->resolver_data = vrd;
 
-				memset(vd->data, 0x00, vrd->storage_len);
+				memset(vd->data, 0x00, vrd->storage_size);
 
-				if (!ReadProcessMemory(the_process, (LPCVOID)addr, vd->data, vrd->storage_len, &dwReadBytes)) {
+				if (!ReadProcessMemory(the_process, (LPCVOID)addr, vd->data, vrd->storage_size, &dwReadBytes)) {
 					this->printLastError();
 					continue;
 				}
@@ -750,6 +748,11 @@ bool GixDebuggerWin::readProcessMemory(void *addr, void *bfr, int size)
 DWORD GixDebuggerWin::getProcessId()
 {
 	return the_process_id;
+}
+
+HANDLE GixDebuggerWin::getProcess()
+{
+	return the_process;
 }
 
 QString GixDebuggerWin::getCurrentCobolModuleName()
@@ -940,16 +943,16 @@ bool GixDebuggerWin::processImage(HANDLE hProc, HANDLE imageBase, DWORD64 hSym, 
 		if (sym_provider->isGnuCOBOLModule(this, the_process, imageBase, NULL, &err)) {
 			if_blk->debuggerMessage(this, imageName + " is a GnuCOBOL module", 0);
 			uint32_t base_of_code = extract_base_of_code(hProc, imageBase);
-			SharedModuleInfo *mi = sym_provider->extractModuleDebugInfo(this, the_process, imageBase, (void *)hSym, imageName, (void *) base_of_code, &err);
+			SharedModuleInfo *smi = sym_provider->extractModuleDebugInfo(this, the_process, imageBase, (void *)hSym, imageName, (void *) base_of_code, &err);
 
-			if (mi) {
-				
-				shared_modules.push_back(mi);
-				for (auto it = mi->cbl_modules.begin(); it != mi->cbl_modules.end(); ++it) {
+			if (smi) {
+				shared_modules.push_back(smi);
+				for (auto it = smi->cbl_modules.begin(); it != smi->cbl_modules.end(); ++it) {
 					if_blk->debuggerMessage(this, QString("Installing hardware breakpoint for module " + it.value()->name), 0);
-					installHardwareBreakpoint(it.value()->entry_breakpoint);
-					breakpoints[it.value()->entry_breakpoint->key] = it.value()->entry_breakpoint;
+					it.value()->entry_breakpoint->install();
+					breakPointAdd(it.value()->entry_breakpoint);
 				}
+				getAndResolveUserBreakpoints();
 			}
 			else
 				return false;
@@ -990,18 +993,17 @@ bool GixDebuggerWin::unloadGnuCOBOLImage(SharedModuleInfo *mi)
 
 	if_blk->debuggerMessage(this, "Shared module " + mi->dll_path + " is being unloaded", 0);
 
-	QStringList to_be_removed;
+	QList<UserBreakpoint *> to_be_removed;
 	for (auto it = this->breakpoints.begin(); it != this->breakpoints.end(); ++it) {
-		if (it.value()->owner == mi) {
+		UserBreakpoint *bkp = *it;
+		if (bkp->owner == mi) {
 			//removeHardwareBreakpoint(it.value());
-			to_be_removed.append(it.key());
+			to_be_removed.append(bkp);
 		}
 	}
 
-	for (QString bkp_id : to_be_removed) {
-		UserBreakpoint *bkp = this->breakpoints.value(bkp_id);
-		this->breakpoints.remove(bkp_id);
-		delete bkp;
+	for (UserBreakpoint *bkp: to_be_removed) {
+		breakPointRemove(bkp);
 	}
 
 	for (auto cmi : mi->cbl_modules.values()) {
@@ -1010,11 +1012,115 @@ bool GixDebuggerWin::unloadGnuCOBOLImage(SharedModuleInfo *mi)
 		}
 	}
 
-	sym_provider->unloadSymbols(this, the_process, mi->dll_base, mi->dll_path, NULL, 0);
+	bool b = sym_provider->unloadSymbols(this, the_process, mi->dll_base, mi->dll_path, NULL, 0);
 	shared_modules.removeOne(mi);
 	
 	delete mi;
 
+	return true;
+}
+
+bool GixDebuggerWin::WriteFileToPipe(HANDLE input_file, HANDLE the_pipe)
+
+// Read from a file and write its contents to the pipe for the child's STDIN.
+// Stop when there is no more data. 
+{
+	DWORD dwRead, dwWritten;
+	CHAR chBuf[BUFSIZE];
+	BOOL bSuccess = FALSE;
+
+	for (;;) {
+		bSuccess = ReadFile(input_file, chBuf, BUFSIZE, &dwRead, NULL);
+		if (!bSuccess || dwRead == 0) break;
+
+		bSuccess = WriteFile(the_pipe, chBuf, dwRead, &dwWritten, NULL);
+		if (!bSuccess) break;
+	}
+
+	// Close the pipe handle so the child process stops reading. 
+
+	if (!CloseHandle(the_pipe))
+		return false;
+
+	return bSuccess;
+}
+
+bool WinUserBreakpoint::install()
+{
+	uint8_t cInstruction = 0x00;
+	SIZE_T dwReadBytes;
+
+	if (isInstalled()) {
+        _DBG_OUT("Breakpoint at 0x%p for %d@%s is already installed, skipping\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+		return true;
+	}
+
+	if (!this->address)
+		return false;
+
+	GixDebuggerWin *gdwin = (GixDebuggerWin *) this->owner->owner;
+
+	_DBG_OUT("Installing hardware breakpoint at 0x%p for %d@%s\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+
+	// Read the instruction    
+	if (!ReadProcessMemory(gdwin->getProcess(), (void *)this->address, &cInstruction, 1, &dwReadBytes)) {
+		gdwin->printLastError();
+		return false;
+	}
+
+	// Save it!
+	this->orig_instr = cInstruction;
+
+	// Replace it with Breakpoint
+	cInstruction = 0xCC;
+	if (!WriteProcessMemory(gdwin->getProcess(), this->address, &cInstruction, 1, &dwReadBytes)) {
+		gdwin->printLastError();
+		return false;
+	}
+
+	if (!FlushInstructionCache(gdwin->getProcess(), this->address, 1)) {
+		gdwin->printLastError();
+		return false;
+	}
+
+	_DBG_OUT("Successfully installed hardware breakpoint at 0x%p for %d@%s\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+
+	return true;
+}
+
+bool WinUserBreakpoint::uninstall()
+{
+	uint8_t cInstruction;
+	SIZE_T dwWrittenBytes;
+
+	if (!isInstalled()) {
+		_DBG_OUT("Breakpoint at 0x%p for %d@%s is not installed, skipping\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+		return true;
+	}
+
+	if (!this->address)
+		return false;
+
+	_DBG_OUT("Uninstalling hardware breakpoint at 0x%p for %d@%s\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+
+	GixDebuggerWin *gdwin = (GixDebuggerWin *)this->owner->owner;
+
+	cInstruction = this->orig_instr;
+	if (!WriteProcessMemory(gdwin->getProcess(), this->address, &cInstruction, 1, &dwWrittenBytes)) {
+		gdwin->printLastError();
+		return false;
+	}
+	else {
+		if (!FlushInstructionCache(gdwin->getProcess(), this->address, 1)) {
+			gdwin->printLastError();
+			return false;
+		}
+	}
+
+	this->orig_instr = 0x00;
+
+	_DBG_OUT("Successfully uninstalled hardware breakpoint at 0x%p for %d@%s\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+	
 	return true;
 }
 

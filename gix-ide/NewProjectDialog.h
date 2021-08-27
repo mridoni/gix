@@ -31,6 +31,7 @@ USA.
 #include <QComboBox>
 
 #include "ui_NewProject.h"
+#include "ProjectType.h"
 
 class QDialogButtonBox;
 class QFileInfo;
@@ -38,6 +39,7 @@ class QTabWidget;
 class NewProjectDialog;
 class ProjectCollection;
 class Project;
+class ProjectFile;
 
 
 class NewProjectDialog : public QDialog, private Ui::Ui_NewProject
@@ -60,5 +62,5 @@ private:
 
 	void choosePrjFile();
 	bool is_valid_prj_name(QString p);
-	bool create_prj_file(Project* prj, int idx);
+	ProjectFile *create_prj_file(Project* prj, int idx, ProjectFileType type = ProjectFileType::Source);
 };

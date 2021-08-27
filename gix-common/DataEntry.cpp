@@ -19,6 +19,7 @@ USA.
 */
 
 #include "DataEntry.h"
+#include "CobolModuleMetadata.h"
 
 #define PIC_ALPHABETIC 		0x01
 #define PIC_NUMERIC 		0x02
@@ -30,7 +31,6 @@ DataEntry::DataEntry()
 	occurs = 0;
 	level = 0;
 	storage_size = 0;
-	storage = "";
 	storage_type = WsEntryStorageType::Unknown;
 	decimals = 0;
 	line = 0;
@@ -140,8 +140,9 @@ DataEntry *DataEntry::fromCobolRawField(cb_field_ptr p)
 				if (p->usage != Usage::None) {
 					switch (p->usage) {
 						case Usage::Binary:
-							format += " USAGE BINARY";
-							e->storage_type = WsEntryStorageType::Comp;
+						case Usage::NativeBinary:
+							format += p->usage == (Usage::Binary) ? " USAGE BINARY" : " USAGE COMP-5";
+							e->storage_type = p->usage == (Usage::Binary) ? WsEntryStorageType::Comp : WsEntryStorageType::Comp5;
 							if (bsize == 1) {	// 1 byte
 								e->storage_size = 1;
 							}
@@ -191,6 +192,9 @@ DataEntry *DataEntry::fromCobolRawField(cb_field_ptr p)
 				break;
 		}
 		e->format = format;
+	}
+	else {
+		e->type = WsEntryType::Group;
 	}
 	return e;
 }

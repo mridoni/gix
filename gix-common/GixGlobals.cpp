@@ -24,205 +24,198 @@ USA.
 #include <QSettings>
 
 GixGlobals GixGlobals::instance;
+
 #if defined(Q_OS_WIN)
 QString GixGlobals::_gix_data_dir = QString();
 #endif
 
 bool GixGlobals::initManagers()
 {
-    QString dataDir = getGixDataDir();
-    if (!dataDir.isEmpty()) {
-        QDir(".").mkpath(dataDir);
-        QDir(".").mkpath(PathUtils::combine(dataDir, "compiler-defs"));
-    }
+	QString dataDir = getGixDataDir();
+	if (!dataDir.isEmpty()) {
+		QDir(".").mkpath(dataDir);
+		QDir(".").mkpath(PathUtils::combine(dataDir, "compiler-defs"));
+	}
 
-    instance.target_manager = new TargetManager();
-    instance.compiler_manager = new CompilerManager();
-    instance.metadata_manager = new MetadataManager();
+	instance.target_manager = new TargetManager();
+	instance.compiler_manager = new CompilerManager();
+	instance.metadata_manager = new MetadataManager();
 
-    return true;
+	return true;
 }
 
 bool GixGlobals::registerLogManager(IGixLogManager *logger)
 {
-    if (!logger)
-        return false;
+	if (!logger)
+		return false;
 
-    instance.logger = logger;
-    return true;
+	instance.logger = logger;
+	return true;
 }
 
 bool GixGlobals::registerCallbacks(GixGlobalsCallbacks *callbacks)
 {
-    if (!callbacks || !callbacks->getCurrentConfiguration || !callbacks->getCurrentPlatform || !callbacks->getCurrentProjectCollection)
-        return false;
+	if (!callbacks || !callbacks->getCurrentConfiguration || !callbacks->getCurrentPlatform || !callbacks->getCurrentProjectCollection)
+		return false;
 
-    instance.cb_getCurrentConfiguration = callbacks->getCurrentConfiguration;
-    instance.cb_getCurrentPlatform = callbacks->getCurrentPlatform;
-    instance.cb_getCurrentProjectCollection = callbacks->getCurrentProjectCollection;
+	instance.cb_getCurrentConfiguration = callbacks->getCurrentConfiguration;
+	instance.cb_getCurrentPlatform = callbacks->getCurrentPlatform;
+	instance.cb_getCurrentProjectCollection = callbacks->getCurrentProjectCollection;
 
-    return true;
+	return true;
 }
 
 
 QString GixGlobals::getCurrentConfiguration()
 {
-    return instance.cb_getCurrentConfiguration();
+	return instance.cb_getCurrentConfiguration();
 }
 
 QString GixGlobals::getCurrentPlatform()
 {
-    return instance.cb_getCurrentPlatform();
+	return instance.cb_getCurrentPlatform();
 }
 
 ProjectCollection *GixGlobals::getCurrentProjectCollection()
 {
-    return instance.cb_getCurrentProjectCollection();
+	return instance.cb_getCurrentProjectCollection();
 }
 
 TargetManager *GixGlobals::getTargetManager()
 {
-    return instance.target_manager;
+	return instance.target_manager;
 }
 
 IGixLogManager *GixGlobals::getLogManager()
 {
-    return instance.logger;
+	return instance.logger;
 }
 
 QString GixGlobals::getGixHomeDir()
 {
 #ifdef _DEBUG
-    auto qba = qgetenv("GIX_HOME");
-    if (!qba.isEmpty())
-        return QString::fromUtf8(qba);
+	auto qba = qgetenv("GIX_HOME");
+	if (!qba.isEmpty())
+		return QString::fromUtf8(qba);
 #endif
 
-    QString bindir = getGixBinDir();
-    if (!bindir.isEmpty()) {
-        QDir theDir(bindir);
-        theDir.cdUp();
-        return theDir.absolutePath();
-    }
+	QString bindir = getGixBinDir();
+	if (!bindir.isEmpty()) {
+		QDir theDir(bindir);
+		theDir.cdUp();
+		return theDir.absolutePath();
+	}
 
-    return QString();
+	return QString();
 }
 
 QString GixGlobals::getGixBinDir()
 {
-    QDir theDir(QCoreApplication::applicationDirPath());
-    return theDir.absolutePath();
+	QDir theDir(QCoreApplication::applicationDirPath());
+	return theDir.absolutePath();
 }
 
 QString GixGlobals::getGixCopyDir()
 {
 #ifdef _DEBUG
-    auto qba = qgetenv("GIX_COPY_DIR");
-    if (!qba.isEmpty())
-        return QString::fromUtf8(qba);
+	auto qba = qgetenv("GIX_COPY_DIR");
+	if (!qba.isEmpty())
+		return QString::fromUtf8(qba);
 #endif
 
-    QDir theDir(PathUtils::combine({ getGixHomeDir(), "lib", "copy" }));
-    QString d = theDir.absolutePath();
-    if (theDir.exists())
-        return theDir.absolutePath();
+	QDir theDir(PathUtils::combine({ getGixHomeDir(), "lib", "copy" }));
+	QString d = theDir.absolutePath();
+	if (theDir.exists())
+		return theDir.absolutePath();
 
-    return QString();
+	return QString();
 }
 
 // This is also used for link libraries at link time
 QString GixGlobals::getGixRuntimeLibDir(CompilerEnvironment env, QString target_platform)
 {
 #ifdef _DEBUG
-    auto qba = qgetenv("GIX_LIB_DIR");
-    if (!qba.isEmpty())
-        return QString::fromUtf8(qba);
+	auto qba = qgetenv("GIX_LIB_DIR");
+	if (!qba.isEmpty())
+		return QString::fromUtf8(qba);
 #endif
-    QString conf = (env == CompilerEnvironment::Gcc) ? "gcc" : "msvc";
-    
-    QDir theDir(PathUtils::combine({ getGixHomeDir(), "lib", target_platform, conf }));
-    QString d = theDir.absolutePath();
-    if (theDir.exists())
-        return theDir.absolutePath();
+	QString conf = (env == CompilerEnvironment::Gcc) ? "gcc" : "msvc";
 
-    return QString();
+	QDir theDir(PathUtils::combine({ getGixHomeDir(), "lib", target_platform, conf }));
+	QString d = theDir.absolutePath();
+	if (theDir.exists())
+		return theDir.absolutePath();
+
+	return QString();
 }
 
 
 QString GixGlobals::getGixDataDir()
 {
-    /* This is:
-        Windows: %PROGRAMDATA%/gix
-        Linux: $INSTALLDIR/share/gix (e.g. /opt/gix-ide/share/gix or /usr/share/gix)
-        Mac: $HOME/Library/gix
-    */
+	/* This is:
+		Windows: %PROGRAMDATA%/gix
+		Linux: $INSTALLDIR/share/gix (e.g. /opt/gix-ide/share/gix or /usr/share/gix)
+		Mac: $HOME/Library/gix
+	*/
 
 #ifdef _DEBUG
-    // Override from environment
-    auto qba = qgetenv("GIX_DATA_DIR");
-    if (!qba.isEmpty())
-        return QString::fromUtf8(qba);
+	// Override from environment
+	auto qba = qgetenv("GIX_DATA_DIR");
+	if (!qba.isEmpty())
+		return QString::fromUtf8(qba);
 #endif
 
 #if defined(Q_OS_WIN)
-    if (_gix_data_dir.isEmpty()) {
-
-        //QSettings m("HKEY_LOCAL_MACHINE\\SOFTWARE\\MediumGray\\gix-ide", QSettings::NativeFormat);
-        //auto l = m.allKeys();
-        //QVariant v = m.value("DataDir");
-        //if (!v.isValid()) {
-            QSettings u("HKEY_CURRENT_USER\\SOFTWARE\\MediumGray\\gix-ide", QSettings::NativeFormat);
-            QVariant v = u.value("DataDir");
-            if (!v.isValid()) {
-                _gix_data_dir = PathUtils::combine(qgetenv("LOCALAPPDATA"), "Gix");
-            }
-            else
-                _gix_data_dir = v.toString();
-        //}
-        //else
-        //    _gix_data_dir = v.toString();
-    }
-    return _gix_data_dir;
+	if (_gix_data_dir.isEmpty()) {
+		QSettings u("HKEY_CURRENT_USER\\SOFTWARE\\MediumGray\\gix-ide", QSettings::NativeFormat);
+		QVariant v = u.value("DataDir");
+		if (!v.isValid()) {
+			_gix_data_dir = PathUtils::combine(qgetenv("LOCALAPPDATA"), "Gix");
+		}
+		else
+			_gix_data_dir = v.toString();
+	}
+	return _gix_data_dir;
 
 #else
-    return PathUtils::combine({ QDir::homePath(), ".gix" });
+	return PathUtils::combine({ QDir::homePath(), ".gix" });
 #endif
 }
 
 QString GixGlobals::getCompilerDefsDir()
 {
-    /* This is:
-        $GIX_DATA_DIR/compiler-pkgs
-        or
-        %GIX_DATA_DIR%/compiler-pkgs
-    */
+	/* This is:
+		$GIX_DATA_DIR/compiler-pkgs
+		or
+		%GIX_DATA_DIR%/compiler-pkgs
+	*/
 
-    // Override from environment
-    auto qba = getGixDataDir();
+	// Override from environment
+	auto qba = getGixDataDir();
 
-    QString compiler_base_dir = PathUtils::combine(getGixDataDir(), "compiler-defs");
-    return QDir(compiler_base_dir).exists() ? compiler_base_dir : QString();
+	QString compiler_base_dir = PathUtils::combine(getGixDataDir(), "compiler-defs");
+	return QDir(compiler_base_dir).exists() ? compiler_base_dir : QString();
 }
 
 
 QString GixGlobals::getGixToolPath(QString tool)
 {
-    QString path = getGixBinDir();
+	QString path = getGixBinDir();
 #if defined(Q_OS_WIN)
-    return PathUtils::combine(path, PathUtils::changeExtension(tool, ".exe"));
+	return PathUtils::combine(path, PathUtils::changeExtension(tool, ".exe"));
 #else
-    return PathUtils::combine(path, tool);
+	return PathUtils::combine(path, tool);
 #endif
 }
 
 CompilerManager *GixGlobals::getCompilerManager()
 {
-    return instance.compiler_manager;
+	return instance.compiler_manager;
 }
 
 MetadataManager *GixGlobals::getMetadataManager()
 {
-    return instance.metadata_manager;
+	return instance.metadata_manager;
 }
 
 GixGlobals::GixGlobals()

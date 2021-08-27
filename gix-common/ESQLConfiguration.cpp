@@ -189,8 +189,7 @@ QMap<QString, QString> ESQLConfiguration::getEnvironment(QString esql_driver_typ
 QStringList ESQLConfiguration::getCopyPathList()
 {
 	if (id == ESQLConfigurationType::GixInternal || id == ESQLConfigurationType::GixExternal) {
-		QString gix_copy_dir = PathUtils::combine(GixGlobals::getGixHomeDir(), "copy");
-		return (QStringList() << gix_copy_dir);
+		return (QStringList() << GixGlobals::getGixCopyDir());
 	}
 	return QStringList();
 }
@@ -231,27 +230,23 @@ QStringList ESQLConfiguration::getRuntimeLibPathList(QString driver_type)
 bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString input_file, QString output_file, QMap<QString, QVariant> opts)
 {
 	GixPreProcessor gp;
-	bool esql_preprocess_copy_files = opts["esql_preprocess_copy_files"].toBool();
+	bool opt_esql_preprocess_copy_files = opts["esql_preprocess_copy_files"].toBool();
+	bool opt_anonymous_params = opts["esql_anon_params"].toBool();
 
 	gp.verbose = true;
 	gp.verbose_debug = true;
 
 	CopyResolver cr(*build_driver->getCopyResolver());
-	QString gix_copy_dir = PathUtils::combine(GixGlobals::getGixHomeDir(), "copy");
-	QStringList copy_dir_list = cr.getCopyDirs();
-	if (!copy_dir_list.contains(gix_copy_dir)) {
-		copy_dir_list.append(gix_copy_dir);
-		cr.setCopyDirs(copy_dir_list);
-	}
+	cr.addCopyDir(GixGlobals::getGixCopyDir());
 		
 	gp.setCopyResolver(&cr);
 
 	gp.setOpt("emit_debug_info", true);
 	gp.setOpt("emit_static_calls", true);
 
-	gp.setOpt("anonymous_params", true);
+	gp.setOpt("anonymous_params", opt_anonymous_params);
 	gp.setOpt("consolidated_map", true);	// we need this to generate a map against the full program listing
-	gp.setOpt("preprocess_copy_files", esql_preprocess_copy_files);
+	gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy_files);
 
 	gp.addStep(new TPESQLProcessing(&gp));
 
@@ -261,7 +256,7 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 	bool b = gp.process();
 
 	if (!b || !QFile(output_file).exists()) {
-		for (QString m : gp.err_messages)
+		for (QString m : gp.err_data.err_messages)
 			build_driver->log_build_message("ERROR: " + m, QLogger::LogLevel::Error);
 		return false;
 	}

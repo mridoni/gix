@@ -171,7 +171,7 @@ void DebugDriver::startDriver()
 		if (sym_name.isEmpty())
 			return false;
 
-		res->storage_len = e->storage_size;
+		res->storage_size = e->storage_size;
 		res->local_sym_name = sym_name;
 		res->local_addr = e->offset_local;
 		res->module_name = module_name;

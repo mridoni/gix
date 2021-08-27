@@ -61,6 +61,10 @@ NavigationWindow::NavigationWindow(QWidget* parent, MainWindow* mw)
 	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadata, this, [this](CobolModuleMetadata *cmm) {
 		refreshContent();
 	});	
+
+	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, this, [this](bool b) {
+		refreshContent();
+	});
 	
 	connect(Ide::TaskManager(), &IdeTaskManager::projectCollectionClosed, this, [this] {
 		this->setContent(nullptr);

@@ -90,7 +90,8 @@ bool ServiceManager::start(ServiceConfig* svc)
 	}
 
 	QLogger::QLog_Info(svc->log_module, QString("Started service %1").arg(svc->name));
-	QLogger::QLog_Info(SERVER_LOG, QString("Started service %1").arg(svc->name));
+	QLogger::QLog_Info(svc->log_module, QString("Service URL is: http://%1:%2%3").arg(svc->owner->getAddressString()).arg(svc->owner->getPort()).arg(svc->getUrl()));
+	QLogger::QLog_Info(svc->log_module, QString("Service schema URL is: http://%1:%2%3").arg(svc->owner->getAddressString()).arg(svc->owner->getPort()).arg(svc->getSchemaUrl()));
 
 	return true;
 }

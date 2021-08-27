@@ -34,6 +34,14 @@ USA.
 #include <Dbghelp.h>
 #include <tchar.h>
 
+
+class WinUserBreakpoint : public UserBreakpoint
+{
+	// Inherited via UserBreakpoint
+	virtual bool install() override;
+	virtual bool uninstall() override;
+};
+
 class GixDebuggerWin : public GixDebugger
 {
 public:
@@ -50,12 +58,13 @@ public:
 	virtual QString getCurrentCobolModuleName() override;
 
 	virtual void printLastError() override;
-	virtual void removeHardwareBreakpoint(UserBreakpoint *bkp) override;
-	virtual bool installHardwareBreakpoint(UserBreakpoint *bkp) override;
+	//virtual void removeHardwareBreakpoint(UserBreakpoint *bkp) override;
+	//virtual bool installHardwareBreakpoint(UserBreakpoint *bkp) override;
 
 	virtual bool readProcessMemory(void *addr, void *bfr, int size) override;
 
 	DWORD getProcessId();
+	HANDLE getProcess();
 
 private:
 	HANDLE the_process = NULL;
@@ -81,6 +90,9 @@ private:
 	DWORD dwThreadReadStdOutId = 0;
 	DWORD dwThreadReadStdErrId = 0;
 
+	HANDLE hChildStd_IN_Rd = NULL;
+	HANDLE hChildStd_IN_Wr = NULL;
+
 	char *envBlock = NULL;
 
 	bool error_exit = false;
@@ -89,6 +101,7 @@ private:
 
 	static DWORD WINAPI PipeReaderThread(LPVOID lpParam);
 	bool stop_reading_pipes = false;
+	bool WriteFileToPipe(HANDLE input_file, HANDLE the_pipe);
 
 	virtual void *getSymbolAddress(const char *sym_name) override;
 

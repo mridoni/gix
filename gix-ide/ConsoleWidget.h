@@ -66,10 +66,10 @@ public:
     void setLocalEchoEnabled(bool set);
 
 protected:
-    void keyPressEvent(QKeyEvent* e) override;
-    void mousePressEvent(QMouseEvent* e) override;
-    void mouseDoubleClickEvent(QMouseEvent* e) override;
-    void contextMenuEvent(QContextMenuEvent* e) override;
+    //void keyPressEvent(QKeyEvent* e) override;
+    //void mousePressEvent(QMouseEvent* e) override;
+    //void mouseDoubleClickEvent(QMouseEvent* e) override;
+    //void contextMenuEvent(QContextMenuEvent* e) override;
 
 private:
     bool m_localEchoEnabled = false;

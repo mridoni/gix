@@ -22,7 +22,7 @@ USA.
 
 #include <QString>
 
-#define SET_ERR(I,S) owner->err_code = I; owner->err_messages << QCoreApplication::translate("gix", S)
+#define SET_ERR(I,S) owner->err_data.err_code = I; owner->err_data.err_messages << QCoreApplication::translate("gix", S)
 
 class ITransformationStep;
 class GixPreProcessor;

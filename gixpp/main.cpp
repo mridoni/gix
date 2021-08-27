@@ -126,11 +126,11 @@ public slots:
 
 			bool b = gp.process();
 			if (!b) {
-				rc = gp.err_code;
-				for (QString m : gp.err_messages)
+				rc = gp.err_data.err_code;
+				for (QString m : gp.err_data.err_messages)
 					fprintf(stderr, "Error: %s\n", m.toLocal8Bit().data());
 
-				app->exit(gp.err_code);
+				app->exit(gp.err_data.err_code);
 			}
 		}
 

@@ -56,6 +56,8 @@ void CobolController::service(ServiceConfig *svc, HttpRequest &request, HttpResp
 	int rc = 0;
 	char bfr[256];
 
+    _DBG_OUT("Received request for COBOL controller\n");
+
 	QString s = svc->getServerConfig()->getBasePath();
 
 	QScopedPointer<HttpDataManager> interface_in_field(new HttpDataManager(svc, svc->getInterfaceIn()));
@@ -64,39 +66,52 @@ void CobolController::service(ServiceConfig *svc, HttpRequest &request, HttpResp
 	if (svc->getInterfaceIn() == NULL || svc->getInterfaceOut() == NULL) { // just in case
 		response.setStatus(400);
 		response.write("Bad request", true);
+        _DBG_OUT("Request validation: failed\n");
 		return;
 	}
 
 	if (!validateRequest(request, svc->getInterfaceIn())) {
 		response.setStatus(400);
 		response.write("Bad request", true);
+        _DBG_OUT("Request validation: failed\n");
 		return;
 	}
 
-#if _DEBUG
-	void *cobol_data_in = interface_in_field->getDataBuffer();
-	void *cobol_data_out = interface_out_field->getDataBuffer();
+    _DBG_OUT("Request validation: ok\n");
 
-	HttpDataManager *iin = interface_in_field.get();
-	HttpDataManager *iout = interface_out_field.get();
-#endif
+	uint8_t *cobol_data_in = (uint8_t *)interface_in_field->getDataBuffer();
+	uint8_t *cobol_data_out = (uint8_t *)interface_out_field->getDataBuffer();
+
 	QString prg = svc->getProgram();
 
-//    QDir::setCurrent(svc->getServerConfig()->getSearchPath());
-
-	void *entry_point = (void *)runtime->cob_resolve((char *)prg.toLocal8Bit().constData());
-	if (entry_point == NULL) {
-		response.setStatus(500);
-		response.write("Internal server error", true);
-		return;
-	}
-
 	// Request -> cobol_data_in
+    _DBG_OUT("Setting up request data\n");
 	if (interface_in_field.get())
 		interface_in_field->setupRequest(request);
 
-	int(*func)(char *, char *) = (int(*)(char *, char *))entry_point;
-	rc = func((char *)interface_in_field->getDataBuffer(), (char *)interface_out_field->getDataBuffer());
+    _DBG_OUT("Calling GnuCOBOL module\n");
+
+#if 1
+
+    _DBG_OUT("Resolving entry point for module \"%s\"\n", prg.toLocal8Bit().data());
+
+    void *entry_point = runtime->cob_resolve(prg.toLocal8Bit().constData());
+    if (entry_point == NULL) {
+        response.setStatus(500);
+        response.write("Internal server error", true);
+        _DBG_OUT("Cannot resolve module entry point\n");
+        return;
+    }
+    else {
+        _DBG_OUT("Module entry point resolved\n");
+    }
+
+	int(*func)(uint8_t *, uint8_t *) = (int(*)(uint8_t *, uint8_t *))entry_point;
+	rc = func(cobol_data_in, cobol_data_out);
+#else
+	void *args[2] = { cobol_data_in, &cobol_data_out };
+	rc = runtime->cob_call((char *)prg.toLocal8Bit().constData(), 2, (void **)&args);
+#endif
 
 
 	if (rc) {

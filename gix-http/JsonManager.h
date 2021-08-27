@@ -40,7 +40,7 @@ public:
 
 	 JsonManager(ServiceConfig *);
 
-	QString getSchema(SchemaType schema_type);
+	QString getSchema();
 	QString serializeData(QHash<QString, QString> &data);
 
 private:

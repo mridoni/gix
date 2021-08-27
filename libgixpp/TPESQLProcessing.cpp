@@ -91,15 +91,6 @@ USA.
 
 #define ERR_NOTDEF_CONVERSION -1
 
-enum oc_usage
-{
-	USAGE_NONE,
-	USAGE_FLOAT,
-	USAGE_DOUBLE,
-	USAGE_PACKED,
-	USAGE_BINARY
-};
-
 enum class ESQL_Command
 {
 	Connect,
@@ -174,6 +165,38 @@ bool TPESQLProcessing::run(ITransformationStep *prev_step)
 		input_file = prev_step->getOutput();
 	}
 
+#if _DEBUG_LOG_ON
+	char dbg_bfr[512];
+#if defined(_WIN32)
+	OutputDebugStringA("TPESQLProcessing invoked\n===============\n");
+#else
+	fprintf(stderr, "TPESQLProcessing invoked\n===============\n");
+#endif
+
+	for (auto it = owner->getOpts().begin(); it != owner->getOpts().end(); ++it) {
+		sprintf(dbg_bfr, "%s = %s\n", it.key().toLocal8Bit().data(), it.value().toString().toLocal8Bit().data());
+#if defined(_WIN32)
+		OutputDebugStringA(dbg_bfr);
+#else
+		fprintf(stderr, dbg_bfr);
+#endif
+
+	}
+	for (auto cd : owner->getCopyResolver()->getCopyDirs()) {
+		sprintf(dbg_bfr, "COPY path: %s\n", cd.toLocal8Bit().data());
+#if defined(_WIN32)
+		OutputDebugStringA(dbg_bfr);
+#else
+		fprintf(stderr, dbg_bfr);
+#endif
+	}
+#if defined(_WIN32)
+	OutputDebugStringA("===============\n");
+#else
+	fprintf(stderr, "TPESQLProcessing invoked\n===============\n");
+#endif
+#endif
+
 	main_module_driver.opt_use_anonymous_params = opt_anonymous_params;
 	main_module_driver.opt_preprocess_copy_files = opt_preprocess_copy_files;
 
@@ -184,7 +207,7 @@ bool TPESQLProcessing::run(ITransformationStep *prev_step)
 		rc = outputESQL();
 	}
 
-	owner->err_code = rc;
+	owner->err_data.err_code = rc;
 
 	return rc == 0;
 }
@@ -202,7 +225,6 @@ int TPESQLProcessing::outputESQL()
 
 	if (output_file.isEmpty()) {
 		QString f = PathUtils::changeExtension(input_file, ".cbsql");
-		//f = QDir::tempPath() + QDir::separator() + PathUtils::getFilename(f);
 		output_file = "#" + PathUtils::getFilename(f);
 	}
 
@@ -273,6 +295,11 @@ bool TPESQLProcessing::processNextFile()
 
 	for (int input_line = 1; input_line <= input_lines.size(); input_line++) {
 		current_input_line = input_line;
+
+		if (current_input_line == 81 && the_file.endsWith("DPPGS02A.CBL")) {
+			int n = 99;
+		}
+
 #if defined(_WIN32) && defined(_DEBUG)
 		//char bfr[256];
 		//sprintf(bfr, "Processing line %d of file %s\n", input_line, the_file.toUtf8().constData());
@@ -301,15 +328,17 @@ bool TPESQLProcessing::processNextFile()
 				put_output_line(input_lines.at(exec_sql_stmt->startLine - 1));
 				break;
 
-			//case ESQL_Command::WorkingEnd:
-			//	put_query_defs();
-			//	break;
+				//case ESQL_Command::WorkingEnd:
+				//	put_query_defs();
+				//	break;
 
-			case ESQL_Command::ProcedureDivision:
-				put_output_line(input_lines.at(exec_sql_stmt->startLine - 1));
+			case ESQL_Command::ProcedureDivision:	// PROCEDURE DIVISION can be split across several lines if a USING clause is added
+				for (int iline = exec_sql_stmt->startLine; iline <= exec_sql_stmt->endLine; iline++) {
+					put_output_line(input_lines.at(iline - 1));
+				}
 
 				if (!put_cursor_declarations()) {
-					owner->err_messages << QString("An error eccurred while generating ESQL cursor declarations at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
+					owner->err_data.err_messages << QString("An error occurred while generating ESQL cursor declarations at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
 					return false;
 				}
 				break;
@@ -318,11 +347,12 @@ bool TPESQLProcessing::processNextFile()
 				// Add original text, commented
 				for (int n = exec_sql_stmt->startLine; n <= exec_sql_stmt->endLine; n++) {
 					put_output_line(comment_line("GIXSQL", input_lines.at(n - 1)));
+					current_input_line++;
 				}
 
 				// Add ESQL calls
 				if (!handle_esql_stmt(cmd, exec_sql_stmt, in_ws)) {
-					owner->err_messages << QString("Unsupported ESQL statement at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
+					owner->err_data.err_messages << QString("Unsupported ESQL statement at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
 					return false;
 				}
 		}
@@ -330,7 +360,7 @@ bool TPESQLProcessing::processNextFile()
 		// Special case
 		if (exec_sql_stmt->endLine == working_end_line) {
 			if (!handle_esql_stmt(ESQL_Command::WorkingEnd, find_esql_cmd(ESQL_WORKING_END, 0), 0)) {
-				owner->err_messages << QString("Unsupported ESQL statement at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
+				owner->err_data.err_messages << QString("Unsupported ESQL statement at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
 				return false;
 			}
 		}
@@ -405,11 +435,6 @@ void TPESQLProcessing::put_query_defs()
 	}
 
 	emitted_query_defs = true;
-}
-
-void TPESQLProcessing::put_procedure_division()
-{
-	put_output_line("      " + QString(" PROCEDURE DIVISION."));
 }
 
 void TPESQLProcessing::put_working_storage()
@@ -519,11 +544,14 @@ cb_exec_sql_stmt_ptr TPESQLProcessing::find_esql_cmd(QString cmd, int idx)
 void TPESQLProcessing::put_output_line(const QString &line)
 {
 	output_line++;
-	output_lines.append(line);
+
+	//if (!(is_current_file_included() && !opt_preprocess_copy_files)) {
+		output_lines.append(line);
+	//}
 
 	QString output_id = QString("%1@%2").arg(output_line).arg(output_file);
 	QString input_id = QString("%1@%2").arg(current_input_line).arg(input_file_stack.top());
-#if defined(_WIN32) && defined(_DEBUG)
+#if defined(_WIN32) && defined(_DEBUG) && defined(_DEBUG_LOG_ON)
 	OutputDebugStringA((input_id + "-> " + output_id + "\n").toLocal8Bit().constData());
 #endif
 	out_to_in[output_id] = input_id;
@@ -553,11 +581,14 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			break;
 
 		case ESQL_Command::Incfile:
+		case ESQL_Command::IncSQLCA:
+		{
+			QString copy_file;
+			QString inc_copy_name = (cmd == ESQL_Command::Incfile) ? stmt->incfileName : "SQLCA";
 			if (opt_preprocess_copy_files) {
 				// inline file
-				QString copy_file;
-				if (!owner->getCopyResolver()->resolveCopyFile(stmt->incfileName, copy_file)) {
-					owner->err_messages << "Cannot resolve copybook: " + stmt->incfileName;
+				if (!owner->getCopyResolver()->resolveCopyFile(inc_copy_name, copy_file)) {
+					owner->err_data.err_messages << "Cannot resolve copybook: " + inc_copy_name;
 					return false;
 				}
 
@@ -568,47 +599,23 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 					return false;
 			}
 			else {
-				QString copy_file;
+
 				// we treat it as a standard copybook file, and let the compiler deal with any error
 				// but we still try to resolve the copy to gather some metadata
-				if (owner->getCopyResolver()->resolveCopyFile(stmt->incfileName, copy_file)) {
+				put_output_line(AREA_B_PREFIX + QString("COPY %1.").arg(inc_copy_name));
+
+				if (owner->getCopyResolver()->resolveCopyFile(inc_copy_name, copy_file)) {
 					add_dependency(input_file_stack.top(), copy_file);
 				}
 				else
-					add_dependency(input_file_stack.top(), "*" + stmt->incfileName);
+					add_dependency(input_file_stack.top(), "*" + inc_copy_name);
 
-				put_output_line(AREA_B_PREFIX + QString("COPY %1.").arg(stmt->incfileName));
 			}
-			break;
 
+			_DBG_OUT("Copy resolved: %s -> %s\n", inc_copy_name.toLocal8Bit().data(), copy_file.toLocal8Bit().data());
+		}
+		break;
 
-		case ESQL_Command::IncSQLCA:
-			if (opt_preprocess_copy_files) {
-				// inline file
-				QString copy_file;
-				if (!owner->getCopyResolver()->resolveCopyFile("SQLCA", copy_file)) {
-					owner->err_messages << "Cannot resolve copybook: SQLCA";
-					return false;
-				}
-
-				add_dependency(input_file_stack.top(), copy_file);
-
-				input_file_stack.push(QDir::cleanPath(copy_file));
-				if (!processNextFile())
-					return false;
-			}
-			else {
-				QString copy_file;
-				// we treat it as a standard copybook file, and let the compiler deal with any error
-				put_output_line(AREA_B_PREFIX + QString("COPY SQLCA."));
-
-				if (owner->getCopyResolver()->resolveCopyFile("SQLCA", copy_file)) {
-					add_dependency(input_file_stack.top(), copy_file);
-				}
-				else
-					add_dependency(input_file_stack.top(), "*SQLCA");
-			}
-			break;
 
 		case ESQL_Command::Connect:
 		case ESQL_Command::ConnectTo:
@@ -617,21 +624,21 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			connect_call.addParameter("SQLCA", BY_REFERENCE);
 
 			if (main_module_driver.field_map.find(stmt->host_list->at(0)->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-				owner->err_messages << "Cannot find host variable: " + stmt->host_list->at(0)->hostreference.mid(1);
+				owner->err_data.err_messages << "Cannot find host variable: " + stmt->host_list->at(0)->hostreference.mid(1);
 				return false;
 			}
 			connect_call.addParameter(stmt->host_list->at(0)->hostreference.mid(1), BY_REFERENCE);
 			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(0)->hostreference.mid(1)]->picnsize, BY_VALUE);
 
 			if (main_module_driver.field_map.find(stmt->host_list->at(1)->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-				owner->err_messages << "Cannot find host variable: " + stmt->host_list->at(1)->hostreference.mid(1);
+				owner->err_data.err_messages << "Cannot find host variable: " + stmt->host_list->at(1)->hostreference.mid(1);
 				return false;
 			}
 			connect_call.addParameter(stmt->host_list->at(1)->hostreference.mid(1), BY_REFERENCE);
 			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(1)->hostreference.mid(1)]->picnsize, BY_VALUE);
 
 			if (main_module_driver.field_map.find(stmt->host_list->at(2)->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-				owner->err_messages << "Cannot find host variable: " + stmt->host_list->at(2)->hostreference.mid(1);
+				owner->err_data.err_messages << "Cannot find host variable: " + stmt->host_list->at(2)->hostreference.mid(1);
 				return false;
 			}
 			connect_call.addParameter(stmt->host_list->at(2)->hostreference.mid(1), BY_REFERENCE);
@@ -671,7 +678,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 
 				if (main_module_driver.field_map.find(p->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-					owner->err_messages << "Cannot find host variable: " + p->hostreference.mid(1);
+					owner->err_data.err_messages << "Cannot find host variable: " + p->hostreference.mid(1);
 					return false;
 				}
 
@@ -745,7 +752,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
 				cb_field_ptr hr = main_module_driver.field_map[rp->hostreference.mid(1)];
 				if (!hr) {
-					owner->err_messages << "Cannot find host variable: " + rp->hostreference.mid(1);
+					owner->err_data.err_messages << "Cannot find host variable: " + rp->hostreference.mid(1);
 					return false;
 				}
 
@@ -789,7 +796,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 				if (main_module_driver.field_map.find(p->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-					owner->err_messages << "Cannot find host variable: " + p->hostreference.mid(1);
+					owner->err_data.err_messages << "Cannot find host variable: " + p->hostreference.mid(1);
 					return false;
 				}
 				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.mid(1)];
@@ -805,6 +812,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			}
 
 			ESQLCall dml_call(get_call_id(stmt->host_list->size() == 0 ? "Exec" : "ExecParams"), emit_static);
+			dml_call.addParameter("SQLCA", BY_REFERENCE);
 			dml_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
 			dml_call.addParameter(stmt->host_list->size(), BY_VALUE);
 			put_call(dml_call, stmt->period);
@@ -899,6 +907,7 @@ int gethostvarianttype(cb_field_ptr p, int *type)
 								tmp_type = HVARTYPE_SIGNED_PACKED;
 								break;
 							case Usage::Binary:
+							case Usage::NativeBinary:
 								tmp_type = HVARTYPE_SIGNED_BINARY;
 								break;
 							default:
@@ -929,6 +938,7 @@ int gethostvarianttype(cb_field_ptr p, int *type)
 								tmp_type = HVARTYPE_UNSIGNED_PACKED;
 								break;
 							case Usage::Binary:
+							case Usage::NativeBinary:
 								tmp_type = HVARTYPE_UNSIGNED_BINARY;
 								break;
 							default:
@@ -1165,6 +1175,11 @@ void TPESQLProcessing::add_dependency(const QString &parent, const QString &dep_
 	QStringList deps = (file_dependencies.contains(parent) ? file_dependencies.value(parent) : QStringList());
 	deps.append(dep_path);
 	file_dependencies[parent] = deps;
+}
+
+bool TPESQLProcessing::is_current_file_included()
+{
+	return input_file_stack.size() > 1;
 }
 
 QString TPESQLProcessing::getModuleName()

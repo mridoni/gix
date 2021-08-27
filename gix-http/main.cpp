@@ -231,6 +231,8 @@ bool init_server_environment()
 		return false;
 	}
 
+    QLogger::QLog_Info(SERVER_LOG, "GnuCOBOL runtime located and initialized");
+
     runtime->cob_setenv("COB_LIBRARY_PATH", search_path.toLocal8Bit().constData(), 1);
     runtime->init();
 

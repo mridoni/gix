@@ -69,26 +69,29 @@ MdiChild::MdiChild()
     setAttribute(Qt::WA_DeleteOnClose);
     isUntitled = true;
 
+#if 0
     connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadata, this, [this](CobolModuleMetadata *cmm) {
-        //ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
+        ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
 
-        //if (ppj && !curFile.isEmpty() && QFile(curFile).exists()) {
-        //    ProjectFile* pf = ppj->locateProjectFileByPath(curFile);
-        //    if (!pf)
-        //        return;
+        if (ppj && !curFile.isEmpty() && QFile(curFile).exists()) {
+            ProjectFile* pf = ppj->locateProjectFileByPath(curFile);
+            if (!pf)
+                return;
 
-        //    CobolModuleMetadata *cfm = Ide::TaskManager()->getModuleMetadataBySourceFile(pf->GetFileFullPath());
-        //    if (!cfm)
-        //        return;
-        //    int fold_level = 0;
-        //    for (int i = 0; i < this->lineCount(); i++)
-        //        this->setFoldLevel(i, fold_level + FOLD_LEVEL_BASE);
+            CobolModuleMetadata *cfm = GixGlobals::getMetadataManager()->getModuleMetadataBySource(pf->GetFileFullPath());
+            if (!cfm)
+                return;
 
-        //    for (auto e : cfm->getWorkingStorageDataEntries()) {
-        //        add_fold_level(e, fold_level);
-        //    }
-        //}
+            int fold_level = 0;
+            for (int i = 0; i < this->lineCount(); i++)
+                this->setFoldLevel(i, fold_level + FOLD_LEVEL_BASE);
+
+            for (auto e : cfm->getWorkingStorageDataEntries()) {
+                add_fold_level(e, fold_level);
+            }
+        }
     });
+#endif
 }
 
 void MdiChild::add_fold_level(DataEntry* e, int fold_level)

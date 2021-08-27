@@ -44,6 +44,9 @@ Ide::Ide()
 
 Ide::~Ide()
 {
+	delete ide_task_manager;
+	delete ide_search_manager;
+	delete db_manager;
 }
 
 void Ide::init()

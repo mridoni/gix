@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>templates/PROGRAM.cbl</file>
         <file>templates/COPY.cpy</file>
+        <file>templates/PROGRAM_WSVC.cbl</file>
+        <file>templates/COPY_WSVC.cpy</file>
     </qresource>
 </RCC>

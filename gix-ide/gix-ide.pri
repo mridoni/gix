@@ -29,7 +29,6 @@ HEADERS += \
 	./ISymbolProvider.h \
 	./MainWindow.h \
 	./MdiChild.h \
-	./MetadataLoader.h \
 	./NavigationWindow.h \
 	./NewProjectDialog.h \
 	./OutputWindow.h \
@@ -79,7 +78,6 @@ SOURCES += \
 	./main.cpp \
 	./MainWindow.cpp \
 	./MdiChild.cpp \
-	./MetadataLoader.cpp \
 	./NavigationWindow.cpp \
 	./NewProjectDialog.cpp \
 	./OutputWindow.cpp \

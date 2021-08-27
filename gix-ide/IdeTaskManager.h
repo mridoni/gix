@@ -27,11 +27,13 @@ USA.
 #include "Project.h"
 #include "DebugManager.h"
 #include "IdeStatus.h"
-#include "ListingFileParser.h"
 #include "QLogger.h"
-#include "MetadataLoader.h"
 
 #include <QQueue>
+
+
+// 0 = Release, 1 = Debug
+#define DEFAULT_TARGET_CONFIG 1
 
 class DebugManager;
 
@@ -193,13 +195,10 @@ private:
 	DebugManager *debug_manager;
 	QMap<QString, QVariant> current_project_collection_data;
 
-	//ListingFileManager listing_file_manager;
-
 	QQueue<LogBacklogEntry *> log_backlog;
 
 	void startLoadingMetadata(ProjectItem *pi);
 	MdiChild* openFileNoSignals(QString filename);
-	bool rebuildAllMetadata();
 
 	QMap<QString, CobolModuleMetadata*> module_metadata_filemap;
 	QMap<QString, CobolModuleMetadata*> module_metadata_map;

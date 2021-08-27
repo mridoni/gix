@@ -271,7 +271,7 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 		return false;
 	}
 
-	if (!pf->writeSourceTemplate(prj_file, ProjectFileType::Source)) {
+	if (!pf->writeSourceTemplate(prj, prj_file, ProjectFileType::Source)) {
 		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (6)"));
 		return false;
 	}
@@ -375,7 +375,7 @@ QString findCopyDir(const QString &b)
 
 QString findConfigDir(const QString &b)
 {
-	QString s("cobol85.conf");
+	QString s("default.conf");
     return PathUtils::findFile(b, s);
 }
 

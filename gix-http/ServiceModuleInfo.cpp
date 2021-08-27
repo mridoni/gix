@@ -237,7 +237,6 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
 			e->decimals = sr.readInt();
 			e->format = sr.readString();
 			e->storage_type = (WsEntryStorageType)sr.readInt();
-			e->storage = sr.readString();
 			e->occurs = sr.readInt();
 			e->redefines = sr.readString();
 
@@ -335,7 +334,6 @@ ServiceModuleInfo *ServiceModuleInfo::extractSharedModuleInfo(const QString &sha
             e->decimals = sr.readInt();
             e->format = sr.readString();
             e->storage_type = (WsEntryStorageType)sr.readInt();
-            e->storage = sr.readString();
             e->occurs = sr.readInt();
             e->redefines = sr.readString();
 

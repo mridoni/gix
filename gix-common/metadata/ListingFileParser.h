@@ -20,6 +20,8 @@ USA.
 
 #pragma once
 
+#if 0
+
 #include <QString>
 #include <QList>
 #include <QDateTime>
@@ -81,3 +83,4 @@ private:
 
 };
 
+#endif

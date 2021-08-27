@@ -425,6 +425,7 @@ void ProjectCollectionWindow::addProjectNewSourceFile(QTreeWidgetItem *item, Pro
 	bool ok;
 	int sel = 1;
 	std::string text;
+	ProjectFileType ftype;
 
 	CustomDialog d(tr("New file"), this);
 	d.addLabel    (tr("Please enter a filename"));
@@ -443,6 +444,12 @@ void ProjectCollectionWindow::addProjectNewSourceFile(QTreeWidgetItem *item, Pro
 		return;
 	}
 
+	ftype = (sel == 0) ? ProjectFileType::Copy : ProjectFileType::Source;
+
+	if (QFileInfo(filename).suffix().isEmpty()) {
+		filename += (ftype == ProjectFileType::Copy) ? ".cpy" : ".cbl";
+	}
+
 	QMap<QString, QVariant> file_opts;
 	ProjectFile* file = ProjectFile::newProjectFile(parent, PathUtils::combine(parent->GetBaseDir(), filename), false);
 	if (file) {
@@ -456,10 +463,10 @@ void ProjectCollectionWindow::addProjectNewSourceFile(QTreeWidgetItem *item, Pro
 
 		QString ggp = file->GetFileFullPath();
 
-		if (!file->writeSourceTemplate(prj_file, sel == 0 ? ProjectFileType::Copy : ProjectFileType::Source))
+		if (!file->writeSourceTemplate(nullptr, prj_file, ftype))
 			return;
 
-		file->PropertySetValue("build_action", sel == 0 ? "copy" : "compile");
+		file->PropertySetValue("build_action", (ftype == ProjectFileType::Copy) ? "copy" : "compile");
 
 		parent->GetChildren()->insert(0, file);
 		file->SetParent(parent);

@@ -29,30 +29,37 @@ JsonManager::JsonManager(ServiceConfig *svc)
 	service = svc;
 }
 
-QString JsonManager::getSchema(SchemaType schema_type)
+QString JsonManager::getSchema()
 {
 
 	QJsonObject  jobj;
-	QJsonObject  jprops;
-
-	QString field_id = schema_type == SchemaType::In ? service->getInterfaceInFieldName() : service->getInterfaceOutFieldName();
+	QJsonObject  jprops_in, jprops_out;
 
 	ServiceModuleInfo *smi = (ServiceModuleInfo *)service->getPrivateData();
-	DataEntry *e = smi->buildInterfaceEntryTree(field_id);
 
-	QString suffix = (schema_type == SchemaType::In) ? "-in" : "-out";
+	QString field_id_in = service->getInterfaceInFieldName();
+	DataEntry *e_in = smi->buildInterfaceEntryTree(field_id_in);
+
+	QString field_id_out = service->getInterfaceOutFieldName();
+	DataEntry *e_out = smi->buildInterfaceEntryTree(field_id_out);
 
 	jobj["$schema"] = QJsonValue("http://json-schema.org/draft-07/schema#");
-	jobj["$id"] = QJsonValue("http://mediumgray.info/gix-http/" + service->name + suffix + "#");
+	jobj["$id"] = QJsonValue("http://mediumgray.info/gix-http/" + service->name + "#");
 	jobj["title"] = QJsonValue(service->name);
 	jobj["description"] = QJsonValue(service->description);
 	jobj["type"] = QJsonValue("object");
 
-	QList<DataEntry *> entries;
-	entries << e;
+	QList<DataEntry *> entries_in;
+	entries_in << e_in;
 
-	add_entry(jprops, entries);
-	jobj["properties"] = jprops;
+	QList<DataEntry *> entries_out;
+	entries_out << e_out;
+
+	add_entry(jprops_in, entries_in);
+	add_entry(jprops_out, entries_out);
+
+	jobj["properties_in"] = jprops_in;
+	jobj["properties_out"] = jprops_out;
 
 	QJsonDocument jdoc(jobj);
 

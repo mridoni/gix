@@ -66,6 +66,8 @@ Project* Project::newProject(ProjectType type, ProjectFileType add_filetype, QSt
 		for (auto pdef : property_defs.getAll()) {
 			if (!opts.contains(pdef->Name))
 				prj->properties->insert(pdef->Name, pdef->DefaultValue);
+			else
+				prj->properties->insert(pdef->Name, opts.value(pdef->Name));
 		}
 
 		QString basename = QFileInfo(prj->filepath).fileName();
@@ -84,6 +86,14 @@ Project* Project::newProject(ProjectType type, ProjectFileType add_filetype, QSt
 			pf->PropertySetValue("build_action", "compile");
 			pf->PropertySetValue(PropertyConsts::IsStartupItem, (opts["build_type"].toString() == "exe"));
 			prj->addFile(pf);
+
+			if (type == ProjectType::Web) {
+				QString filepath = "IO" + PathUtils::changeExtension(basename, "").toUpper() + ".cpy";
+				ProjectFile *pfc = new ProjectFile();
+				pfc->filepath = filepath;
+				pfc->PropertySetValue("build_action", "copy");
+				prj->addFile(pfc);
+			}
 		}
 
 		prj->runtime_properties["prj.path"] = prj->GetFileFullPath();
@@ -93,8 +103,6 @@ Project* Project::newProject(ProjectType type, ProjectFileType add_filetype, QSt
 		prj->runtime_properties["gix.copydir"] = GixGlobals::getGixCopyDir();
 		prj->runtime_properties["gix.datadir"] = GixGlobals::getGixDataDir();
 	}
-
-
 
 	return prj;
 }

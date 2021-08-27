@@ -20,5 +20,17 @@ USA.
 
 #include "PropertyConsts.h"
 
+const char *PropertyConsts::Enabled = "enabled";
+
 const char *PropertyConsts::IsStartupItem = "is_startup_item";
 const char *PropertyConsts::CustomBuildType = "custom_build_type";
+
+const char *PropertyConsts::DebugInSeparateConsole = "dbg_separate_console";
+
+const char *PropertyConsts::WebProjectUrl = "url";
+const char *PropertyConsts::WebProjectPort = "port";
+const char *PropertyConsts::WebProjectInterfaceInCopyFile = "interface_in_copy";
+const char *PropertyConsts::WebProjectInterfaceInField = "interface_in_field";
+const char *PropertyConsts::WebProjectInterfaceOutCopyFile = "interface_out_copy";
+const char *PropertyConsts::WebProjectInterfaceOutField = "interface_out_field";
+const char *PropertyConsts::WebProjectConfigDialogType = "dialog_type";

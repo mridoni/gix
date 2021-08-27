@@ -27,7 +27,6 @@ USA.
 
 #include "MainWindow.h"
 #include "ProjectFile.h"
-#include "ListingFileParser.h"
 
 class QWidget;
 class MainWindow;
@@ -52,8 +51,6 @@ private:
 	QTabWidget *tab_widget;
 	QTreeWidget* file_dataWidget;
 	QTreeWidget* prj_dataWidget;
-	ListingFileParser* cur_data;
-	
 
 	void file_ItemDoubleClicked(QTreeWidgetItem* item, int column);
 	void prj_ItemDoubleClicked(QTreeWidgetItem* item, int column);

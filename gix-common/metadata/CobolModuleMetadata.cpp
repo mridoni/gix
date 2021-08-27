@@ -23,6 +23,7 @@ USA.
 #include "Project.h"
 #include "PathUtils.h"
 #include "GixGlobals.h"
+#include "CompilerConfiguration.h"
 #include "SysUtils.h"
 #include "IGixLogManager.h"
 #include "SymbolMappingEntry.h"
@@ -32,13 +33,13 @@ USA.
 
 #include <QFile>
 #include <QList>
-#include <QDataStream>
 #include <QRegularExpression>
 #include <linq/linq.hpp>
 
 #if defined(_WIN32) && defined(_DEBUG)
 #include <Windows.h>
 #endif
+#include <ESQLConfiguration.h>
 
 CobolModuleMetadata::CobolModuleMetadata()
 {
@@ -59,112 +60,12 @@ CobolModuleMetadata::CobolModuleMetadata()
 CobolModuleMetadata::~CobolModuleMetadata()
 {
 	clear();
-}
-//
-//CobolModuleMetadata *CobolModuleMetadata::execute(ProjectFile *pf, ListingFileParserResult *lfpr, MapFileReaderAdapter *mfpr, MapFileReaderAdapter *pp_mfpr, MapFileReaderAdapter *esql_mfpr)
-//{
-//	int map_process_type = 0;
-//	IGixLogManager *logger = GixGlobals::getLogManager();
-//
-//	CobolModuleMetadata *cmm = new CobolModuleMetadata();
-//	cmm->flags = FLAG_M_BASE;
-//	cmm->module_name = lfpr->module_name;
-//	cmm->format_version = SYM_FILE_FMT_VER_1_0;
-//	cmm->linkage_section_text = lfpr->linkage_section_text;
-//	cmm->ws_entries = lfpr->ws_entries;
-//	cmm->ls_entries = lfpr->ls_entries;
-//	cmm->fs_entries = lfpr->fs_entries;
-//	cmm->paragraphs = lfpr->paragraphs;
-//
-//	bool is_esql = pf->getParentProject()->isEsql();
-//	bool bp = false;
-//
-//	if (!is_esql)
-//		bp = process_map_type_1(cmm, pf, lfpr, mfpr, pp_mfpr, esql_mfpr);
-//	else
-//		bp = process_map_type_4(cmm, pf, lfpr, mfpr, pp_mfpr, esql_mfpr);
-//
-//	if (!bp) {
-//		delete cmm;
-//		return nullptr;
-//	}
-//
-//	if (is_esql)
-//		cmm->flags |= FLAG_M_PREPROCD_ESQL;
-//
-//	QString ls_file = PathUtils::changeExtension(pf->GetFileFullPath(), ".c.l.h");
-//	if (!QFile::exists(ls_file)) {
-//		logger->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "Warning: cannot locate C header file for module %1, variable inspection during debug will not be available").arg(cmm->module_name), QLogger::LogLevel::Warning);
-//	}
-//	else {
-//		QStringList lines = SysUtils::FileReadAllLines(ls_file);
-//		QRegularExpression rxSymbol(R"(\sb_([0-9]+)\[([0-9]+)\];\s\/\*\s([A-Z\-a-z0-9]+)\s\*\/$)");
-//		for (QString ln : lines) {
-//			ln = ln.trimmed();
-//			if (!ln.length() || ln.startsWith("/*"))
-//				continue;
-//
-//			QRegularExpressionMatch m = rxSymbol.match(ln);
-//			if (!m.hasMatch())
-//				continue;
-//
-//			SymbolMappingEntry *sme = new SymbolMappingEntry();
-//
-//			sme->cbl_var = m.captured(3);
-//			sme->id = "b_" + m.captured(1);
-//			sme->storage_len = m.captured(2).toInt();
-//
-//			cmm->syms_to_dbg_syms.append(sme);
-//		}
-//	}
-//
-//	// get variable declaration info
-//	QList<DataEntry *> tmp_entries;
-//	cmm->flattenEntryTree(tmp_entries, lfpr->ws_entries);
-//	auto keys = mfpr->variable_declaration_info.keys();
-//	
-//	for (int k : cmm->filemap.keys())
-//		cmm->reverse_filemap[cmm->filemap[k]] = k;
-//
-//	for (auto k : keys) {
-//		QString name = k.left(k.indexOf("/"));
-//		QString path = k.mid(k.indexOf("/") + 1);
-//
-//		for (DataEntry *e : tmp_entries) {
-//			if (e->path == path) {
-//				QString v = mfpr->variable_declaration_info[k];
-//				int src_file_id = v.left(v.lastIndexOf(":")).toInt();
-//				QString src_filename = mfpr->filemap[src_file_id];
-//			
-//				if (cmm->reverse_filemap.find(src_filename) != cmm->reverse_filemap.end()) {
-//					int ln = v.mid(v.lastIndexOf(":") + 1).toInt();
-//					e->filename = src_filename;
-//					e->fileid = cmm->reverse_filemap[src_filename];
-//					e->line = ln;
-//				}
-//				break;
-//			}
-//		}
-//
-//		for (DataEntry *e : tmp_entries) {
-//			if (!e->filename.isEmpty())
-//				break;
-//
-//			if (e->name == name) {
-//				QString v = mfpr->variable_declaration_info[k];
-//				QString src_file = v.left(v.lastIndexOf(":"));
-//				int ln = v.mid(v.lastIndexOf(":") + 1).toInt();
-//				e->filename = src_file;
-//				e->line = ln;
-//				break;
-//			}
-//		}
-//	}
-//
-//	return cmm;
-//}
 
-//QList<DataEntry *> getPreProcessedFieldMap();
+	delete working_storage;
+	delete linkage_section;
+	delete file_section;
+}
+
 bool CobolModuleMetadata::isPreprocessedESQL()
 {
 	return flags & FLAG_M_PREPROCD_ESQL;
@@ -453,7 +354,7 @@ void CobolModuleMetadata::dump_data_entries(const QList<DataEntry *> entries, QD
 void CobolModuleMetadata::dump_data_entry(const DataEntry *e, QDataStream &s)
 {
 	s << e->name;
-	s << (int) e->type;
+	s << (int)e->type;
 	s << e->level;
 	s << e->storage_size;
 	s << e->display_size;
@@ -463,8 +364,7 @@ void CobolModuleMetadata::dump_data_entry(const DataEntry *e, QDataStream &s)
 	s << e->decimals;
 	s << e->is_required;
 	s << e->format;
-	s << (int) e->storage_type;
-	s << e->storage; // COMP, COMP-3...
+	s << (int)e->storage_type;
 	s << e->occurs;
 	s << e->redefines;
 	s << ((e->parent != nullptr) ? e->parent->path : ".");
@@ -519,6 +419,78 @@ void CobolModuleMetadata::dump_symbol_mapping_entries(QDataStream &s)
 	}
 }
 
+void CobolModuleMetadata::dump_data_entries_as_text(const QList<DataEntry *> entries, QTextStream &s)
+{
+	for (int i = 0; i < entries.size(); i++) {
+		s << QString("\n- DataEntry %1/%2 (%3)\n").arg(i + 1).arg(entries.size()).arg(entries.at(i)->path);
+		dump_data_entry_as_text(entries.at(i), s);
+	}
+}
+
+void CobolModuleMetadata::dump_data_entry_as_text(const DataEntry *e, QTextStream &s)
+{
+	s << "Name: " << e->name << "\n";
+	s << "Path: " << e->path << "\n";
+	s << "Type: " << QString::number((int)e->type) << "\n";
+	s << "Base var: " << e->base_var_name << "\n";
+	s << "Display size: " << e->display_size << "\n";
+	s << "Storage size: " << e->storage_size << "\n";
+	s << "Storage type: " << QString::number((int)e->storage_type) << "\n";
+	s << "Decimals: " << e->decimals << "\n";
+	s << "Has sign: " << e->is_signed << "\n";
+	s << "Level: " << e->level << "\n";
+	s << "Filename: " << e->filename << "\n";
+	s << "File ID: " << e->fileid << "\n";
+	s << "Line: " << e->line << "\n";
+}
+
+void CobolModuleMetadata::dump_paragraphs_as_text(const QMap<QString, Paragraph *> paragraphs, QTextStream &s)
+{
+	for (int i = 0; i < paragraphs.size(); i++) {
+		s << QString("\n- Paragraph %1/%2\n").arg(i + 1).arg(paragraphs.size());
+		s << "Name: " << paragraphs.values().at(i)->name << "\n";
+		s << "Filename: " << paragraphs.values().at(i)->file << "\n";
+		s << "Line: " << paragraphs.values().at(i)->line << "\n";
+	}
+}
+
+void CobolModuleMetadata::dump_filemap_as_text(const QMap<int, QString> &filemap, QTextStream &s)
+{
+	s << QString("\n- File map (%1 entries)\n").arg(filemap.size());
+	for (int i = 0; i < filemap.size(); i++) {
+		int k = filemap.keys().at(i);
+		QString v = filemap.value(k);
+		s << QString("%1 :  %2\n").arg(k).arg(v);
+	}
+}
+
+void CobolModuleMetadata::dump_linemap_as_text(const QMap<uint64_t, uint64_t> &linemap, const QString &lm_desc, QTextStream &s)
+{
+	s << QString("\n- Line map %1 (%2 entries)\n").arg(lm_desc).arg(linemap.size());
+	for (int i = 0; i < linemap.size(); i++) {
+		uint64_t k = linemap.keys().at(i);
+		uint64_t v = linemap.value(k);
+
+		uint32_t in_file_id = k >> 32;
+		uint32_t in_lineno = k & 0xffffffff;
+		uint32_t out_file_id = v >> 32;
+		uint32_t out_lineno = v & 0xffffffff;
+
+		s << QString("%1@%2 => %3@%4\n").arg(in_lineno).arg(filemap.value(in_file_id)).arg(out_lineno).arg(filemap.value(out_file_id));
+	}
+}
+
+void CobolModuleMetadata::dump_symbol_mapping_entries_as_text(QTextStream &s)
+{
+	int n = 1;
+	for (SymbolMappingEntry *sme : syms_to_dbg_syms) {
+		s << QString("\n- Symbol mapping (%1/%2)\n").arg(n++).arg(syms_to_dbg_syms.size());
+		s << "Id: " << sme->id << "\n";
+		s << "COBOL variable: " << sme->cbl_var << "\n";
+		s << "Storage length: " << sme->storage_len << "\n";
+	}
+}
+
 void CobolModuleMetadata::load_symbol_mapping_entries(CobolModuleMetadata *cmm, QDataStream &s)
 {
 	int nitems;
@@ -549,8 +521,8 @@ void CobolModuleMetadata::dump_linemap(const QMap<uint64_t, uint64_t> &orig_to_r
 
 	QMap<uint64_t, uint64_t>::const_iterator it;
 	for (it = orig_to_running_linemap.begin(); it != orig_to_running_linemap.end(); ++it) {
-		s << (quint64) it.key();
-		s << (quint64) it.value();
+		s << (quint64)it.key();
+		s << (quint64)it.value();
 	}
 }
 
@@ -599,7 +571,7 @@ void CobolModuleMetadata::load_data_entry(DataEntry *e, QMap<QString, QStringLis
 	e->parent = nullptr;
 
 	s >> e->name;
-	s >> i; e->type = (WsEntryType) i;
+	s >> i; e->type = (WsEntryType)i;
 	s >> e->level;
 	s >> e->storage_size;
 	s >> e->display_size;
@@ -609,8 +581,7 @@ void CobolModuleMetadata::load_data_entry(DataEntry *e, QMap<QString, QStringLis
 	s >> e->decimals;
 	s >> e->is_required;
 	s >> e->format;
-	s >> i; e->storage_type = (WsEntryStorageType) i;
-	s >> e->storage; // COMP, COMP-3...
+	s >> i; e->storage_type = (WsEntryStorageType)i;
 	s >> e->occurs;
 	s >> e->redefines;
 
@@ -725,8 +696,12 @@ void CobolModuleMetadata::process_entry_definitions(const QList<DataEntry *> &en
 	}
 }
 
-bool CobolModuleMetadata::dumpToFile(const QString &filename)
+bool CobolModuleMetadata::dumpToFile(const QString &filename, bool as_text)
 {
+	if (as_text) {
+		return dumpToTextFile(filename);
+	}
+
 	QFile f(filename);
 	if (!f.open(QIODevice::OpenModeFlag::WriteOnly))
 		return false;
@@ -738,9 +713,6 @@ bool CobolModuleMetadata::dumpToFile(const QString &filename)
 
 	s << module_name;
 	s << last_parsed;
-
-	//s << originalFile();
-	//s << runningFile();
 
 	s << original_module_file_id;
 	s << running_module_file_id;
@@ -760,6 +732,47 @@ bool CobolModuleMetadata::dumpToFile(const QString &filename)
 	dump_paragraphs(paragraphs, s);
 
 	dump_symbol_mapping_entries(s);
+
+	f.close();
+
+	return true;
+}
+
+bool CobolModuleMetadata::dumpToTextFile(const QString &filename)
+{
+	QFile f(filename);
+	if (!f.open(QIODevice::OpenModeFlag::WriteOnly))
+		return false;
+
+	QTextStream s(&f);
+
+	s << "Format: " << SysUtils::toHexString((uint32_t)format_version) << '\n';
+	s << "Flags: " << SysUtils::toHexString(flags) << '\n';
+
+	s << "Module: " << module_name << '\n';
+
+	QString lp = last_parsed.toString();
+	s << "Last parsed: " << (lp.isEmpty() ? "(empty)" : lp) << '\n';
+
+	s << "Original module source ID: " << original_module_file_id << '\n';
+	s << "Running module source ID: " << running_module_file_id << '\n';
+
+	QString cdl = copy_deps.join("; ");
+	s << "Copy deps: " << (cdl.isEmpty() ? "(empty)" : cdl) << '\n';
+
+	s << "Linkage section: " << (linkage_section_text.isEmpty() ? "(empty)" : linkage_section_text) << '\n';
+
+	dump_filemap_as_text(filemap, s);
+	dump_linemap_as_text(orig_to_running_linemap, "Original => Running", s);
+	dump_linemap_as_text(running_to_orig_linemap, "Running => Original", s);
+
+	dump_data_entries_as_text(working_storage->children, s);
+	dump_data_entries_as_text(linkage_section->children, s);
+	dump_data_entries_as_text(file_section->children, s);
+
+	dump_paragraphs_as_text(paragraphs, s);
+
+	dump_symbol_mapping_entries_as_text(s);
 
 	f.close();
 
@@ -815,19 +828,130 @@ void CobolModuleMetadata::fill_field_tree(const QList<cb_field_ptr> &flist, Cobo
 	}
 }
 
-GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf, TPESQLProcessing *pp)
+GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf, ErrorData *err_data)
 {
+	GixPreProcessor gp;
+	CopyResolver copy_resolver;
+
+	if (!err_data) {
+		return nullptr;
+	}
+
+	if (!pf) {
+		err_data->err_code = -1;
+		err_data->err_messages.append(QCoreApplication::translate("gix", "Bad parameters"));
+		return nullptr;
+	}
+
+	QString configuration = GixGlobals::getCurrentConfiguration();
+	QString platform = GixGlobals::getCurrentPlatform();
+
+	Project *prj = pf->getParentProject();
+
+	if (!prj) {
+		err_data->err_code = -1;
+		err_data->err_messages.append(QCoreApplication::translate("gix", "Bad parameters"));
+		return nullptr;
+	}
+
+	QStringList copy_dirs = prj->getCopyDirList();
+
+	if (prj->isEsql()) {
+		QSettings settings;
+		QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, QVariantMap()));
+
+		QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+		CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
+		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, configuration, platform));
+		if (!esql_cfg.isNull()) {
+			QStringList esql_copy_dirs = esql_cfg->getCopyPathList();
+			if (!esql_copy_dirs.isEmpty())
+				copy_dirs.append(esql_copy_dirs);
+		}
+	}
+
+	copy_resolver.setCopyDirs(copy_dirs);
+	copy_resolver.setExtensions(prj->getCopyExtList());
+
+	gp.setCopyResolver(&copy_resolver);
+
+	gp.setOpt("no_output", true);
+	gp.setOpt("preprocess_copy_files", true);
+
+	gp.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true));
+	gp.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true));
+
+	TPESQLProcessing *pp = new TPESQLProcessing(&gp);
+	gp.addStep(pp);
+
+	gp.setOpt("emit_debug_info", true);
+	gp.verbose = false;
+	gp.verbose_debug = false;
+
+	gp.setInputFile(pf->GetFileFullPath());
+	gp.setOutputFile("");
+
+	bool b = gp.process();
+	if (!b) {
+		err_data->err_code = gp.err_data.err_code;
+		err_data->err_messages = gp.err_data.err_messages;
+		return nullptr;
+	}
+
 	CobolModuleMetadata *cmm = new CobolModuleMetadata();
 
-	cmm->orig_to_running_linemap = pp->getBinarySrcLineMap();
-	cmm->running_to_orig_linemap = pp->getBinarySrcLineMapReverse();
-
-	cmm->reverse_filemap = pp->getFileMap();
-	cmm->filemap = pp->getReverseFileMap();
 	cmm->module_name = pp->getModuleName();
 
-	cmm->original_module_file_id = cmm->reverse_filemap.value(pp->getInput());
-	cmm->running_module_file_id = cmm->reverse_filemap.value(pp->getOutput());
+	// *********************
+	bool prj_opt_preprocess_copy_files = prj->PropertyGetValue("esql_preprocess_copy_files", false).toBool();
+	if (prj_opt_preprocess_copy_files) {
+		cmm->orig_to_running_linemap = pp->getBinarySrcLineMap();
+		cmm->running_to_orig_linemap = pp->getBinarySrcLineMapReverse();
+		cmm->reverse_filemap = pp->getFileMap();
+		cmm->filemap = pp->getReverseFileMap();
+		cmm->original_module_file_id = cmm->reverse_filemap.value(pp->getInput());
+		cmm->running_module_file_id = cmm->reverse_filemap.value(pp->getOutput());
+		cmm->flags |= FLAG_M_PREPROCD_COPY;
+	}
+	else {
+		// 2nd pass
+		GixPreProcessor gp2;
+		gp2.setCopyResolver(&copy_resolver);
+
+		gp2.setOpt("no_output", true);
+		gp2.setOpt("preprocess_copy_files", false);
+
+		gp2.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true));
+		gp2.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true));
+
+		TPESQLProcessing *pp2 = new TPESQLProcessing(&gp2);
+		gp2.addStep(pp2);
+
+		gp2.setOpt("emit_debug_info", true);
+		gp2.verbose = false;
+		gp2.verbose_debug = false;
+
+		gp2.setInputFile(pf->GetFileFullPath());
+		gp2.setOutputFile("");
+
+		bool b = gp2.process();
+		if (!b) {
+			err_data->err_code = gp.err_data.err_code;
+			err_data->err_messages = gp.err_data.err_messages;
+			if (cmm)
+				delete cmm;
+
+			return nullptr;
+		}
+
+		cmm->orig_to_running_linemap = pp2->getBinarySrcLineMap();
+		cmm->running_to_orig_linemap = pp2->getBinarySrcLineMapReverse();
+		cmm->reverse_filemap = pp2->getFileMap();
+		cmm->filemap = pp2->getReverseFileMap();
+		cmm->original_module_file_id = cmm->reverse_filemap.value(pp2->getInput());
+		cmm->running_module_file_id = cmm->reverse_filemap.value(pp2->getOutput());
+	}
+	// *********************
 
 	QMap<QString, cb_field_ptr> fmap = pp->getVariableDeclarationInfoMap();
 
@@ -864,14 +988,17 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 
 	process_data_entry_offsets(cmm->working_storage->children, &i); i = 0;
 	process_data_entry_local_offsets(cmm->working_storage->children, &i);
+	process_data_entry_sizes(cmm->working_storage->children);
 	process_data_entry_paths("", cmm->working_storage->children);
 
 	process_data_entry_offsets(cmm->linkage_section->children, &i); i = 0;
 	process_data_entry_local_offsets(cmm->linkage_section->children, &i);
+	process_data_entry_sizes(cmm->linkage_section->children);
 	process_data_entry_paths("", cmm->linkage_section->children);
 
 	process_data_entry_offsets(cmm->file_section->children, &i); i = 0;
 	process_data_entry_local_offsets(cmm->file_section->children, &i);
+	process_data_entry_sizes(cmm->file_section->children);
 	process_data_entry_paths("", cmm->file_section->children);
 
 	// Debug symbols
@@ -887,7 +1014,7 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 			QStringList lines = SysUtils::FileReadAllLines(ls_file);
 			//QRegularExpression rxSymbol(R"(\sb_([0-9]+)\[([0-9]+)\];\s\/\*\s([A-Z\-a-z0-9]+)\s\*\/$)");
 			QRegularExpression rxSymbol(R"(\sb_([0-9]+)\[([0-9]+)\];?(?:\ __attribute__\(\(aligned\)\))?;\s\/\*\s([A-Z\-a-z0-9]+)\s\*\/$)");
-			
+
 			for (QString ln : lines) {
 				ln = ln.trimmed();
 				if (!ln.length() || ln.startsWith("/*"))
@@ -917,9 +1044,7 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		cmm->flags = FLAG_M_BASE;
 	}
 
-	if (pp->getOwner()->getOpt("preprocess_copy_files", false).toBool()) {
-		cmm->flags != FLAG_M_PREPROCD_COPY;
-	}
+	cmm->last_parsed = QDateTime::currentDateTime();
 
 	return cmm;
 }
@@ -980,6 +1105,14 @@ void CobolModuleMetadata::process_data_entry_offsets(QList<DataEntry *> &entries
 	}
 }
 
+void CobolModuleMetadata::process_data_entry_sizes(QList<DataEntry *> &entries)
+{
+	for (DataEntry *e : entries) {
+		if (e->type == WsEntryType::Group)
+			e->storage_size = e->computeTotalStorageSize();
+	}
+}
+
 void CobolModuleMetadata::process_data_entry_local_offsets(QList<DataEntry *> &entries, int *cur_offset)
 {
 	for (DataEntry *e : entries) {
@@ -1006,7 +1139,7 @@ void CobolModuleMetadata::process_data_entry_paths(QString path_prefix, QList<Da
 			cur = cur->parent;
 		} while (cur);
 
-		e->path = (path_prefix != "") ? path_prefix  + ":" + npath : npath;
+		e->path = (path_prefix != "") ? path_prefix + ":" + npath : npath;
 		//e->path = path_prefix + ":" + npath;
 		if (e->path.endsWith(":"))
 			e->path = e->path.left(e->path.size() - 1);
@@ -1014,3 +1147,29 @@ void CobolModuleMetadata::process_data_entry_paths(QString path_prefix, QList<Da
 		process_data_entry_paths(path_prefix, e->children);
 	}
 }
+
+#if _DEBUG_LOG_ON
+void CobolModuleMetadata::dumpOriginalToRunning()
+{
+	char bfr[1024];
+
+	for (auto it = orig_to_running_linemap.begin(); it != orig_to_running_linemap.end(); ++it) {
+		uint64_t orig = it.key();
+		uint64_t running = it.value();
+
+		uint32_t orig_file_id = (orig >> 32) & 0xffffffff;
+		uint32_t orig_line = orig & 0xffffffff;
+
+		uint32_t running_file_id = (running >> 32) & 0xffffffff;
+		uint32_t running_line = running & 0xffffffff;
+
+		QString ln = QString("O->R - %1@%2 => %3:%4\n").arg(orig_line).arg(filemap[orig_file_id]).arg(running_line).arg(filemap[running_file_id]);
+
+#if defined(_WIN32)
+		OutputDebugStringA(ln.toLocal8Bit().data());
+#else
+		fprintf(stderr, ln.toLocal8Bit().data());
+#endif
+	}
+}
+#endif

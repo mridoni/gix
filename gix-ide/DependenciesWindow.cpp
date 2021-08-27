@@ -34,7 +34,6 @@ static QMutex update_lock;
 DependenciesWindow::DependenciesWindow(QWidget *parent, MainWindow *mw)
 {
 	mainWindow = mw;
-	cur_data = nullptr;
 	tab_widget = new QTabWidget(this);
 
 
@@ -61,6 +60,14 @@ DependenciesWindow::DependenciesWindow(QWidget *parent, MainWindow *mw)
 	connect(tab_widget, &QTabWidget::currentChanged, this, &DependenciesWindow::tabChanged);
 
 	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadata, this, [this](CobolModuleMetadata *cmm) {
+		if (tab_widget->currentIndex() == 0)
+			updateFileDependencies();
+		else
+			if (tab_widget->currentIndex() == 1)
+				updateProjectDependencies();
+	});
+
+	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, this, [this](bool b) {
 		if (tab_widget->currentIndex() == 0)
 			updateFileDependencies();
 		else
@@ -186,21 +193,16 @@ void DependenciesWindow::file_ItemDoubleClicked(QTreeWidgetItem *item, int colum
 {
 	QVariant q = item->data(0, Qt::UserRole);
 	QString f = q.toString();
-	if (QFile::exists(f))
+	if (!f.isEmpty() && QFile::exists(f))
 		mainWindow->openFile(f);
-
 }
 
 void DependenciesWindow::prj_ItemDoubleClicked(QTreeWidgetItem *item, int column)
 {
 	QVariant q = item->data(0, Qt::UserRole);
-	ProjectItem *p = static_cast<ProjectItem *>(q.value<void *>());
-
-	switch (p->GetItemType()) {
-		case ProjectItemType::TFile:
-			mainWindow->openFile(p->GetFileFullPath());
-			break;
-	}
+	QString f = q.toString();
+	if (!f.isEmpty() && QFile::exists(f))
+		mainWindow->openFile(f);
 }
 
 void DependenciesWindow::tabChanged(int idx)

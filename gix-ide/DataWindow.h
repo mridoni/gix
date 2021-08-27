@@ -63,7 +63,6 @@ private:
 	void setNodeStatus(QString node_path, QTreeWidgetItem* si);
 
 	QTreeWidget *dataWidget;
-	//ListingFileParser *cur_data;
 	ProjectFile *cur_file;
 
 };

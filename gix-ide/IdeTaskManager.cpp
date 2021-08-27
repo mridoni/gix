@@ -29,7 +29,6 @@ USA.
 #include "UiUtils.h"
 #include "SysUtils.h"
 #include "ConsoleWindow.h"
-#include "MetadataLoader.h"
 #include "DataEntry.h"
 #include "GixGlobals.h"
 #include "IdeStatusSyncSetter.h"
@@ -449,6 +448,8 @@ bool IdeTaskManager::loadProjectCollection(QString fileName)
 		setCurrentProjectCollection(ppj);
 		loadProjectCollectionState(ppj);
 
+		GixGlobals::getMetadataManager()->reset();
+
 		emit projectCollectionLoaded();
 
 		return true;
@@ -473,6 +474,8 @@ void IdeTaskManager::loadProjectCollectionState(ProjectCollection *ppj)
 
 	if (configuration != "" && main_window->cbConfiguration->findData(configuration) >= 0)
 		main_window->cbConfiguration->setCurrentIndex(main_window->cbConfiguration->findData(configuration));
+	else 
+		main_window->cbConfiguration->setCurrentIndex(DEFAULT_TARGET_CONFIG);
 
 	if (platform != "" && main_window->cbPlatform->findData(platform) >= 0)
 		main_window->cbPlatform->setCurrentIndex(main_window->cbPlatform->findData(platform));
@@ -570,6 +573,8 @@ bool IdeTaskManager::closeCurrentProjectCollection()
 
 		delete current_project_collection;
 		current_project_collection = nullptr;
+
+		GixGlobals::getMetadataManager()->reset();
 
 		emit projectCollectionClosed();
 	}
@@ -688,17 +693,14 @@ bool IdeTaskManager::existsBreakpoint(QString src_file, int line)
 
 void IdeTaskManager::addWatchedVar(QString v)
 {
-	QStringList wvs;
 	if (!current_project_collection_data.contains("watched_vars")) {
+		current_project_collection_data.insert("watched_vars", QStringList());
+	}
+
+	QStringList wvs = current_project_collection_data["watched_vars"].toStringList();
+	if (!wvs.contains(v)) {
 		wvs.append(v);
 		current_project_collection_data.insert("watched_vars", wvs);
-	}
-	else {
-		wvs = current_project_collection_data["watched_vars"].toStringList();
-		if (!wvs.contains(v)) {
-			wvs.append(v);
-			current_project_collection_data.insert("watched_vars", wvs);
-		}
 	}
 }
 
@@ -898,11 +900,6 @@ void IdeTaskManager::consoleClear()
 	console_window->clear();
 }
 
-//ListingFileParser *IdeTaskManager::getListingFileParser(ProjectFile *pf, QString module_name, QString lstPath)
-//{
-//	return listing_file_manager.get(pf, module_name, lstPath);
-//}
-
 void IdeTaskManager::flushLog()
 {
 	while (!log_backlog.isEmpty()) {
@@ -975,19 +972,11 @@ void IdeTaskManager::gotoDefinition(DataEntry *e)
 	int file_id;
 
 	int lline = 0;
-	if (e == nullptr || e->fileid == 0 || e->line == 0 || e->owner == nullptr)
+	if (e == nullptr || e->line == 0)
 		return;
 
-	if (e->owner->isPreprocessedESQL()) {
-		//CobolModuleMetadata *cmm = e->owner;
-
-		file_to_open = e->filename;
-		lline = e->line;
-	}
-	else {
-		file_to_open = e->filename;
-		lline = e->line;
-	}
+	file_to_open = e->filename;
+	lline = e->line;
 
 	MdiChild *mdiChild = openFileNoSignals(file_to_open);
 
@@ -1127,7 +1116,13 @@ void IdeTaskManager::saveCurrentProjectCollectionState()
 		settings.setValue("edit_files/file" + QString::number(n++), open_file);
 	}
 
-	QString foreground_file = open_files.size() == 0 ? "" : main_window->activeMdiChild()->currentFile();
+	QString foreground_file = "";
+	if (open_files.size() > 0) {
+		auto c = main_window->activeMdiChild();
+		if (c)
+			foreground_file = c->currentFile();
+	} 
+
 	settings.setValue("editor/foreground_file", foreground_file);
 
 	settings.beginGroup("debug");

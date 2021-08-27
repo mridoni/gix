@@ -78,93 +78,95 @@ protected:
 
 QString CodeviewSymbolProvider::dumpStackFrame(GixDebugger *gd, void *hproc, void *hthread)
 {
+#if 1
 	GixDebuggerWin *gdw = (GixDebuggerWin *)gd;
 
 	BufferedStackWalker sw(gdw->getProcessId(), hproc);
 	sw.ShowCallstack(hthread);
 	return sw.lines.join("\n");
+#else
+#ifdef _WIN64
+	DWORD machine_type = IMAGE_FILE_MACHINE_AMD64;
+#else
+	DWORD machine_type = IMAGE_FILE_MACHINE_I386;
+#endif
+	QString res;
 
-//#ifdef _WIN64
-//	DWORD machine_type = IMAGE_FILE_MACHINE_AMD64;
-//#else
-//	DWORD machine_type = IMAGE_FILE_MACHINE_I386;
-//#endif
-//	QString res;
-//
-//	STACKFRAME64 stack = { 0 };
-//	DWORD64 dwDisplacement64 = 0;
-//	DWORD dwDisplacement = 0;
-//
-//	CONTEXT context;
-//	context.ContextFlags = CONTEXT_FULL;
-//	GetThreadContext(hthread, &context);
-//
-//#ifdef _WIN64
-//	// Must be like this
-//	stack.AddrPC.Offset = context.Rip; // EIP - Instruction Pointer
-//	stack.AddrPC.Mode = AddrModeFlat;
-//	stack.AddrFrame.Offset = context.Rbp; // EBP
-//	stack.AddrFrame.Mode = AddrModeFlat;
-//	stack.AddrStack.Offset = context.Rsp; // ESP - Stack Pointer
-//	stack.AddrStack.Mode = AddrModeFlat;
-//#elif defined(_WIN32)
-//	// Must be like this
-//	stack.AddrPC.Offset = context.Eip; // EIP - Instruction Pointer
-//	stack.AddrPC.Mode = AddrModeFlat;
-//	stack.AddrFrame.Offset = context.Ebp; // EBP
-//	stack.AddrFrame.Mode = AddrModeFlat;
-//	stack.AddrStack.Offset = context.Esp; // ESP - Stack Pointer
-//	stack.AddrStack.Mode = AddrModeFlat;
-//#else
-//#error There's something wrong with the build environment
-//#endif
-//	BOOL bSuccess;
-//	do {
-//		bSuccess = StackWalk64(machine_type, hproc, hthread, &stack,
-//			&context, (PREAD_PROCESS_MEMORY_ROUTINE64)&_ProcessMemoryReader, SymFunctionTableAccess64,
-//			SymGetModuleBase64, 0);
-//
-//		if (!bSuccess)
-//			break;
-//
-//		// Symbol retrieval code goes here.
-//
-//		// 1
-//		IMAGEHLP_MODULE64 module = { 0 };
-//		module.SizeOfStruct = sizeof(module);
-//		SymGetModuleInfo64(hproc, (DWORD64)stack.AddrPC.Offset, &module);
-//
-//		// 2
-//		IMAGEHLP_SYMBOL64 *pSymbol;
-//		DWORD dwDisplacement;
-//		pSymbol = (IMAGEHLP_SYMBOL64 *)new BYTE[sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME];
-//
-//		memset(pSymbol, 0, sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME);
-//		pSymbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64); // Required
-//		pSymbol->MaxNameLength = MAX_SYM_NAME;             // Required
-//
-//		SymGetSymFromAddr64(hproc, stack.AddrPC.Offset,
-//			&dwDisplacement64, pSymbol); // Retruns true on success
-//
-//		// 3
-//		IMAGEHLP_LINE64 line;
-//		line.SizeOfStruct = sizeof(line);
-//
-//		bSuccess = SymGetLineFromAddr64(hproc,
-//			stack.AddrPC.Offset,
-//			&dwDisplacement, &line);
-//
-//		if (bSuccess) {
-//			res += QString("%1 - %2:%3\n").arg(QString::fromLocal8Bit(pSymbol->Name)).arg(line.FileName).arg(line.LineNumber);
-//		}
-//		else {
-//			res += QString("%1\n").arg(QString::fromLocal8Bit(pSymbol->Name));
-//		}
-//
-//
-//	} while (stack.AddrReturn.Offset != 0);
-//
-//	return res;
+	STACKFRAME64 stack = { 0 };
+	DWORD64 dwDisplacement64 = 0;
+	DWORD dwDisplacement = 0;
+
+	CONTEXT context;
+	context.ContextFlags = CONTEXT_FULL;
+	GetThreadContext(hthread, &context);
+
+#ifdef _WIN64
+	// Must be like this
+	stack.AddrPC.Offset = context.Rip; // EIP - Instruction Pointer
+	stack.AddrPC.Mode = AddrModeFlat;
+	stack.AddrFrame.Offset = context.Rbp; // EBP
+	stack.AddrFrame.Mode = AddrModeFlat;
+	stack.AddrStack.Offset = context.Rsp; // ESP - Stack Pointer
+	stack.AddrStack.Mode = AddrModeFlat;
+#elif defined(_WIN32)
+	// Must be like this
+	stack.AddrPC.Offset = context.Eip; // EIP - Instruction Pointer
+	stack.AddrPC.Mode = AddrModeFlat;
+	stack.AddrFrame.Offset = context.Ebp; // EBP
+	stack.AddrFrame.Mode = AddrModeFlat;
+	stack.AddrStack.Offset = context.Esp; // ESP - Stack Pointer
+	stack.AddrStack.Mode = AddrModeFlat;
+#else
+#error There's something wrong with the build environment
+#endif
+	BOOL bSuccess;
+	do {
+		bSuccess = StackWalk64(machine_type, hproc, hthread, &stack,
+			&context, (PREAD_PROCESS_MEMORY_ROUTINE64)&_ProcessMemoryReader, SymFunctionTableAccess64,
+			SymGetModuleBase64, 0);
+
+		if (!bSuccess)
+			break;
+
+		// Symbol retrieval code goes here.
+
+		// 1
+		IMAGEHLP_MODULE64 module = { 0 };
+		module.SizeOfStruct = sizeof(module);
+		SymGetModuleInfo64(hproc, (DWORD64)stack.AddrPC.Offset, &module);
+
+		// 2
+		IMAGEHLP_SYMBOL64 *pSymbol;
+		DWORD dwDisplacement;
+		pSymbol = (IMAGEHLP_SYMBOL64 *)new BYTE[sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME];
+
+		memset(pSymbol, 0, sizeof(IMAGEHLP_SYMBOL64) + MAX_SYM_NAME);
+		pSymbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64); // Required
+		pSymbol->MaxNameLength = MAX_SYM_NAME;             // Required
+
+		SymGetSymFromAddr64(hproc, stack.AddrPC.Offset,
+			&dwDisplacement64, pSymbol); // Retruns true on success
+
+		// 3
+		IMAGEHLP_LINE64 line;
+		line.SizeOfStruct = sizeof(line);
+
+		bSuccess = SymGetLineFromAddr64(hproc,
+			stack.AddrPC.Offset,
+			&dwDisplacement, &line);
+
+		if (bSuccess) {
+			res += QString("%1 - %2:%3\n").arg(QString::fromLocal8Bit(pSymbol->Name)).arg(line.FileName).arg(line.LineNumber);
+		}
+		else {
+			res += QString("%1\n").arg(QString::fromLocal8Bit(pSymbol->Name));
+		}
+
+
+	} while (stack.AddrReturn.Offset != 0);
+
+	return res;
+#endif
 }
 
 #ifdef _WIN64
@@ -315,6 +317,8 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 		}
 	}
 
+
+	// COBOL-line breakpoints are created here (not installed at hardware level)
 	for (auto sf : mi->source_files) {
 		SymEnumLines(hProcess, (ULONG64)hsym, NULL, sf.toLocal8Bit().constData(), DLL_EnumLinesProc, mi);
 	}
@@ -352,9 +356,9 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 		CobolModuleInfo *cmi = new CobolModuleInfo();
 		cmi->name = m;
 		cmi->owner = mi;
-		cmi->entry_point = (void *)getSymbolAddress(gd, hproc, hmod, QString(m) + "_", NULL, err);
+		cmi->entry_point = (void *)getSymbolAddress(gd, hproc, hmod, QString(m), NULL, err);
 		mi->cbl_modules[m] = cmi;
-		cmi->entry_breakpoint = new UserBreakpoint();
+		cmi->entry_breakpoint = UserBreakpoint::createInstance();
 		cmi->entry_breakpoint->address = cmi->entry_point;
 		cmi->entry_breakpoint->automatic = true;
 		cmi->entry_breakpoint->key = QString(m) + ":0";
@@ -483,18 +487,17 @@ bool CodeviewSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hpr
 		VariableResolverData *rd = new VariableResolverData();
 		rd->var_name = sr.readString();
 		rd->var_path = sr.readString();
-		rd->type = sr.readInt();
+		rd->type = (WsEntryType) sr.readInt();
 		rd->level = sr.readInt();
 		rd->base_var_name = sr.readString();
 		rd->local_addr = sr.readInt();
-		rd->storage_len = sr.readInt();
+		rd->storage_size = sr.readInt();
 
 		rd->display_size = sr.readInt();
 		rd->is_signed = sr.readInt();
 		rd->decimals = sr.readInt();
 		rd->format = sr.readString();
 		rd->storage_type = sr.readInt();
-		rd->storage = sr.readString();
 		rd->occurs = sr.readInt();
 		rd->redefines = sr.readString();
 
@@ -547,27 +550,22 @@ BOOL __stdcall DLL_EnumLinesProc(PSRCCODEINFO LineInfo, PVOID UserContext)
 	mi->owner->source_lines[k] = li;
 	mi->owner->source_lines_by_addr[li->addr] = li;
 
-	//fprintf(stderr, "%s : 0x%s\n", k.c_str(), DbgUtils::to_hex((uint64_t)li->addr).c_str());
+#if _DEBUG
+	char lbfr[1024];
+	sprintf(lbfr, "DLL_EnumLinesProc: retrieving source line info: %s -> %p\n", k.toLocal8Bit().data(), li->addr);
+	OutputDebugStringA(lbfr);
+#endif
 
-	UserBreakpoint *bkp = new UserBreakpoint();
+	UserBreakpoint *bkp = UserBreakpoint::createInstance();
 	bkp->owner = mi;
 	bkp->automatic = true;
 	bkp->address = li->addr;
 	bkp->key = k;
 	bkp->line = li->line;
 	bkp->source_file = li->source_file;
-	mi->owner->installHardwareBreakpoint(bkp);
-	mi->owner->breakpoints[k] = bkp;
+	
+	mi->owner->breakPointAdd(bkp);
+	bkp->install();
 
 	return true;
 }
-
-//BOOL __stdcall DLL_SymEnumerateLocalSymbolsCallback(PSYMBOL_INFO pSymInfo, ULONG SymbolSize, PVOID UserContext)
-//{
-//	CobolModuleInfo *cmi = (CobolModuleInfo *)UserContext;
-//
-//	cmi->locals[pSymInfo->Name] = (void *)pSymInfo->Address;
-//	//fprintf(stdout, "]> %s (%p)\n", pSymInfo->Name, pSymInfo->Address);
-//	return true;
-//}
-//

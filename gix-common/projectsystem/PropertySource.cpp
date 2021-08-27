@@ -19,6 +19,7 @@ USA.
 */
 
 #include "PropertySource.h"
+#include "SysUtils.h"
 
 PropertySource::PropertySource()
 {
@@ -47,7 +48,7 @@ QVariant PropertySource::PropertyGetValue(QString name, QVariant default_value)
 	QVariant res;
 
 	if (properties->contains(name))
-		res = (*properties)[name];
+		res = properties->value(name);
 	else {
 		if (default_value.isValid()) {
 			res = default_value;
@@ -78,4 +79,33 @@ void PropertySource::PropertySetValue(QString name, QVariant value)
 bool PropertySource::PropertyExists(QString name)
 {
 	return properties->contains(name);
+}
+
+QVariant PropertySource::getSubProperty(QString prop_id, QString sub_prop_id)
+{
+	if (!PropertyExists(prop_id))
+		return QVariant();
+
+	QString serialized_sub_props = PropertyGetValue(prop_id).toString();
+
+	auto sub_props = SysUtils::deserializeMap(serialized_sub_props);
+	if (sub_props && sub_props->contains(sub_prop_id) && !sub_props->value(sub_prop_id).isNull()) {
+		return sub_props->value(sub_prop_id);
+	}
+	return QVariant();
+}
+
+bool PropertySource::setSubProperty(QString prop_id, QString sub_prop_id, QVariant sub_prop_value)
+{
+
+	QVariantMap *map = PropertyExists(prop_id) ? SysUtils::deserializeMap(PropertyGetValue(prop_id).toString()) : new QVariantMap();
+
+	if (!map)
+		return false;
+
+	map->insert(sub_prop_id, sub_prop_value);
+
+	PropertySetValue(prop_id, SysUtils::serializeMap(map));
+
+	return true;
 }

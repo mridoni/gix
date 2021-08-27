@@ -27,7 +27,6 @@ USA.
 
 #include "MainWindow.h"
 #include "ProjectFile.h"
-#include "ListingFileParser.h"
 
 class QWidget;
 class MainWindow;

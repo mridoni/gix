@@ -31,7 +31,8 @@ USA.
 		Float,
 		Double,
 		Packed,
-		Binary
+		Binary,
+		NativeBinary
 	};
 
 	typedef QString cb_sql_token_t;

@@ -27,8 +27,13 @@ USA.
 #include <QString>
 #include <QMap>
 #include <QDateTime>
+#include <QDataStream>
+#include <QTextStream>
 
-#include "ListingFileParserResult.h"
+#include "gixcommon_global.h"
+
+#include "ErrorData.h"
+#include "ESQLDefinitions.h"
 
 #define SYM_FILE_FMT_VER_1_0 ((uint16_t) 0x0100)
 
@@ -43,16 +48,17 @@ class DataEntry;
 class ModuleDebugInfo;
 class SymbolMappingEntry;
 class TPESQLProcessing;
+class CobolModuleMetadata;
 
 class GIXCOMMON_EXPORT CobolModuleMetadata
 {
-	friend class ListingFileParser;
+	friend class MetadataWorker;
 
 public:
 	CobolModuleMetadata();
 	~CobolModuleMetadata();
 
-	static CobolModuleMetadata *build(ProjectFile *pf, TPESQLProcessing *pp);
+	
 	static CobolModuleMetadata *loadFromFile(const QString &filename);
 	
 	const QList<DataEntry *> &getWorkingStorageDataEntries();
@@ -89,21 +95,25 @@ public:
 	QString getDebugLocalSymbolName(QString n);
 	QList<SymbolMappingEntry *>& getSymbolMappingTable() const;
 	
-	bool dumpToFile(const QString &filename);
+	bool dumpToFile(const QString &filename, bool as_text = false);
+	bool dumpToTextFile(const QString &filename);
 	
 	QMap<QString, QStringList> getFileDependencies();
 	
 	void flattenEntryTree(QList<DataEntry *> &f_entries, const QList<DataEntry *> &entries);
 
+#if _DEBUG_LOG_ON
+	void dumpOriginalToRunning();
+#endif
+
 private:
-	int format_version;
+	int format_version = SYM_FILE_FMT_VER_1_0;
 	uint32_t flags = 0;
 
 	bool is_preprocessed;
 
 	int running_module_file_id;
 	int original_module_file_id;
-
 
 	QString sym_file;
 	QString module_name;
@@ -130,6 +140,8 @@ private:
 
 	QList<SymbolMappingEntry *> syms_to_dbg_syms;
 
+	static CobolModuleMetadata *build(ProjectFile *pf, ErrorData *err_data);
+
 	DataEntry *findEntry(QList<DataEntry *> entries, QString def_path, bool use_path = false);
 
 	void delete_data_entry_tree(QList<DataEntry *>);
@@ -145,6 +157,13 @@ private:
 	void dump_linemap(const QMap<uint64_t, uint64_t> &orig_to_running_linemap, QDataStream &s);
 	void dump_symbol_mapping_entries(QDataStream &s);
 
+	void dump_data_entries_as_text(const QList<DataEntry *> entries, QTextStream &s);
+	void dump_data_entry_as_text(const DataEntry *e, QTextStream &s);
+	void dump_paragraphs_as_text(const QMap<QString, Paragraph *> paragraphs, QTextStream &s);
+	void dump_filemap_as_text(const QMap <int, QString> &filemap, QTextStream &s);
+	void dump_linemap_as_text(const QMap<uint64_t, uint64_t> &linemap, const QString &lm_desc, QTextStream &s);
+	void dump_symbol_mapping_entries_as_text(QTextStream &s);
+
 	static void load_data_entries(const CobolModuleMetadata *cmm, QList<DataEntry *> &entries, QDataStream &s);
 	static void load_data_entry(DataEntry *e, QMap<QString, QStringList> &rmap, QDataStream &s);
 	static void load_paragraphs(QMap<QString, Paragraph *> &p_paragraphs, QDataStream &s);
@@ -158,6 +177,7 @@ private:
 	static void fill_field_tree(const QList<cb_field_ptr> &flist, CobolModuleMetadata *cmm, DataEntry *parent);
 
 	static void process_data_entry_offsets(QList<DataEntry *> &entries, int *cur_offset);
+	static void process_data_entry_sizes(QList<DataEntry *> &entries);
 	static void process_data_entry_local_offsets(QList<DataEntry *> &entries, int *cur_offset);
 	static void process_data_entry_paths(QString path_prefix, QList<DataEntry *> &entries);
 

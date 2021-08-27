@@ -49,6 +49,12 @@ void CopyResolver::setCopyDirs(const QStringList &_copy_dirs)
 	hash = cd;
 }
 
+void CopyResolver::addCopyDir(const QString &copy_dir)
+{
+	if (!copy_dirs.contains(copy_dir))
+		copy_dirs.append(copy_dir);
+}
+
 void CopyResolver::setExtensions(const QStringList &_copy_exts)
 {
 	copy_exts = _copy_exts;

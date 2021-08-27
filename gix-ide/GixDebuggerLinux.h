@@ -72,6 +72,14 @@ private:
     bool keep_running = false;
 };
 
+class LinuxUserBreakpoint : public UserBreakpoint
+{
+    // Inherited via UserBreakpoint
+    virtual bool install() override;
+    virtual bool uninstall() override;
+};
+
+
 class GixDebuggerLinux : public GixDebugger //, public QObject
 {
     Q_OBJECT
@@ -90,13 +98,14 @@ public:
 
 	virtual void printLastError() override;
 
-	virtual void removeHardwareBreakpoint(UserBreakpoint *bkp) override;
-	virtual bool installHardwareBreakpoint(UserBreakpoint *bkp) override;
-
 	virtual bool readProcessMemory(void *addr, void *bfr, int size) override;	
 
     virtual void writeToProcess(QString s) override;
 	
+    pid_t getPid();
+
+    static GixDebuggerLinux *getInstance();
+
 private:
 	virtual void *getSymbolAddress(const char *sym_name) override;	
 
@@ -124,6 +133,7 @@ private:
     bool __breakpoint_0_hit = false;
     bool is_on_break = false;
     bool is_cpu_single_stepping = false;
+    bool is_ld_single_stepping = false;
     CobolModuleInfo *current_cbl_module = nullptr;
 
     PipeReader *reader_out = nullptr;
@@ -153,6 +163,8 @@ private:
     bool processImage(void *imageBase, void *hSym, QString imageName);
 
     void deinit_console();
+
+    static GixDebuggerLinux *dbgr_instance;
     
 signals:
     void startReading();

@@ -408,8 +408,20 @@ void PropertyWindow::dirPathEditButtonClicked(PropertyDefinition* pd, QVariant v
 	}
 }
 
-void PropertyWindow::filePathEditButtonClicked(PropertyDefinition*, QVariant, ProjectItem* pi, QWidget* prop_visual)
-{}
+void PropertyWindow::filePathEditButtonClicked(PropertyDefinition *pd, QVariant value, ProjectItem* pi, QWidget* prop_visual)
+{
+	QFileDialog dialog;
+	dialog.setFileMode(QFileDialog::FileMode::AnyFile);
+	dialog.setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+	if (dialog.exec()) {
+		QString file = dialog.selectedFiles()[0];
+		propertyValueChanged(pd, file, pi);
+		QLabel *lbl = dynamic_cast<QLabel *>(prop_visual);
+		if (lbl != nullptr) {
+			lbl->setText(pd->serialize(file));
+		}
+	}
+}
 
 void PropertyWindow::propertyValueChanged(PropertyDefinition* pd, QVariant value, ProjectItem* pi)
 {

@@ -107,6 +107,9 @@ ProjectPropertyDefinitionCollection::ProjectPropertyDefinitionCollection() : Pro
 	defs.append(new PropertyDefinition("esql_preprocess_copy_files", "Preprocess COPY files", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
 	defs.append(new PropertyDefinition("esql_anon_params", "Use anonymous parameters", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
 	defs.append(new PropertyDefinition("esql_static_calls", "Emit static calls", PropertyType::PropertyTypeBoolean, true, false, nullptr, "esql"));
+	defs.append(new PropertyDefinition("esql_debug_log_on", "Enable debug log", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
+	defs.append(new PropertyDefinition("esql_debug_log_file", "Debug log path", PropertyType::PropertyTypeFilePath, "", false, nullptr, "esql"));
+	defs.append(new PropertyDefinition("esql_error_log_file", "Error log path", PropertyType::PropertyTypeFilePath, "", false, nullptr, "esql"));
 
 	defs.append(new PropertyDefinition("cobc_verbose", "Verbosity level", PropertyType::PropertyTypeOption, "", false, new QMap<QString, QVariant>({ { "", "Normal" },{ "-v", "Compiler" },{ "-vv", "Compiler/Assembler" },{ "-vvv", "Compiler/Assembler/Linker" } } ), "compiler"));
 	defs.append(new PropertyDefinition("cobc_source_format", "Source format", PropertyType::PropertyTypeOption, "-fixed", false, new QMap<QString, QVariant>({ { "-fixed", "Fixed" },{ "-free", "Free" } } ), "compiler"));

@@ -32,10 +32,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QString>
 
 typedef void(*CALLBACK cob_init_func_t)(int, char*);
-typedef void *(*CALLBACK cob_resolve_func_t)(char*);
+typedef void *(*CALLBACK cob_resolve_func_t)(const char*);
 typedef int (*CALLBACK cob_tidy_func_t)();
 typedef void (*CALLBACK cob_stop_run_func_t)(int);
-typedef void (*CALLBACK cob_setenv_t)(const char* n, const char* v, int ov);
+typedef void (*CALLBACK cob_setenv_func_t)(const char* n, const char* v, int ov);
+typedef int (*CALLBACK cob_call_func_t)(const char *n, const int argc, void **argv);
 
 class RuntimeHelper
 {
@@ -46,17 +47,19 @@ public:
 	void cleanup();
 
 	void cob_init(int argc, char* argv);
-	void *cob_resolve(char* name);
+    void *cob_resolve(const char* name);
 	int cob_tidy();
 	void cob_stop_run(int);
 	void cob_setenv(const char* n, const char* v, int ov);
+	int cob_call(const char *n, const int argc, void **argv);
 
 private:
 	cob_init_func_t __cob_init = NULL;
 	cob_resolve_func_t __cob_resolve = NULL;
 	cob_tidy_func_t __cob_tidy = NULL;
 	cob_stop_run_func_t __cob_stop_run = NULL;
-	cob_setenv_t __cob_setenv = NULL;
+	cob_setenv_func_t __cob_setenv = NULL;
+	cob_call_func_t __cob_call = NULL;
 
 	LIBHANDLE libHandle = NULL;
 };

@@ -21,6 +21,7 @@ USA.
 #include "MetadataManager.h"
 #include "GixGlobals.h"
 #include "linq/linq.hpp"
+#include "CobolUtils.h"
 
 MetadataManager::MetadataManager(QObject *parent) : QObject(parent)
 {
@@ -43,9 +44,47 @@ MetadataManager::~MetadataManager()
 	thread->wait();
 }
 
+void MetadataManager::get_module_sources()
+{
+	ProjectCollection *prj_coll = GixGlobals::getCurrentProjectCollection();
+	if (!prj_coll)
+		return;
+
+	auto prjs = cpplinq::from(*(prj_coll->GetChildren())).where([](ProjectItem *a) { return a->GetItemType() == ProjectItemType::TProject;  }).to_vector();
+	for (ProjectItem *ppi : prjs) {
+		Project *prj = (Project *)ppi;
+
+		for (ProjectFile *pf : prj->getAllCompilableFiles()) {
+			QString program_id = CobolUtils::extractProgramId(pf->GetFileFullPath());
+			if (!program_id.isEmpty())
+				module_srcs.insert(program_id, pf);
+		}
+	}
+}
+
 CobolModuleMetadata *MetadataManager::getModuleMetadata(QString module_name)
 {
-	return (by_module_map.contains(module_name)) ? by_module_map.value(module_name) : nullptr;
+	if (by_module_map.contains(module_name))
+		return by_module_map.value(module_name);
+
+	//if (!build_if_not_exists)
+	//	return nullptr;
+
+	//if (!module_srcs.contains(module_name)) {
+	//	get_module_sources();
+	//	if (!module_srcs.contains(module_name))
+	//		return nullptr;
+	//}
+
+	//QScopedPointer<MetadataWorker> worker(new MetadataWorker());
+
+	//CobolModuleMetadata *cmm = worker->scanCobolModuleInternal(module_srcs.value(module_name));
+	//if (cmm) {
+	//	addModuleMetadata(cmm);
+	//	emit GixGlobals::getMetadataManager()->updatedModuleMetadata(cmm);
+	//}
+
+	return nullptr;
 }
 
 CobolModuleMetadata *MetadataManager::getModuleMetadataBySource(QString src_filename)
@@ -63,7 +102,10 @@ CobolModuleMetadata *MetadataManager::getModuleMetadataBySource(QString src_file
 
 bool MetadataManager::removeModuleMetadata(QString module_name)
 {
-	CobolModuleMetadata *cmm = getModuleMetadata(module_name);
+	if (!by_module_map.contains(module_name))
+		return true;
+
+	CobolModuleMetadata *cmm = by_module_map.value(module_name);
 	if (!cmm)
 		return false;
 
@@ -87,4 +129,55 @@ bool MetadataManager::addModuleMetadata(CobolModuleMetadata *cmm)
 	by_filename_map.insert(cmm->originalFile(), cmm);
 
 	return true;
+}
+
+bool MetadataManager::existsMetadata(const QString &module_name)
+{
+	return by_module_map.contains(module_name);
+}
+
+const QMap<QString, ProjectFile *>& MetadataManager::getModulesSourceMap()
+{
+	return module_srcs;
+}
+
+void MetadataManager::reset()
+{
+	by_module_map.clear();
+	by_filename_map.clear();
+	module_srcs.clear();
+
+	get_module_sources();
+}
+
+//bool MetadataManager::rebuildMetadata(const QStringList &mod_files_src_list)
+bool MetadataManager::rebuildMetadata()
+{
+	ProjectCollection *prj_coll = GixGlobals::getCurrentProjectCollection();
+	QList<ProjectFile *> pfiles;
+
+	if (!prj_coll)
+		return false;
+
+	get_module_sources();
+	if (!module_srcs.values().size())
+		return true;
+
+	bool res;
+	
+	QEventLoop *loop = new QEventLoop();
+	auto c = connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, this, [this, &res, loop](bool b) {
+		loop->quit();
+		loop->deleteLater();
+		res = b;
+	}, Qt::ConnectionType::QueuedConnection);
+
+	emit GixGlobals::getMetadataManager()->scanModulesBatch(module_srcs.values());
+
+	loop->exec();
+	
+	disconnect(c);
+
+	return res;
+
 }

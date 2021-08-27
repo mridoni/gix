@@ -98,7 +98,6 @@ private:
 	void put_start_exec_sql(bool with_period);
 	void put_end_exec_sql(bool with_period);
 	void put_query_defs();
-	void put_procedure_division();
 	void put_working_storage();
 	bool put_cursor_declarations();
 	void put_call(const ESQLCall &call, bool terminate_with_period);
@@ -117,6 +116,8 @@ private:
 	bool generate_consolidated_map();
 
 	void add_dependency(const QString &parent, const QString &dep_path);
+
+	bool is_current_file_included();
 
 	QStack<QString> input_file_stack;
 	int working_begin_line;

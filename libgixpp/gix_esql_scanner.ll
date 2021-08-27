@@ -504,7 +504,6 @@ LOW_VALUE "LOW\-VALUE"
 	driver.sql_list->clear();
 
 	yy_push_state(ESQL_INCLUDE_STATE); 
-
 	return yy::gix_esql_parser::make_EXECSQL_INCLUDE(loc);
 }
 
@@ -613,8 +612,8 @@ LOW_VALUE "LOW\-VALUE"
 		if (driver.in_ws_section) {
 			driver.in_ws_section = false;
 			driver.commandname ="WORKING_END";
-			driver.startlineno = yylineno - 1;
-			driver.endlineno = yylineno - 1;
+			driver.startlineno = (yylineno - count_crlf(yytext)) - 1;
+			driver.endlineno = (yylineno - count_crlf(yytext)) - 1;
 			UNPUT_TOKEN();
 			return yy::gix_esql_parser::make_WORKINGEND(loc); 
 		}
@@ -622,8 +621,8 @@ LOW_VALUE "LOW\-VALUE"
 			if (driver.in_linkage_section) {
 				driver.in_linkage_section = false; 
 				driver.commandname ="LINKAGE_END";
-				driver.startlineno = yylineno - 1;
-				driver.endlineno = yylineno - 1;
+				driver.startlineno = (yylineno - count_crlf(yytext)) - 1;
+				driver.endlineno = (yylineno - count_crlf(yytext)) - 1;
 				UNPUT_TOKEN();
 				return yy::gix_esql_parser::make_LINKAGEEND(loc); 
 			}
@@ -631,8 +630,8 @@ LOW_VALUE "LOW\-VALUE"
 				if (driver.in_file_section) {
 					driver.in_file_section = false;
 					driver.commandname ="FILE_END";
-					driver.startlineno = yylineno - 1;
-					driver.endlineno = yylineno - 1;
+					driver.startlineno = (yylineno - count_crlf(yytext)) - 1;
+					driver.endlineno = (yylineno - count_crlf(yytext)) - 1;
 					UNPUT_TOKEN();
 					return yy::gix_esql_parser::make_FILEEND(loc); 
 				}	
@@ -640,6 +639,9 @@ LOW_VALUE "LOW\-VALUE"
 	
 	driver.startlineno = yylineno;
 	driver.endlineno = yylineno;
+
+	driver.startlineno -= count_crlf(yytext);
+
 	driver.host_reference_list->clear();
 	driver.res_host_reference_list->clear();
 	driver.cursorname = "";		
@@ -912,6 +914,9 @@ LOW_VALUE "LOW\-VALUE"
     }
     "COMP-3" {
         return yy::gix_esql_parser::make_COMP_3(loc);
+    }
+    "COMP-5" {
+        return yy::gix_esql_parser::make_COMP_5(loc);
     }
         
     "SIGN"  { return yy::gix_esql_parser::make_SIGN(loc) ;} 

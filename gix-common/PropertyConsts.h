@@ -27,6 +27,23 @@ USA.
 class GIXCOMMON_EXPORT PropertyConsts
 {
 public:
+
+	// Generic
+	static const char *Enabled;
+
+	// Project-specific
 	static const char *IsStartupItem;
 	static const char *CustomBuildType;
+
+	// Debug
+	static const char *DebugInSeparateConsole;
+
+	// Subproperties for web projects
+	static const char *WebProjectUrl;
+	static const char *WebProjectPort;
+	static const char *WebProjectInterfaceInCopyFile;
+	static const char *WebProjectInterfaceInField;
+	static const char *WebProjectInterfaceOutCopyFile;
+	static const char *WebProjectInterfaceOutField;
+	static const char *WebProjectConfigDialogType;
 };

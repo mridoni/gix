@@ -24,6 +24,7 @@ USA.
 #include "ProjectCollection.h"
 #include "IdeTaskManager.h"
 #include "Ide.h"
+#include "PropertyConsts.h"
 
 #include <QtWidgets>
 
@@ -103,8 +104,10 @@ void NewProjectDialog::accept()
 		if (rbMultiBinary->isChecked())
 			main_prj_type = ProjectType::MultipleBinaries;
 		else
-			if (rbWebProject->isChecked())
+			if (rbWebProject->isChecked()) {
 				main_prj_type = ProjectType::Web;
+				opts["build_type"] = "dll";
+			}
 			else
 				if (rbNoProject->isChecked())
 					main_prj_type = ProjectType::NoProject;
@@ -115,8 +118,26 @@ void NewProjectDialog::accept()
 		prj_collection = ProjectCollection::newProjectCollection(main_prj_type, prjFile->text(), opts);
 
 		if (prj_collection && prj_collection->save()) {
+			Project *prj = (Project *)prj_collection->GetChildren()->at(0);
+			ProjectFile *src_file = create_prj_file(prj, 0, ProjectFileType::Source);
+			if (src_file && main_prj_type == ProjectType::Web) {
+				ProjectFile *copy_file = create_prj_file(prj, 1, ProjectFileType::Copy);
+				
+				prj->PropertySetValue(PropertyConsts::DebugInSeparateConsole, false);
 
-			create_prj_file((Project *)prj_collection->GetChildren()->at(0), 0);
+				src_file->PropertySetValue(PropertyConsts::IsStartupItem, true);
+				
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::Enabled, true);
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::WebProjectUrl, PathUtils::toModuleName(prj->GetFilename()));
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::WebProjectPort, 9090);
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::WebProjectInterfaceInCopyFile, copy_file->GetFilename());
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::WebProjectInterfaceInField, "PAR-IN");
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::WebProjectInterfaceOutCopyFile, copy_file->GetFilename());
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::WebProjectInterfaceOutField, "PAR-OUT");
+				src_file->setSubProperty("is_rest_ws", PropertyConsts::WebProjectConfigDialogType, "RestOptionsDialog");
+
+				prj->save();
+			}
 
 			if (Ide::TaskManager()->loadProjectCollection(prjFile->text()))
 				hide();
@@ -133,7 +154,9 @@ void NewProjectDialog::accept()
 				prj_collection->addProject(prj);
 
 				if (prj_collection->save()) {
-					create_prj_file(prj, 0);
+					create_prj_file(prj, 0, ProjectFileType::Source);
+					if (main_prj_type == ProjectType::Web)
+						create_prj_file(prj, 1, ProjectFileType::Copy);
 
 					emit Ide::TaskManager()->projectAdded(prj);
 				}
@@ -152,22 +175,22 @@ void NewProjectDialog::accept()
 	this->close();
 }
 
-bool  NewProjectDialog::create_prj_file(Project* prj, int idx)
+ProjectFile *NewProjectDialog::create_prj_file(Project* prj, int idx, ProjectFileType type)
 {
 	if (!prj || idx >= prj->GetChildren()->size())
-		return false;
+        return nullptr;
 
 	ProjectFile * pf = (ProjectFile *) prj->GetChildren()->at(idx);
 	QString filepath = pf->GetFileFullPath();
 	QFile prj_file(filepath);
 	if (prj_file.exists())
-		return false;
+		return nullptr;
 
-	if (!pf->writeSourceTemplate(prj_file, ProjectFileType::Source)) {
-		return false;
+	if (!pf->writeSourceTemplate(prj, prj_file, type)) {
+		return nullptr;
 	}
 
-	return true;
+	return pf;
 }
 
 void NewProjectDialog::choosePrjFile()

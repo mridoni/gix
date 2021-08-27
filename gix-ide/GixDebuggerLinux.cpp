@@ -53,6 +53,8 @@ QString last_source_file;
 int last_source_line = 0;
 UserBreakpoint *last_bkp = nullptr;
 
+GixDebuggerLinux *GixDebuggerLinux::dbgr_instance = nullptr;
+
 bool operator< (lib_info const &lhs, lib_info const &rhs)
 {
     return std::tie(lhs.name, lhs.addr) < std::tie(rhs.name, rhs.addr);
@@ -72,6 +74,8 @@ GixDebuggerLinux::~GixDebuggerLinux()
 
 int GixDebuggerLinux::start()
 {
+    dbgr_instance = this;
+
     LinuxProcessRunner process(this);
     QString strEventMessage;
 
@@ -96,14 +100,14 @@ int GixDebuggerLinux::start()
     use_external_console = false;
 
     if_blk->debuggerMessage(this, "Setting up console", 0);
-    LOG_DEBUG("Setting up console\n");
+    _DBG_OUT("Setting up console\n");
     if (!use_external_console) {
         srand(time(0));
         int t = rand();
 
         outname = PathUtils::combine(QDir::tempPath(), "gix_t_out_" + QString::number(t));
         if (mkfifo(outname.toLocal8Bit().constData(), 0666)) {
-            LOG_DEBUG("no out pipe\n");
+            _DBG_OUT("no out pipe\n");
             return false;
         }
         fd_out = open(outname.toLocal8Bit().constData(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
@@ -111,7 +115,7 @@ int GixDebuggerLinux::start()
 
         errname = PathUtils::combine(QDir::tempPath(), "gix_t_err_" + QString::number(t));
         if (mkfifo(errname.toLocal8Bit().constData(), 0666)) {
-            //LOG_DEBUG("no err pipe\n");
+            //_DBG_OUT("no err pipe\n");
             return false;
         }
         fd_err = open(errname.toLocal8Bit().constData(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
@@ -119,7 +123,7 @@ int GixDebuggerLinux::start()
 
         inname = PathUtils::combine(QDir::tempPath(), "gix_t_in_" + QString::number(t));
         if (mkfifo(inname.toLocal8Bit().constData(), 0666)) {
-            //LOG_DEBUG("no err pipe\n");
+            //_DBG_OUT("no err pipe\n");
             return false;
         }
         fd_in = open(inname.toLocal8Bit().constData(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
@@ -145,7 +149,7 @@ int GixDebuggerLinux::start()
 
 
     uint64_t pid;
-    LOG_DEBUG("Starting process\n");
+    _DBG_OUT("Starting process\n");
     if (process.start(&pid)) {
         m_pid = pid;
 
@@ -157,14 +161,14 @@ int GixDebuggerLinux::start()
 
 #if GIX_DBGR_USES_DOUBLEFORK
         if (ptrace(PTRACE_ATTACH, m_pid, NULL, NULL) < 0) {
-            LOG_DEBUG("Trace error: %s\n", strerror(errno));
+            _DBG_OUT("Trace error: %s\n", strerror(errno));
             if_blk->debuggerError(this, 1, "Cannot attach to process");
             return 1;
         }
 #endif
 
         if_blk->debuggerMessage(this, QString("Process started (%1)").arg(m_pid), 0);
-        LOG_DEBUG("Process started (%d)\n", m_pid);
+        _DBG_OUT("Process started (%d)\n", m_pid);
 
         if (is_debugging_enabled) {
             auto fd = open(this->exepath.toLocal8Bit().data(), O_RDONLY);
@@ -174,7 +178,7 @@ int GixDebuggerLinux::start()
             sym_provider->initialize(this, NULL, NULL);
 
             if_blk->debuggerMessage(this, "Symbols loaded\n", 0);
-            LOG_DEBUG("Symbols loaded\n");
+            _DBG_OUT("Symbols loaded\n");
 
 //            initialise_load_address();
 
@@ -183,7 +187,7 @@ int GixDebuggerLinux::start()
 //                void *hSymbols = sym_provider->loadSymbols(this, (void *)m_pid, (void *)m_load_address, exepath, NULL, &err);
 
 //                if (!processImage((void *)m_load_address, hSymbols, exepath)) {
-//                    LOG_DEBUG("Error loading image information for: %s\n", exepath.toLocal8Bit().data());
+//                    _DBG_OUT("Error loading image information for: %s\n", exepath.toLocal8Bit().data());
 //                }
 //            }
         }
@@ -200,7 +204,7 @@ int GixDebuggerLinux::start()
         }
     }
     else {
-        LOG_DEBUG("Cannot start process\n");
+        _DBG_OUT("Cannot start process\n");
         if_blk->debuggerError(this, 1, "Cannot start process");
         printLastError();
         deinit_console();
@@ -210,14 +214,14 @@ int GixDebuggerLinux::start()
 
     deinit_console();
 
-    LOG_DEBUG("GixDebuggerLinux is exiting\n");
+    _DBG_OUT("GixDebuggerLinux is exiting\n");
 
     return 0;
 }
 
 int GixDebuggerLinux::stop()
 {
-    LOG_DEBUG("Stop requested");
+    _DBG_OUT("Stop requested");
     if (!kill(m_pid, 0)) {
         exit_code = 0xDEAD;
         kill(m_pid, SIGKILL);
@@ -228,14 +232,14 @@ int GixDebuggerLinux::stop()
 
 bool GixDebuggerLinux::step()
 {
-    LOG_DEBUG("step invoked\n");
+    _DBG_OUT("step invoked\n");
     single_step = true;
     return true;
 }
 
 bool GixDebuggerLinux::continue_running()
 {
-    LOG_DEBUG("continue_running invoked\n");
+    _DBG_OUT("continue_running invoked\n");
     single_step = false;
     return true;
 }
@@ -244,7 +248,7 @@ bool GixDebuggerLinux::continue_running()
 void GixDebuggerLinux::deinit_console()
 {
     if (!use_external_console) {
-        LOG_DEBUG("Stopping reader threads\n");
+        _DBG_OUT("Stopping reader threads\n");
 
         stopReaderThreads();
 
@@ -253,7 +257,7 @@ void GixDebuggerLinux::deinit_console()
 
         unlink(outname.toLocal8Bit().data());
         unlink(errname.toLocal8Bit().data());
-        LOG_DEBUG("Reader threads stopped\n");
+        _DBG_OUT("Reader threads stopped\n");
     }
 }
 
@@ -280,19 +284,19 @@ bool GixDebuggerLinux::getVariables(QList<VariableData *> var_list)
 
                 uint64_t addr = (uint64_t)sym_provider->resolveLocalVariableAddress(this, (void *)m_pid, current_cbl_module, m_load_address, vrootvar, vrd);
 
-                vd->data = new uint8_t[vrd->storage_len];
+                vd->data = new uint8_t[vrd->storage_size];
                 vd->resolver_data = vrd;
 
-                memset(vd->data, 0x00, vrd->storage_len);
+                memset(vd->data, 0x00, vrd->storage_size);
 
-                if (!readProcessMemory((void *)addr, vd->data, vrd->storage_len)) {
+                if (!readProcessMemory((void *)addr, vd->data, vrd->storage_size)) {
                     this->printLastError();
                     continue;
                 }
 
 #if _DEBUG
-                vd->data[vrd->storage_len - 1] = 0;
-                LOG_DEBUG("%s : [%s]\n", vd->var_name.toLocal8Bit().constData(), vd->data);
+                vd->data[vrd->storage_size - 1] = 0;
+                _DBG_OUT("%s : [%s]\n", vd->var_name.toLocal8Bit().constData(), vd->data);
 #endif
             }
         }
@@ -314,45 +318,17 @@ QString GixDebuggerLinux::getCurrentCobolModuleName()
 void GixDebuggerLinux::printLastError()
 {
     if (!errno)
-        LOG_DEBUG("No error\n");
+        _DBG_OUT("No error\n");
     else
-        LOG_DEBUG("Error (%d): %s\n", errno, strerror(errno));
+        _DBG_OUT("Error (%d): %s\n", errno, strerror(errno));
 }
-
-
-void GixDebuggerLinux::removeHardwareBreakpoint(UserBreakpoint *bkp)
-{
-    uint64_t data = ptrace(PTRACE_PEEKDATA, m_pid, bkp->address, nullptr);
-    uint64_t restored_data = ((data & ~0xff) | bkp->orig_instr);
-    LOG_DEBUG("Removing breakpoint at %p - old data: %p, new data : %p, orig_instr: %02x\n", bkp->address, data, restored_data, bkp->orig_instr);
-    ptrace(PTRACE_POKEDATA, m_pid, bkp->address, restored_data);
-    bkp->orig_instr = 0x00;
-}
-
-
-bool GixDebuggerLinux::installHardwareBreakpoint(UserBreakpoint *bkp)
-{
-    if (bkp->orig_instr)
-        return false;
-
-    uint64_t data = ptrace(PTRACE_PEEKDATA, m_pid, bkp->address, nullptr);
-    if ((int64_t)data == -1)
-        LOG_DEBUG("Error (%d) %s\n", errno, strerror(errno));
-    bkp->orig_instr = static_cast<uint8_t>(data & 0xff); //save bottom byte
-    uint64_t int3 = 0xcc;
-    uint64_t data_with_int3 = ((data & ~0xff) | int3); //set bottom byte to 0xcc
-    LOG_DEBUG("Installing breakpoint at %p - old data: %p, new data : %p, saved data: %02x\n", bkp->address, data, data_with_int3, bkp->orig_instr);
-    ptrace(PTRACE_POKEDATA, m_pid, bkp->address, data_with_int3);
-    return true;
-}
-
 
 bool GixDebuggerLinux::readProcessMemory(void *src_addr, void *dest_addr, int sz)
 {
     iovec local_iov{ dest_addr, (unsigned long)sz };
     iovec remote_iov{ src_addr, (unsigned long)sz };
     if (process_vm_readv(m_pid, &local_iov, 1, &remote_iov, 1, 0) < 0) {
-        LOG_DEBUG("Cannot read memory: (%d) %s\n", errno, strerror(errno));
+        _DBG_OUT("Cannot read memory: (%d) %s\n", errno, strerror(errno));
         return false;
     }
 
@@ -371,6 +347,16 @@ void GixDebuggerLinux::writeToProcess(QString s)
 
     write(fd, bfr, strlen(bfr));
     close(fd);
+}
+
+pid_t GixDebuggerLinux::getPid()
+{
+    return m_pid;
+}
+
+GixDebuggerLinux *GixDebuggerLinux::getInstance()
+{
+    return dbgr_instance;
 }
 
 void *GixDebuggerLinux::getSymbolAddress(const char *sym_name)
@@ -392,11 +378,11 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
         if (get_pc() == ((uint64_t)m_entry_breakpoint->address) + 1) {  // + 1
 
             update_libraries();
-            //m_entry_breakpoint.disable();
-            removeHardwareBreakpoint(m_entry_breakpoint);
+
+            m_entry_breakpoint->uninstall();
             uint64_t new_addr = get_pc() - 1;
             set_pc(new_addr);
-            LOG_DEBUG("Updated libraries, removed entry_breakpoint, moving PC to %p\n", new_addr);
+            _DBG_OUT("Updated libraries, removed entry_breakpoint, moving PC to %p\n", new_addr);
             return;
         }
     }
@@ -406,15 +392,25 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
         case SI_KERNEL:
         case TRAP_BRKPT:
         {
-            LOG_DEBUG("(2) Received TRAP_BRKPT\n");
+            _DBG_OUT("(2) Received TRAP_BRKPT\n");
+
+            is_ld_single_stepping = false;
 
             if (get_pc() == ((uint64_t)m_linker_breakpoint->address) + 1) {
-                LOG_DEBUG("Reached breakpoint at runtime linker\n");
+                _DBG_OUT("Reached breakpoint at runtime linker (%p)\n", m_linker_breakpoint->address);
                 update_libraries();
+
+                set_pc(get_pc() - 1);
+                m_linker_breakpoint->uninstall();
+
+                is_cpu_single_stepping = true;
+                is_ld_single_stepping = true;
+                ptrace(PTRACE_SINGLESTEP, m_pid, nullptr, nullptr);
+
                 return;
             }
 
-            LOG_DEBUG("Hit breakpoint at address %p\n", get_pc());
+            _DBG_OUT("Hit breakpoint at address %p\n", get_pc());
 
             bool is_cbl_entry_point = isCblEntryPoint((void *)(get_pc() - 1), &current_cbl_module);
 
@@ -422,15 +418,14 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
 
             UserBreakpoint *bp = findBreakpointByAddress((void *)(get_pc() - 1));
             if (!bp) {	// This will probably lead to a crash
-                LOG_DEBUG("Breakpoint not found\n");
+                _DBG_OUT("Breakpoint not found\n");
                 break;
             }
 
-            LOG_DEBUG("Breakpoint is at (source): %d@%s\n", bp->line, bp->source_file.toLocal8Bit().data());
+            _DBG_OUT("Breakpoint is at (source): %d@%s\n", bp->line, bp->source_file.toLocal8Bit().data());
 
             set_pc(get_pc() - 1);
-
-            removeHardwareBreakpoint(bp);
+            bp->uninstall();
 
             last_bkp = bp;
             last_source_file = bp->source_file;
@@ -441,23 +436,29 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
 
             return;
         }
+
         //this will be set if the signal was sent by single stepping
         case TRAP_TRACE:
         {
-            //        if (!is_debugging_enabled)
-            //            break;
-
-            LOG_DEBUG("Single stepped here\n");
+            _DBG_OUT("Single stepped here (%p)\n", get_pc());
 
             is_on_break = true;
 
-            if (last_bkp) {
+            if (is_ld_single_stepping) {
+                _DBG_OUT("Reinstalling breakpoint at runtime linker (%p)\n", m_linker_breakpoint->address);
+                m_linker_breakpoint->install();
+                is_on_break = false;
+                is_ld_single_stepping = false;
+                last_bkp = NULL;
+                break;
+            }
 
-                installHardwareBreakpoint(last_bkp);
+            if (last_bkp) {
+                last_bkp->install();
 
 
                 if (!last_bkp->automatic || single_step) {
-                    LOG_DEBUG("User breapoint: must be processed\n");
+                    _DBG_OUT("User breakpoint: must be processed\n");
                     if (this->source_lines_by_addr.find(last_bkp->address) != source_lines_by_addr.end()) {
                         SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
                         QString msg = QString("Found breakpoint at %1 (%2:%3)\n").arg(SysUtils::toHexString((uint64_t)last_bkp->address)).arg(sli->source_file).arg(sli->line);
@@ -465,7 +466,7 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
                         if_blk->debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
                     }
                     else {
-                        LOG_DEBUG("Cannot find SourceLineInfo record\n");
+                        _DBG_OUT("Cannot find SourceLineInfo record\n");
                     }
                 }
             }
@@ -505,7 +506,7 @@ void GixDebuggerLinux::initialise_load_address()
         std::string addr;
         std::getline(map, addr, '-');
         m_load_address = QString::fromStdString(addr).toULong(&b, 16);
-        LOG_DEBUG("Load addressfor PID %d: 0x%016lx (raw: %s)\n",
+        _DBG_OUT("Load address for PID %d: 0x%016lx (raw: %s)\n",
                   m_pid, m_load_address, addr.c_str());
     }
 }
@@ -523,12 +524,17 @@ bool GixDebuggerLinux::wait_for_signal()
     int wait_status;
     auto options = 0;
 
-    LOG_DEBUG("Waiting for signal\n");
+    _DBG_OUT("Waiting for signal\n");
 
     waitpid(m_pid, &wait_status, options);
 
+    _DBG_OUT("Got signal: %d\n", wait_status);
+
+//    if (WIFSTOPPED(wait_status))
+//        kill(m_pid, SIGSTOP);  /* Signal entire child process to stop */
+
     if (WIFEXITED(wait_status) || WIFSIGNALED(wait_status)) {
-        LOG_DEBUG("Process exited\n");
+        _DBG_OUT("Process exited\n");
 
         if (WIFEXITED(wait_status))
             exit_code = WEXITSTATUS(wait_status);
@@ -536,11 +542,10 @@ bool GixDebuggerLinux::wait_for_signal()
         if_blk->debuggerProcessExit(this, exit_code, exepath);
         if_blk->debuggerMessage(this, ":: EXIT CODE: " + QString::number(exit_code), 0);
 
-        LOG_DEBUG(":: EXIT CODE: %d\n", exit_code);
+        _DBG_OUT(":: EXIT CODE: %d\n", exit_code);
 
         return false;
     }
-
 
     auto siginfo = get_signal_info();
 
@@ -551,28 +556,30 @@ bool GixDebuggerLinux::wait_for_signal()
     if (is_debugging_enabled && !__breakpoint_0_hit && siginfo.si_signo == SIGTRAP) {
 #endif
         QString msg = QString("Got signal %1 (%2)").arg(siginfo.si_signo).arg(strsignal(siginfo.si_signo));
-        LOG_DEBUG("%s\n", msg.toLocal8Bit().constData());
-        LOG_DEBUG("Breakpoint 0 hit\n");
+        _DBG_OUT("%s\n", msg.toLocal8Bit().constData());
+        _DBG_OUT("Breakpoint 0 hit\n");
 
         initialise_load_address();
+
+        uint64_t entry_point = m_elf.get_hdr().entry;
+        entry_point += m_load_address;
+
+        m_entry_breakpoint = UserBreakpoint::createInstance();
+        m_entry_breakpoint->address = (void *)entry_point;
+        m_entry_breakpoint->automatic = true;
+        m_entry_breakpoint->install();
 
         if (debuggee_type == DebuggedModuleType::Executable) {
             int err = 0;
             void *hSymbols = sym_provider->loadSymbols(this, (void *)m_pid, (void *)m_load_address, exepath, NULL, &err);
 
             if (!processImage((void *)m_load_address, hSymbols, exepath)) {
-                LOG_DEBUG("Error loading image information for: %s\n", exepath.toLocal8Bit().data());
+                _DBG_OUT("Error loading image information for: %s\n", exepath.toLocal8Bit().data());
             }
+
         }
 
-        uint64_t entry_point = m_elf.get_hdr().entry;
-        entry_point += m_load_address;
 
-        m_entry_breakpoint = new UserBreakpoint();
-        m_entry_breakpoint->address = (void *)entry_point;
-        m_entry_breakpoint->automatic = true;
-
-        installHardwareBreakpoint(m_entry_breakpoint);
 
         if_blk->debuggerReady(this, exepath);
 
@@ -580,7 +587,7 @@ bool GixDebuggerLinux::wait_for_signal()
 
         resolve_rendezvous();
 
-        LOG_DEBUG("Breakpoint 0 processing finished\n");
+        _DBG_OUT("Breakpoint 0 processing finished\n");
         return true;
     }
 
@@ -619,7 +626,7 @@ void GixDebuggerLinux::stopReaderThreads()
 
 void GixDebuggerLinux::resolve_rendezvous()
 {
-    LOG_DEBUG("Resolving rendezvous address\n");
+    _DBG_OUT("Resolving rendezvous address\n");
 
     // Rendezvous address is found in the .dynamic section
     auto dyn_section = m_elf.get_section(".dynamic");
@@ -642,14 +649,13 @@ void GixDebuggerLinux::resolve_rendezvous()
             // The .dynamic section stores a pointer to a function which is called whenever
             // a .so is loaded or unloaded
 
-            m_linker_breakpoint = new UserBreakpoint();
+            m_linker_breakpoint = UserBreakpoint::createInstance();
             m_linker_breakpoint->address = (void *)rendezvous.r_brk;
             m_linker_breakpoint->automatic = true;
 
-            LOG_DEBUG("Linker breakpoint (rendezvous) address is %p\n", m_linker_breakpoint->address);
-            //m_linker_breakpoint.enable();
+            _DBG_OUT("Linker breakpoint (rendezvous) address is %p\n", m_linker_breakpoint->address);
 
-            installHardwareBreakpoint(m_linker_breakpoint);
+            m_linker_breakpoint->install();
 
             return;
         }
@@ -657,7 +663,7 @@ void GixDebuggerLinux::resolve_rendezvous()
         val = read_word(addr);
 
     }
-    LOG_DEBUG("ERROR: Could not resolve rendezvous structure\n");
+    _DBG_OUT("ERROR: Could not resolve rendezvous structure\n");
 
 }
 
@@ -668,7 +674,7 @@ T GixDebuggerLinux::read_from_inferior(addr_t &addr)
     iovec local_iov{ &t, sizeof(T) };
     iovec remote_iov{ (void *)addr, sizeof(T) };
     if (process_vm_readv(m_pid, &local_iov, 1, &remote_iov, 1, 0) < 0) {
-        //LOG_DEBUG("Cannot read memory: (%d) %s\n", errno, strerror(errno));
+        //_DBG_OUT("Cannot read memory: (%d) %s\n", errno, strerror(errno));
     }
     addr += sizeof(T);
     return t;
@@ -713,7 +719,10 @@ void GixDebuggerLinux::handleLibraryLoaded(QString lib_path, void *lib_addr)
     void *hSymbols = sym_provider->loadSymbols(this, (void *)m_pid, lib_addr, lib_path, NULL, &err);
 
     if (!processImage(lib_addr, hSymbols, lib_path)) {
-        LOG_DEBUG("Error loading image information for: %s\n", lib_path.toLocal8Bit().data());
+        _DBG_OUT("Error loading image information for: %s\n", lib_path.toLocal8Bit().data());
+    }
+    else {
+        m_entry_breakpoint->owner = shared_modules.last();
     }
 }
 
@@ -724,6 +733,7 @@ void GixDebuggerLinux::handleLibraryUnloaded(QString lib_path, void *lib_addr)
 
 void GixDebuggerLinux::update_libraries()
 {
+    _DBG_OUT("Updating list of loaded libraries\n");
     if (!m_rendezvous_addr) {
         resolve_rendezvous();
     }
@@ -739,6 +749,7 @@ void GixDebuggerLinux::update_libraries()
         auto map = read_from_inferior<link_map>(addr);
         auto name_addr = (uint64_t)map.l_name;
         auto name = read_string(name_addr);
+
         // If the name is empty, it's probably the exe or vdso. Just ignore it.
         if (name != "") {
             new_libs.emplace(name, map.l_addr);
@@ -760,16 +771,18 @@ void GixDebuggerLinux::update_libraries()
     for (auto &&lib : loaded) {
         std::cerr << "Loaded " << lib.name << " at 0x" << std::hex << lib.addr << std::endl;
         handleLibraryLoaded(QString::fromStdString(lib.name), (void *)lib.addr);
-        //if_blk->debuggerMessage(this, QString("Loaded %1").arg(QString::fromStdString(lib.name)), 0);
+        _DBG_OUT("Loading library %s\n", lib.name.c_str());
     }
 
     for (auto &&lib : unloaded) {
         std::cerr << "Unloaded " << lib.name << " at 0x" << std::hex << lib.addr << std::endl;
         handleLibraryUnloaded(QString::fromStdString(lib.name), (void *)lib.addr);
-        //if_blk->debuggerMessage(this, QString("Unloaded %1").arg(QString::fromStdString(lib.name)), 0);
+        _DBG_OUT("Unloading library %s\n", lib.name.c_str());
     }
 
     m_libraries = new_libs;
+
+    _DBG_OUT("The list of loaded libraries has been updated\n");
 }
 
 bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, QString imageName)
@@ -787,9 +800,10 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, QString imageNa
                 shared_modules.push_back(mi);
                 for (auto it = mi->cbl_modules.begin(); it != mi->cbl_modules.end(); ++it) {
                     if_blk->debuggerMessage(this, QString("Installing startup hardware breakpoint for module " + it.value()->name), 0);
-                    installHardwareBreakpoint(it.value()->entry_breakpoint);
-                    breakpoints[it.value()->entry_breakpoint->key] = it.value()->entry_breakpoint;
+                    it.value()->entry_breakpoint->install();
+                    breakPointAdd(it.value()->entry_breakpoint);
                 }
+                getAndResolveUserBreakpoints();
             }
             else
                 return false;
@@ -835,3 +849,42 @@ void PipeReader::startReading()
     }
 }
 
+
+bool LinuxUserBreakpoint::install()
+{
+    if (isInstalled()) {
+        _DBG_OUT("Breakpoint at 0x%p for %d@%s is already installed, skipping\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+        return true;
+    }
+
+    if (this->orig_instr)
+        return false;
+
+    GixDebuggerLinux *gdlinux = GixDebuggerLinux::getInstance();
+
+    uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
+    if ((int64_t)data == -1)
+        _DBG_OUT("Error (%d) %s\n", errno, strerror(errno));
+    this->orig_instr = static_cast<uint8_t>(data & 0xff); //save bottom byte
+    uint64_t int3 = 0xcc;
+    uint64_t data_with_int3 = ((data & ~0xff) | int3); //set bottom byte to 0xcc
+    _DBG_OUT("Installing breakpoint at %p - old data: %p, new data : %p, saved data: %02x\n", this->address, data, data_with_int3, this->orig_instr);
+    ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, data_with_int3);
+    return true;
+}
+
+bool LinuxUserBreakpoint::uninstall()
+{
+    if (!isInstalled()) {
+        _DBG_OUT("Breakpoint at 0x%p for %d@%s is not installed, skipping\n", this->address, this->line, this->source_file.toLocal8Bit().constData());
+        return true;
+    }
+
+    GixDebuggerLinux *gdlinux = GixDebuggerLinux::getInstance();
+
+    uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
+    uint64_t restored_data = ((data & ~0xff) | this->orig_instr);
+    _DBG_OUT("Removing breakpoint at %p - old data: %p, new data : %p, orig_instr: %02x\n", this->address, data, restored_data, this->orig_instr);
+    ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, restored_data);
+    this->orig_instr = 0x00;
+}

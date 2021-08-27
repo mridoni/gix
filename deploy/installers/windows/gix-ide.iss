@@ -70,7 +70,7 @@ Source: "{#WORKSPACE}\deploy\compilers\msvc\defs\*.def"; DestDir: "{localappdata
 #endif
 
 ; examples and docs
-Source: "{#WORKSPACE}\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs onlyifdoesntexist
 Source: "{#WORKSPACE}\doc\*"; DestDir: "{userdocs}\Gix\Documentation"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 ; MS runtimes

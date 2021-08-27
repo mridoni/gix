@@ -56,8 +56,6 @@ enum class GIXCOMMON_EXPORT WsEntryStorageType {
 	CompX = 5
 };
 
-class ListingFileParser;
-
 class GIXCOMMON_EXPORT Paragraph
 {
 public:
@@ -70,7 +68,6 @@ public:
 
 class GIXCOMMON_EXPORT DataEntry {
 
-	friend class ListingFileParser;
 	friend class CobolModuleMetadata;
 	friend class ExternalInterfaceData;
 
@@ -100,7 +97,6 @@ public:
 	bool is_required;
 	QString format;
 	WsEntryStorageType storage_type;
-	QString storage; // COMP, COMP-3...
 	int occurs;
 	QString redefines;
 	DataEntry* parent;

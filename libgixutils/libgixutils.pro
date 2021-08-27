@@ -18,7 +18,7 @@ win32:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17
 win32:DEFINES -= UNICODE _UNICODE
 
 HEADERS += CobolUtils.h  CopyResolver.h  libgixutils_global.h  MapFileReader.h \
-				MapFileReaderResult.h  MapFileWriter.h  PathUtils.h  SysUtils.h
+				MapFileReaderResult.h  MapFileWriter.h  PathUtils.h  SysUtils.h ErrorData.h \
 
 
 SOURCES += CobolUtils.cpp  CopyResolver.cpp  MapFileReader.cpp  MapFileWriter.cpp  PathUtils.cpp

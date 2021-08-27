@@ -49,6 +49,9 @@ public:
 	virtual void PropertySetValue(QString name, QVariant value);
 	virtual bool PropertyExists(QString name);
 
+	virtual QVariant getSubProperty(QString prop_id, QString sub_prop_id);
+	virtual bool setSubProperty(QString prop_id, QString sub_prop_id, QVariant sub_prop_value);
+
 protected:
 	QMap<QString, QVariant> *properties;
 	QMap<QString, QVariant> runtime_properties;

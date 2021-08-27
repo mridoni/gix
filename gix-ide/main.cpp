@@ -25,7 +25,7 @@ USA.
 #include <QDesktopWidget>
 #include <QTimer>
 
-//#include <QDebug>
+#include <QDebug>
 
 #if defined(Q_OS_LINUX) && defined(_DEBUG)
 #include <execinfo.h>
@@ -42,35 +42,36 @@ USA.
 #include "IdeLogManager.h"
 #include "GixVersion.h"
 
+#if 0
+class GixApplication final : public QApplication {
+public:
+    GixApplication(int& argc, char** argv) : QApplication(argc, argv) {}
+    virtual bool notify(QObject *receiver, QEvent *e) override {
+        try {
+            return QApplication::notify(receiver, e);
+        }
+        catch(std::runtime_error e)
+        {
+            qDebug() << "std::runtime_error in thread : " << QThread::currentThreadId();
+            qDebug() << e.what();
+        }
+        catch(std::exception e)
+        {
+            qDebug() << "std::exception in thread : " << QThread::currentThreadId();
+            qDebug() << e.what();
+        }
+        catch(...)
+        {
+            qDebug() << "exception thread : " << QThread::currentThreadId();
+        }
 
-//class GixApplication final : public QApplication {
-//public:
-//    GixApplication(int& argc, char** argv) : QApplication(argc, argv) {}
-//    virtual bool notify(QObject *receiver, QEvent *e) override {
-//        try {
-//            return QApplication::notify(receiver, e);
-//        }
-//        catch(std::runtime_error e)
-//        {
-//            qDebug() << "std::runtime_error in thread : " << QThread::currentThreadId();
-//            qDebug() << e.what();
-//        }
-//        catch(std::exception e)
-//        {
-//            qDebug() << "std::exception in thread : " << QThread::currentThreadId();
-//            qDebug() << e.what();
-//        }
-//        catch(...)
-//        {
-//            qDebug() << "exception thread : " << QThread::currentThreadId();
-//        }
+        qDebug() << "catch in notify ";
+        return false;
+    }
+};
+#endif
 
-//        qDebug() << "catch in notify ";
-//        return false;
-//    }
-//};
-
-#if defined(Q_OS_LINUX) && defined(_DEBUG)
+#if 0 && defined(Q_OS_LINUX) && defined(_DEBUG)
 void handler(int sig) {
   void *array[50];
   size_t size;
@@ -104,27 +105,25 @@ handler_t()
 
 int main(int argc, char *argv[])
 {
-#if defined(Q_OS_WIN) && defined(_DEBUG)
-	//_CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
+#if 0 && defined(Q_OS_WIN) && defined(_DEBUG)
+    _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
+    _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF);
+    _CrtSetDbgFlag(_CRTDBG_CHECK_CRT_DF);
 #endif
+
+    QApplication app(argc, argv);
 
 	Q_INIT_RESOURCE(icons);
 
-#if defined(Q_OS_LINUX) && defined(_DEBUG)
-//    signal(SIGSEGV, handler);   // install our handler
+#if 0 && defined(Q_OS_LINUX) && defined(_DEBUG)
+    signal(SIGSEGV, handler);   // install our handler
     std::set_terminate( handler_t );
 #endif
 
 #if defined(__linux__)
 	if (!qgetenv("QT_FONT_DPI").size())
-		qputenv("QT_FONT_DPI", "72");
+        qputenv("QT_FONT_DPI", "96");
 #endif
-
-    QApplication app(argc, argv);
-
-	//QFont appfont("Courier New");
-	//appfont.setStyleHint(QFont::Monospace);
-	//QApplication::setFont(appfont);
 
 	QPixmap pixmap(":/icons/splash.png");
 	QPainter painter(&pixmap);

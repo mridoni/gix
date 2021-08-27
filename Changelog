@@ -1,0 +1,12 @@
+=== v1.0.3 =======================================================
+- Web modules can now be correctly created and launched from the IDE
+- Web modules can non be debugged under Windows
+- GixSQL debug and error logs are now configurable from the IDE
+- Fixed a (fatal) bug in GIXSQLExec/GIXSQLExecParams
+- Fixed a bug in the ESQL parser
+- "stdin file" option is (partially) working
+- COMP-5 and binary fields are now correctly handled and displayed in the debugger
+- Consolidated metadata handling
+- Fixed metadata for modules with non-preprocessed COPY files
+- Some refactoring in the debugger code
+- Generic clean up of the codebase (eliminated dead code, some refactoring, etc.)

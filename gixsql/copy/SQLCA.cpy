@@ -1,7 +1,7 @@
       ******************************************************************
       *       SQLCA: SQL Communications Area for GIXSQL                *
       ******************************************************************
-       01  SQLCA GLOBAL.
+       01  SQLCA.
            05  SQLCAID               PIC X(8).
            05  SQLCABC               PIC S9(9) COMP-5.
            05  SQLCODE               PIC S9(9) COMP-5.

@@ -44,5 +44,5 @@ void SchemaController::service(ServiceConfig* svc, HttpRequest& request, HttpRes
     //ExternalInterfaceData * dcp = svc->getInterfaceData();
 	JsonManager* jmgr = new JsonManager(svc);
 	
-    response.write(jmgr->getSchema(SchemaType::In).toUtf8(), true);
+    response.write(jmgr->getSchema().toUtf8(), true);
 }

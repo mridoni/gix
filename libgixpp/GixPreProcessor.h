@@ -28,6 +28,7 @@ USA.
 
 #include "ITransformationStep.h"
 #include "CopyResolver.h"
+#include "ErrorData.h"
 
 class FileData;
 
@@ -43,16 +44,12 @@ public:
 	bool verbose;
 	bool verbose_debug;
 
-	//const QStringList getCopyDirs();
-	//void setCopyDirs(const QStringList cdl);
-
 	void setCopyResolver(const CopyResolver *cr);
 	CopyResolver *getCopyResolver() const;
 
 	void addCustomStep(ITransformationStep *stp);
 
-	int err_code;
-	QStringList err_messages;
+	ErrorData err_data;
 
 	bool process();
 	
@@ -60,6 +57,7 @@ public:
 	bool setInputFile(QString infile);
 	bool setOutputFile(QString outfile);
 
+	QVariantMap& getOpts() const;
 	QVariant getOpt(QString id, QVariant v = QVariant());
 	void setOpt(QString id, QVariant v);
 
