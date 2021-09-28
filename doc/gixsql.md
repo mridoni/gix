@@ -1,4 +1,5 @@
-﻿﻿## GixSQL
+﻿﻿
+## GixSQL
 
 GixSQL is an ESQL preprocessor and a series of runtime libraries to enable GnuCOBOL to access ODBC, MySQL, PostgreSQL databases.
 
