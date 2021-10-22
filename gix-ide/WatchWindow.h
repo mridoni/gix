@@ -24,6 +24,7 @@ USA.
 #include <QPushButton>
 
 #include "MainWindow.h"
+#include "DragDropTableWidget.h"
 
 
 class QWidget;
@@ -43,10 +44,11 @@ public slots:
 	void refreshButtonClicked();
 	void IdeStatusChanged(IdeStatus);
 	void onDebuggerBreak();
+	void itemDropped(QVariant v, const QMimeData *md);
 
 private:
 	MainWindow * mainWindow;
-	QTableWidget *varTable;
+	DragDropTableWidget *varTable;
 
 	QPushButton *bAdd;
 	QPushButton *bRemove;

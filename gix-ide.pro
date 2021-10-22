@@ -9,6 +9,7 @@ SUBDIRS += \
 			libgixsql-odbc \
 			libgixsql-mysql \
 			libgixsql-pgsql \
+			libcpputils \
 			libgixpp \
 			libgixutils \
 			gix-common \
@@ -21,13 +22,20 @@ win32:SUBDIRS += libs/libdwarf/libdwarf
 SUBDIRS += gix-ide				
 
 libgixpp.subdir = libgixpp			
-libgixutils.subdir = libgixutils			
+libgixutils.subdir = libgixutils	
+libcpputils.subdir = libcpputils	
 libgixsql.subdir  = gixsql/libgixsql
 libgixsql-odbc.subdir  = gixsql/libgixsql-odbc			
 libgixsql-mysql.subdir  = gixsql/libgixsql-mysql			
 libgixsql-pgsql.subdir  = gixsql/libgixsql-pgsql			
+
 gix-common.subdir  = gix-common			
+gix-common.depends = libcpputils libgixutils
+
+libgixpp.depends = libcpputils
+
 scintilla.subdir = libs/scintilla/qt/ScintillaEdit
+
 gix-ide.subdir = gix-ide
 gix-ide.depends = libgixpp libgixutils gix-common gix-debugger libgixsql scintilla
 

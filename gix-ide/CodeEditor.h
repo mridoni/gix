@@ -22,6 +22,8 @@ USA.
 
 #include "ScintillaEdit.h"
 #include "EolMode.h"
+#include "EolMode.h"
+#include "SourceFileFormat.h"
 
 #include <QEvent>
 #include <QPainter>
@@ -52,12 +54,16 @@ public:
 	void removeDebugMarkers();
 	void highlightSymbol(int line, QString symbol_name);
 
+	void setSourceFormat(SourceFileFormat sfmt);
+
 private:
 	int __maxLineNumberCharLength;
 	int __lineNumberWidth;
+	SourceFileFormat source_format = SourceFileFormat::Fixed;
 
 	void setFontFromSettings();
 	void showBookmarkAtLine(int ln);
+	bool isCurrentlyCommented(QString s);
 
 private slots:
 	void changed();

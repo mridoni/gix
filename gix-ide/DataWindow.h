@@ -29,6 +29,7 @@ USA.
 #include "MainWindow.h"
 #include "ProjectFile.h"
 #include "ListingFileParser.h"
+#include "DragDropTreeWidget.h"
 
 class QWidget;
 class MainWindow;
@@ -41,9 +42,8 @@ public:
 	DataWindow(QWidget *parent, MainWindow *mw);
 	~DataWindow();
 
-	void setContent(ProjectFile *);
-	bool hasContent();
-	void refreshContent();
+	
+	void refreshContent(bool force_refresh);
 
 public slots:
 	void IdeStatusChanged(IdeStatus);
@@ -58,12 +58,12 @@ private:
 
 	QPushButton *bRefresh;
 
-	void refresh_data_items();
+	void refresh_data_items(QString filepath);
 	void append_children(DataEntry *e, QTreeWidgetItem *parent_item);
 	void setNodeStatus(QString node_path, QTreeWidgetItem* si);
-
-	QTreeWidget *dataWidget;
-	ProjectFile *cur_file;
-
+	void setContent(ProjectFile *);
+	
+	DragDropTreeWidget *dataWidget = nullptr;
+	
 };
 

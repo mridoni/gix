@@ -20,10 +20,10 @@ USA.
 
 #pragma once
 
-#include <QString>
-#include <QList>
-#include <QMap>
-#include <QDateTime>
+#include <string>
+#include <vector>
+#include <map>
+#include <chrono>
 
 class FileData;
 
@@ -34,14 +34,14 @@ public:
 	~FileData();
 
 	// Full path
-	QString filename;
+	std::string filename;
 
 
-	QDateTime file_ts;
+	std::chrono::time_point<std::chrono::system_clock> file_ts;
 
 	FileData *parent;
-	QMap<int, FileData *> refs;
-	QStringList lines;
+	std::map<int, FileData *> refs;
+	std::vector<std::string> lines;
 
 };
 

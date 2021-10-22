@@ -28,6 +28,7 @@ USA.
 #include "GixGlobals.h"
 #include "ProjectFilePropertyDefinitionCollection.h"
 #include "CompilerConfiguration.h"
+#include "SourceFileFormat.h"
 
 #include <QFileInfo>
 #include <QFile>
@@ -124,6 +125,17 @@ bool ProjectFile::isSoapService()
 bool ProjectFile::isCompilable()
 {
 	return this->PropertyGetValue("build_action").toString() == BuildConsts::BUILD_ACTION_COMPILE;
+}
+
+SourceFileFormat ProjectFile::getSourceFormat()
+{
+	QSettings settings;
+
+	SourceFileFormat fmt = (SourceFileFormat) settings.value("cobc_default_source_format", (int)SourceFileFormat::Fixed).toInt();
+	if (PropertyExists("cobc_source_format")) {
+		fmt = (SourceFileFormat)PropertyGetValue("cobc_default_source_format", (int)SourceFileFormat::Fixed).toInt();
+	}
+	return fmt;
 }
 
 void ProjectFile::add_copy_deps(const QStringList &copy_dirs, const QStringList &copy_ext_list, ProjectFile *pf, QList<ProjectFile *> &res)

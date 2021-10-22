@@ -55,6 +55,7 @@ ProjectFilePropertyDefinitionCollection::ProjectFilePropertyDefinitionCollection
 
 	defs.append(new PropertyDefinition("build_action", tr("Build action"), PropertyType::PropertyTypeOption, "compile", false, build_action_opts));
 	defs.append(new PropertyDefinition("filepath", tr("File path"), PropertyType::PropertyTypeText, "", true));
+	defs.append(new PropertyDefinition("cobc_source_format", "Source format", PropertyType::PropertyTypeOption, "fixed", false, new QMap<QString, QVariant>({ { "fixed", "Fixed" },{ "free", "Free" } })));
 
 	PropertyDefinition *is_startup_item = new PropertyDefinition(PropertyConsts::IsStartupItem, tr("Is startup item/module"), PropertyType::PropertyTypeBoolean, false, false);
 	//is_startup_item->show_depending_on = [](PropertySource *ps) { 

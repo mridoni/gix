@@ -97,9 +97,9 @@ bool DataEntry::isGroup()
 DataEntry *DataEntry::fromCobolRawField(cb_field_ptr p)
 {
 	DataEntry *e = new DataEntry();
-	e->name = p->sname;
+	e->name = QString::fromStdString(p->sname);
 	e->line = p->defined_at_source_line;
-	e->filename = p->defined_at_source_file;
+	e->filename = QString::fromStdString(p->defined_at_source_file);
 	e->level = p->level;
 	e->decimals = p->scale;
 	e->is_signed = p->have_sign;

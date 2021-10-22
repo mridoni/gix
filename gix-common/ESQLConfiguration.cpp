@@ -237,7 +237,7 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 	gp.verbose_debug = true;
 
 	CopyResolver cr(*build_driver->getCopyResolver());
-	cr.addCopyDir(GixGlobals::getGixCopyDir());
+	cr.addCopyDir(GixGlobals::getGixCopyDir().toStdString());
 		
 	gp.setCopyResolver(&cr);
 
@@ -250,14 +250,14 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 
 	gp.addStep(new TPESQLProcessing(&gp));
 
-	gp.setInputFile(input_file);
-	gp.setOutputFile(output_file);
+	gp.setInputFile(input_file.toStdString());
+	gp.setOutputFile(output_file.toStdString());
 
 	bool b = gp.process();
 
 	if (!b || !QFile(output_file).exists()) {
-		for (QString m : gp.err_data.err_messages)
-			build_driver->log_build_message("ERROR: " + m, QLogger::LogLevel::Error);
+		for (std::string m : gp.err_data.err_messages)
+			build_driver->log_build_message("ERROR: " + QString::fromStdString(m), QLogger::LogLevel::Error);
 		return false;
 	}
 

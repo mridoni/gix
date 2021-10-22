@@ -29,11 +29,12 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <filesystem>
+#include <fstream>
+#include <algorithm>
+#include <regex>
 
-#include "utils.h"
-#include "gixcommon_global.h"
-
-#include "QLogger.h"
+#include "libcpputils.h"
 
 char type_tc_negative_final_number[] =
 {
@@ -106,9 +107,7 @@ int type_tc_is_positive(char *lastchar) {
 			return false;
 		}
 	}
-	QString msg;
-	msg.sprintf("%s@%s: no final_number found: %c\n", __func__, __FILE__, *lastchar);
-	QLogger::QLog_Trace(GIX_CONSOLE_LOG, msg);
+
 	*lastchar = 0;
 	return true;
 }
@@ -131,29 +130,15 @@ int type_tc_is_positive(char *lastchar) {
 char *ocdb_getenv(char *param, char *def) {
 	char *env;
 	if (param == NULL) {
-#ifdef _DEBUG
-		QLogger::QLog_Trace(GIX_CONSOLE_LOG, "parameter is NULL\n");
-#endif
 		return def;
 	}
 
-#ifdef _DEBUG
-	QString msg;
-#endif
 	env = getenv(param);
 	if (env == NULL) {
-		
-#ifdef _DEBUG
-		msg.sprintf("param '%s' is not set. set default value. \n", __func__, __FILE__, param);
-		QLogger::QLog_Trace(GIX_CONSOLE_LOG, msg);
-#endif
 		return def;
 	}
 	else {
-#ifdef _DEBUG
-		msg.sprintf("param '%s' is %s. \n", __func__, __FILE__, param, env);
-		QLogger::QLog_Trace(GIX_CONSOLE_LOG, msg);
-#endif
+
 	}
 	return env;
 }
@@ -330,6 +315,128 @@ bool starts_with(std::string s1, std::string s2)
 	return s1.substr(0, s2.length()) == s2;
 }
 
+std::string lpad(const std::string &s, int len)
+{
+	std::string s1 = s;
+	if (s1.size() >= len)
+		return s1;
+
+	for (int i = 0; i < len - s1.size(); i++)
+		s1 = ' ' + s1;
+
+	return s1;
+}
+
+std::string rpad(const std::string &s, int len)
+{
+	std::string s1 = s;
+	if (s1.size() >= len)
+		return s1;
+
+	for (int i = 0; i < len - s1.size(); i++)
+		s1 = s1 + ' ';
+
+	return s1;
+}
+
+std::string string_chop(const std::string &s, int len)
+{
+	std::string s1 = s;
+	if (s1.size() < len)
+		len = s1.size();
+
+	int new_len = s1.size() - len;
+	return s1.substr(0, new_len);
+}
+
+bool string_contains(const std::string &s1, const std::string &s2)
+{
+	return s1.find(s2) != std::string::npos;
+}
+
+std::string string_replace(std::string subject, const std::string &search, const std::string &replace)
+{
+	size_t pos = 0;
+	while ((pos = subject.find(search, pos)) != std::string::npos) {
+		subject.replace(pos, search.length(), replace);
+		pos += replace.length();
+	}
+	return subject;
+}
+
+std::vector<std::string> file_read_all_lines(const std::string &filename)
+{
+	std::vector<std::string> res;
+
+	std::filesystem::path filepath(filename);
+
+	if (!std::filesystem::exists(filepath)) {
+		return res;
+	}
+
+	std::ifstream ifs(filepath);
+	
+	std::string line;
+	while (std::getline(ifs, line)) {
+		res.push_back(line);
+	}
+
+	ifs.close();
+
+	return res;
+}
+
+bool file_write_all_lines(const std::string &filename, const std::vector<std::string> &lines)
+{
+	std::filesystem::path filepath(filename);
+
+	std::ofstream ofs(filepath);
+
+	for (std::string line : lines) {
+		ofs << line << std::endl;
+	}
+
+	ofs.close();
+
+	return true;
+}
+
+bool file_exists(const std::string &filename)
+{
+	std::filesystem::path fp(filename);
+	return std::filesystem::exists(fp);
+}
+
+std::string filename_change_ext(const std::string &filename, const std::string &ext)
+{
+	std::filesystem::path fp(filename);
+	return fp.replace_extension(ext).string();
+}
+
+std::string filename_get_name(const std::string &filename)
+{
+	std::filesystem::path fp(filename);
+	return fp.filename().string();
+}
+
+std::string filename_absolute_path(const std::filesystem::path &filepath)
+{
+	return std::filesystem::absolute(filepath).string();
+}
+
+std::string filename_clean_path(const std::string &filepath)
+{
+	std::string s = filepath;
+	std::replace(s.begin(), s.end(), '\\', '/');
+	return s;
+}
+
+std::string filename_absolute_path(const std::string &filename)
+{
+	std::filesystem::path fp(filename);
+	return filename_absolute_path(fp);
+}
+
 bool is_commit_or_rollback_statement(std::string query)
 {
 	std::string q = trim_copy(query);
@@ -387,4 +494,52 @@ std::vector<std::string> split_with_quotes(const std::string& in_s)
         v.push_back(s);
     }
     return v;
+}
+
+std::vector<std::string> string_split(const std::string str, const std::string regex_str)
+{   
+	std::regex regexz(regex_str);
+	std::sregex_token_iterator token_iter(str.begin(), str.end(), regexz, -1);
+	std::sregex_token_iterator end;
+	std::vector<std::string> list;
+	while (token_iter != end) {
+		list.emplace_back(*token_iter++);
+	}
+	return list;
+}
+
+
+bool file_is_writable(const std::string &filename)
+{
+	std::string dir_path = std::filesystem::path(filename).parent_path().string();
+	auto fs = std::filesystem::status(filename);
+	auto p = fs.permissions();
+	return ((p & std::filesystem::perms::owner_write) != std::filesystem::perms::none) ||
+		((p & std::filesystem::perms::group_write) != std::filesystem::perms::none);
+}
+
+std::string vector_join(const std::vector<std::string> &v, char sep)
+{
+	std::string s;
+
+	for (std::vector< std::string>::const_iterator p = v.begin();
+		p != v.end(); ++p) {
+		s += *p;
+		if (p != v.end() - 1)
+			s += sep;
+	}
+	return s;
+}
+
+std::string vector_join(const std::vector<std::string> &v, std::string sep)
+{
+	std::string s;
+
+	for (std::vector< std::string>::const_iterator p = v.begin();
+		p != v.end(); ++p) {
+		s += *p;
+		if (p != v.end() - 1)
+			s += sep;
+	}
+	return s;
 }

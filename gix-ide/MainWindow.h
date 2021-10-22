@@ -78,6 +78,8 @@ public:
 
     void blockMdiSignals(bool f);
 
+    PropertyWindow *getPropertyWindow();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -254,6 +256,8 @@ private:
 	NewProjectDialog *new_prj_dlg;
 	SettingsDialog *settings_dlg;
 	SearchDialog *search_dlg;
+
+    MdiChild *last_active = nullptr;
 };
 
 #endif

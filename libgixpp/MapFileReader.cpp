@@ -19,15 +19,12 @@ USA.
 */
 
 #include "MapFileReader.h"
-#include "SysUtils.h"
+#include "libcpputils.h"
 #include "linq/linq.hpp"
 
-#include <QQueue>
-#include <QRegularExpression>
+#include <queue>
 
-static QRegularExpression rxSectionName("^\[(.*)\]$");
-
-MapFileReader::MapFileReader(const QString &_filename)
+MapFileReader::MapFileReader(const std::string &_filename)
 {
     filename = _filename;
 }
@@ -35,39 +32,40 @@ MapFileReader::MapFileReader(const QString &_filename)
 MapFileReader::~MapFileReader()
 {}
 
-bool MapFileReader::getSectionData(const QString &section_name, QStringList &items) const
+bool MapFileReader::getSectionData(const std::string &section_name, std::vector<std::string> &items) const
 {
-    if (!sections.contains(section_name) || !data.contains(section_name))
+    if (!vector_contains(sections, section_name) || !map_contains<std::string, std::vector<std::string>>(data, section_name))
         return false;
 
-    items = data[section_name];
+    items = data.at(section_name);
+
     return true;
 }
 
 bool MapFileReader::read()
 {
-    if (!QFile(filename).exists())
+    if (!file_exists(filename))
         return false;
 
-    QStringList lines = SysUtils::FileReadAllLines(filename);
+    std::vector<std::string> lines = file_read_all_lines(filename);
     if (!lines.size())
         return false;
 
     int idx = 0;
-    QString cur_section = "";
-    QStringList cur_section_contents;
+    std::string cur_section = "";
+    std::vector<std::string> cur_section_contents;
 
-    while(idx < lines.length()) {
-        QString ln = lines[idx++];
+    while(idx < lines.size()) {
+        std::string ln = lines[idx++];
 
-        if (ln.startsWith("[")) {
-            cur_section = ln.mid(1).chopped(1);
+        if (starts_with(ln, "[")) {
+            cur_section = string_chop(ln.substr(1), 1);
             continue;
         }
 
-        if (ln.trimmed() == "") {
+        if (trim_copy(ln) == "") {
             if (cur_section != "") {
-                sections.append(cur_section);
+                sections.push_back(cur_section);
                 data[cur_section] = cur_section_contents;
                 cur_section = "";
                 cur_section_contents.clear();
@@ -76,7 +74,7 @@ bool MapFileReader::read()
         }
 
         if (cur_section != "") {
-            cur_section_contents.append(ln);
+            cur_section_contents.push_back(ln);
         }
     }
 

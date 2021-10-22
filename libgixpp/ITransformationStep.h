@@ -20,9 +20,9 @@ USA.
 
 #pragma once
 
-#include <QString>
+#include <string>
 
-#define SET_ERR(I,S) owner->err_data.err_code = I; owner->err_data.err_messages << QCoreApplication::translate("gix", S)
+#define SET_ERR(I,S) owner->err_data.err_code = I; owner->err_data.err_messages.push_back(S)
 
 class ITransformationStep;
 class GixPreProcessor;
@@ -32,11 +32,11 @@ class ITransformationStep
 public:
 
 	virtual bool run(ITransformationStep* prev_step) = 0;
-	virtual QString getInput();
-	virtual QString getOutput(ITransformationStep* me = nullptr);
+	virtual std::string getInput();
+	virtual std::string getOutput(ITransformationStep* me = nullptr);
 
-	virtual void setInput(QString in_file);
-	virtual void setOutput(QString out_file);
+	virtual void setInput(std::string in_file);
+	virtual void setOutput(std::string out_file);
 
 	GixPreProcessor *getOwner();
 
@@ -46,8 +46,8 @@ protected:
 	ITransformationStep(GixPreProcessor* gpp);
 
 	GixPreProcessor* owner;
-	QString input_file;
-	QString output_file;
+	std::string input_file;
+	std::string output_file;
 
 };
 

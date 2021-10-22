@@ -19,18 +19,13 @@ USA.
 */
 
 #include "TPESQLProcessing.h"
-#include "PathUtils.h"
-#include "SysUtils.h"
 #include "ESQLCall.h"
 #include "gix_esql_driver.hh"
 #include "MapFileWriter.h"
+#include "libcpputils.h"
 
 #include "linq/linq.hpp"
 
-#include <QFile>
-#include <QDir>
-#include <QSet>
-#include <QPair>
 #if defined(_WIN32) && defined(_DEBUG)
 #include <Windows.h>
 #endif
@@ -123,7 +118,7 @@ enum class ESQL_Command
 
 
 
-static QMap<QString, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_TO, ESQL_Command::ConnectTo },{ ESQL_CLOSE, ESQL_Command::Close },
+static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_TO, ESQL_Command::ConnectTo },{ ESQL_CLOSE, ESQL_Command::Close },
 												 { ESQL_COMMIT, ESQL_Command::Commit }, { ESQL_FETCH, ESQL_Command::Fetch },{ ESQL_DELETE, ESQL_Command::Delete },
 												 { ESQL_INCFILE, ESQL_Command::Incfile }, { ESQL_INCSQLCA, ESQL_Command::IncSQLCA }, { ESQL_INSERT, ESQL_Command::Insert },
 												 { ESQL_OPEN, ESQL_Command::Open }, { ESQL_SELECT, ESQL_Command::Select }, { ESQL_UPDATE, ESQL_Command::Update },
@@ -135,20 +130,20 @@ static QMap<QString, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::C
 #define CALL_PREFIX	"GIXSQL"
 #define TAG_PREFIX	"GIXSQL"
 
-inline QString TPESQLProcessing::get_call_id(const QString s)
+inline std::string TPESQLProcessing::get_call_id(const std::string s)
 {
 	return CALL_PREFIX + s;
 }
 
 TPESQLProcessing::TPESQLProcessing(GixPreProcessor *gpp) : ITransformationStep(gpp)
 {
-	opt_anonymous_params = gpp->getOpt("anonymous_params").toBool();
-	opt_preprocess_copy_files = gpp->getOpt("preprocess_copy_files").toBool();
-	opt_emit_static_calls = gpp->getOpt("emit_static_calls").toBool();
-	opt_emit_debug_info = gpp->getOpt("emit_debug_info").toBool();
-	opt_emit_compat = gpp->getOpt("emit_compat").toBool();
-	opt_consolidated_map = gpp->getOpt("consolidated_map").toBool();
-	opt_no_output = gpp->getOpt("no_output").toBool();
+	opt_anonymous_params = std::get<bool>(gpp->getOpt("anonymous_params", false));
+	opt_preprocess_copy_files = std::get<bool>(gpp->getOpt("preprocess_copy_files", false));
+	opt_emit_static_calls = std::get<bool>(gpp->getOpt("emit_static_calls", false));
+	opt_emit_debug_info = std::get<bool>(gpp->getOpt("emit_debug_info", false));
+	opt_emit_compat = std::get<bool>(gpp->getOpt("emit_compat", false));
+	opt_consolidated_map = std::get<bool>(gpp->getOpt("consolidated_map", false));
+	opt_no_output = std::get<bool>(gpp->getOpt("no_output", false));
 
 	output_line = 0;
 	working_begin_line = 0;
@@ -158,8 +153,8 @@ TPESQLProcessing::TPESQLProcessing(GixPreProcessor *gpp) : ITransformationStep(g
 
 bool TPESQLProcessing::run(ITransformationStep *prev_step)
 {
-	if (input_file.isEmpty()) {
-		if (!prev_step || prev_step->getOutput().isEmpty())
+	if (input_file.empty()) {
+		if (!prev_step || prev_step->getOutput().empty())
 			return false;
 
 		input_file = prev_step->getOutput();
@@ -212,7 +207,7 @@ bool TPESQLProcessing::run(ITransformationStep *prev_step)
 	return rc == 0;
 }
 
-QString TPESQLProcessing::getOutput(ITransformationStep *me)
+std::string TPESQLProcessing::getOutput(ITransformationStep *me)
 {
 	return output_file;
 }
@@ -223,27 +218,27 @@ int TPESQLProcessing::outputESQL()
 	working_end_line = 0;
 
 
-	if (output_file.isEmpty()) {
-		QString f = PathUtils::changeExtension(input_file, ".cbsql");
-		output_file = "#" + PathUtils::getFilename(f);
+	if (output_file.empty()) {
+		std::string f = filename_change_ext(input_file, ".cbsql");
+		output_file = "#" + filename_get_name(f);
 	}
 
-	if (!output_file.startsWith("#") && !SysUtils::isWritableFile(output_file))
+	if (!starts_with(output_file, "#") && !file_is_writable(output_file))
 		return -1;
 
-	input_file_stack.push(QDir::cleanPath(input_file));
+	input_file_stack.push(filename_clean_path(input_file));
 
 	if (!find_working_storage(&working_begin_line, &working_end_line))
 		return -1;
 
-	startup_items = QList<cb_exec_sql_stmt_ptr>::fromStdList(cpplinq::from(*(main_module_driver.exec_list)).where([](cb_exec_sql_stmt_ptr p) { return p->startup_item != 0; }).to_list());
+	startup_items = cpplinq::from(*(main_module_driver.exec_list)).where([](cb_exec_sql_stmt_ptr p) { return p->startup_item != 0; }).to_vector();
 	process_sql_query_list();
 
 #if defined(_WIN32) && defined(_DEBUG)
-	QList<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
+	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
 	for (auto e : *p) {
 		char bfr[1024];
-		sprintf(bfr, "%04d-%04d : %s\n", e->startLine, e->endLine, e->commandName.toLocal8Bit().constData());
+		sprintf(bfr, "%04d-%04d : %s\n", e->startLine, e->endLine, e->commandName.c_str());
 		OutputDebugStringA(bfr);
 	}
 #endif
@@ -251,7 +246,7 @@ int TPESQLProcessing::outputESQL()
 	if (!processNextFile())
 		return 1;
 
-	bool b1 = opt_no_output ? true : SysUtils::FileWriteAllLines(output_file, output_lines);
+	bool b1 = opt_no_output ? true : file_write_all_lines(output_file, output_lines);
 	bool b2 = opt_no_output ? build_map_data() : write_map_file(output_file);
 
 	return (b1 && b2) ? 0 : 1;
@@ -268,8 +263,8 @@ bool TPESQLProcessing::generate_consolidated_map()
 	current_input_line = 0;
 	in_to_out.clear();
 	out_to_in.clear();
-	input_file_stack.clear();
-	input_file_stack.push(QDir::cleanPath(input_file));
+	input_file_stack = std::stack<std::string>();
+	input_file_stack.push(filename_clean_path(input_file));
 
 	opt_preprocess_copy_files = true;
 	main_module_driver.opt_preprocess_copy_files = true;
@@ -282,13 +277,13 @@ bool TPESQLProcessing::generate_consolidated_map()
 
 bool TPESQLProcessing::processNextFile()
 {
-	QString the_file = input_file_stack.top();
-	QStringList input_lines = SysUtils::FileReadAllLines(the_file);
+	std::string the_file = input_file_stack.top();
+	std::vector<std::string> input_lines = file_read_all_lines(the_file);
 
 	if (!input_lines.size()) {
 		input_file_stack.pop();
 		if (input_file_stack.size() > 0)
-			main_module_driver.file = input_file_stack.top().toStdString();
+			main_module_driver.file = input_file_stack.top();
 
 		return true;
 	}
@@ -296,16 +291,12 @@ bool TPESQLProcessing::processNextFile()
 	for (int input_line = 1; input_line <= input_lines.size(); input_line++) {
 		current_input_line = input_line;
 
-		if (current_input_line == 81 && the_file.endsWith("DPPGS02A.CBL")) {
-			int n = 99;
-		}
-
 #if defined(_WIN32) && defined(_DEBUG)
 		//char bfr[256];
 		//sprintf(bfr, "Processing line %d of file %s\n", input_line, the_file.toUtf8().constData());
 		//OutputDebugStringA(bfr);
 #endif
-		QString cur_line = input_lines.at(input_line - 1);
+		std::string cur_line = input_lines.at(input_line - 1);
 
 		bool in_ws = (input_line >= working_begin_line) && (input_line <= working_end_line);
 
@@ -315,8 +306,8 @@ bool TPESQLProcessing::processNextFile()
 			continue;
 		}
 
-		QString cmdname = exec_sql_stmt->commandName;
-		ESQL_Command cmd = ESQL_cmd_map.contains(cmdname) ? ESQL_cmd_map[cmdname] : ESQL_Command::Unknown;
+		std::string cmdname = exec_sql_stmt->commandName;
+		ESQL_Command cmd = map_contains<std::string, ESQL_Command>(ESQL_cmd_map, cmdname) ? ESQL_cmd_map[cmdname] : ESQL_Command::Unknown;
 
 		switch (cmd) {
 
@@ -332,13 +323,13 @@ bool TPESQLProcessing::processNextFile()
 				//	put_query_defs();
 				//	break;
 
-			case ESQL_Command::ProcedureDivision:	// PROCEDURE DIVISION can be split across several lines if a USING clause is added
+			case ESQL_Command::ProcedureDivision:	// PROCEDURE DIVISION can be string_split across several lines if a USING clause is added
 				for (int iline = exec_sql_stmt->startLine; iline <= exec_sql_stmt->endLine; iline++) {
 					put_output_line(input_lines.at(iline - 1));
 				}
 
 				if (!put_cursor_declarations()) {
-					owner->err_data.err_messages << QString("An error occurred while generating ESQL cursor declarations at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
+					owner->err_data.err_messages.push_back(string_format("An error occurred while generating ESQL cursor declarations at line %d of file %s: %s", input_line, input_file, cur_line));
 					return false;
 				}
 				break;
@@ -352,7 +343,7 @@ bool TPESQLProcessing::processNextFile()
 
 				// Add ESQL calls
 				if (!handle_esql_stmt(cmd, exec_sql_stmt, in_ws)) {
-					owner->err_data.err_messages << QString("Unsupported ESQL statement at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
+					owner->err_data.err_messages.push_back(string_format("Unsupported ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
 					return false;
 				}
 		}
@@ -360,7 +351,7 @@ bool TPESQLProcessing::processNextFile()
 		// Special case
 		if (exec_sql_stmt->endLine == working_end_line) {
 			if (!handle_esql_stmt(ESQL_Command::WorkingEnd, find_esql_cmd(ESQL_WORKING_END, 0), 0)) {
-				owner->err_data.err_messages << QString("Unsupported ESQL statement at line %1 of file %2: %3").arg(input_line).arg(input_file).arg(cur_line);
+				owner->err_data.err_messages.push_back(string_format("Unsupported ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
 				return false;
 			}
 		}
@@ -372,7 +363,7 @@ bool TPESQLProcessing::processNextFile()
 
 	input_file_stack.pop();
 	if (input_file_stack.size() > 0)
-		main_module_driver.file = input_file_stack.top().toStdString();
+		main_module_driver.file = input_file_stack.top();
 
 	return true;
 }
@@ -389,12 +380,12 @@ void TPESQLProcessing::put_end_exec_sql(bool with_period)
 	put_call(start_exec_sql_call, with_period);
 }
 
-QString take_max(QString &s, int n)
+std::string take_max(std::string &s, int n)
 {
-	QString res;
+	std::string res;
 	if (s.length() > n) {
-		res = s.mid(0, n);
-		s = s.mid(n);
+		res = s.substr(0, n);
+		s = s.substr(n);
 	}
 	else {
 		res = s;
@@ -409,29 +400,29 @@ void TPESQLProcessing::put_query_defs()
 		return;
 
 	for (int i = 1; i <= ws_query_list.size(); i++) {
-		QString qry = ws_query_list.at(i - 1);
+		std::string qry = ws_query_list.at(i - 1);
 		int qry_len = qry.length();
-		qry = qry.replace("\"", "\"\"");
-		put_output_line(code_tag + QString(" 01  SQ%1.").arg(i, 4, 10, QLatin1Char('0')));
+		qry = string_replace(qry, "\"", "\"\"");
+		put_output_line(code_tag + string_format(" 01  SQ%04d.", i));
 
 		int pos = 0;
 		int max_sec_len = 30;
 
-		QString s;
+		std::string s;
 
 		s = take_max(qry, 30);
-		put_output_line(code_tag + QString("     02  FILLER PIC X(%1) VALUE \"%2\"").arg(qry_len).arg(s));
+		put_output_line(code_tag + string_format("     02  FILLER PIC X(%d) VALUE \"%s\"", qry_len, s));
 
 		while (true) {
 			s = take_max(qry, 58);
-			if (s.isEmpty())
+			if (s.empty())
 				break;
 
-			put_output_line(code_tag + QString("  &  \"%1\"").arg(s));
+			put_output_line(code_tag + string_format("  &  \"%s\"", s));
 		}
-		output_lines.last() += ".";
+		output_lines.back() += ".";
 
-		put_output_line(code_tag + QString("     02  FILLER PIC X(1) VALUE X\"00\"."));
+		put_output_line(code_tag + std::string("     02  FILLER PIC X(1) VALUE X\"00\"."));
 	}
 
 	emitted_query_defs = true;
@@ -439,7 +430,7 @@ void TPESQLProcessing::put_query_defs()
 
 void TPESQLProcessing::put_working_storage()
 {
-	put_output_line(code_tag + QString(" WORKING-STORAGE SECTION."));
+	put_output_line(code_tag + std::string(" WORKING-STORAGE SECTION."));
 }
 
 bool TPESQLProcessing::put_cursor_declarations()
@@ -460,7 +451,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
-				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.mid(1)];
+				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.substr(1)];
 				if (!hr)
 					return false;
 
@@ -470,7 +461,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 				p_call.addParameter(f_size, BY_VALUE);
 				p_call.addParameter(f_scale, BY_VALUE);
 				p_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
-				p_call.addParameter(p->hostreference.mid(1), BY_REFERENCE);
+				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
 				put_call(p_call, stmt->period);
 			}
@@ -478,9 +469,9 @@ bool TPESQLProcessing::put_cursor_declarations()
 			ESQLCall cd_call(get_call_id("CursorDeclareParams"), emit_static);
 			cd_call.addParameter("SQLCA", BY_REFERENCE);
 			cd_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE); //& x\"00\"
-			cd_call.addParameter(QString::number(stmt->cursor_hold ? 1 : 0), BY_VALUE);
+			cd_call.addParameter(std::to_string(stmt->cursor_hold ? 1 : 0), BY_VALUE);
 			cd_call.addParameter(stmt->sqlName, BY_REFERENCE); //& x\"00\"
-			cd_call.addParameter(QString::number(stmt->host_list->size()), BY_VALUE);
+			cd_call.addParameter(std::to_string(stmt->host_list->size()), BY_VALUE);
 
 			put_call(cd_call, stmt->period);
 
@@ -491,7 +482,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 			cd_call.addParameter("SQLCA", BY_REFERENCE);
 			cd_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE);
 			cd_call.addParameter(stmt->cursor_hold, BY_VALUE);
-			cd_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
+			cd_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 
 			put_call(cd_call, stmt->period);
 		}
@@ -506,7 +497,7 @@ void TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 	auto lines = c.format();
 
 	if (terminate_with_period) {
-		lines.last() = lines.last() + ".";
+		lines.back() = lines.back() + ".";
 	}
 
 	for (auto ln : lines) {
@@ -514,9 +505,9 @@ void TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 	}
 }
 
-cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const QString filename, int i)
+cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const std::string filename, int i)
 {
-	QList<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
+	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
 	for (auto e : *p) {
 		if (e->src_file == filename && (e->startLine <= i && e->endLine >= i))
 			return e;
@@ -525,10 +516,10 @@ cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const QString filename
 	return NULL;
 }
 
-cb_exec_sql_stmt_ptr TPESQLProcessing::find_esql_cmd(QString cmd, int idx)
+cb_exec_sql_stmt_ptr TPESQLProcessing::find_esql_cmd(std::string cmd, int idx)
 {
 	int n = 0;
-	QList<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
+	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
 	for (auto e : *p) {
 		if (e->commandName == cmd) {
 			if (n == idx)
@@ -541,16 +532,14 @@ cb_exec_sql_stmt_ptr TPESQLProcessing::find_esql_cmd(QString cmd, int idx)
 	return NULL;
 }
 
-void TPESQLProcessing::put_output_line(const QString &line)
+void TPESQLProcessing::put_output_line(const std::string &line)
 {
 	output_line++;
 
-	//if (!(is_current_file_included() && !opt_preprocess_copy_files)) {
-		output_lines.append(line);
-	//}
+	output_lines.push_back(line);
 
-	QString output_id = QString("%1@%2").arg(output_line).arg(output_file);
-	QString input_id = QString("%1@%2").arg(current_input_line).arg(input_file_stack.top());
+	std::string output_id = string_format("%d@%s", output_line, output_file);
+	std::string input_id = string_format("%d@%s", current_input_line, input_file_stack.top());
 #if defined(_WIN32) && defined(_DEBUG) && defined(_DEBUG_LOG_ON)
 	OutputDebugStringA((input_id + "-> " + output_id + "\n").toLocal8Bit().constData());
 #endif
@@ -583,18 +572,18 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 		case ESQL_Command::Incfile:
 		case ESQL_Command::IncSQLCA:
 		{
-			QString copy_file;
-			QString inc_copy_name = (cmd == ESQL_Command::Incfile) ? stmt->incfileName : "SQLCA";
+			std::string copy_file;
+			std::string inc_copy_name = (cmd == ESQL_Command::Incfile) ? stmt->incfileName : "SQLCA";
 			if (opt_preprocess_copy_files) {
 				// inline file
 				if (!owner->getCopyResolver()->resolveCopyFile(inc_copy_name, copy_file)) {
-					owner->err_data.err_messages << "Cannot resolve copybook: " + inc_copy_name;
+					owner->err_data.err_messages.push_back("Cannot resolve copybook: " + inc_copy_name);
 					return false;
 				}
 
 				add_dependency(input_file_stack.top(), copy_file);
 
-				input_file_stack.push(QDir::cleanPath(copy_file));
+				input_file_stack.push(filename_clean_path(copy_file));
 				if (!processNextFile())
 					return false;
 			}
@@ -602,7 +591,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 				// we treat it as a standard copybook file, and let the compiler deal with any error
 				// but we still try to resolve the copy to gather some metadata
-				put_output_line(AREA_B_PREFIX + QString("COPY %1.").arg(inc_copy_name));
+				put_output_line(AREA_B_PREFIX + string_format("COPY %s.", inc_copy_name));
 
 				if (owner->getCopyResolver()->resolveCopyFile(inc_copy_name, copy_file)) {
 					add_dependency(input_file_stack.top(), copy_file);
@@ -612,7 +601,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 			}
 
-			_DBG_OUT("Copy resolved: %s -> %s\n", inc_copy_name.toLocal8Bit().data(), copy_file.toLocal8Bit().data());
+			_DBG_OUT("Copy resolved: %s -> %s\n", inc_copy_name.c_str(), copy_file.c_str());
 		}
 		break;
 
@@ -623,26 +612,26 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			ESQLCall connect_call(get_call_id("Connect"), emit_static);
 			connect_call.addParameter("SQLCA", BY_REFERENCE);
 
-			if (main_module_driver.field_map.find(stmt->host_list->at(0)->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-				owner->err_data.err_messages << "Cannot find host variable: " + stmt->host_list->at(0)->hostreference.mid(1);
+			if (main_module_driver.field_map.find(stmt->host_list->at(0)->hostreference.substr(1)) == main_module_driver.field_map.end()) {
+				owner->err_data.err_messages.push_back("Cannot find host variable: " + stmt->host_list->at(0)->hostreference.substr(1));
 				return false;
 			}
-			connect_call.addParameter(stmt->host_list->at(0)->hostreference.mid(1), BY_REFERENCE);
-			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(0)->hostreference.mid(1)]->picnsize, BY_VALUE);
+			connect_call.addParameter(stmt->host_list->at(0)->hostreference.substr(1), BY_REFERENCE);
+			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(0)->hostreference.substr(1)]->picnsize, BY_VALUE);
 
-			if (main_module_driver.field_map.find(stmt->host_list->at(1)->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-				owner->err_data.err_messages << "Cannot find host variable: " + stmt->host_list->at(1)->hostreference.mid(1);
+			if (main_module_driver.field_map.find(stmt->host_list->at(1)->hostreference.substr(1)) == main_module_driver.field_map.end()) {
+				owner->err_data.err_messages.push_back("Cannot find host variable: " + stmt->host_list->at(1)->hostreference.substr(1));
 				return false;
 			}
-			connect_call.addParameter(stmt->host_list->at(1)->hostreference.mid(1), BY_REFERENCE);
-			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(1)->hostreference.mid(1)]->picnsize, BY_VALUE);
+			connect_call.addParameter(stmt->host_list->at(1)->hostreference.substr(1), BY_REFERENCE);
+			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(1)->hostreference.substr(1)]->picnsize, BY_VALUE);
 
-			if (main_module_driver.field_map.find(stmt->host_list->at(2)->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-				owner->err_data.err_messages << "Cannot find host variable: " + stmt->host_list->at(2)->hostreference.mid(1);
+			if (main_module_driver.field_map.find(stmt->host_list->at(2)->hostreference.substr(1)) == main_module_driver.field_map.end()) {
+				owner->err_data.err_messages.push_back("Cannot find host variable: " + stmt->host_list->at(2)->hostreference.substr(1));
 				return false;
 			}
-			connect_call.addParameter(stmt->host_list->at(2)->hostreference.mid(1), BY_REFERENCE);
-			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(2)->hostreference.mid(1)]->picnsize, BY_VALUE);
+			connect_call.addParameter(stmt->host_list->at(2)->hostreference.substr(1), BY_REFERENCE);
+			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(2)->hostreference.substr(1)]->picnsize, BY_VALUE);
 
 			put_call(connect_call, stmt->period);
 		}
@@ -661,7 +650,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			put_start_exec_sql(stmt->period);
 			for (cb_res_hostreference_ptr rp : *stmt->res_host_list) {
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
-				cb_field_ptr hr = main_module_driver.field_map[rp->hostreference.mid(1)];
+				cb_field_ptr hr = main_module_driver.field_map[rp->hostreference.substr(1)];
 
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
 
@@ -669,7 +658,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				rp_call.addParameter(f_size, BY_VALUE);
 				rp_call.addParameter(f_scale, BY_VALUE);
 				rp_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
-				rp_call.addParameter(rp->hostreference.mid(1), BY_REFERENCE);
+				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
 				put_call(rp_call, stmt->period);
 			}
@@ -677,12 +666,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 
-				if (main_module_driver.field_map.find(p->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-					owner->err_data.err_messages << "Cannot find host variable: " + p->hostreference.mid(1);
+				if (main_module_driver.field_map.find(p->hostreference.substr(1)) == main_module_driver.field_map.end()) {
+					owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
 					return false;
 				}
 
-				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.mid(1)];
+				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.substr(1)];
 
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
 
@@ -690,14 +679,14 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				p_call.addParameter(f_size, BY_VALUE);
 				p_call.addParameter(f_scale, BY_VALUE);
 				p_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
-				p_call.addParameter(p->hostreference.mid(1), BY_REFERENCE);
+				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
 				put_call(p_call, stmt->period);
 			}
 
-			QString call_id;
+			std::string call_id;
 			if (!stmt->res_host_list->size()) {
-				call_id = get_call_id(stmt->cursorName.isEmpty() ? "Exec" : "CursorDeclare");
+				call_id = get_call_id(stmt->cursorName.empty() ? "Exec" : "CursorDeclare");
 				if (stmt->host_list->size())
 					call_id += "Params";
 			}
@@ -705,10 +694,10 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				call_id = get_call_id("ExecSelectIntoOne");
 			}
 
-			if (stmt->cursorName.isEmpty()) {
+			if (stmt->cursorName.empty()) {
 				ESQLCall select_call(call_id, emit_static);
 				select_call.addParameter("SQLCA", BY_REFERENCE);
-				select_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
+				select_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 				select_call.addParameter(stmt->host_list->size(), BY_VALUE);
 				select_call.addParameter(stmt->res_host_list->size(), BY_VALUE);
 				put_call(select_call, stmt->period);
@@ -718,7 +707,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				select_call.addParameter("SQLCA", BY_REFERENCE);
 				select_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE);
 				select_call.addParameter(stmt->cursor_hold, BY_VALUE);
-				select_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
+				select_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 				put_call(select_call, stmt->period);
 			}
 			put_end_exec_sql(stmt->period);
@@ -727,7 +716,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		case ESQL_Command::Open:
 		{
-			QString cursor_id = stmt->cursorName;
+			std::string cursor_id = stmt->cursorName;
 			ESQLCall open_call(get_call_id("CursorOpen"), emit_static);
 			open_call.addParameter("SQLCA", BY_REFERENCE);
 			open_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
@@ -737,7 +726,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		case ESQL_Command::Close:
 		{
-			QString cursor_id = stmt->cursorName;
+			std::string cursor_id = stmt->cursorName;
 			ESQLCall close_call(get_call_id("CursorClose"), emit_static);
 			close_call.addParameter("SQLCA", BY_REFERENCE);
 			close_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
@@ -750,9 +739,9 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			put_start_exec_sql(stmt->period);
 			for (cb_res_hostreference_ptr rp : *stmt->res_host_list) {
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
-				cb_field_ptr hr = main_module_driver.field_map[rp->hostreference.mid(1)];
+				cb_field_ptr hr = main_module_driver.field_map[rp->hostreference.substr(1)];
 				if (!hr) {
-					owner->err_data.err_messages << "Cannot find host variable: " + rp->hostreference.mid(1);
+					owner->err_data.err_messages.push_back("Cannot find host variable: " + rp->hostreference.substr(1));
 					return false;
 				}
 
@@ -762,12 +751,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				rp_call.addParameter(f_size, BY_VALUE);
 				rp_call.addParameter(f_scale, BY_VALUE);
 				rp_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
-				rp_call.addParameter(rp->hostreference.mid(1), BY_REFERENCE);
+				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
 				put_call(rp_call, stmt->period);
 			}
 
-			QString cursor_id = stmt->cursorName;
+			std::string cursor_id = stmt->cursorName;
 			ESQLCall fetch_call(get_call_id("CursorFetchOne"), emit_static);
 			fetch_call.addParameter("SQLCA", BY_REFERENCE);
 			fetch_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
@@ -795,25 +784,25 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
-				if (main_module_driver.field_map.find(p->hostreference.mid(1)) == main_module_driver.field_map.end()) {
-					owner->err_data.err_messages << "Cannot find host variable: " + p->hostreference.mid(1);
+				if (main_module_driver.field_map.find(p->hostreference.substr(1)) == main_module_driver.field_map.end()) {
+					owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
 					return false;
 				}
-				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.mid(1)];
+				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.substr(1)];
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
 
 				p_call.addParameter(f_type, BY_VALUE);
 				p_call.addParameter(f_size, BY_VALUE);
 				p_call.addParameter(f_scale, BY_VALUE);
 				p_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
-				p_call.addParameter(p->hostreference.mid(1), BY_REFERENCE);
+				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
 				put_call(p_call, stmt->period);
 			}
 
 			ESQLCall dml_call(get_call_id(stmt->host_list->size() == 0 ? "Exec" : "ExecParams"), emit_static);
 			dml_call.addParameter("SQLCA", BY_REFERENCE);
-			dml_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
+			dml_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 			dml_call.addParameter(stmt->host_list->size(), BY_VALUE);
 			put_call(dml_call, stmt->period);
 			put_end_exec_sql(stmt->period);
@@ -827,7 +816,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			//return false;
 			ESQLCall exec_call(get_call_id("Exec"), emit_static);
 			exec_call.addParameter("SQLCA", BY_REFERENCE);
-			exec_call.addParameter(QString("SQ%1").arg(stmt->sql_query_list_id, 4, 10, QLatin1Char('0')), BY_REFERENCE);
+			exec_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 			put_call(exec_call, stmt->period);
 		}
 		break;
@@ -840,7 +829,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 bool TPESQLProcessing::find_working_storage(int *working_begin_line, int *working_end_line)
 {
-	QList<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
+	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
 
 	*working_begin_line = 0;
 	*working_end_line = 0;
@@ -856,17 +845,17 @@ bool TPESQLProcessing::find_working_storage(int *working_begin_line, int *workin
 	return (*working_begin_line | *working_end_line) > 0;
 }
 
-QString TPESQLProcessing::comment_line(const QString &comment, const QString &line)
+std::string TPESQLProcessing::comment_line(const std::string &comment, const std::string &line)
 {
-	QString ln = line;
+	std::string ln = line;
 	if (ln.size() < 7)
-		ln = ln.leftJustified(7);
+		ln = rpad(ln, 7);
 
 	ln[6] = '*';
 
 	int m = comment.size() > 6 ? 6 : comment.size();
 
-	ln = comment + ln.mid(m);
+	ln = comment + ln.substr(m);
 	return ln;
 }
 
@@ -989,7 +978,7 @@ bool TPESQLProcessing::get_actual_field_data(cb_field_ptr f, int *type, int *siz
 		*scale = f->scale;
 	}
 	else {
-		QString f_name = f->children->sister->sname;
+		std::string f_name = f->children->sister->sname;
 		cb_field_ptr f_actual = main_module_driver.field_map[f_name];
 
 		gethostvarianttype(f_actual, type);
@@ -1004,36 +993,36 @@ void TPESQLProcessing::process_sql_query_list()
 {
 	for (cb_exec_sql_stmt_ptr p : *main_module_driver.exec_list) {
 		if (p->sql_list->size()) {
-			QString sql = p->sql_list->join(" ");
-			ws_query_list.append(sql);
+			std::string sql = vector_join(*p->sql_list, ' ');
+			ws_query_list.push_back(sql);
 		}
 	}
 }
 
-QMap<uint64_t, uint64_t> &TPESQLProcessing::getBinarySrcLineMap() const
+std::map<uint64_t, uint64_t> &TPESQLProcessing::getBinarySrcLineMap() const
 {
-	return const_cast<QMap<uint64_t, uint64_t>&>(b_in_to_out);
+	return const_cast<std::map<uint64_t, uint64_t>&>(b_in_to_out);
 }
 
-QMap<uint64_t, uint64_t> &TPESQLProcessing::getBinarySrcLineMapReverse() const
+std::map<uint64_t, uint64_t> &TPESQLProcessing::getBinarySrcLineMapReverse() const
 {
-	return const_cast<QMap<uint64_t, uint64_t>&>(b_out_to_in);
+	return const_cast<std::map<uint64_t, uint64_t>&>(b_out_to_in);
 }
 
 bool TPESQLProcessing::build_map_data()
 {
 	map_collect_files(filemap);
 
-	QString file;
+	std::string file;
 	int line_in, line_out;
 	//uint64_t k, v;
 
 	// in to out map
-	for (auto it = in_to_out.constBegin(); it != in_to_out.constEnd(); ++it) {
-		splitLineEntry(it.key(), file, &line_in);
+	for (std::map<std::string, std::string>::const_iterator it = in_to_out.begin(); it != in_to_out.end(); ++it) {
+		splitLineEntry(it->first, file, &line_in);
 		int fin_id = filemap[file];
 
-		splitLineEntry(it.value(), file, &line_out);
+		splitLineEntry(it->second, file, &line_out);
 		int fout_id = filemap[file];
 
 		uint64_t k = ((uint64_t)fin_id << 32) + line_in;
@@ -1043,12 +1032,12 @@ bool TPESQLProcessing::build_map_data()
 	}
 
 	// out to in map
-	for (auto it = out_to_in.constBegin(); it != out_to_in.constEnd(); ++it) {
+	for (std::map<std::string, std::string>::const_iterator it = out_to_in.begin(); it != out_to_in.end(); ++it) {
 
-		splitLineEntry(it.key(), file, &line_out);
+		splitLineEntry(it->first, file, &line_out);
 		int fout_id = filemap[file];
 
-		splitLineEntry(it.value(), file, &line_in);
+		splitLineEntry(it->second, file, &line_in);
 		int fin_id = filemap[file];
 
 		uint64_t k = ((uint64_t)fout_id << 32) + line_out;
@@ -1063,8 +1052,8 @@ bool TPESQLProcessing::build_map_data()
 	//mw.addSection("field_map");
 	//mw.appendToSectionContents("field_map", main_module_driver.field_map.size());
 	//for (auto it = main_module_driver.field_map.begin(); it != main_module_driver.field_map.end(); ++it) {
-	//	QString path = "";
-	//	QString var = it.key();
+	//	std::string path = "";
+	//	std::string var = it.key();
 	//	cb_field_ptr fld = it.value();
 
 	//	cb_field_ptr p = fld;
@@ -1078,13 +1067,13 @@ bool TPESQLProcessing::build_map_data()
 
 	//	path = "WS:" + path;
 
-	//	mw.appendToSectionContents("field_map", QString("%1/%2@%3:%4").arg(fld->sname).arg(path).arg(fld->defined_at_source_file).arg(fld->defined_at_source_line));
+	//	mw.appendToSectionContents("field_map", std::string("%1/%2@%3:%4").arg(fld->sname).arg(path).arg(fld->defined_at_source_file).arg(fld->defined_at_source_line));
 	//}
 
 	return true;
 }
 
-bool TPESQLProcessing::write_map_file(const QString &preprocd_file)
+bool TPESQLProcessing::write_map_file(const std::string &preprocd_file)
 {
 	map_collect_files(filemap);
 
@@ -1092,7 +1081,7 @@ bool TPESQLProcessing::write_map_file(const QString &preprocd_file)
 		return true;
 
 	MapFileWriter mw;
-	QString outfile = PathUtils::changeExtension(preprocd_file, ".cbsql.map");
+	std::string outfile = filename_change_ext(preprocd_file, ".cbsql.map");
 
 	uint32_t nflags = FLAG_M_BASE;
 
@@ -1108,50 +1097,50 @@ bool TPESQLProcessing::write_map_file(const QString &preprocd_file)
 	// file map
 	mw.addSection("filemap");
 	mw.appendToSectionContents("filemap", filemap.size());
-	for (auto it = filemap.constBegin(); it != filemap.constEnd(); ++it) {
-		mw.appendToSectionContents("filemap", QString("#%1:%2").arg(it.value()).arg(it.key()));
+	for (std::map<std::string, int>::const_iterator it = filemap.begin(); it != filemap.end(); ++it) {
+		mw.appendToSectionContents("filemap", string_format("#%d:%s", it->second, it->first));
 	}
 
-	QString file;
+	std::string file;
 	int line_in, line_out;
 
 	// in to out map
 	mw.addSection("in_to_out_map");
 	mw.appendToSectionContents("in_to_out_map", in_to_out.size());
 
-	for (auto it = in_to_out.constBegin(); it != in_to_out.constEnd(); ++it) {
-		splitLineEntry(it.key(), file, &line_in);
+	for (std::map<std::string, std::string>::const_iterator it = in_to_out.begin(); it != in_to_out.end(); ++it) {
+		splitLineEntry(it->first, file, &line_in);
 		int fin_id = filemap[file];
 
-		splitLineEntry(it.value(), file, &line_out);
+		splitLineEntry(it->second, file, &line_out);
 		int fout_id = filemap[file];
 
-		mw.appendToSectionContents("in_to_out_map", QString("%1@%2:%3@%4").arg(line_in).arg(fin_id).arg(line_out).arg(fout_id));
+		mw.appendToSectionContents("in_to_out_map", string_format("%d@%d:%d@%d", line_in, fin_id, line_out, fout_id));
 	}
 
 	// out to in map
 	mw.addSection("out_to_in_map");
 	mw.appendToSectionContents("out_to_in_map", out_to_in.size());
 
-	for (auto it = out_to_in.constBegin(); it != out_to_in.constEnd(); ++it) {
+	for (std::map<std::string, std::string>::const_iterator it = out_to_in.begin(); it != out_to_in.end(); ++it) {
 
-		splitLineEntry(it.key(), file, &line_out);
+		splitLineEntry(it->first, file, &line_out);
 		int fout_id = filemap[file];
 
-		splitLineEntry(it.value(), file, &line_in);
+		splitLineEntry(it->second, file, &line_in);
 		int fin_id = filemap[file];
 
-		mw.appendToSectionContents("out_to_in_map", QString("%1@%2:%3@%4").arg(line_out).arg(fout_id).arg(line_in).arg(fin_id));
+		mw.appendToSectionContents("out_to_in_map", string_format("%d@%d:%d@%d", line_out, fout_id, line_in, fin_id));
 	}
 
 	// Variable declaraton source location info
 
 	mw.addSection("field_map");
 	mw.appendToSectionContents("field_map", main_module_driver.field_map.size());
-	for (auto it = main_module_driver.field_map.begin(); it != main_module_driver.field_map.end(); ++it) {
-		QString path = "";
-		QString var = it.key();
-		cb_field_ptr fld = it.value();
+	for (std::map<std::string, cb_field_ptr>::const_iterator it = main_module_driver.field_map.begin(); it != main_module_driver.field_map.end(); ++it) {
+		std::string path = "";
+		std::string var = it->first;
+		cb_field_ptr fld = it->second;
 
 		cb_field_ptr p = fld;
 		do {
@@ -1160,20 +1149,20 @@ bool TPESQLProcessing::write_map_file(const QString &preprocd_file)
 		} while (p);
 
 		if (path.length() > 0)
-			path = path.left(path.length() - 1);
+			path = path.substr(0, path.length() - 1);
 
 		path = "WS:" + path;
 
-		mw.appendToSectionContents("field_map", QString("%1/%2@%3:%4").arg(fld->sname).arg(path).arg(fld->defined_at_source_file).arg(fld->defined_at_source_line));
+		mw.appendToSectionContents("field_map", string_format("%s/%s@%s:%d", fld->sname, path, fld->defined_at_source_file, fld->defined_at_source_line));
 	}
 
 	return mw.writeToFile(outfile);
 }
 
-void TPESQLProcessing::add_dependency(const QString &parent, const QString &dep_path)
+void TPESQLProcessing::add_dependency(const std::string &parent, const std::string &dep_path)
 {
-	QStringList deps = (file_dependencies.contains(parent) ? file_dependencies.value(parent) : QStringList());
-	deps.append(dep_path);
+	std::vector<std::string> deps = (map_contains< std::string, std::vector<std::string>>(file_dependencies, parent) ? file_dependencies.at(parent) : std::vector<std::string>());
+	deps.push_back(dep_path);
 	file_dependencies[parent] = deps;
 }
 
@@ -1182,182 +1171,84 @@ bool TPESQLProcessing::is_current_file_included()
 	return input_file_stack.size() > 1;
 }
 
-QString TPESQLProcessing::getModuleName()
+std::string TPESQLProcessing::getModuleName()
 {
 	return main_module_driver.program_id;
 }
-//
-//bool TPESQLProcessing::write_map_file(const QString &preprocd_file)
-//{
-//	map_collect_files(filemap);
-//
-//	if (opt_no_output)
-//		return true;
-//
-//	QFile f(PathUtils::changeExtension(preprocd_file,".cbsql.map"));
-//	if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
-//		return false;
-//
-//	uint32_t nflags = FLAG_M_BASE;
-//
-//	QTextStream ts(&f);
-//
-//	ts << MAP_FILE_FMT_VER << "\n";
-//	ts << nflags << "\n";
-//
-//	ts << input_file << "\n";
-//	ts << output_file << "\n";
-//
-//	ts << filemap[input_file] << "\n";
-//	ts << filemap[output_file] << "\n";
-//	
-//	ts << filemap.size() << "\n";
-//
-//	QMap<QString, int>::const_iterator it = filemap.constBegin();
-//	auto end = filemap.constEnd();
-//	while (it != end) {
-//		ts << QString("#%1:%2\n").arg(it.value()).arg(it.key());
-//		++it;
-//	}
-//
-//	// in to out map
-//	ts << in_to_out.size() << "\n";
-//
-//	QString file;
-//	int line_in, line_out;
-//	QMap<QString, QString>::const_iterator itm = in_to_out.constBegin();
-//	auto endm = in_to_out.constEnd();
-//	while (itm != endm) {
-//
-//		splitLineEntry(itm.key(), file, &line_in);
-//		int fin_id = filemap[file];
-//		
-//		splitLineEntry(itm.value(), file, &line_out);
-//		int fout_id = filemap[file];
-//
-//		ts << QString("%1@%2:%3@%4\n").arg(line_in).arg(fin_id).arg(line_out).arg(fout_id);
-//
-//		++itm;
-//	}
-//
-//	// out to in map
-//	ts << out_to_in.size() << "\n";
-//
-//	QString file;
-//	int line_in, line_out;
-//	QMap<QString, QString>::const_iterator itm = out_to_in.constBegin();
-//	auto endm = out_to_in.constEnd();
-//	while (itm != endm) {
-//
-//		splitLineEntry(itm.key(), file, &line_out);
-//		int fout_id = filemap[file];
-//
-//		splitLineEntry(itm.value(), file, &line_in);
-//		int fin_id = filemap[file];
-//
-//		ts << QString("%1@%2:%3@%4\n").arg(line_out).arg(fout_id).arg(line_in).arg(fin_id);
-//
-//		++itm;
-//	}
-//
-//	// Variable declaraton source location info
-//	ts << main_module_driver.field_map.size() << "\n";
-//	for (auto it = main_module_driver.field_map.begin(); it != main_module_driver.field_map.end(); ++it) {
-//		QString path = "";
-//		QString var = it.key();
-//		cb_field_ptr fld = it.value();
-//
-//		cb_field_ptr p = fld;
-//		do {
-//			path = p->sname + ":" + path;
-//			p = p->parent;
-//		} while (p);
-//
-//		if (path.length() > 0)
-//			path = path.left(path.length() - 1);
-//
-//		path = "WS:" + path;
-//
-//		ts << QString("%1/%2@%3:%4\n").arg(fld->sname).arg(path).arg(fld->defined_at_source_file).arg(fld->defined_at_source_line);
-//	}
-//
-//	f.close();
-//
-//	return true;
-//}
 
-void TPESQLProcessing::splitLineEntry(const QString &k, QString &s, int *i)
+void TPESQLProcessing::splitLineEntry(const std::string &k, std::string &s, int *i)
 {
-	int p = k.indexOf("@");
-	s = k.mid(p + 1);
-	*i = k.mid(0, p).toInt();
+	int p = k.find("@");
+	s = k.substr(p + 1);
+	*i = std::stoi(k.substr(0, p));
 }
 
-
-void TPESQLProcessing::map_collect_files(QMap<QString, int> &filemap)
+void TPESQLProcessing::map_collect_files(std::map<std::string, int> &filemap)
 {
 	int l;
 	int n = 1;
-	QString f;
+	std::string f;
 
 	if (!in_to_out.size())
 		return;
 
-	QString s = in_to_out[in_to_out.keys().at(0)];
+	//std::string s = in_to_out[in_to_out.keys().at(0)];
+	std::string s = in_to_out.begin()->second;
+
 	splitLineEntry(s, f, &l);
 	filemap[f] = n++;
 
-	QMap<QString, QString>::const_iterator it = in_to_out.constBegin();
-	auto end = in_to_out.constEnd();
+	std::map<std::string, std::string>::const_iterator it = in_to_out.begin();
+	auto end = in_to_out.end();
 	while (it != end) {
-		splitLineEntry(it.key(), f, &l);
-		if (!filemap.contains(f))
+		splitLineEntry(it->first, f, &l);
+		if (!map_contains<std::string, int>(filemap, f))
 			filemap[f] = n++;
 
-		splitLineEntry(it.value(), f, &l);
-		if (!filemap.contains(f))
+		splitLineEntry(it->second, f, &l);
+		if (!map_contains<std::string, int>(filemap, f))
 			filemap[f] = n++;
 
 		++it;
 	}
 }
 
-QMap<QString, QString> &TPESQLProcessing::getSrcLineMap() const
+std::map<std::string, std::string> &TPESQLProcessing::getSrcLineMap() const
 {
-	return const_cast<QMap<QString, QString>&>(in_to_out);
+	return const_cast<std::map<std::string, std::string>&>(in_to_out);
 }
 
-QMap<QString, QString> &TPESQLProcessing::getSrcLineMapReverse() const
+std::map<std::string, std::string> &TPESQLProcessing::getSrcLineMapReverse() const
 {
-	return const_cast<QMap<QString, QString>&>(out_to_in);
+	return const_cast<std::map<std::string, std::string>&>(out_to_in);
 }
 
-QMap<QString, int> &TPESQLProcessing::getFileMap() const
+std::map<std::string, int> &TPESQLProcessing::getFileMap() const
 {
-	return const_cast<QMap<QString, int>&>(filemap);
+	return const_cast<std::map<std::string, int>&>(filemap);
 }
 
-QMap<int, QString> TPESQLProcessing::getReverseFileMap()
+std::map<int, std::string> TPESQLProcessing::getReverseFileMap()
 {
-	QMap<int, QString> rm;
-	for (QString k : filemap.keys()) {
+	std::map<int, std::string> rm;
+	for (const std::string& k : map_get_keys(filemap)) {
 		int v = filemap[k];
 		rm[v] = k;
 	}
 	return rm;
 }
 
-QMap<QString, cb_field_ptr> &TPESQLProcessing::getVariableDeclarationInfoMap() const
+std::map<std::string, cb_field_ptr> &TPESQLProcessing::getVariableDeclarationInfoMap() const
 {
-	return const_cast<QMap<QString, cb_field_ptr>&>(main_module_driver.field_map);
+	return const_cast<std::map<std::string, cb_field_ptr>&>(main_module_driver.field_map);
 }
 
-QMap<QString, srcLocation> TPESQLProcessing::getParagraphs()
+std::map<std::string, srcLocation> TPESQLProcessing::getParagraphs()
 {
 	return main_module_driver.paragraphs;
 }
 
-QMap<QString, QStringList> TPESQLProcessing::getFileDependencies()
+std::map<std::string, std::vector<std::string>> TPESQLProcessing::getFileDependencies()
 {
 	return file_dependencies;
 }

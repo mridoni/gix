@@ -26,6 +26,7 @@ USA.
 #include <QTimer>
 
 #include <QDebug>
+#include <QDataStream>
 
 #if defined(Q_OS_LINUX) && defined(_DEBUG)
 #include <execinfo.h>
@@ -41,6 +42,7 @@ USA.
 #include "IGixLogManager.h"
 #include "IdeLogManager.h"
 #include "GixVersion.h"
+#include "DataEntry.h"
 
 #if 0
 class GixApplication final : public QApplication {
@@ -102,9 +104,23 @@ handler_t()
 
 #endif
 
+QDataStream &operator<<(QDataStream &out, DataEntry **const &rhs)
+{
+	out.writeRawData(reinterpret_cast<const char *>(&rhs), sizeof(rhs));
+	return out;
+}
+
+QDataStream &operator >> (QDataStream &in, DataEntry * &rhs)
+{
+	in.readRawData(reinterpret_cast<char *>(&rhs), sizeof(rhs));
+	return in;
+}
 
 int main(int argc, char *argv[])
 {
+    qRegisterMetaTypeStreamOperators<DataEntry *>("DataEntry *");
+    qRegisterMetaType<DataEntry>("DataEntry");
+
 #if 0 && defined(Q_OS_WIN) && defined(_DEBUG)
     _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
     _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF);

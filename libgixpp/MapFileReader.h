@@ -20,23 +20,22 @@ USA.
 
 #pragma once
 
-#include <QString>
-#include <QStringList>
-#include <QMap>
+#include <vector>
+#include <string>
+#include <map>
 
-class MapFileWriter
+class MapFileReader
 {
 public:
-	void addSection(const QString &section_name, const QStringList &section_contents = QStringList());
-	void setSectionContents(const QString &section_name, const QStringList &section_contents);
-	void appendToSectionContents(const QString &section_name, const QStringList &more_contents);
-	void appendToSectionContents(const QString &section_name, const QString &content);
-	void appendToSectionContents(const QString &section_name, int content);
+	MapFileReader(const std::string &filename);
+	~MapFileReader();
 
-	bool writeToFile(const QString &filename);
+	bool read();
+	bool getSectionData(const std::string &section_name, std::vector<std::string> &items) const;
 
 private:
-	QStringList sections;
-	QMap<QString, QStringList> data;
+	std::string filename;
+	std::vector<std::string> sections;
+	std::map<std::string, std::vector<std::string>> data;
 };
 

@@ -112,6 +112,21 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core</QtModules>
@@ -186,13 +201,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CobolUtils.cpp" />
-    <ClCompile Include="CopyResolver.cpp" />
-    <ClCompile Include="MapFileReader.cpp" />
-    <ClCompile Include="MapFileWriter.cpp" />
     <ClCompile Include="PathUtils.cpp" />
     <ClInclude Include="CobolUtils.h" />
-    <ClInclude Include="CopyResolver.h" />
-    <ClInclude Include="ErrorData.h" />
     <ClInclude Include="libgixutils_global.h" />
     <ClInclude Include="linq\linq.hpp" />
     <ClInclude Include="linq\linq_cursor.hpp" />
@@ -205,9 +215,6 @@
     <ClInclude Include="linq\linq_take.hpp" />
     <ClInclude Include="linq\linq_where.hpp" />
     <ClInclude Include="linq\util.hpp" />
-    <ClInclude Include="MapFileReader.h" />
-    <ClInclude Include="MapFileReaderResult.h" />
-    <ClInclude Include="MapFileWriter.h" />
     <ClInclude Include="PathUtils.h" />
     <ClInclude Include="SysUtils.h" />
   </ItemGroup>

@@ -1,3 +1,10 @@
+=== v1.0.4 =======================================================
+- Implemented "free" source format handling in the editor
+- Removed Qt dependencies for GixSQL/gixpp, now they are standard C++
+- Fixed a few bugs in COMP-3/BINARY handling
+- Drag and drop is now supported for adding new files to a project collection 
+- Drag and drop is now supported for adding new fields to the Watch window
+
 === v1.0.3 =======================================================
 - Web modules can now be correctly created and launched from the IDE
 - Web modules can non be debugged under Windows

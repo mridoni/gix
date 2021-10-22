@@ -46,7 +46,7 @@ USA.
 
 DataWindow::DataWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 {
-	this->cur_file = nullptr;
+	//this->cur_file = nullptr;
 
 	this->setWindowTitle("Data");
 	this->setMinimumWidth(250);
@@ -61,7 +61,7 @@ DataWindow::DataWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 	bRefresh->setIcon(refreshIcon);
 	toolBar->addWidget(bRefresh);
 
-	this->dataWidget = new QTreeWidget(this);
+	this->dataWidget = new DragDropTreeWidget(true, false);
 	this->setCentralWidget(dataWidget);
 	dataWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	dataWidget->setColumnCount(2);
@@ -73,48 +73,51 @@ DataWindow::DataWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 	dataWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(dataWidget, &QTreeWidget::customContextMenuRequested, this, &DataWindow::prepareMenu);
 	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadata, this, [this](CobolModuleMetadata *cmm) {
-			refreshContent(); 
+		refreshContent(true); 
 	});
 
 	connect(GixGlobals::getMetadataManager(), &MetadataManager::updatedModuleMetadataBatch, this, [this](bool b) {
-		refreshContent();
+		refreshContent(true);
 	});
 
 	connect(Ide::TaskManager(), &IdeTaskManager::fileActivated, this, [this](ProjectFile *pf) {
-		refreshContent();
+		refreshContent(false);
 	});
 
 	connect(dataWidget, &QTreeWidget::itemExpanded, this, [this](QTreeWidgetItem *item) { 
 		dataWidget->resizeColumnToContents(0); 
 		QVariant v = item->data(0, Qt::UserRole);
+		QString the_file = QDir::cleanPath(mainWindow->activeMdiChild()->currentFile());
 		if (v.isValid()) {
 			if (v.userType() != QMetaType::QString) {
-				DataEntry* e = (DataEntry*)v.value<void*>();
-				Ide::TaskManager()->setIdeElementInfo(cur_file->GetFileFullPath() + ":" + e->path, 1);
+				DataEntry* e = v.value<DataEntry *>();
+				if (e)
+					Ide::TaskManager()->setIdeElementInfo(the_file + ":" + e->path, 1);
 			}
 			else
-				Ide::TaskManager()->setIdeElementInfo(cur_file->GetFileFullPath() + v.toString(), 1);
+				Ide::TaskManager()->setIdeElementInfo(the_file + ":" + v.toString(), 1);
 		}
 	});
 
 	connect(dataWidget, &QTreeWidget::itemCollapsed, this, [this](QTreeWidgetItem* item) {
 		dataWidget->resizeColumnToContents(0); 
 		QVariant v = item->data(0, Qt::UserRole);
+		QString the_file = QDir::cleanPath(mainWindow->activeMdiChild()->currentFile());
 		if (v.isValid()) {
-			DataEntry* e = (DataEntry*)v.value<void*>();
 			if (v.userType() != QMetaType::QString) {
-				DataEntry* e = (DataEntry*)v.value<void*>();
-				Ide::TaskManager()->setIdeElementInfo(cur_file->GetFileFullPath() + ":" + e->path, 0);
+				DataEntry* e = v.value<DataEntry *>();
+				if (e)
+					Ide::TaskManager()->setIdeElementInfo(the_file + ":" + e->path, 0);
 			}
 			else
-				Ide::TaskManager()->setIdeElementInfo(cur_file->GetFileFullPath() + ":" + v.toString(), 0);
+				Ide::TaskManager()->setIdeElementInfo(the_file + ":" + v.toString(), 0);
 		}
 	});
 
 	connect(GixGlobals::getMetadataManager(), &MetadataManager::invalidateModuleMetadata, this, [this](QString program_id, ProjectFile *pf) {
-		if (pf == cur_file) {
-			dataWidget->clear();
-		}
+		//if (pf == cur_file) {
+		//	dataWidget->clear();
+		//}
 
 	}, Qt::ConnectionType::QueuedConnection);
 }
@@ -124,18 +127,14 @@ DataWindow::~DataWindow()
 {
 }
 
-bool DataWindow::hasContent()
+void DataWindow::refreshContent(bool force_refresh)
 {
-	return cur_file != nullptr;
-}
+	QString f = mainWindow->activeMdiChild()->currentFile();
 
-void DataWindow::refreshContent()
-{
 	dataWidget->clear();
 
 	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("DataWindow is refreshing"), QLogger::LogLevel::Debug);
 	if (mainWindow->activeMdiChild() != nullptr) {
-		QString f = mainWindow->activeMdiChild()->currentFile();
 
 		ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
 		if (ppj != nullptr) {
@@ -154,25 +153,19 @@ void DataWindow::refreshContent()
 
 void DataWindow::setContent(ProjectFile *pf)
 {
+
 	QString lstPath, module_name, output_path;
 
 	QString configuration = Ide::TaskManager()->getCurrentConfiguration();
 	QString platform = Ide::TaskManager()->getCurrentPlatform();
 
 	if (pf == nullptr || pf->PropertyGetValue("build_action") != "compile" || !pf->getOutputModuleAndFile(configuration, platform, module_name, output_path)) {
-		cur_file = nullptr;
-		refresh_data_items();
+		refresh_data_items(pf->GetFileFullPath());
 		return;
 	}
 
 	CobolModuleMetadata* cfm = GixGlobals::getMetadataManager()->getModuleMetadataBySource(pf->GetFileFullPath());
-	if (cfm) {
-		cur_file = pf;
-	}
-	else {
-		cur_file = nullptr;
-	}
-	refresh_data_items();
+	refresh_data_items(pf->GetFileFullPath());
 }
 
 void DataWindow::IdeStatusChanged(IdeStatus s)
@@ -185,14 +178,14 @@ void DataWindow::onDebuggerBreak()
 
 }
 
-void DataWindow::refresh_data_items()
+void DataWindow::refresh_data_items(QString filepath)
 {
 	dataWidget->clear();
 
-	if (!cur_file)
-		return;
+	//if (!cur_file)
+	//	return;
 
-	CobolModuleMetadata *cur_data = GixGlobals::getMetadataManager()->getModuleMetadataBySource(cur_file->GetFileFullPath());
+	CobolModuleMetadata *cur_data = GixGlobals::getMetadataManager()->getModuleMetadataBySource(filepath);
 	if (cur_data == nullptr)
 		return;
 
@@ -232,11 +225,12 @@ void DataWindow::refresh_data_items()
 void DataWindow::append_children(DataEntry *e, QTreeWidgetItem *parent_item)
 {
 	QTreeWidgetItem *si = new QTreeWidgetItem(QStringList() << e->name << e->format);
-	si->setData(0, Qt::UserRole, QVariant::fromValue<void *>(e));
+	si->setData(0, Qt::UserRole, QVariant::fromValue<DataEntry *>(e));
+
 	parent_item->addChild(si);
 
-	QString node_path = e->path;
-	setNodeStatus(node_path, si);
+	QString the_file = QDir::cleanPath(mainWindow->activeMdiChild()->currentFile());
+	setNodeStatus(e->path, si);
 
 	for (int i = 0; i < e->children.size(); i++) {
 		append_children(e->children.at(i), si);
@@ -245,7 +239,8 @@ void DataWindow::append_children(DataEntry *e, QTreeWidgetItem *parent_item)
 
 void DataWindow::setNodeStatus(QString node_path, QTreeWidgetItem* si)
 {
-	int st = Ide::TaskManager()->getIdeElementInfo(cur_file->GetFileFullPath() + ":" + node_path).toInt();
+	QString the_file = QDir::cleanPath(mainWindow->activeMdiChild()->currentFile());
+	int st = Ide::TaskManager()->getIdeElementInfo(the_file + ":" + node_path).toInt();
 	if (st >= 0)
 		si->setExpanded(st);
 	else
@@ -256,7 +251,7 @@ void DataWindow::dataItemDoubleClicked(QTreeWidgetItem * item, int column)
 {
 	QVariant v = item->data(0, Qt::UserRole);
 	if (v.isValid()) {
-		DataEntry* e = (DataEntry*) v.value<void *>();
+		DataEntry* e = v.value<DataEntry *>();
 		Ide::TaskManager()->gotoDefinition(e);
 	}
 }
@@ -266,7 +261,7 @@ void DataWindow::prepareMenu(const QPoint & pos)
 	QTreeWidget *tree = dataWidget;
 	QTreeWidgetItem *item = tree->itemAt(pos);
 	QVariant q = item->data(0, Qt::UserRole);
-	DataEntry *e = (DataEntry *)(q.value<void*>());
+	DataEntry *e = (DataEntry *)(q.value<DataEntry *>());
 	if (!e)
 		return;
 

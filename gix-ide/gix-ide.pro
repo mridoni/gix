@@ -8,7 +8,7 @@ QT += core xml network gui xmlpatterns uitools widgets
 CONFIG += c++17
 INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build \
 				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata \
-				 ../libgixutils ../libgixpp ../gixsql/libgixsql ../libs/scintilla/include 
+				 ../libgixutils ../libgixpp ../libcpputils ../gixsql/libgixsql ../libs/scintilla/include 
 
 linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"				 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic

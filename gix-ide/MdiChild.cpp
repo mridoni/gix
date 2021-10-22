@@ -59,6 +59,10 @@ typedef unsigned char byte;
 #include "UiUtils.h"
 #include "PathUtils.h"
 #include "DataEntry.h"
+#include "ProjectFile.h"
+
+#include "MainWindow.h"
+#include "PropertyWindow.h"
 
 static const int FOLD_LEVEL_BASE = 0x400;
 
@@ -92,6 +96,8 @@ MdiChild::MdiChild()
         }
     });
 #endif
+
+
 }
 
 void MdiChild::add_fold_level(DataEntry* e, int fold_level)
@@ -126,6 +132,20 @@ void MdiChild::newFile()
 
     this->setSavePoint();
     documentWasModified();
+}
+
+QObject *getNestedParent(QObject *o, int level)
+{
+    QObject *res = o;
+
+    for (int i = 0; i < level; i++) {
+
+        if (!res)
+            return nullptr;
+
+        res = res->parent();
+    }
+    return res;
 }
 
 bool MdiChild::loadFile(const QString &fileName)
@@ -216,12 +236,30 @@ bool MdiChild::loadFile(const QString &fileName)
 
 	ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
 	if (ppj != nullptr) {
-		ProjectFile* pf = ppj->locateProjectFileByPath(fileName);
+		ProjectFile* pf = this->getProjectFile();
+        
+        QString fmt = pf->PropertyGetValue("cobc_source_format", settings.value("cobc_default_source_format")).toString();
+        this->setSourceFormat(fmt == "fixed" ? SourceFileFormat::Fixed : SourceFileFormat::Free);
+
 		emit Ide::TaskManager()->fileLoaded(pf);
 	}
 
+    MainWindow *mw = (MainWindow *)getNestedParent(this, 4);
+    QObject *o = (MainWindow *)getNestedParent(this, 4);
+    QString c = o->metaObject()->className();
 
-    //this->toggleFold(8);
+    if (mw) {
+        PropertyWindow *pw = mw->getPropertyWindow();
+        connect(pw, &PropertyWindow::notifyPropertyValueChanged, this, [this](PropertyDefinition *pd, QVariant v, ProjectItem *pi) {
+            if (pd->Name == "cobc_source_format") {
+                SourceFileFormat sfmt = (v == "fixed") ? SourceFileFormat::Fixed : SourceFileFormat::Free;
+                setSourceFormat(sfmt);
+
+                this->repaint();
+            }
+        });
+    }
+
     return true;
 }
 
@@ -348,6 +386,19 @@ EolMode MdiChild::getFileConfiguredEolMode()
 void MdiChild::setFileEolMode(EolMode m)
 {
 	setEOLMode((int)m);
+}
+
+ProjectFile *MdiChild::getProjectFile()
+{
+    ProjectFile *pf = nullptr;
+
+    if (!curFile.isEmpty()) {
+        ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
+        if (ppj != nullptr) {
+            pf = ppj->locateProjectFileByPath(curFile, true);
+        }
+    }
+    return pf;
 }
 
 bool MdiChild::maybeSave()

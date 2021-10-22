@@ -18,23 +18,25 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
-//#pragma once
-//
-//#include <QMap>
-//#include <QList>
-//#include <QPair>
-//
-//class MapFileReaderResult
-//{
-//public:
-//	QString input_file;
-//	QString output_file;
-//
-//	int input_file_id;
-//	int output_file_id;
-//
-//	QMap <int, QString> filemap;
-//	QList<QPair<QPair<int, int>, QPair<int, int>>> orig_to_running_linemap;
-//	QMap<QString, QString> variable_declaration_info;
-//};
-//
+#pragma once
+
+#include <vector>
+#include <string>
+#include <map>
+
+class MapFileWriter
+{
+public:
+	void addSection(const std::string &section_name, const std::vector<std::string> &section_contents = std::vector<std::string>());
+	void setSectionContents(const std::string &section_name, const std::vector<std::string> &section_contents);
+	void appendToSectionContents(const std::string &section_name, const std::vector<std::string> &more_contents);
+	void appendToSectionContents(const std::string &section_name, const std::string &content);
+	void appendToSectionContents(const std::string &section_name, int content);
+
+	bool writeToFile(const std::string &filename);
+
+private:
+	std::vector<std::string> sections;
+	std::map<std::string, std::vector<std::string>> data;
+};
+

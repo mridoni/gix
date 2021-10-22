@@ -119,7 +119,7 @@ private:
                     --groups.back().fin; 
                 }
 
-                // build new group
+                // execute new group
                 groups.push_back(group_type(key));
                 group_type& newGroup = groups.back();
 

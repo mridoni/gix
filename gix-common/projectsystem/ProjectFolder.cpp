@@ -33,6 +33,21 @@ ProjectFolder::ProjectFolder(QString name, bool _is_virtual)
 }
 
 
+Project *ProjectFolder::getParentProject()
+{
+	ProjectItem *parent = this->GetParent();
+	while (parent != nullptr) {
+		Project *prj = dynamic_cast<Project *>(parent);
+		if (prj)
+			return prj;
+
+		parent = parent->GetParent();
+	}
+
+	return nullptr;
+}
+
+
 ProjectFolder::~ProjectFolder()
 {
 }

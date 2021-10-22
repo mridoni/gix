@@ -18,149 +18,107 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
-#include <QtCore>
+#include <map>
+#include <vector>
+#include <string>
+
+#include "popl.hpp"
+
+#include "libgixpp.h"
 #include "GixPreProcessor.h"
 #include "TPSourceConsolidation.h"
 #include "TPESQLProcessing.h"
+#include "libcpputils.h"
 
-#undef LOG_QT_MSGS
-//#define LOG_QT_MSGS
 
-static int rc = 0;
-
-#ifdef LOG_QT_MSGS
-void msgOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-	QByteArray localMsg = msg.toLocal8Bit();
-	const char *file = context.file ? context.file : "";
-	const char *function = context.function ? context.function : "";
-	switch (type) {
-		case QtDebugMsg:
-			fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-			break;
-		case QtInfoMsg:
-			fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-			break;
-		case QtWarningMsg:
-			fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-			break;
-		case QtCriticalMsg:
-			fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-			break;
-		case QtFatalMsg:
-			fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-			break;
-	}
-}
+#ifdef _WIN32
+#define PATH_LIST_SEP ";"
+#else
+#define PATH_LIST_SEP ":"
 #endif
 
-class Task : public QObject
+#define GIXPP_VER "1.0.4"
+
+using namespace popl;
+
+int main(int argc, char **argv)
 {
-	Q_OBJECT
-public:
-	Task(QObject *parent = 0) : QObject(parent) {}
+	int rc = -1;
 
-public slots:
-	void run()
-	{
-		GixPreProcessor gp;
-		CopyResolver copy_resolver;
-		QStringList copy_dirs;
+	GixPreProcessor gp;
+	CopyResolver copy_resolver;
+	std::vector<std::string> copy_dirs;
 
-		// Do processing here
-		QCoreApplication *app = (QCoreApplication *)this->parent();
-		auto args = app->arguments();
+	// Do processing here
+	const auto args = argv;
 
-		QCommandLineParser parser;
+	char vbfr[1024];
+	sprintf(vbfr, "gixpp - the ESQL preprocessor for Gix-IDE/GixSQL\nVersion: %s\nlibgixpp version: %s\n\nOptions", GIXPP_VER, LIBGIXPP_VER);
 
-		QCommandLineOption opt(QStringList() << QStringLiteral("h") << QStringLiteral("help"), tr("Displays help on commandline options."));
-		parser.addOption(opt);
+	OptionParser options(vbfr);
 
-		QCommandLineOption o1("I", "COPY file path list", "copypath");
+	auto opt_help = options.add<Switch>("h", "help", "displays help on commandline options");
+	auto opt_copypath = options.add<Value<std::string>>("I", "copypath", "COPY file path list");
 
-		parser.addOption(o1);
-		parser.addOption({ "i", "input file", "infile" });
-		parser.addOption({ "o", "output file", "outfile" });
-		parser.addOption({ "s", "output symbol file", "symfile" });
-		parser.addOption({ {"e", "esql" }, "preprocess for ESQL (single file mode takes precedence)" });
-		parser.addOption({ {"p", "esql-preprocess-copy" }, "ESQL: preprocess copy files outside EXEC SQL INCLUDE statements" });
-		parser.addOption({ "E", "esql-copy-exts", "ESQL: copy files extension list (comma-separated)" });
-		parser.addOption({ {"a", "esql-anon-params" }, "ESQL: use anonymous (not numbered) parameters" });
-		parser.addOption({ {"S", "esql-static-calls" }, "ESQL: emit static calls" });
-		parser.addOption({ {"g", "debug-info" }, "generate debug info" });
-		parser.addOption({ "c", "consolidate source to single-file (CP)" });
-		parser.addOption({ "k", "keep temporary files" });
-		parser.addOption({ "v", "Verbose" });
-		parser.addOption({ "d", "Verbose (debug)" });
+	auto opt_infile = options.add<Value<std::string>>("i", "infile", "input file");
+	auto opt_outfile = options.add<Value<std::string>>("o", "outfile", "output file");
+	auto opt_symfile = options.add<Value<std::string>>("s", "symfile", "output symbol file");
+	auto opt_esql = options.add<Switch>("e", "esql", "preprocess for ESQL (single file mode takes precedence)");
+	auto opt_esql_preprocess_copy = options.add<Switch>("p", "esql-preprocess-copy", "ESQL: preprocess copy files outside EXEC SQL INCLUDE statements");
+	auto opt_esql_copy_exts = options.add<Value<std::string>>("E", "esql-copy-exts", "ESQL: copy files extension list (comma-separated)");
+	auto opt_esql_anon_params = options.add<Switch>("a", "esql-anon-params", "ESQL: use anonymous (not numbered) parameters");
+	auto opt_esql_static_calls = options.add<Switch>("S", "esql-static-calls", "ESQL: emit static calls");
+	auto opt_debug_info = options.add<Switch>("g", "debug-info", "generate debug info");
+	auto opt_consolidate = options.add<Switch>("c", "consolidate", "consolidate source to single-file");
+	auto opt_keep = options.add<Switch>("k", "keep", "keep temporary files");
+	auto opt_verbose = options.add<Switch>("v", "verbose", "verbose");
+	auto opt_verbose_debug = options.add<Switch>("d", "verbose-debug", "verbose (debug)");
 
-		parser.process(*app);
 
-		if (parser.isSet("help")) {
-			rc = 0;
-			parser.showHelp();
-		}
-		else {
-			copy_dirs = parser.value("I").split(QDir::listSeparator());
-			copy_resolver.setCopyDirs(copy_dirs);
+	options.parse(argc, argv);
 
-			//gp.out_sym_file = parser.value("s");
-			gp.setCopyResolver(&copy_resolver);
+	if (opt_help->is_set()) {
+		rc = 0;
+		std::cout << options << std::endl;
+	}
+	else {
+		if (opt_copypath->is_set())
+			copy_dirs = string_split(opt_copypath->value(), PATH_LIST_SEP);
 
-			if (parser.isSet("c"))
-				gp.addStep(new TPSourceConsolidation(&gp));
+		copy_resolver.setCopyDirs(copy_dirs);
 
-			if (parser.isSet("e")) {
-				gp.setOpt("emit_static_calls", parser.isSet("S"));
-				gp.setOpt("anonymous_params", parser.isSet("a"));
-				gp.setOpt("preprocess_copy_files", parser.isSet("p"));
-				gp.addStep(new TPESQLProcessing(&gp));
-				copy_resolver.setExtensions(parser.value("E").split(","));
-			}
+		gp.setCopyResolver(&copy_resolver);
 
-			gp.setOpt("emit_debug_info", parser.isSet("g"));
-			gp.verbose = parser.isSet("v");
-			gp.verbose_debug = parser.isSet("d");
+		if (opt_consolidate->is_set())
+			gp.addStep(new TPSourceConsolidation(&gp));
 
-			gp.setInputFile(parser.value("i"));
-			gp.setOutputFile(parser.value("o"));
-
-			bool b = gp.process();
-			if (!b) {
-				rc = gp.err_data.err_code;
-				for (QString m : gp.err_data.err_messages)
-					fprintf(stderr, "Error: %s\n", m.toLocal8Bit().data());
-
-				app->exit(gp.err_data.err_code);
-			}
+		if (opt_esql->is_set()) {
+			gp.setOpt("emit_static_calls", opt_esql_static_calls->is_set());
+			gp.setOpt("anonymous_params", opt_esql_anon_params->is_set());
+			gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy->is_set());
+			gp.addStep(new TPESQLProcessing(&gp));
+			if (opt_esql_copy_exts->is_set())
+				copy_resolver.setExtensions(string_split(opt_esql_copy_exts->value(), ","));
 		}
 
-		emit finished();
+		gp.setOpt("emit_debug_info", opt_debug_info->is_set());
+		gp.verbose = opt_verbose->is_set();
+		gp.verbose_debug = opt_verbose_debug->is_set();
+
+		gp.setInputFile(opt_infile->value(0));
+		gp.setOutputFile(opt_outfile->value(0));
+
+		bool b = gp.process();
+		if (!b) {
+			rc = gp.err_data.err_code;
+			for (std::string m : gp.err_data.err_messages)
+				fprintf(stderr, "Error: %s\n", m.c_str());
+		}
+
+		rc = gp.err_data.err_code;
+
 	}
 
-signals:
-	void finished();
-};
+	return rc;
 
-#include "main.moc"
-
-int main(int argc, char *argv[])
-{
-#ifdef LOG_QT_MSGS
-	qInstallMessageHandler(msgOutput);
-#endif
-	QCoreApplication a(argc, argv);
-
-	// Task parented to the application so that it
-	// will be deleted by the application.
-	Task *task = new Task(&a);
-
-	// This will cause the application to exit when
-	// the task signals finished.    
-	QObject::connect(task, SIGNAL(finished()), &a, SLOT(quit()));
-
-	// This will run the task from the application event loop.
-	QTimer::singleShot(0, task, SLOT(run()));
-
-	int app_rc = a.exec();
-	return app_rc | rc;
 }

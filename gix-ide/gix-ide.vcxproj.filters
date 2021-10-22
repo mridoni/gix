@@ -237,6 +237,12 @@
     <ClCompile Include="IdeStatusSyncSetter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DragDropTreeWidget.cpp">
+      <Filter>Source Files\components</Filter>
+    </ClCompile>
+    <ClCompile Include="DragDropTableWidget.cpp">
+      <Filter>Source Files\components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProtectedLineEdit.h">
@@ -402,6 +408,12 @@
     </QtMoc>
     <QtMoc Include="ConsoleWindow.h">
       <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DragDropTreeWidget.h">
+      <Filter>Header Files\components</Filter>
+    </QtMoc>
+    <QtMoc Include="DragDropTableWidget.h">
+      <Filter>Header Files\components</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

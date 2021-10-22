@@ -47,7 +47,7 @@ USA.
 ProjectCollectionWindow::ProjectCollectionWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 {
 	this->setMinimumWidth(300);
-	this->setWindowFlags(Qt::Widget); // <---------
+	this->setWindowFlags(Qt::Widget);
 	QToolBar* toolBar = new QToolBar(this);
 	this->addToolBar(toolBar);
 	this->mainWindow = mw;
@@ -86,7 +86,7 @@ void ProjectCollectionWindow::setContent(ProjectCollection* prjc, bool refresh_o
 	Ide::TaskManager()->setBackgroundTasksEnabled(false);
 
 	if (!refresh_only) {
-		treeview = new QTreeWidget();
+		treeview = new DragDropTreeWidget(false, true, this);
 		treeview->setColumnCount(1);
 		treeview->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 		treeview->setMinimumHeight(130);
@@ -120,27 +120,19 @@ void ProjectCollectionWindow::setContent(ProjectCollection* prjc, bool refresh_o
 		prjTreeWidgetItem->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(prj)));
 		rootItem->addChild(prjTreeWidgetItem);
 
-		// Dependencies are now tracked in a separate window
-
-		//ProjectFolder *fdeps = new ProjectFolder(tr("Dependencies"), true);
-		//fdeps->SetParent(prj);
-		//fdeps->PropertySetValue("name", tr("Dependencies"));
-		//fdeps->PropertySetValue("is_virtual", true);
-		//QTreeWidgetItem *copyDepsTreeWidgetItem = new QTreeWidgetItem((QTreeWidget*)0, QStringList(tr("Dependencies")));
-		//copyDepsTreeWidgetItem->setIcon(0, QIcon(":/icons/vfolder.png"));
-		//copyDepsTreeWidgetItem->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(fdeps)));
-		//prjTreeWidgetItem->addChild(copyDepsTreeWidgetItem);
-		//add_copy_deps_children(prj, copyDepsTreeWidgetItem);
-
 		add_children(prj, prjTreeWidgetItem, progress);
 	}
+
 	treeview->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	if (!refresh_only) {
-		connect(treeview, &QTreeWidget::itemClicked, this, &ProjectCollectionWindow::myItemClicked);
-		connect(treeview, &QTreeWidget::itemDoubleClicked, this, &ProjectCollectionWindow::myItemDoubleClicked);
-		connect(treeview, &QTreeWidget::customContextMenuRequested, this, &ProjectCollectionWindow::prepareMenu);
+		connect(treeview, &DragDropTreeWidget::itemClicked, this, &ProjectCollectionWindow::myItemClicked);
+		connect(treeview, &DragDropTreeWidget::itemDoubleClicked, this, &ProjectCollectionWindow::myItemDoubleClicked);
+		connect(treeview, &DragDropTreeWidget::customContextMenuRequested, this, &ProjectCollectionWindow::prepareMenu);
+
+		connect(treeview, &DragDropTreeWidget::itemDropped, this, &ProjectCollectionWindow::itemDropped);
 	}
+
 	treeview->setRootIsDecorated(true);
 	treeview->setHeaderHidden(true);
 	treeview->insertTopLevelItem(0, rootItem);
@@ -154,6 +146,31 @@ void ProjectCollectionWindow::setContent(ProjectCollection* prjc, bool refresh_o
 void ProjectCollectionWindow::setContent(ProjectCollection * prjc)
 {
 	setContent(prjc, false);
+}
+
+void ProjectCollectionWindow::itemDropped(QTreeWidgetItem *item, const QMimeData *md)
+{
+	if (!item || !md)
+		return;
+
+	QVariant v = item->data(0, Qt::UserRole);
+	if (v.isValid() && v.value<void *>()) {
+		void *p = v.value<void *>();
+		ProjectItem *pi = static_cast<ProjectItem *>(p);
+		if (pi && pi->GetItemType() == ProjectItemType::TProject) {
+			Project *prj = static_cast<Project *>(p);
+			if (md->hasUrls()) {
+				auto urls = md->urls();
+
+				QStringList filenames;
+				for (auto url : urls) {
+					filenames.append(url.toLocalFile());
+				}
+
+				bool res = addExistingFiles(filenames, prj->GetBaseDir(), prj, item);
+			}
+		}
+	}
 }
 
 ProjectItem * ProjectCollectionWindow::getCurrentSelection()
@@ -179,7 +196,7 @@ void ProjectCollectionWindow::add_children(ProjectItem *parent, QTreeWidgetItem 
 			fileItem->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(file)));
 
 			if (file->isStartupItem()) {
-				setFontBold(fileItem, true);
+				UiUtils::setTreeWidgetItemFontBold(fileItem, true);
 			}
 
 			parent_widget->addChild(fileItem);
@@ -199,29 +216,6 @@ void ProjectCollectionWindow::add_children(ProjectItem *parent, QTreeWidgetItem 
 	}
 }
 
-void ProjectCollectionWindow::setFontBold(QTreeWidgetItem* fileItem, bool b)
-{
-	auto item_font = fileItem->font(0);
-	item_font.setBold(b);
-	fileItem->setFont(0, item_font);
-}
-
-void ProjectCollectionWindow::add_copy_deps_children(Project * prj, QTreeWidgetItem * parent_widget)
-{
-	//ProjectDependencyTracker *pdt = new ProjectDependencyTracker(prj);
-	//connect(pdt, &ProjectDependencyTracker::finishedComputingDependencies, this, [pdt, parent_widget] {
-	//	QList<ProjectFile *> deps = *pdt->getDependencies();
-	//	for (ProjectFile *file : deps) {
-	//		QTreeWidgetItem *fileItem = new QTreeWidgetItem((QTreeWidget*)0, QStringList(file->GetDisplayName()));
-	//		fileItem->setIcon(0, QIcon(":/icons/cblfile.png"));
-	//		fileItem->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(file)));
-	//		parent_widget->addChild(fileItem);
-	//	}
-	//	parent_widget->setExpanded(false);
-	//	delete(pdt);
-	//});
-	//pdt->start();
-}
 
 void ProjectCollectionWindow::eraseItemRecursively(ProjectItem * pi)
 {
@@ -495,22 +489,62 @@ void ProjectCollectionWindow::addProjectExistingSourceFile(QTreeWidgetItem *item
 	if (!fileNames.size())
 		return;
 
+	bool retflag = addExistingFiles(fileNames, project_dir, parent, item);
+}
+
+bool isValidExtension(const QString &ext, const QStringList &ext_list)
+{
+	for (const auto target_ext : ext_list) {
+#ifdef _WIN32
+		if (target_ext.toLower() == ("." + ext.toLower()) || (ext.isEmpty() && target_ext == "."))
+#else
+		if (target_ext == ("." + ext) || (ext.isEmpty() && target_ext == "."))
+#endif
+			return true;
+	}
+	return false;
+}
+
+bool ProjectCollectionWindow::addExistingFiles(const QStringList &fileNames, const QString &project_dir, ProjectItem *parent, QTreeWidgetItem *item)
+{
+	bool copy_files = false;
+
 	QFileInfo f(fileNames.at(0));
 	if (f.absoluteDir() != project_dir) {
 		QString msg = QString(tr("You can only add existing files under the directory of the project you are adding files to.\n\nWould you like to copy these files to the project directory (%1)?").arg(project_dir));
 		copy_files = UiUtils::YesNoDialog(msg);
 		if (!copy_files)
-			return;
+			return false;
 	}
 
 	QStringList newPrjFiles;
 
+	// check file names
+	Project *prj = (parent->GetItemType() == ProjectItemType::TProject) ? (Project *)parent : ((ProjectFolder *)parent)->getParentProject();
+	if (!prj)
+		return false;
+
+	QStringList copy_ext_list = prj->getCopyExtList();
+	for (const QString &fileName : fileNames) {
+		if (!fileName.toLower().endsWith(".cbl") && !isValidExtension(QFileInfo(fileName).suffix(), copy_ext_list)) {
+			UiUtils::ErrorDialog(QString(tr("Only files of this type can be added: \".cbl\", \"%1\"")).arg(copy_ext_list.join("\", \"")));
+			return false;
+		}
+	}
+
 	if (copy_files) {
-		for (const QString& fileName : fileNames) {
+		for (const QString &fileName : fileNames) {
 			QString filetoAdd = PathUtils::combine(project_dir, QFileInfo(fileName).fileName());
+			if (QFile::exists(filetoAdd)) {
+				if (!UiUtils::YesNoDialog(QString(tr("A file named %1 already exists in the project directory (%2). Do you want to replace it?")).arg(filetoAdd).arg(project_dir)))
+					continue;
+
+				QFile::remove(filetoAdd);
+			}
+
 			if (!QFile::copy(fileName, filetoAdd)) {
 				UiUtils::ErrorDialog(QString(tr("Cannot copy file %1 to %2")).arg(fileName).arg(filetoAdd));
-				return;
+				return false;
 			}
 			newPrjFiles.append(filetoAdd);
 		}
@@ -519,25 +553,33 @@ void ProjectCollectionWindow::addProjectExistingSourceFile(QTreeWidgetItem *item
 		newPrjFiles = fileNames;
 	}
 
-	for (const QString& fileName : newPrjFiles) {
+	for (QString newfile : newPrjFiles) {
+
+	}
+
+	for (const QString &fileName : newPrjFiles) {
 		QFileInfo f(fileName);
 		if ((!fileName.isEmpty()) && QFile::exists(fileName) && f.isReadable()) {
 
+			ProjectFile *file = new ProjectFile();
+			if (isValidExtension(QFileInfo(fileName).suffix(), copy_ext_list))
+				file->PropertySetValue("build_action", "copy");
+			else
+				file->PropertySetValue("build_action", "compile");
 
-			ProjectFile* file = new ProjectFile();
-			file->PropertySetValue("build_action", "compile");
 			file->load(parent, PathUtils::getFilename(fileName));
 			parent->GetChildren()->append(file);
 
-			QTreeWidgetItem* fileItem = new QTreeWidgetItem((QTreeWidget*)0, QStringList(PathUtils::getFilename(fileName)));
+			QTreeWidgetItem *fileItem = new QTreeWidgetItem((QTreeWidget *)0, QStringList(PathUtils::getFilename(fileName)));
 			fileItem->setIcon(0, QIcon(":/icons/cblfile.png"));
-			fileItem->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(file)));
+			fileItem->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void *>(file)));
 			item->addChild(fileItem);
 
-			this->mainWindow->openFile(file->GetFileFullPath());
+			//this->mainWindow->openFile(file->GetFileFullPath());
 		}
 	}
-
+	
+	return true;
 }
 
 void ProjectCollectionWindow::deleteOrRemoveItemFromProject(QTreeWidgetItem *item, ProjectItem *pi)
@@ -648,7 +690,7 @@ void ProjectCollectionWindow::refresh_main_module_viewstate_children(QTreeWidget
 		ProjectItem *pi = (ProjectItem *) child->data(0, Qt::UserRole).value<void*>();
 		ProjectFile* item_prjfile = dynamic_cast<ProjectFile*>(pi);
 		if (item_prjfile) {
-			setFontBold(child, (item_prjfile == pf) ? b : !b);
+			UiUtils::setTreeWidgetItemFontBold(child, (item_prjfile == pf) ? b : !b);
 		}
 	}
 }

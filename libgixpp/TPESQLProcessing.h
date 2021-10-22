@@ -20,9 +20,10 @@ USA.
 
 #pragma once
 
-#include <QString>
-#include <QStringList>
-#include <QMap>
+#include <string>
+#include <vector>
+#include <map>
+#include <stack>
 
 #include "ITransformationStep.h"
 #include "ESQLDefinitions.h"
@@ -38,24 +39,24 @@ class TPESQLProcessing : public ITransformationStep
 public:
 	TPESQLProcessing(GixPreProcessor *gpp);
 
-	QString getModuleName();
+	std::string getModuleName();
 
-	QMap<QString, QString> &getSrcLineMap() const;
-	QMap<QString, QString> &getSrcLineMapReverse() const;
+	std::map<std::string, std::string> &getSrcLineMap() const;
+	std::map<std::string, std::string> &getSrcLineMapReverse() const;
 
-	QMap<uint64_t, uint64_t> &getBinarySrcLineMap() const;
-	QMap<uint64_t, uint64_t> &getBinarySrcLineMapReverse() const;
+	std::map<uint64_t, uint64_t> &getBinarySrcLineMap() const;
+	std::map<uint64_t, uint64_t> &getBinarySrcLineMapReverse() const;
 
-	QMap<QString, int> &getFileMap() const;
-	QMap<int, QString> getReverseFileMap();
-	QMap<QString, cb_field_ptr> &getVariableDeclarationInfoMap() const;
+	std::map<std::string, int> &getFileMap() const;
+	std::map<int, std::string> getReverseFileMap();
+	std::map<std::string, cb_field_ptr> &getVariableDeclarationInfoMap() const;
 
-	QMap<QString, srcLocation> getParagraphs();
-	QMap<QString, QStringList> getFileDependencies();
+	std::map<std::string, srcLocation> getParagraphs();
+	std::map<std::string,  std::vector<std::string>> getFileDependencies();
 
 	// Inherited via ITransformationStep
 	virtual bool run(ITransformationStep *prev_step) override;
-	virtual QString getOutput(ITransformationStep *me = nullptr) override;
+	virtual std::string getOutput(ITransformationStep *me = nullptr) override;
 
 
 private:
@@ -71,29 +72,29 @@ private:
 
 	gix_esql_driver main_module_driver;
 
-	QStringList output_lines;
+	 std::vector<std::string> output_lines;
 
 	int output_line;
 
-	QMap<QString, QString> in_to_out;
-	QMap<QString, QString> out_to_in;
+	std::map<std::string, std::string> in_to_out;
+	std::map<std::string, std::string> out_to_in;
 
-	QMap<uint64_t, uint64_t> b_in_to_out;
-	QMap<uint64_t, uint64_t> b_out_to_in;
+	std::map<uint64_t, uint64_t> b_in_to_out;
+	std::map<uint64_t, uint64_t> b_out_to_in;
 
 	int outputESQL();
-	cb_exec_sql_stmt_ptr find_exec_sql_stmt(const QString filename, int i);
-	cb_exec_sql_stmt_ptr find_esql_cmd(QString cmd, int idx);
-	QString comment_line(const QString &comment, const QString &line);
+	cb_exec_sql_stmt_ptr find_exec_sql_stmt(const std::string filename, int i);
+	cb_exec_sql_stmt_ptr find_esql_cmd(std::string cmd, int idx);
+	std::string comment_line(const std::string &comment, const std::string &line);
 
-	void put_output_line(const QString &line);
+	void put_output_line(const std::string &line);
 	bool handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sql_stmt_ptr stmt, bool is_in_ws);
 
 	bool find_working_storage(int *working_begin_line, int *working_end_line);
 
 	bool processNextFile();
 
-	QString get_call_id(const QString s);
+	std::string get_call_id(const std::string s);
 
 	void put_start_exec_sql(bool with_period);
 	void put_end_exec_sql(bool with_period);
@@ -106,30 +107,30 @@ private:
 	bool get_actual_field_data(cb_field_ptr f, int *type, int *size, int *scale);
 	void process_sql_query_list();
 
-	bool write_map_file(const QString &preprocd_file);
+	bool write_map_file(const std::string &preprocd_file);
 	bool build_map_data();
 
-	void map_collect_files(QMap<QString, int> &filemap);
+	void map_collect_files(std::map<std::string, int> &filemap);
 
-	void splitLineEntry(const QString &k, QString &s, int *i);
+	void splitLineEntry(const std::string &k, std::string &s, int *i);
 
 	bool generate_consolidated_map();
 
-	void add_dependency(const QString &parent, const QString &dep_path);
+	void add_dependency(const std::string &parent, const std::string &dep_path);
 
 	bool is_current_file_included();
 
-	QStack<QString> input_file_stack;
+	std::stack<std::string> input_file_stack;
 	int working_begin_line;
 	int working_end_line;
-	QString code_tag;
+	std::string code_tag;
 
-	QStringList ws_query_list;
-	QList<cb_exec_sql_stmt_ptr> startup_items;
+	 std::vector<std::string> ws_query_list;
+	std::vector<cb_exec_sql_stmt_ptr> startup_items;
 
-	QMap<QString, int> filemap;
+	std::map<std::string, int> filemap;
 
-	QMap<QString, QStringList> file_dependencies;
+	std::map<std::string,  std::vector<std::string>> file_dependencies;
 
 	int current_input_line;
 

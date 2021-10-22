@@ -21,17 +21,17 @@ USA.
 #include "ITransformationStep.h"
 #include "GixPreProcessor.h"
 
-void ITransformationStep::setInput(QString in_file)
+void ITransformationStep::setInput(std::string in_file)
 {
 	input_file = in_file;
 }
 
-QString ITransformationStep::getInput()
+std::string ITransformationStep::getInput()
 {
 	return input_file;
 }
 
-QString ITransformationStep::getOutput(ITransformationStep *me)
+std::string ITransformationStep::getOutput(ITransformationStep *me)
 {
 	return output_file;
 }
@@ -41,7 +41,7 @@ GixPreProcessor *ITransformationStep::getOwner()
 	return owner;
 }
 
-void ITransformationStep::setOutput(QString out_file)
+void ITransformationStep::setOutput(std::string out_file)
 {
 	output_file = out_file;
 }

@@ -22,7 +22,8 @@ USA.
 #include "BuildDriver.h"
 #include "BuildConsts.h"
 #include "linq/linq.hpp"
-#include <PathUtils.h>
+#include "PathUtils.h"
+#include "SysUtils.h"
 
 BuildActionMakeListingHandler::BuildActionMakeListingHandler()
 {}
@@ -65,7 +66,7 @@ bool BuildActionMakeListingHandler::startBuild()
 		cobc_opts.append(environment.value("compiler_dialect").toString());
 	}
 
-	QStringList copy_dirs = (build_driver->getCopyResolver()->getCopyDirs());
+	QStringList copy_dirs = SysUtils::to_qstringlist(build_driver->getCopyResolver()->getCopyDirs());
 	if (copy_dirs.size() > 0) {
 		for (QString copy_dir : copy_dirs) {
 			cobc_opts.append("-I");

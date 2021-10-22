@@ -22,6 +22,7 @@ USA.
 
 #include <QString>
 #include <QTreeView>
+#include <QTreeWidgetItem>
 
 #define DEFAULT_TREEVIEW_FONT_NAME	"Courier New"
 #define DEFAULT_TREEVIEW_FONT_SIZE	8
@@ -40,6 +41,8 @@ public:
 	static int OnPlatform(int _win, int _linux, int _osx);
 	static QString OnPlatform(QString _win, QString _linux, QString _osx);
 	static int computeFontSize(QWidget *w, int v);
+	static void setWidgetFontBold(QWidget *w, bool b);
+	static bool setTreeWidgetItemFontBold(QTreeWidgetItem *w, bool b, int idx = 0);
 
 	static void setTreeViewFont(QTreeView *tv);
 

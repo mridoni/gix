@@ -19,11 +19,12 @@ USA.
 */
 
 #include "CopyResolver.h"
+#include "libcpputils.h"
 
-#include <QFile>
-#include <QDir>
+#include <filesystem>
 
-CopyResolver::CopyResolver(const QStringList &_copy_dirs)
+
+CopyResolver::CopyResolver(const std::vector<std::string> &_copy_dirs)
 {
 	copy_dirs = _copy_dirs;
 }
@@ -38,9 +39,9 @@ void CopyResolver::resetCache()
 	resolve_cache.clear();
 }
 
-void CopyResolver::setCopyDirs(const QStringList &_copy_dirs)
+void CopyResolver::setCopyDirs(const std::vector<std::string> &_copy_dirs)
 {
-	QString cd = _copy_dirs.join(QDir::listSeparator());
+	std::string cd = vector_join(_copy_dirs, PATH_SEPARATOR);
 	if (cd == hash)
 		return;
 
@@ -49,49 +50,49 @@ void CopyResolver::setCopyDirs(const QStringList &_copy_dirs)
 	hash = cd;
 }
 
-void CopyResolver::addCopyDir(const QString &copy_dir)
+void CopyResolver::addCopyDir(const std::string &copy_dir)
 {
-	if (!copy_dirs.contains(copy_dir))
-		copy_dirs.append(copy_dir);
+	if (!vector_contains<std::string>(copy_dirs, copy_dir))
+		copy_dirs.push_back(copy_dir);
 }
 
-void CopyResolver::setExtensions(const QStringList &_copy_exts)
+void CopyResolver::setExtensions(const std::vector<std::string> &_copy_exts)
 {
 	copy_exts = _copy_exts;
 }
 
-void CopyResolver::setBaseDir(const QString _base_dir)
+void CopyResolver::setBaseDir(const std::string _base_dir)
 {
 	base_dir = _base_dir;
 }
 
-QStringList &CopyResolver::getCopyDirs() const
+std::vector<std::string> &CopyResolver::getCopyDirs() const
 {
-	return const_cast<QStringList&>(copy_dirs);
+	return const_cast<std::vector<std::string>&>(copy_dirs);
 }
 
-bool CopyResolver::resolveCopyFile(const QString copy_name, QString &copy_file)
+bool CopyResolver::resolveCopyFile(const std::string copy_name, std::string &copy_file)
 {
-	QFile the_file;
-
-	if (copy_name.isEmpty()) {
+	std::filesystem::path the_file;
+	
+	if (copy_name.empty()) {
 		fprintf(stderr, "Invalid copy name\n");
 		return false;
 	}
 
-	if (resolve_cache.contains(copy_name)) {
+	if (map_contains<std::string>(resolve_cache, copy_name)) {
 		copy_file = resolve_cache[copy_name];
 		return true;
 	}
 
-	for (QString ext : copy_exts) {
+	for (std::string ext : copy_exts) {
 
 		if (ext == ".")
 			ext = "";
 
-		the_file.setFileName(base_dir + QDir::separator() + copy_name + ext);
-		if (the_file.exists()) {
-			copy_file = QFileInfo(the_file).absoluteFilePath();
+		the_file.replace_filename(base_dir + PATH_SEPARATOR + copy_name + ext);
+		if (std::filesystem::exists(the_file)) {
+			copy_file = filename_absolute_path(the_file);
 			resolve_cache[copy_name] = copy_file;
 			return true;
 		}
@@ -100,17 +101,17 @@ bool CopyResolver::resolveCopyFile(const QString copy_name, QString &copy_file)
 	if (copy_dirs.empty())
 		return false;
 
-	for (QString copy_dir : copy_dirs) {
-		QString cn = copy_dir + QDir::separator() + copy_name.trimmed();
+	for (std::string copy_dir : copy_dirs) {
+		std::string cn = copy_dir + PATH_SEPARATOR + trim_copy(copy_name);
 
-		for (QString ext : copy_exts) {
+		for (std::string ext : copy_exts) {
 
 			if (ext == ".")
 				ext = "";
 
-			the_file.setFileName(cn + ext);
-			if (the_file.exists()) {
-				copy_file = QFileInfo(the_file).absoluteFilePath();
+			the_file.replace_filename(cn + ext);
+			if (std::filesystem::exists(the_file)) {
+				copy_file = filename_absolute_path(the_file);
 				resolve_cache[copy_name] = copy_file;
 				return true;
 			}

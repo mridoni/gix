@@ -61,7 +61,7 @@ WatchWindow::WatchWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 	bRefresh->setIcon(refreshIcon);
 	toolBar->addWidget(bRefresh);
 
-	this->varTable = new QTableWidget(0, 2, this);
+	this->varTable = new DragDropTableWidget(0, 2, false, true, this);
 	this->setCentralWidget(varTable);
 
 	varTable->setRowCount(0);
@@ -72,6 +72,9 @@ WatchWindow::WatchWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 	connect(bAdd, &QPushButton::clicked, this, &WatchWindow::addButtonClicked);
 	connect(bRemove, &QPushButton::clicked, this, &WatchWindow::removeButtonClicked);
 	connect(bRefresh, &QPushButton::clicked, this, &WatchWindow::refreshButtonClicked);
+
+	//connect(varTable, &DragDropTableWidget::itemDropped, this, &WatchWindow::itemDropped);
+	connect(varTable, &DragDropTableWidget::itemDropped, this, &WatchWindow::itemDropped);
 }
 
 
@@ -92,6 +95,21 @@ void WatchWindow::IdeStatusChanged(IdeStatus s)
 void WatchWindow::onDebuggerBreak()
 {
 	refreshContent();
+}
+
+void WatchWindow::itemDropped(QVariant v, const QMimeData *md)
+{
+	DataEntry *e = (DataEntry *)v.value<DataEntry *>();
+	if (!e || e->name.isEmpty())
+		return;
+
+	Ide::TaskManager()->addWatchedVar(e->name);
+	if (Ide::TaskManager()->getDebugManager())
+		Ide::TaskManager()->getDebugManager()->addWatchedVar(e->name);
+
+	refreshContent();
+
+	Ide::TaskManager()->saveCurrentProjectCollectionState();
 }
 
 void WatchWindow::refreshContent()

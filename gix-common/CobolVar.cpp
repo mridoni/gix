@@ -26,7 +26,7 @@ USA.
 
 #include "QLogger.h"
 #include "CobolVar.h"
-#include "utils.h"
+#include "libcpputils.h"
 
 
 #define SIGN_LENGTH 1

@@ -29,8 +29,8 @@
 
 %code requires
 {
-#include <QString>
-#include <QList>
+#include <string>
+#include <vector>
 
 #include "ESQLDefinitions.h"
 
@@ -63,9 +63,9 @@ class gix_esql_driver;
 #include "gix_esql_driver.hh"
 #define yylex driver.lexer.yylex
 
-static std::string to_std_string(QString *sp) { return (sp != NULL) ? sp->toStdString() : "(NULL)"; }
-static std::string to_std_string(const QString s) { return s.toStdString(); }
-static std::string to_std_string(const QList<QString> *slp) { if (!slp) return "(NULL-LIST)"; int n = slp->size() > 3 ? 3 : slp->size(); QString res; for (int i = 0; i < n; i++) res += slp->at(i); return (res + " ...").toStdString(); }
+static std::string to_std_string(std::string *sp) { return (sp != NULL) ? *sp : "(NULL)"; }
+static std::string to_std_string(const std::string s) { return s; }
+static std::string to_std_string(const std::vector<std::string> *slp) { if (!slp) return "(NULL-LIST)"; int n = slp->size() > 3 ? 3 : slp->size(); std::string res; for (int i = 0; i < n; i++) res += slp->at(i); return (res + " ..."); }
 static std::string to_std_string(const int i) { return ""; }
 
 }
@@ -78,20 +78,20 @@ static std::string to_std_string(const int i) { return ""; }
   PERIOD "."
 ;
 
-%token<QString> SELECT
-%token<QString> SELECTFROM
-%token<QString> TOKEN
-%token<QString> HOSTTOKEN
-%token<QString> WORD
-%token<QString> PICTURE
-%token<QString> INSERT
-%token<QString> UPDATE
-%token<QString> DISCONNECT
+%token<std::string> SELECT
+%token<std::string> SELECTFROM
+%token<std::string> TOKEN
+%token<std::string> HOSTTOKEN
+%token<std::string> WORD
+%token<std::string> PICTURE
+%token<std::string> INSERT
+%token<std::string> UPDATE
+%token<std::string> DISCONNECT
 %token CONNECT_RESET
-%token<QString> DELETE
-%token<QString> EXECUTE
-%token<QString> OTHERFUNC
-%token<QString> INTO
+%token<std::string> DELETE
+%token<std::string> EXECUTE
+%token<std::string> OTHERFUNC
+%token<std::string> INTO
 %token<long> NUMERIC
 %token END_EXEC
 %token EXECSQL
@@ -150,11 +150,11 @@ static std::string to_std_string(const int i) { return ""; }
 %token<int> WITH_HOLD
 %token WHERE_CURRENT_OF
 
-%type <QList<QString> *> token_list declaresql includesql incfile
-%type <QList<QString> *> opensql selectintosql select insertsql insert updatesql declare_cursor
-%type <QString> declare_special declare_table
-%type <QList<QString> *> update deletesql delete disconnect disconnectsql othersql
-%type <QString> host_reference expr
+%type <std::vector<std::string> *> token_list declaresql includesql incfile
+%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql declare_cursor
+%type <std::string> declare_special declare_table
+%type <std::vector<std::string> *> update deletesql delete disconnect disconnectsql othersql
+%type <std::string> host_reference expr
 
 
 // No %destructors are needed, since memory will be reclaimed by the

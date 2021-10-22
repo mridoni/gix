@@ -18,8 +18,34 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
-#include "libgixpp.h"
+#pragma once
 
-libgixpp::libgixpp()
+#include <string>
+#include <vector>
+#include <map>
+
+//#include "libgixutils_global.h"
+
+class CopyResolver
 {
-}
+public:
+	CopyResolver(const std::vector<std::string>& _copy_dirs);
+	CopyResolver();
+
+	void resetCache();
+	void setCopyDirs(const std::vector<std::string>& _copy_dirs);
+	void addCopyDir(const std::string &copy_dir);
+	void setExtensions(const std::vector<std::string>& _copy_exts);
+	void setBaseDir(const std::string base_dir);
+	std::vector<std::string>& getCopyDirs() const;
+	bool resolveCopyFile(const std::string copy_name, std::string &copy_file);
+
+private:
+	std::vector<std::string> copy_dirs;
+	std::vector<std::string> copy_exts;
+	std::string base_dir;
+	std::string hash;
+
+	std::map<std::string, std::string> resolve_cache;
+};
+

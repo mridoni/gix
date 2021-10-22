@@ -65,12 +65,7 @@ IdeTaskManager::IdeTaskManager()
 
 	qRegisterMetaType<QLogger::LogLevel>();
 	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");
-
-	//log_manager = QLogger::QLoggerManager::getInstance();
-	//log_manager->addDestination("virtual://", GIX_CONSOLE_LOG, QLogger::LogLevel::Debug);
- //   connect(log_manager, &QLogger::QLoggerManager::logMessage, this, &IdeTaskManager::logMessage);
-
-
+	
 	connect(this, &IdeTaskManager::fileAddedToProject, this, [this](ProjectFile *pf) { prjcoll_window->refreshContent(); });
 
 	/*

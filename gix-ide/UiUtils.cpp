@@ -25,6 +25,7 @@ USA.
 #include <QScreen>
 #include <QSettings>
 #include <QTimer>
+#include <QTreeWidgetItem>
 
 #include <functional>
 
@@ -88,6 +89,24 @@ bool UiUtils::YesNoDialog(QString msg)
         return msgBox.exec() == QMessageBox::Yes;
    // });
 }
+
+
+void UiUtils::setWidgetFontBold(QWidget *w, bool b)
+{
+    auto item_font = w->font();
+    item_font.setBold(b);
+    w->setFont(item_font);
+}
+
+bool UiUtils::setTreeWidgetItemFontBold(QTreeWidgetItem *w, bool b, int idx)
+{
+    auto item_font = w->font(idx);
+    bool is_b = item_font.bold();
+    item_font.setBold(b);
+    w->setFont(idx, item_font);
+    return is_b;
+}
+
 
 inline int UiUtils::OnPlatform(int _win, int _linux, int _osx)
 {

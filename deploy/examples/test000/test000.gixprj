@@ -37,7 +37,7 @@
   <dbg_cmd></dbg_cmd>
   <dbg_merge_env>true</dbg_merge_env>
   <dbg_run_env_vars></dbg_run_env_vars>
-  <dbg_separate_console>true</dbg_separate_console>
+  <dbg_separate_console>false</dbg_separate_console>
   <dbg_stdin_file></dbg_stdin_file>
   <dbg_stop_at_first_line>true</dbg_stop_at_first_line>
   <dbg_working_dir></dbg_working_dir>

@@ -57,7 +57,6 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 		styleSetFore(SCE_C_COMMENTLINE, RGB(0x00, 0x80, 0x00));
 		styleSetFore(SCE_C_WORD, RGB(0xff, 0x00, 0x00));
 
-		//styleSetBack(STYLE_DEFAULT, RGB(0xff, 0xf0, 0x00));
 		QColor lc = QColor(Qt::yellow).lighter(160);
 		setCaretLineBack(RGB(lc.red(), lc.green(), lc.blue()));
 
@@ -210,23 +209,39 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 			// we get the current status fom the first line in the selection
 			QByteArray qba = this->get_text_range(this->positionFromLine(ln_start), this->lineEndPosition(ln_start));
 			QString s = QString::fromUtf8(qba);
-			int is_currently_commented = (s.length() >= 7 && s[6] == '*');
+			int is_currently_commented = isCurrentlyCommented(s);
 
 			for (int ln = ln_start; ln <= ln_end; ln++) {
 				QByteArray qba = this->get_text_range(this->positionFromLine(ln), this->lineEndPosition(ln));
 				QString s = QString::fromUtf8(qba);
 				int cur_line_len = s.length();
 
-				if (cur_line_len < 7) {
-					s = s.leftJustified(7);
-					this->setTargetStart(this->positionFromLine(ln));
-					this->setTargetEnd(this->positionFromLine(ln) + cur_line_len - 1);
-					this->replaceTarget(7, (s.left(6) + (is_currently_commented ? " " : "*")).toUtf8());
+				if (source_format == SourceFileFormat::Fixed) {
+					if (cur_line_len < 7) {
+						s = s.leftJustified(7);
+						this->setTargetStart(this->positionFromLine(ln));
+						this->setTargetEnd(this->positionFromLine(ln) + cur_line_len - 1);
+						this->replaceTarget(7, (s.left(6) + (is_currently_commented ? " " : "*")).toUtf8());
+					}
+					else {
+						this->setTargetStart(this->positionFromLine(ln) + 6);
+						this->setTargetEnd(this->positionFromLine(ln) + 7);
+						this->replaceTarget(1, is_currently_commented ? " " : "*");
+					}
 				}
-				else {
-					this->setTargetStart(this->positionFromLine(ln) + 6);
-					this->setTargetEnd(this->positionFromLine(ln) + 7);
-					this->replaceTarget(1, is_currently_commented ? " " : "*");
+
+				if (source_format == SourceFileFormat::Free) {
+					if (cur_line_len < 1) {
+						s = s.leftJustified(1);
+						this->setTargetStart(this->positionFromLine(ln));
+						this->setTargetEnd(this->positionFromLine(ln) + cur_line_len - 1);
+						this->replaceTarget(0, (is_currently_commented ? " " : "*"));
+					}
+					else {
+						this->setTargetStart(this->positionFromLine(ln));
+						this->setTargetEnd(this->positionFromLine(ln) + 1);
+						this->replaceTarget(1, is_currently_commented ? " " : "*");
+					}
 				}
 			}
 
@@ -244,21 +259,27 @@ void CodeEditor::paintEvent(QPaintEvent* event)
 {
 	ScintillaEdit::paintEvent(event);
 
-	QColor areaAcolor(240, 240, 240);
-	QColor areaCcolor(240, 240, 255);
-	QPainter painter(viewport());
+	if (source_format == SourceFileFormat::Fixed) {
+		QColor areaAcolor(240, 240, 240);
+		QColor areaCcolor(240, 240, 255);
+		QPainter painter(viewport());
 
-	QString dummyA(7, QChar('9'));
-	QString dummyC(72, QChar('9'));
-	int __areaAWidth = this->textWidth(STYLE_LINENUMBER, dummyA.toUtf8().constData());
-	int __areaCOffset = this->textWidth(STYLE_LINENUMBER, dummyC.toUtf8().constData());
+		QString dummyA(7, QChar('9'));
+		QString dummyC(72, QChar('9'));
+		int __areaAWidth = this->textWidth(STYLE_LINENUMBER, dummyA.toUtf8().constData());
+		int __areaCOffset = this->textWidth(STYLE_LINENUMBER, dummyC.toUtf8().constData());
 
-	QRect areaA(18 + 18 + __lineNumberWidth, viewport()->rect().top(), __areaAWidth, viewport()->rect().bottom() + 1);
-	QRect areaC(18 + 18 + __lineNumberWidth + __areaCOffset, viewport()->rect().top(), viewport()->rect().width(), viewport()->rect().bottom() + 1);
+		QRect areaA(18 + 18 + __lineNumberWidth, viewport()->rect().top(), __areaAWidth, viewport()->rect().bottom() + 1);
+		QRect areaC(18 + 18 + __lineNumberWidth + __areaCOffset, viewport()->rect().top(), viewport()->rect().width(), viewport()->rect().bottom() + 1);
 
-	painter.setCompositionMode(QPainter::CompositionMode::CompositionMode_Darken);
-	painter.fillRect(areaA, areaAcolor);
-	painter.fillRect(areaC, areaCcolor);
+		painter.setCompositionMode(QPainter::CompositionMode::CompositionMode_Darken);
+		painter.fillRect(areaA, areaAcolor);
+		painter.fillRect(areaC, areaCcolor);
+	}
+	else {
+		// whatever...
+	}
+
 }
 
 QString CodeEditor::toPlainText()
@@ -330,6 +351,14 @@ void CodeEditor::showBookmarkAtLine(int ln)
 	markerAdd(ln - 1, MRKR_BOOKMARK);
 }
 
+bool CodeEditor::isCurrentlyCommented(QString s)
+{
+	if (source_format == SourceFileFormat::Fixed) 
+		return (s.length() >= 7 && s[6] == '*');
+	else
+		return (s.length() >= 1 && s[0] == '*');
+}
+
 void CodeEditor::handleBookmark(int position, int modifiers)
 {
 	int ln = this->lineFromPosition(position) + 1;
@@ -397,6 +426,11 @@ void CodeEditor::highlightSymbol(int line, QString symbol_name)
 	sptr_t pos = this->positionFromLine(ed_ln);
 	this->setCurrentPos(pos);
 	this->setFocus(true);
+}
+
+void CodeEditor::setSourceFormat(SourceFileFormat sfmt)
+{
+	source_format = sfmt;
 }
 
 void CodeEditor::clearAllBookmarks()

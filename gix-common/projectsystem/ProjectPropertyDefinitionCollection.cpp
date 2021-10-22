@@ -112,7 +112,7 @@ ProjectPropertyDefinitionCollection::ProjectPropertyDefinitionCollection() : Pro
 	defs.append(new PropertyDefinition("esql_error_log_file", "Error log path", PropertyType::PropertyTypeFilePath, "", false, nullptr, "esql"));
 
 	defs.append(new PropertyDefinition("cobc_verbose", "Verbosity level", PropertyType::PropertyTypeOption, "", false, new QMap<QString, QVariant>({ { "", "Normal" },{ "-v", "Compiler" },{ "-vv", "Compiler/Assembler" },{ "-vvv", "Compiler/Assembler/Linker" } } ), "compiler"));
-	defs.append(new PropertyDefinition("cobc_source_format", "Source format", PropertyType::PropertyTypeOption, "-fixed", false, new QMap<QString, QVariant>({ { "-fixed", "Fixed" },{ "-free", "Free" } } ), "compiler"));
+	//defs.append(new PropertyDefinition("cobc_default_source_format", "Source format", PropertyType::PropertyTypeOption, "-fixed", false, new QMap<QString, QVariant>({ { "-fixed", "Fixed" },{ "-free", "Free" } } ), "compiler"));
 	defs.append(new PropertyDefinition("cobc_optimization", "Optimization", PropertyType::PropertyTypeOption, "", false, new QMap<QString, QVariant>({ { "", "None" },{ "-O", "Level 1" },{ "-O2", "Level 2" },{ "-O3", "Level 3" },{ "-Os", "By size" } } ), "compiler"));
 	defs.append(new PropertyDefinition("cobc_generate_listing", "Generate listing", PropertyType::PropertyTypeOption, "", false, new QMap<QString, QVariant>({ { "", "No" },{ "-t", "Standard" },{ "-T", "Wide" } }), "compiler"));
 	defs.append(new PropertyDefinition("cobc_symbols_in_listing", "Symbols in listing", PropertyType::PropertyTypeOption, "", false, new QMap<QString, QVariant>({ { "", "No" },{ "--tsymbols", "Yes" } }), "compiler"));

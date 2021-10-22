@@ -29,9 +29,11 @@ USA.
 #include "IBuildableItem.h"
 #include "IPersistableProjectItem.h"
 #include "CobolModuleMetadata.h"
+#include "SourceFileFormat.h"
 
 class Project;
 class QFile;
+
 
 class GIXCOMMON_EXPORT ProjectFile : public ProjectItem, public PropertySource, public IPersistableProjectItem, public IBuildableItem
 {
@@ -52,6 +54,8 @@ public:
 	bool isRestService();
 	bool isSoapService();
 	bool isCompilable();
+
+	SourceFileFormat getSourceFormat();
 
 	QString extractModuleName();
 	QString getSymbolFilename(QString configuration = QString(), QString platform = QString());

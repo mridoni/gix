@@ -19,12 +19,12 @@ USA.
 */
 
 #include "GixEsqlLexer.hh"
-#include "CobolUtils.h"
 #include "gix_esql_driver.hh"
+#include "libcpputils.h"
 
 #include <istream>
-#include <QFileInfo>
-#include <QRegularExpression>
+#include <filesystem>
+#include <regex>
 
 #define YY_NULL 0
 
@@ -42,7 +42,7 @@ USA.
 #endif
 
 //static QRegularExpression rxUserDefinedCobolWord(R"([A-Za-z0-9]+ ([\-]+ [A-Za-z0-9]+)*)");
-static QRegularExpression rxUserDefinedCobolWord(R"(^[A-Za-z0-9]+([\-]+[A-Za-z0-9]+)*$)");
+static std::regex rxUserDefinedCobolWord(R"(^[A-Za-z0-9]+([\-]+[A-Za-z0-9]+)*$)");
 
 int GixEsqlLexer::LexerInput(char *buff, int max_size)
 {
@@ -130,47 +130,49 @@ int GixEsqlLexer::LexerInput(char *buff, int max_size)
 	return 0;
 }
 
-void GixEsqlLexer::pushNewFile(const QString file_name, gix_esql_driver *driver, bool resolve_as_copy, bool is_included)
+void GixEsqlLexer::pushNewFile(const std::string file_name, gix_esql_driver *driver, bool resolve_as_copy, bool is_included)
 {
-	QString file_full_name = file_name;
+	std::string file_full_name = file_name;
 
 	if (driver->pp_inst->verbose_debug)
-		printf("Resolving %s\n", file_name.toUtf8().constData());
+		printf("Resolving %s\n", file_name.c_str());
 
 	if (resolve_as_copy) {
 		if (!driver->pp_inst->getCopyResolver()->resolveCopyFile(file_name, file_full_name)) {
-			driver->error("Cannot resolve copy file " + file_name.toStdString());
+			driver->error("Cannot resolve copy file " + file_name);
 			return;
 		}
 	}
 
-	std::istream *in_file = new std::ifstream(file_full_name.toStdString());
+	std::istream *in_file = new std::ifstream(file_full_name);
 	yy_buffer_state *new_buffer = yy_create_buffer(in_file, YY_BUF_SIZE);
 
 	if (driver->pp_inst->verbose_debug)
-		printf("Switching to file %s\n", file_full_name.toUtf8().constData());
+		printf("Switching to file %s\n", file_full_name.c_str());
 
 	yypush_buffer_state(new_buffer);
 
 	srcLocation *loc = new srcLocation();
-	loc->filename = QFileInfo(file_full_name).absoluteFilePath();
+	std::filesystem::path file_full_path(file_full_name);
+	loc->filename = std::filesystem::absolute(file_full_path).string();
 	loc->line = yylineno;
 	loc->is_included = is_included;
 
 	this->src_location_stack.push(*loc);
 
-	driver->file = file_full_name.toStdString();
+	driver->file = file_full_name;
 	driver->hostlineno = 1;
 	yylineno = 1;
 }
 
-bool GixEsqlLexer::isParagraph(const QString &text)
+bool GixEsqlLexer::isParagraph(const std::string &text)
 {
 	if (!driver->procedure_division_started)
 		return false;
 
-	QString t = text.trimmed().chopped(1).trimmed();
-	bool b = rxUserDefinedCobolWord.match(t).hasMatch() && !CobolUtils::isReservedWord(t);
+	std::string t = trim_copy(string_chop(trim_copy(text), 1));
+
+	bool b = std::regex_match(t, rxUserDefinedCobolWord) && std::find(reserved_words_list.begin(), reserved_words_list.end(), t) == reserved_words_list.end();
 	return b;
 }
 
@@ -181,16 +183,17 @@ int yyFlexLexer::yywrap()
 	if (yy_buffer_stack_top > 0) {
 		yypop_buffer_state();
 
-		srcLocation loc = p->driver->lexer.src_location_stack.pop();
+		srcLocation loc = p->driver->lexer.src_location_stack.top();
+		p->driver->lexer.src_location_stack.pop();
 
 		p->driver->hostlineno = loc.line;
 		// Used to be:
 		// p->driver->file = loc.filename.toStdString();
-		p->driver->file = p->driver->lexer.src_location_stack.top().filename.toStdString();
+		p->driver->file = p->driver->lexer.src_location_stack.top().filename;
 		yylineno = loc.line;
 
 		if (p->driver->pp_inst->verbose_debug)
-			printf("Switching to file %s\n", p->driver->lexer.src_location_stack.top().filename.toUtf8().constData());
+			printf("Switching to file %s\n", p->driver->lexer.src_location_stack.top().filename.c_str());
 
 		return 0;
 	}

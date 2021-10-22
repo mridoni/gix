@@ -71,6 +71,9 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	cb_esql_pp_driver_list->addItem("Gix (Internal)", "esql_driver_gix_internal");
 	cb_esql_pp_driver_list->addItem("Gix (External)", "esql_driver_gix_external");
 
+	cbDefaultSourceFormat->addItem("Fixed", "fixed");
+	cbDefaultSourceFormat->addItem("Free", "free");
+
 	GeneralCfgTab_LoadSettings();
 	GnuCobolCfgTab_LoadSettings();
 	ESQLCfgTab_LoadSettings();
@@ -217,13 +220,18 @@ bool SettingsDialog::GeneralCfgTab_SaveSettings()
 	QSettings settings;
 
 	bool changed = settingsSetValue("Ide_DebugOutput", cbDebugOutput->isChecked());
+	changed |= settingsSetValue("cobc_default_source_format", cbDefaultSourceFormat->currentData().toString());
 	return changed;
 }
 
 void SettingsDialog::GeneralCfgTab_LoadSettings()
 {
 	QSettings settings;
+	int idx = 0;
+
 	cbDebugOutput->setChecked(settings.value("Ide_DebugOutput", false).toBool());
+	idx = cbDefaultSourceFormat->findData(settings.value("cobc_default_source_format", "fixed"));
+	cbDefaultSourceFormat->setCurrentIndex((idx >= 0) ? idx : 0);
 }
 
 bool SettingsDialog::GeneralCfgTab_CheckSettings()

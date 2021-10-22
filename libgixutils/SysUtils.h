@@ -22,6 +22,7 @@ USA.
 
 #include <QSysInfo>
 #include <QChar>
+#include <QMap>
 #include <QDir>
 #include <QSettings>
 #include <QProcessEnvironment>
@@ -30,6 +31,10 @@ USA.
 #include <QDataStream>
 #include <QVariantMap>
 #include <QTextStream>
+
+#include <map>
+#include <vector>
+#include <string>
 
 #include "PathUtils.h"
 
@@ -72,8 +77,38 @@ public:
 	static bool existsIntersection(const QStringList &l1, const QStringList &l2);
     static QString toHexString(uint32_t i32);
     static QString toHexString(uint64_t i64);
-	
+
 	template<typename T> static const char* enum_val_to_str(int v);
+
+	template<typename KT, typename VT> static QMap<KT, VT>map_to_qmap(const std::map<KT, VT> &map)
+	{
+		QMap <KT, VT> outmap;
+
+		for (auto const &mi: map) {
+			outmap.insert(mi.first, mi.second);
+		}
+
+		return outmap;
+	}
+
+	static std::vector<std::string> to_std_string_vector(const QStringList &l);
+	static QStringList to_qstringlist(const std::vector<std::string> &l);
+
+	// Specialized
+	static QMap<QString, int> to_qmap_qstring_int(const std::map<std::string, int> &map);
+	static QMap<int, QString> to_qmap_int_qstring(const std::map<int, std::string> &map);
+	static QMap<QString, QStringList> to_qmap_qstring_qstringlist(const std::map<std::string, std::vector<std::string>> &map);
+
+	template<typename KV> static QMap<QString, KV> to_qmap_qstring_usertype(const std::map <std::string, KV> &map)
+	{
+		QMap<QString, KV> outmap;
+
+		for (auto const &item : map) {
+			outmap.insert(QString::fromStdString(item.first), item.second);
+		}
+
+		return outmap;
+	}
 };
 
 inline QString SysUtils::getGixBuildPlatform()
@@ -386,4 +421,57 @@ inline QString SysUtils::toHexString(uint32_t i32)
 inline QString SysUtils::toHexString(uint64_t i64)
 {
     return QString("0x%1").arg(i64, 16, 16, QLatin1Char( '0' ));
+}
+
+inline std::vector<std::string> SysUtils::to_std_string_vector(const QStringList &l)
+{
+	std::vector<std::string> outlist;
+
+	for (QString s : l)
+		outlist.push_back(s.toStdString());
+
+	return outlist;
+}
+
+inline QStringList SysUtils::to_qstringlist(const std::vector<std::string> &l)
+{
+	QStringList outlist;
+
+	for (std::string s : l)
+		outlist.append(QString::fromStdString(s));
+
+	return outlist;
+}
+
+inline QMap<QString, int> SysUtils::to_qmap_qstring_int(const std::map<std::string, int> &map)
+{
+	QMap<QString, int> outmap;
+
+	for (auto const &item : map) {
+		outmap.insert(QString::fromStdString(item.first), item.second);
+	}
+
+	return outmap;
+}
+
+inline QMap<int, QString> SysUtils::to_qmap_int_qstring(const std::map<int, std::string> &map)
+{
+	QMap<int, QString> outmap;
+
+	for (auto const &item : map) {
+		outmap.insert(item.first, QString::fromStdString(item.second));
+	}
+
+	return outmap;
+}
+
+inline QMap<QString, QStringList> SysUtils::to_qmap_qstring_qstringlist(const std::map<std::string, std::vector<std::string>> &map)
+{
+	QMap<QString, QStringList> outmap;
+
+	for (auto const &item : map) {
+		outmap.insert(QString::fromStdString(item.first), to_qstringlist(item.second));
+	}
+
+	return outmap;
 }

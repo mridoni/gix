@@ -7,9 +7,6 @@
     <ClCompile Include="QLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MacroManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -154,9 +151,6 @@
     <ClInclude Include="CobolVarList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DataEntry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -290,6 +284,9 @@
       <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\CompilerEnvironment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFileFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
