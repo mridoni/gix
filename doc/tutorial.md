@@ -1,4 +1,4 @@
-﻿# Gix-IDE - A brief tutorial
+﻿﻿# Gix-IDE - A brief tutorial
 
 ***Note: Gix-IDE is still undergoing heavy development: it is likely that some of the features and procedures described here will not work flawlessly. Should you find something that does not perform as described or expected, please file an issue.***
 
@@ -10,17 +10,17 @@ In Gix-IDE GnuCOBOL modules and copy files are organized into "projects". A proj
  - **Web Project**: this type of project builds modules that can be invoked as Web Services. Each module is compiled into a single compilation unit, always a DLL.
 
 Project collections are groupings of one or more projects. In Gix-IDE you work on project collections, that contain one or more projects of the same or different types.
-Project collections are files with a ".gix". Beside each project collection file there is a folder which contains a single project, that in turn resides in a ".gixprj" file along all its files:
+Project collections are files with a ".gix". Beside each project collection file there is a folder which contains a single project, that in turn resides in a ".gixprj" file along all its files:  
+![Gix Project Tree](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-prjtree.png)
 
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-prjtree.png)
 As you can see in the image, a "bin" directory is present under the project directory. This is created by Gix-IDE during the compilation process for a given configuration/platform combination, and used to store intermediate files.
 There are also ".gixstate" files, not present in this example, that contain the state of the project (open windows, breakpoints, etc.) for a given project.
 
 ## The interface
-This is Gix-IDE during a debugging session.![Gix_IDe during a debugging session.](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/ss-gix-commented-01.png)
+This is Gix-IDE during a debugging session:  
+![Gix-IDE during a debugging session.](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/ss-gix-commented-01.png)
 
 The toolbar contains several groups of buttons:
-
 
  - **Load/Save**: used to load and save project collections, projects and files.
  - **Configuration/Platform**: used to select the current configuration (normally Release or Debug) and platform. The availability of different platforms (e.g. x86, x64) depends on the compiler selected: while some installs of GnuCOBOL can target both x86 and x64, for instance, others can only target one architecture at a time.
@@ -29,7 +29,7 @@ The toolbar contains several groups of buttons:
  - **Bookmarks**: navigate the code using bookmarks
 
  The dockable window areas are:
-  - **Project Collection**: provides a treeview of the currently loaded project collection
+  - **Project Collection**: provides a tree view of the currently loaded project collection
   - **Properties**: list and allows editing of the properties pertaining to the item currently selected in the project collection window
   - Dependencies: list COPY file dependencies for the currently active editor window
   - **Navigator**: lists and allow navigation of the paragraphs in the currently displayed editor window. You can "go to" a paragraph definition by double-clicking on it.
@@ -42,57 +42,51 @@ The toolbar contains several groups of buttons:
 ## Settings
 
 ### Setting up compilers
-If you have installed a binary package with included compilers, unless you want to change the default compiler used by Gix-IDE, you can start immediately. Otherwise, click on the "gear" icon on the toolbar and bring up the settings window:
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-01.png)
+If you have installed a binary package with included compilers, unless you want to change the default compiler used by Gix-IDE, you can start immediately. Otherwise, click on the "gear" icon on the toolbar and bring up the settings window:  
+![Settings Window](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-01.png)
 
 Since you are already there, check the "Show debug output" option, at least for now: Gix-IDE is still young, and though a bit noisy, this will help to trace problems that could occur.
 
-Now go to "GnuCOBOL" tab. This is where you can set up compilers. You can set up a compiler for Release builds and one for Debug builds. If you installed from a binary package with included compilers, just the compiler install you would like to use:
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-02-compilers.png)
+Now go to "GnuCOBOL" tab. This is where you can set up compilers. You can set up a compiler for Release builds and one for Debug builds. If you installed from a binary package with included compilers, just the compiler install you would like to use:  
+![Settings -> Compilers](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-02-compilers.png)
 
-If you want to add a new compiler install to those available, click on the "Add a compiler" button.
+If you want to add a new compiler install to those available, click on the "Add a compiler" button.  
 
-From version 1.0.2 on, this will launch a wizard that will help you to locate a compiler install of your choice, will test it to look for problems and will add it to Gix-IDE.
-
+From version 1.0.2 on, this will launch a wizard that will help you to locate a compiler install of your choice, will test it to look for problems and will add it to Gix-IDE.  
 If you want, you can still add a compiler manually, just select the dropdown menu on the right of the "Add Compiler" button.
  
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-03-add-compiler.png)
-Fill in all the fields, then click on the "+" button to add at least one platform (e.g. x64)
+![Settings -> Compilers -> Add Compiler](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-03-add-compiler.png)  
+Fill in all the fields, then click on the "+" button to add at least one platform (e.g. x64).
 
 **Notes**:
-
  - You must choose a base directory before adding a platform
  - The version field must be in the X.Y. or in X.Y.Z format (e.g. 2.2 or 3.1.2). Gix-IDE does not check if the version you entered corresponds to the one actually present in the compiler directory.
  - You must add at least one platform. Obviously the compiler must support it (and before anyone asks, ARM is there as a wishful thinking moment).
  
-In the platform window, fill all the directory fields (each corresponding to a directory in a GnuCOBOL install. Depending on how the compiler was built some directories can be in a not-so-obvious location (e.g. "config" and "copy" might be under share/gnucobol, in the base directory tree):
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-04-add-compiler-platform.png)
+In the platform window, fill all the directory fields (each corresponding to a directory in a GnuCOBOL install. Depending on how the compiler was built, some directories can be in a not-so-obvious location (e.g. "config" and "copy" might be under share/gnucobol, in the base directory tree):  
+![Settings -> Compilers -> compiler platform](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-settings-04-add-compiler-platform.png)
 
-Now click OK, select your newly-added compiler in the Release and/or Debug dropdown menu, and click OK again to save the settings. Since you have already selected the "Show debug output" option, you should see the new compiler being examined in the output window, where you should check for any errors.
+Now click OK, select your newly-added compiler in the Release and/or Debug drop-down menu, and click OK again to save the settings. Since you have already selected the "Show debug output" option, you should see the new compiler being examined in the output window, where you should check for any errors.
 
 ## Compiling a project
 
-Select "Open Project/Project Collection" and navigate to your Documents folder. You will find a "Gix" directory, and inside that, a directory named "examples". If you have opted to build from source, the "examples" folder will be inside the "deploy" directory unde the main source tree.
+Select "Open Project/Project Collection" and navigate to your Documents folder. You will find a "Gix" directory, and inside that, a directory named "examples". If you have opted to build from source, the "examples" folder will be inside the "deploy" directory under the main source tree.
 Open the "test000.gix" and click on the "Build" button on the toolbar. The project should build without errors and the resulting binaries should be inside the build directory under your project directory (e.g. test000/bin/debug/x64).
 
 ## Debugging a project
 
-First build your project, than open in the editor the module you want to debug and set one or more breakpoints, by clicking on the bar between the line numbers and the left margin of the editor window.
+First build your project, than open in the editor the module you want to debug and set one or more breakpoints, by clicking on the bar between the line numbers and the left margin of the editor window.  
+![Debugging: Breakpoint](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-set_brkp.png)
 
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-set_brkp.png)
-
-Then click on the "Debug" button on the toolbar, The program should start and then stop on your breakpoint.
-
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-dbgr-01.png)
+Then click on the "Debug" button on the toolbar, The program should start and then stop on your breakpoint.  
+![Debugging: wait on breakpoint](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-dbgr-01.png)
 
 Now you can use the "Watch" window to add variables to be inspected while you debug the program. These variables, as the breakpoints, will be preserved when you stop and restart the debugging, or when you close and then re-open a project.
 
-You can also navigate the Working Storage section in the "Data Section" window and select "Add to watch" from there.
+You can also navigate the Working Storage section in the "Data Section" window and select "Add to watch" from there.  
+![Debugging: select variable for watch](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-dbgr-add-to-watch.png)
 
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-dbgr-add-to-watch.png)
-
-If your module is a simple batch program that just output a few display statements, you might choose to display its output in the integrated console, by setting the "Run in separate console" option in the "Debug" section of your project properties to "No".
-
-![enter image description here](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-dbgr-console.png)
+If your module is a simple batch program that just output a few display statements, you might choose to display its output in the integrated console, by setting the "Run in separate console" option in the "Debug" section of your project properties to "No".  
+![Debugging: run in internal console](https://raw.githubusercontent.com/mridoni/gix/main/doc/img/gix-dbgr-console.png)
 
 To step through your code use F10. To run the code until the next breakpoint (or until the program ends), press F8. You can stop the debugging at any moment by clicking on the "Stop Debug" button in the toolbar.

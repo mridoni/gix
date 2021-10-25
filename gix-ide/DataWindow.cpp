@@ -129,6 +129,9 @@ DataWindow::~DataWindow()
 
 void DataWindow::refreshContent(bool force_refresh)
 {
+	if (!mainWindow || !mainWindow->activeMdiChild())
+		return;
+
 	QString f = mainWindow->activeMdiChild()->currentFile();
 
 	dataWidget->clear();
