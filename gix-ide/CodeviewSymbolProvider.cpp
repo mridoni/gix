@@ -29,6 +29,10 @@ USA.
 static BOOL __stdcall DLL_EnumSourceFilesProc(PSOURCEFILE pSourceFile, PVOID UserContext);
 static BOOL __stdcall DLL_EnumLinesProc(PSRCCODEINFO LineInfo, PVOID UserContext);
 
+#ifdef _WIN32
+#include "BufferedStackWalker.h"
+#endif
+
 // Just in case: MSVC has some symbol decoration issue in x86/x64
 #ifdef _WIN64
 #define COB_MODULE_GLOBAL_ENTER "cob_module_global_enter"
@@ -60,21 +64,6 @@ BOOL __stdcall _ProcessMemoryReader(HANDLE  hProcess,
 	return bRet;
 
 }
-
-static class BufferedStackWalker : public StackWalker
-{
-public:
-	BufferedStackWalker(DWORD dwProcessId, HANDLE hProcess) : StackWalker(dwProcessId, hProcess) {}
-	QStringList lines;
-
-protected:
-	virtual void OnOutput(LPCSTR szText)
-	{
-		lines.append(szText);
-		StackWalker::OnOutput(szText);
-	}
-};
-
 
 QString CodeviewSymbolProvider::dumpStackFrame(GixDebugger *gd, void *hproc, void *hthread)
 {

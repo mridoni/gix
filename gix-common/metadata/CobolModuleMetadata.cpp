@@ -860,13 +860,19 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		QSettings settings;
 		QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, QVariantMap()));
 
-		QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
-		CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
-		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, configuration, platform));
-		if (!esql_cfg.isNull()) {
-			QStringList esql_copy_dirs = esql_cfg->getCopyPathList();
-			if (!esql_copy_dirs.isEmpty())
-				copy_dirs.append(esql_copy_dirs);
+		if (!ccfg.isNull()) {
+			QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+			CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
+			QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, configuration, platform));
+			if (!esql_cfg.isNull()) {
+				QStringList esql_copy_dirs = esql_cfg->getCopyPathList();
+				if (!esql_copy_dirs.isEmpty())
+					copy_dirs.append(esql_copy_dirs);
+			}
+		}
+		else {
+			err_data->err_code = -1;
+			err_data->err_messages.push_back(QCoreApplication::translate("gix", "Compiler(s) not available").toStdString());
 		}
 	}
 

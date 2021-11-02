@@ -49,8 +49,8 @@ gix-ide.files = gix-ide
 
 INSTALLS += gix-ide
 
-win32:HEADERS += ./CodeviewSymbolProvider.h ./DwarfSymbolProvider.h ./GixDebuggerWin.h ./StackWalker.h
-win32:SOURCES += ./CodeviewSymbolProvider.cpp ./DwarfSymbolProvider.cpp ./GixDebuggerWin.cpp  ./StackWalker.cpp
+win32:HEADERS += ./CodeviewSymbolProvider.h ./DwarfSymbolProvider.h ./GixDebuggerWin.h ./StackWalker.h ./BufferedStackWalker.h
+win32:SOURCES += ./CodeviewSymbolProvider.cpp ./DwarfSymbolProvider.cpp ./GixDebuggerWin.cpp  ./StackWalker.cpp ./BufferedStackWalker.cpp
 
 linux:HEADERS += ./GixDebuggerLinux.h ./LinuxProcessRunner.h ./DwarfSymbolProvider.h ./registers.hpp
 linux:SOURCES += ./GixDebuggerLinux.cpp ./LinuxProcessRunner.cpp ./DwarfSymbolProvider.cpp
