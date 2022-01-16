@@ -35,16 +35,21 @@ public:
 	void resetCache();
 	void setCopyDirs(const std::vector<std::string>& _copy_dirs);
 	void addCopyDir(const std::string &copy_dir);
+	void addCopyDirs(const std::vector<std::string> &_copy_dirs);
 	void setExtensions(const std::vector<std::string>& _copy_exts);
+	std::vector<std::string> &getExtensions() const;
 	void setBaseDir(const std::string base_dir);
 	std::vector<std::string>& getCopyDirs() const;
 	bool resolveCopyFile(const std::string copy_name, std::string &copy_file);
+	void setVerbose(bool b);
 
 private:
 	std::vector<std::string> copy_dirs;
 	std::vector<std::string> copy_exts;
 	std::string base_dir;
 	std::string hash;
+
+	bool verbose = false;
 
 	std::map<std::string, std::string> resolve_cache;
 };

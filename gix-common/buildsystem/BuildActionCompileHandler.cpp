@@ -174,15 +174,15 @@ bool BuildActionCompileHandler::startBuild()
 	}
 
 	ProjectType prj_type = (ProjectType)environment["__project_type_id"].toInt();
-	switch (prj_type) {
+	QString default_build_type = environment.value("build_type").toString();
+	QString file_build_type = environment.value(PropertyConsts::CustomBuildType, default_build_type).toString();
+	switch (prj_type) {	// TODO: check the semantics of this operation, for the moment they are one and the same
 		case ProjectType::SingleBinary:
-			if (environment.value(PropertyConsts::IsStartupItem, false).toBool())
+			if (file_build_type == BuildConsts::MODULE_EXECUTABLE)
 				cobc_opts.append("-x");
 			break;
 
 		case ProjectType::MultipleBinaries:
-			QString default_build_type = environment.value("build_type").toString();
-			QString file_build_type = environment.value(PropertyConsts::CustomBuildType, default_build_type).toString();
 			if (file_build_type == BuildConsts::MODULE_EXECUTABLE)
 				cobc_opts.append("-x");
 			break;

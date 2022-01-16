@@ -85,6 +85,8 @@ bool BuildActionPreprocessESQLHandler::startBuild()
 		return false;
 	}
 
+	esql_cfg->setVerbose(settings.value("Ide_DebugOutput", false).toBool());
+
 	bool res = esql_cfg->run(build_driver, input_file, outfile_path, environment);
 
 	uint64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - t_start;

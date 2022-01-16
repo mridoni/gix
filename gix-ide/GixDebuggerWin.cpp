@@ -203,8 +203,11 @@ int GixDebuggerWin::start()
 		}
 	}
 
+
 	// TODO: verify that this works in all cases (internal/external console, stdir redirected or not, etc.)
 	// WAS : if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, !use_external_console, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
+	if_blk->debuggerMessage(this, QString("Working directory is: [%1]").arg(working_dir), 0);
+	if_blk->debuggerMessage(this, QString("CreateProcess called with: [%1]").arg(fcl), 0);
 	if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, TRUE, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
 		TerminateThread(hThreadReadStdOut, 0);
 		TerminateThread(hThreadReadStdErr, 0);

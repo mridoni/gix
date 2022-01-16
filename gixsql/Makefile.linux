@@ -1,0 +1,26 @@
+DESTDIR=/opt/gixsql
+
+SUBDIRS = libgixsql libgixsql-mysql libgixsql-odbc libgixsql-pgsql ../libcpputils ../libgixpp ../gixpp
+
+.PHONY: clean $(SUBDIRS)
+
+
+all: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -f Makefile.linux --directory=$@
+
+
+clean:
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -f Makefile.linux -C $$dir clean; \
+	done
+
+install: all
+	mkdir -p $(DESTDIR)/bin
+	mkdir -p $(DESTDIR)/lib
+	cp libgixsql/libgixsql.a libgixsql/libgixsql.so $(DESTDIR)/lib
+	cp libgixsql-mysql/libgixsql-mysql.so $(DESTDIR)/lib
+	cp libgixsql-odbc/libgixsql-odbc.so $(DESTDIR)/lib
+	cp libgixsql-pgsql/libgixsql-pgsql.so $(DESTDIR)/lib
+	cp ../gixpp/gixpp $(DESTDIR)/bin

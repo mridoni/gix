@@ -383,9 +383,8 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		if (!uses_external_cmd) {
 			if (build_type == "dll") {
 				cmd = compiler_cfg->runnerPath;
-				cobcrun_opts.append("-M");
-				//cobcrun_opts.append(PathUtils::getDirectory(target));
-				cobcrun_opts.append(target_full_path);
+				//cobcrun_opts.append("-M");
+				//cobcrun_opts.append(target_full_path);
 				cobcrun_opts.append(module_name);
 			}
 			else

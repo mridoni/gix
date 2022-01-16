@@ -9,7 +9,6 @@
 
 #define DIST_DIR GetEnv('DIST_DIR')
 
-#define DIST_DIR GetEnv('DIST_DIR')
 #define INCLUDE_COMPILERS GetEnv('INCLUDE_COMPILERS')
 #define DEFAULT_VS_COMPILER GetEnv('DEFAULT_VS_COMPILER')
 #define DEFAULT_GCC_COMPILER GetEnv('DEFAULT_GCC_COMPILER')
@@ -44,7 +43,7 @@ DisableWelcomePage=False
 Source: "{#DIST_DIR}\*"; DestDir: "{app}"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 ; COPY files
-Source: "{#WORKSPACE}\gixsql\copy\SQLCA.cpy"; DestDir: "{app}\copy"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\gixsql\copy\SQLCA.cpy"; DestDir: "{app}\lib\copy"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 ; Qt
 Source: "{#QTDIR}\bin\Qt5Core.dll"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs
@@ -108,7 +107,7 @@ Filename: "{tmp}\redist\ms\common\vs_buildtools_2019.exe"; Parameters: "--passiv
 [Registry]
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "1.0.{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{autoappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{localappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 #if "1" == INCLUDE_COMPILERS
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "ReleaseCompilerId"; ValueData: {code:DefaultCompiler}; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DebugCompilerId"; ValueData: {code:DefaultCompiler}; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
@@ -120,6 +119,7 @@ Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName:
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "treeview_font_name"; ValueData: "MS Shell Dlg 2"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "treeview_font_size"; ValueData: "9"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "default_eol_mode"; ValueData: "0"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
 

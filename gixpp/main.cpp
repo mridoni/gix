@@ -37,7 +37,7 @@ USA.
 #define PATH_LIST_SEP ":"
 #endif
 
-#define GIXPP_VER "1.0.4"
+#define GIXPP_VER "1.0.7"
 
 using namespace popl;
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
 	GixPreProcessor gp;
 	CopyResolver copy_resolver;
-	std::vector<std::string> copy_dirs;
+	
 
 	// Do processing here
 	const auto args = argv;
@@ -63,8 +63,8 @@ int main(int argc, char **argv)
 	auto opt_infile = options.add<Value<std::string>>("i", "infile", "input file");
 	auto opt_outfile = options.add<Value<std::string>>("o", "outfile", "output file");
 	auto opt_symfile = options.add<Value<std::string>>("s", "symfile", "output symbol file");
-	auto opt_esql = options.add<Switch>("e", "esql", "preprocess for ESQL (single file mode takes precedence)");
-	auto opt_esql_preprocess_copy = options.add<Switch>("p", "esql-preprocess-copy", "ESQL: preprocess copy files outside EXEC SQL INCLUDE statements");
+	auto opt_esql = options.add<Switch>("e", "esql", "preprocess for ESQL");
+	auto opt_esql_preprocess_copy = options.add<Switch>("p", "esql-preprocess-copy", "ESQL: preprocess all included COPY files");
 	auto opt_esql_copy_exts = options.add<Value<std::string>>("E", "esql-copy-exts", "ESQL: copy files extension list (comma-separated)");
 	auto opt_esql_anon_params = options.add<Switch>("a", "esql-anon-params", "ESQL: use anonymous (not numbered) parameters");
 	auto opt_esql_static_calls = options.add<Switch>("S", "esql-static-calls", "ESQL: emit static calls");
@@ -82,10 +82,29 @@ int main(int argc, char **argv)
 		std::cout << options << std::endl;
 	}
 	else {
-		if (opt_copypath->is_set())
-			copy_dirs = string_split(opt_copypath->value(), PATH_LIST_SEP);
 
-		copy_resolver.setCopyDirs(copy_dirs);
+		if (!opt_consolidate->is_set() && !opt_esql->is_set()) {
+			std::cout << options << std::endl;
+			fprintf(stderr, "ERROR: please enter at least one of the -e or -c options\n");
+			return 1;
+		}
+
+		if (!opt_infile->is_set() || !opt_outfile->is_set()) {
+			std::cout << options << std::endl;
+			fprintf(stderr, "ERROR: please enter at least the input and output file parameters\n");
+			return 1;
+		}
+
+		copy_resolver.setVerbose(opt_verbose->is_set());
+		
+		if (opt_copypath->is_set()) {
+			for (int i = 0; i < opt_copypath->count(); i++) {
+				std::vector<std::string> copy_dirs = string_split(opt_copypath->value(i), PATH_LIST_SEP);
+				if (copy_dirs.size() && !copy_dirs.at(0).empty()) {
+					copy_resolver.addCopyDirs(copy_dirs);
+				}
+			}
+		}
 
 		gp.setCopyResolver(&copy_resolver);
 
@@ -96,6 +115,7 @@ int main(int argc, char **argv)
 			gp.setOpt("emit_static_calls", opt_esql_static_calls->is_set());
 			gp.setOpt("anonymous_params", opt_esql_anon_params->is_set());
 			gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy->is_set());
+			gp.setOpt("consolidated_map", true);
 			gp.addStep(new TPESQLProcessing(&gp));
 			if (opt_esql_copy_exts->is_set())
 				copy_resolver.setExtensions(string_split(opt_esql_copy_exts->value(), ","));
@@ -105,6 +125,7 @@ int main(int argc, char **argv)
 		gp.verbose = opt_verbose->is_set();
 		gp.verbose_debug = opt_verbose_debug->is_set();
 
+		
 		gp.setInputFile(opt_infile->value(0));
 		gp.setOutputFile(opt_outfile->value(0));
 

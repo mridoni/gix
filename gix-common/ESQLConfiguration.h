@@ -41,6 +41,11 @@ public:
 	QStringList getLinkLibNameList();
 	QStringList getRuntimeLibPathList(QString driver_type);
 
+	bool isVerbose();
+	bool isVerboseDebug();
+
+	void setVerbose(bool b);
+	void setVerboseDebug(bool b);
 
 private:
 	QString id;
@@ -55,6 +60,8 @@ private:
 	QStringList link_lib_name;	
 	QStringList rt_lib_path;
 
+	bool verbose = false;
+	bool verbose_debug = false;
 
 	bool runGixSqlInternal(BuildDriver *build_driver, QString input_file, QString output_file, QMap<QString, QVariant> opts);
 	void readStdOut(BuildDriver *build_driver, QProcess *p);

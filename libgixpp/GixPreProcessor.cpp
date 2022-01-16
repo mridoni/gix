@@ -78,6 +78,21 @@ void GixPreProcessor::addCustomStep(ITransformationStep *stp)
 	this->addStep(stp);
 }
 
+struct AnyGet
+{
+	std::string operator()(bool value) { return value ? "true" : "false"; }
+	std::string operator()(char value) { return std::string(1, value); }
+	std::string operator()(int value) { return std::to_string(value); }
+	std::string operator()(double value) { return std::to_string(value); }
+	std::string operator()(const std::string &value) { return value; }
+};
+
+static std::string variant_to_string(const variant &input)
+{
+	return std::visit(AnyGet{}, input);
+}
+
+
 bool GixPreProcessor::process()
 {
     if (input_file.empty()) {
@@ -94,6 +109,22 @@ bool GixPreProcessor::process()
         SET_ERR(4, "Input file does not exist");
         return false;
     }
+
+	if (verbose) {
+		printf("ESQL: Input file: %s\n", input_file.c_str());
+		printf("ESQL: Output file: %s\n", output_file.c_str());
+		for (std::string cd : copy_resolver->getCopyDirs()) {
+			printf("ESQL: Copy dir: %s\n", cd.c_str());
+		}
+		for (std::string ce : copy_resolver->getExtensions()) {
+			printf("ESQL: Copy extension: %s\n", ce.c_str());
+		}
+		for (auto it = this->getOpts().begin(); it != this->getOpts().end(); ++it) {
+			std::string k = it->first;
+			std::string v = variant_to_string(it->second);
+			printf("ESQL: Option [%s] : [%s]\n", k.c_str(), v.c_str());
+		}
+	}
 
 	bool b = this->transform();
 

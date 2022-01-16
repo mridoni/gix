@@ -71,6 +71,7 @@ bool is_begin_transaction_statement(std::string query);
 
 std::vector<std::string> split_with_quotes(const std::string& s);
 std::vector<std::string> string_split(const std::string str, const std::string regex_str);
+bool split_in_args(std::vector<std::string> &qargs, std::string command);
 
 void ltrim(std::string &s);
 

@@ -1,3 +1,11 @@
+=== v1.0.7 =======================================================
+- Fixed several bugs in gixpp and in ESQL preprocessing
+- Fixed a bug that prevented debugging from working on Windows x86
+- Fixed a DLL/EXE build bug 
+- Fixed a debugger run issue (Windows)
+- Added separate build scripts/solution files for GixSQL
+- Added automated tests (Windows)
+
 === v1.0.6 =======================================================
 - Fixed one more regression when creating a new project
 - Added code (Windows-only) to generate a minudump file in %TEMP% in case of a crash

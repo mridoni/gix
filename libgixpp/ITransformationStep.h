@@ -31,6 +31,8 @@ class ITransformationStep
 {
 public:
 
+	virtual ~ITransformationStep() {}
+
 	virtual bool run(ITransformationStep* prev_step) = 0;
 	virtual std::string getInput();
 	virtual std::string getOutput(ITransformationStep* me = nullptr);

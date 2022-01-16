@@ -98,6 +98,13 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 		// If the function address is valid, call the function. 
 		if (dblib_provider != NULL)
 		{
+#if _DEBUG
+			char dll_path[MAX_PATH];
+			int rc = GetModuleFileName(libHandle, dll_path, MAX_PATH);
+			if (rc) {
+				LOG_DEBUG(__FILE__, __func__, "DB provider loaded from: %s\n", dll_path);
+			}
+#endif
 			dbi = dblib_provider();
 			lib_map[dbi] = libHandle;
 		}

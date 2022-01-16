@@ -98,17 +98,17 @@ namespace QLogger
 	{
 		switch (level) {
 			case LogLevel::Trace:
-				return "Trace";
+				return QString("Trace");
 			case LogLevel::Debug:
-				return "Debug";
+				return QString("Debug");
 			case LogLevel::Info:
-				return "Info";
+				return QString("Info");
 			case LogLevel::Warning:
-				return "Warning";
+				return QString("Warning");
 			case LogLevel::Error:
-				return "Error";
+				return QString("Error");
 			case LogLevel::Fatal:
-				return "Fatal";
+				return QString("Fatal");
 		}
 
 		return QString();
@@ -293,6 +293,7 @@ namespace QLogger
 					out << QString("%1 - Previous log %2\n").arg(dt).arg(newName);
 
 				out << text;
+
 				file.close();
 			}
 		}

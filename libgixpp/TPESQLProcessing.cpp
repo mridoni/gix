@@ -509,7 +509,9 @@ cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const std::string file
 {
 	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
 	for (auto e : *p) {
-		if (e->src_file == filename && (e->startLine <= i && e->endLine >= i))
+		std::string f1 = filename_absolute_path(filename);
+		std::string f2 = filename_absolute_path(e->src_file);
+		if (f1 == f2 && (e->startLine <= i && e->endLine >= i))
 			return e;
 	}
 

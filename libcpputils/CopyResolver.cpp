@@ -31,7 +31,9 @@ CopyResolver::CopyResolver(const std::vector<std::string> &_copy_dirs)
 
 CopyResolver::CopyResolver()
 {
-
+	copy_exts.push_back(".");
+	copy_exts.push_back(".CPY");
+	copy_exts.push_back(".cpy");
 }
 
 void CopyResolver::resetCache()
@@ -52,13 +54,30 @@ void CopyResolver::setCopyDirs(const std::vector<std::string> &_copy_dirs)
 
 void CopyResolver::addCopyDir(const std::string &copy_dir)
 {
-	if (!vector_contains<std::string>(copy_dirs, copy_dir))
+	if (!copy_dir.empty() && !vector_contains<std::string>(copy_dirs, copy_dir))
 		copy_dirs.push_back(copy_dir);
+}
+
+void CopyResolver::addCopyDirs(const std::vector<std::string> &_copy_dirs)
+{
+	for (auto copy_dir : _copy_dirs) {
+		if (!copy_dir.empty()) {
+			if (verbose)
+				printf("Adding %s to to COPY search path\n", copy_dir.c_str());
+
+			copy_dirs.push_back(copy_dir);
+		}
+	}
 }
 
 void CopyResolver::setExtensions(const std::vector<std::string> &_copy_exts)
 {
 	copy_exts = _copy_exts;
+}
+
+std::vector<std::string>& CopyResolver::getExtensions() const
+{
+	return const_cast<std::vector<std::string>&>(copy_exts);
 }
 
 void CopyResolver::setBaseDir(const std::string _base_dir)
@@ -73,9 +92,9 @@ std::vector<std::string> &CopyResolver::getCopyDirs() const
 
 bool CopyResolver::resolveCopyFile(const std::string copy_name, std::string &copy_file)
 {
-	std::filesystem::path the_file;
 	
-	if (copy_name.empty()) {
+	
+	if (copy_name.empty() || !isalpha(copy_name.at(0))) {
 		fprintf(stderr, "Invalid copy name\n");
 		return false;
 	}
@@ -85,39 +104,42 @@ bool CopyResolver::resolveCopyFile(const std::string copy_name, std::string &cop
 		return true;
 	}
 
-	for (std::string ext : copy_exts) {
-
-		if (ext == ".")
-			ext = "";
-
-		the_file.replace_filename(base_dir + PATH_SEPARATOR + copy_name + ext);
-		if (std::filesystem::exists(the_file)) {
-			copy_file = filename_absolute_path(the_file);
-			resolve_cache[copy_name] = copy_file;
-			return true;
-		}
-	}
-
 	if (copy_dirs.empty())
 		return false;
 
 	for (std::string copy_dir : copy_dirs) {
-		std::string cn = copy_dir + PATH_SEPARATOR + trim_copy(copy_name);
 
 		for (std::string ext : copy_exts) {
+
+			std::filesystem::path the_file(copy_dir + PATH_SEPARATOR + trim_copy(copy_name));
 
 			if (ext == ".")
 				ext = "";
 
-			the_file.replace_filename(cn + ext);
+			the_file.replace_filename(copy_name + ext);
+			if (verbose) {
+				printf("Trying \"%s\": ", the_file.string().c_str());
+			}
+
 			if (std::filesystem::exists(the_file)) {
 				copy_file = filename_absolute_path(the_file);
 				resolve_cache[copy_name] = copy_file;
+				if (verbose)
+					printf("OK\n");
+
 				return true;
 			}
+
+			if (verbose)
+				printf("KO\n");
 		}
 
 	}
 
 	return false;
+}
+
+void CopyResolver::setVerbose(bool b)
+{
+	verbose = b;
 }

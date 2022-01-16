@@ -1,0 +1,19 @@
+CXXFLAGS=-fPIC -I ../libgixsql -I /usr/include/mysql -std=c++17
+DEPS = DbInterfaceMySQL.h
+OBJS = DbInterfaceMySQL.o  dblib.o
+
+LDFLAGS=-lm -lmysqlclient
+
+all: libgixsql-mysql.so
+
+%.o: %.cpp $(DEPS)
+	$(CXX) -c -o  $@ $< $(CXXFLAGS)
+
+libgixsql-mysql.so: $(OBJS)
+	$(CXX) -shared -o $@ -Wl,--out-implib,libgixsql-mysql.a $^ $(CXXFLAGS) $(LDFLAGS)
+
+.PHONY: clean
+
+clean:
+	rm -f libgixsql-mysql.so *.o
+

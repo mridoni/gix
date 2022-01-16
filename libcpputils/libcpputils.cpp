@@ -543,3 +543,48 @@ std::string vector_join(const std::vector<std::string> &v, std::string sep)
 	}
 	return s;
 }
+
+bool split_in_args(std::vector<std::string> &qargs, std::string command)
+{
+	int len = command.length();
+	bool qot = false, sqot = false;
+	int arglen;
+	for (int i = 0; i < len; i++) {
+		int start = i;
+		if (command[i] == '\"') {
+			qot = true;
+		}
+		else if (command[i] == '\'') sqot = true;
+
+		if (qot) {
+			i++;
+			start++;
+			while (i < len && command[i] != '\"')
+				i++;
+			if (i < len)
+				qot = false;
+			arglen = i - start;
+			i++;
+		}
+		else if (sqot) {
+			i++;
+			while (i < len && command[i] != '\'')
+				i++;
+			if (i < len)
+				sqot = false;
+			arglen = i - start;
+			i++;
+		}
+		else {
+			while (i < len && command[i] != ' ')
+				i++;
+			arglen = i - start;
+		}
+		qargs.push_back(command.substr(start, arglen));
+	}
+	for (int i = 0; i < qargs.size(); i++) {
+		std::cout << qargs[i] << std::endl;
+	}
+	std::cout << qargs.size();
+	return (qot == sqot);
+}

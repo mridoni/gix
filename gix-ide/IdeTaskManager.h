@@ -31,6 +31,9 @@ USA.
 
 #include <QQueue>
 
+#ifdef WIN32
+#include "testhlpr.h"
+#endif
 
 // 0 = Release, 1 = Debug
 #define DEFAULT_TARGET_CONFIG 1
@@ -49,7 +52,11 @@ public:
 
 class IdeTaskManager : public QObject
 {
-	//friend bool MetadataLoader::updateFileMetadata(ProjectFile* pf);
+	friend class TestHelper;
+
+#ifdef WIN32
+	friend class TestHelper;
+#endif
 
 	Q_OBJECT
 	Q_ENUM(IdeStatus)
@@ -127,15 +134,7 @@ public:
 	void consoleWriteStdErr(QString msg);
 	void consoleClear();
 
-	//ListingFileParser *getListingFileParser(ProjectFile *prj, QString, QString);
-
 	void flushLog();
-
-	//CobolModuleMetadata* getModuleMetadata(ProjectFile *pf);
-	//CobolModuleMetadata *getModuleMetadata(const QString& module_name);
-	//CobolModuleMetadata *getModuleMetadataBySourceFile(const QString &src_file);
-
-	//void setModuleMetadata(ProjectFile *pf, CobolModuleMetadata *cmm);
 
 	void setIdeElementInfo(QString k, QVariant v);
 	QVariant getIdeElementInfo(QString k);
@@ -147,6 +146,15 @@ public:
 
 	bool backgroundTasksEnabled();
 	void setBackgroundTasksEnabled(bool b);
+
+#ifdef WIN32
+	// Automated test support
+	bool checkAndSetupTestHelper();
+	TestHelper *getTestHelper();
+	QString getIdeOutputDupFile();
+	QString getConsoleOutDupFile();
+	QString getConsoleErrDupFile();
+#endif
 
 signals:
 	void IdeReady();
@@ -172,14 +180,11 @@ signals:
 	void projectCollectionClosed();
 	void projectCollectionLoaded();
 
-	//void updatedModuleMetadata(const Project *prj, const QString &module_name, CobolModuleMetadata *cmm, bool receiver_is_owner);
-	//void updatedModuleMetadataFile(const Project *prj, const QString &module_name);
 
 public slots:
 	void logMessage(QString module, QString message, QLogger::LogLevel);
 	void debugStopped();
 	void debugStarted();
-
 
 private:
 	IdeStatus ide_status;
@@ -211,5 +216,13 @@ private:
 	QMap<QString, QVariant> ide_element_info_map;
 
 	int last_build_result = 0;
+
+#ifdef WIN32
+	TestHelper *test_helper = nullptr;
+	QString console_dup_out;
+	QString console_dup_err;
+	QString ide_output_dup_out;
+#endif
+
 };
 

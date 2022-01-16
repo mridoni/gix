@@ -66,6 +66,7 @@ public:
 	static bool FileWriteAllLines(QString filename, QStringList lines);
 	static QByteArray FileReadAll(QString filename);
 	static QString RegistryGetValue(QString keypath, QString value, QString default_value = QString());
+	static void RegistrySetValue(QString keypath, QString valuekey, QString value);
 	static void mergeMaps(QMap<QString, QVariant>& m1, const QMap<QString, QVariant> m2);
 	static QString serializeMap(QVariantMap *);
 	static QMap<QString, QVariant> * deserializeMap(QString);
@@ -318,6 +319,12 @@ inline QString SysUtils::RegistryGetValue(QString keypath, QString valuekey, QSt
 {
 	QSettings settings(keypath, QSettings::NativeFormat);
 	return settings.value(valuekey, default_value).toString();
+}
+
+inline void SysUtils::RegistrySetValue(QString keypath, QString valuekey, QString value)
+{
+	QSettings settings(keypath, QSettings::NativeFormat);
+	settings.setValue(valuekey, value);
 }
 
 inline void SysUtils::mergeMaps(QMap<QString, QVariant>& m1, const QMap<QString, QVariant> m2)

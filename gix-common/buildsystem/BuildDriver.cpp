@@ -188,9 +188,9 @@ bool BuildDriver::handle_single_target(BuildTarget *target, QString &provides_it
 			copy_dirs.append(QString::fromLocal8Bit(qgetenv("GIXSQL_DATA_DIR")));
 		}
 		this->copy_resolver.setCopyDirs(SysUtils::to_std_string_vector(copy_dirs));
+		this->copy_resolver.addCopyDir(prj->GetBaseDir().toStdString());	// ? Is this correct/necessary ?
 
 		this->copy_resolver.setExtensions(SysUtils::to_std_string_vector(prj->getCopyExtList()));
-		this->copy_resolver.setBaseDir(prj->GetBaseDir().toStdString());
 	}
 
 	QList<BuildTarget *> *deps = target->dependencies();

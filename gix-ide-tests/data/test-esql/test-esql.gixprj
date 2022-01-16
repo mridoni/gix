@@ -1,0 +1,47 @@
+<gix-project version="1.0">
+ <type>1</type>
+ <items>
+  <file path="TEST001.cbl">
+   <build_action>compile</build_action>
+   <is_rest_ws></is_rest_ws>
+   <is_startup_item></is_startup_item>
+  </file>
+  <file path="EMPREC.cpy">
+   <build_action>copy</build_action>
+   <is_startup_item></is_startup_item>
+  </file>
+ </items>
+ <settings>
+  <build_type>dll</build_type>
+  <cobc_c_comp_opts></cobc_c_comp_opts>
+  <cobc_c_link_opts></cobc_c_link_opts>
+  <cobc_generate_listing>-t</cobc_generate_listing>
+  <cobc_optimization></cobc_optimization>
+  <cobc_source_format>-fixed</cobc_source_format>
+  <cobc_symbols_in_listing>--tsymbols</cobc_symbols_in_listing>
+  <cobc_verbose></cobc_verbose>
+  <cobc_warnings></cobc_warnings>
+  <compiler_dialect>default</compiler_dialect>
+  <copy_ext_list>.,.cpy,.CPY</copy_ext_list>
+  <copy_include_path>${prj.basedir}</copy_include_path>
+  <dbg_args></dbg_args>
+  <dbg_cmd></dbg_cmd>
+  <dbg_merge_env>true</dbg_merge_env>
+  <dbg_run_env_vars>DBAUTH=postgres.postgres|DBNAME=localhost:5432/testdb</dbg_run_env_vars>
+  <dbg_separate_console>false</dbg_separate_console>
+  <dbg_stdin_file></dbg_stdin_file>
+  <dbg_stop_at_first_line>false</dbg_stop_at_first_line>
+  <dbg_working_dir></dbg_working_dir>
+  <esql_anon_params>true</esql_anon_params>
+  <esql_debug_log_file>gixsql.log</esql_debug_log_file>
+  <esql_debug_log_on>true</esql_debug_log_on>
+  <esql_default_driver>_GIXSQL_DB_MODE</esql_default_driver>
+  <esql_error_log_file></esql_error_log_file>
+  <esql_preprocess_copy_files>true</esql_preprocess_copy_files>
+  <esql_static_calls>true</esql_static_calls>
+  <keep_temp_files>false</keep_temp_files>
+  <output_path>${prj.basedir}/bin/${configuration}/${platform}</output_path>
+  <preprocess_esql>true</preprocess_esql>
+  <target_name>TEST001</target_name>
+ </settings>
+</gix-project>

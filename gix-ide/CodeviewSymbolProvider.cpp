@@ -218,8 +218,6 @@ static BOOL __stdcall DLL_GetSymbolFromDLL(PSYMBOL_INFO pSymInfo, ULONG SymbolSi
 	return false;
 }
 
-
-
 bool CodeviewSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void *hmod, void *userdata, int *err)
 {
 	bool res = true;
@@ -236,9 +234,10 @@ bool CodeviewSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void
 	}
 
 #if _WIN64
-	res &= ((bool)(pSymbol->Flags & 0x400000));
+	//res &= ((bool)(pSymbol->Flags & 0x400000));
+	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags & 0x400000);
 #else
-	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags == 0);
+	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags & 0x400000);
 #endif
 	return res;
 }
@@ -305,7 +304,6 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 			return nullptr;
 		}
 	}
-
 
 	// COBOL-line breakpoints are created here (not installed at hardware level)
 	for (auto sf : mi->source_files) {

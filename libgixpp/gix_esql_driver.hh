@@ -75,8 +75,8 @@ public:
     bool trace_parsing;
 
     // Error handling.
-    void error (const yy::location& l, const std::string& m);
-    void error (const std::string& m);
+    void error (const yy::location& l, const std::string& m, int err_code = 1);
+    void error (const std::string& m, int err_code = 1);
 
 #pragma endregion
 

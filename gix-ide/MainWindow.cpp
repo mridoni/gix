@@ -46,9 +46,8 @@ USA.
 #include "GixGlobals.h"
 #include "GixVersion.h"
 
-using namespace cpplinq;
 
-//static IdeTaskManager ide_task_manager;
+using namespace cpplinq;
 
 MainWindow::MainWindow()
 	: mdiArea(new QMdiArea)
@@ -173,6 +172,12 @@ MainWindow::MainWindow()
 		}
 	});
 
+#ifdef WIN32
+	if (Ide::TaskManager()->checkAndSetupTestHelper()) {
+		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "WARNING! test helper started", QLogger::LogLevel::Debug);
+	}
+#endif
+
 	emit Ide::TaskManager()->IdeReady();
 }
 
@@ -237,6 +242,9 @@ void MainWindow::openPrj(QString fileName)
 	}
 
 	bool rc = Ide::TaskManager()->loadProjectCollection(fileName);
+	if (!rc) {
+		UiUtils::ErrorDialog(tr(QString("Cannot load project collection %1").arg(fileName).toUtf8()));
+	}
 }
 
 void MainWindow::editSettings()
@@ -1141,9 +1149,8 @@ void MainWindow::createActions()
 	});
 
 	cbPlatform = new QComboBox(this);
-	QStringList available_platforms = this->getPlatformsForConfiguration(cbConfiguration->itemData(DEFAULT_TARGET_CONFIG).toString());
-	for (QString p : available_platforms)
-		cbPlatform->addItem(p, p);
+
+	setAvailablePlatformsForConfiguration();
 
 	connect(cbPlatform, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i) {
 		if (Ide::TaskManager()->getStatus() != IdeStatus::LoadingOrSaving)
@@ -1305,6 +1312,15 @@ void MainWindow::createActions()
 	});
 }
 
+void MainWindow::setAvailablePlatformsForConfiguration()
+{
+	cbPlatform->clear();
+
+	QStringList available_platforms = this->getPlatformsForConfiguration(cbConfiguration->itemData(DEFAULT_TARGET_CONFIG).toString());
+	for (QString p : available_platforms)
+		cbPlatform->addItem(p, p);
+}
+
 void MainWindow::createStatusBar()
 {
 	statusBar()->showMessage(tr("Ready"));
@@ -1381,7 +1397,6 @@ QStringList MainWindow::getPlatformsForConfiguration(QString config)
 	CompilerDefinition* c = compilers[compiler_id];
 	return c->getTargetPlatforms().keys();
 }
-
 
 QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 {

@@ -32,6 +32,8 @@ class PropertyWindow : public QMainWindow
 {
 	Q_OBJECT
 
+	friend class IdeTaskManager;
+
 public:
 	PropertyWindow(QWidget *parent, MainWindow *mw);
 	~PropertyWindow();

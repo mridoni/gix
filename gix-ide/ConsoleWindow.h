@@ -46,6 +46,8 @@ public:
 	void appendOut(QString s);
 	void appendErr(QString s);
 
+    QString getTextContent();
+
 signals:
     void inputAvailable(const QString& s);
 

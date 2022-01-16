@@ -106,17 +106,19 @@ int gix_esql_driver::parse (GixPreProcessor *gpp, const std::string &f)
     return res;
 }
 
-void gix_esql_driver::error (const yy::location& l, const std::string& m)
-{
+void gix_esql_driver::error (const yy::location& l, const std::string& m, int err_code)
+{   //std::cerr << l << ": " << m << std::endl;
 	std::string msg = string_format("ESQL parse error at line %d of file %s: %s", lexer.getLineNo(), this->lexer.src_location_stack.top().filename, m);
-    //std::cerr << l << ": " << m << std::endl;
 	this->pp_inst->err_data.err_messages.push_back(msg);
-	this->pp_inst->err_data.err_code = 1;
+	this->pp_inst->err_data.err_code = err_code;
 }
 
-void gix_esql_driver::error (const std::string& m)
+void gix_esql_driver::error (const std::string& m, int err_code)
 {
-    std::cerr << m << std::endl;
+    //std::cerr << m << std::endl;
+	std::string msg = string_format("ESQL parse error (no location data available): %s", m);
+	this->pp_inst->err_data.err_messages.push_back(msg);
+	this->pp_inst->err_data.err_code = err_code;
 }
 
 // CHANGE: functions moved from the bottom of `gix_esql_scanner.ll`

@@ -29,6 +29,7 @@ USA.
 #include "UiUtils.h"
 #include "SysUtils.h"
 #include "ConsoleWindow.h"
+#include "PropertyWindow.h"
 #include "DataEntry.h"
 #include "GixGlobals.h"
 #include "IdeStatusSyncSetter.h"
@@ -48,6 +49,11 @@ USA.
 #include <QTimer>
 #include "QLogger.h"
 
+#ifdef WIN32
+typedef TestHelper *(*TESTLHPR_INIT_FUNC)(TestHelperInterface *);
+typedef TestHelperInterface *(*TESTLHPR_INTERFACE_FUNC)();
+#endif
+
 IdeTaskManager::IdeTaskManager()
 {
 	main_window = nullptr;
@@ -65,7 +71,7 @@ IdeTaskManager::IdeTaskManager()
 
 	qRegisterMetaType<QLogger::LogLevel>();
 	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");
-	
+
 	connect(this, &IdeTaskManager::fileAddedToProject, this, [this](ProjectFile *pf) { prjcoll_window->refreshContent(); });
 
 	/*
@@ -469,7 +475,7 @@ void IdeTaskManager::loadProjectCollectionState(ProjectCollection *ppj)
 
 	if (configuration != "" && main_window->cbConfiguration->findData(configuration) >= 0)
 		main_window->cbConfiguration->setCurrentIndex(main_window->cbConfiguration->findData(configuration));
-	else 
+	else
 		main_window->cbConfiguration->setCurrentIndex(DEFAULT_TARGET_CONFIG);
 
 	if (platform != "" && main_window->cbPlatform->findData(platform) >= 0)
@@ -515,7 +521,7 @@ void IdeTaskManager::loadProjectCollectionState(ProjectCollection *ppj)
 
 	QString foreground_file = settings.value("editor/foreground_file").toString();
 	if (!foreground_file.isEmpty()) {
-		MdiChild *c = (MdiChild * ) main_window->findMdiChild(foreground_file);
+		MdiChild *c = (MdiChild *)main_window->findMdiChild(foreground_file);
 		if (c)
 			main_window->openFile(foreground_file);
 	}
@@ -645,7 +651,8 @@ void IdeTaskManager::addBreakpoint(QString src_file, int line)
 	QStringList bkps = current_project_collection_data["breakpoints"].toStringList();
 	bkps.append(QString::number(line) + "@" + src_file);
 	current_project_collection_data["breakpoints"] = bkps;
-
+	
+	logMessage(GIX_CONSOLE_LOG, QString("Adding breakpoint -  file: [%1], line %2 ").arg(src_file).arg(line), QLogger::LogLevel::Trace);
 	saveCurrentProjectCollectionState();
 }
 
@@ -695,6 +702,9 @@ void IdeTaskManager::addWatchedVar(QString v)
 	QStringList wvs = current_project_collection_data["watched_vars"].toStringList();
 	if (!wvs.contains(v)) {
 		wvs.append(v);
+
+		logMessage(GIX_CONSOLE_LOG, QString("Adding watched var: [%1]").arg(v), QLogger::LogLevel::Trace);
+
 		current_project_collection_data.insert("watched_vars", wvs);
 	}
 }
@@ -883,11 +893,33 @@ QString IdeTaskManager::getCurrentPlatform()
 void IdeTaskManager::consoleWriteStdOut(QString msg)
 {
 	console_window->appendOut(msg);
+#ifdef WIN32
+	if (test_helper) {
+		if (console_dup_out.isEmpty())
+			return;
+
+		QFile f(console_dup_out);
+		f.open(QIODevice::OpenModeFlag::Append);
+		f.write(msg.toUtf8().constData());
+		f.close();
+	}
+#endif	
 }
 
 void IdeTaskManager::consoleWriteStdErr(QString msg)
 {
 	console_window->appendErr(msg);
+#ifdef WIN32
+	if (test_helper) {
+		if (console_dup_err.isEmpty())
+			return;
+
+		QFile f(console_dup_err);
+		f.open(QIODevice::OpenModeFlag::Append);
+		f.write(msg.toUtf8().constData());
+		f.close();
+	}
+#endif	
 }
 
 void IdeTaskManager::consoleClear()
@@ -900,7 +932,7 @@ void IdeTaskManager::flushLog()
 	while (!log_backlog.isEmpty()) {
 		LogBacklogEntry *lbl = log_backlog.dequeue();
 		this->logMessage(lbl->module, lbl->msg, lbl->level);
-		delete lbl;
+		//delete lbl;
 	}
 }
 
@@ -1116,7 +1148,7 @@ void IdeTaskManager::saveCurrentProjectCollectionState()
 		auto c = main_window->activeMdiChild();
 		if (c)
 			foreground_file = c->currentFile();
-	} 
+	}
 
 	settings.setValue("editor/foreground_file", foreground_file);
 
@@ -1142,3 +1174,144 @@ void IdeTaskManager::saveCurrentProjectCollectionState()
 		settings.setValue("bookmarks/bookmark_" + QString::number(i + 1), bookmarks.at(i));
 	}
 }
+
+#ifdef WIN32
+bool IdeTaskManager::checkAndSetupTestHelper()
+{
+	if (QString(getenv("GIX_LOAD_TEST_HELPER")) == "1") {
+		HMODULE hlib = LoadLibrary("testhlpr.dll");
+		if (!hlib)
+			return false;
+
+		TESTLHPR_INIT_FUNC testhlpr_init = (TESTLHPR_INIT_FUNC)GetProcAddress(hlib, "test_helper_init");
+		if (!testhlpr_init) {
+			FreeLibrary(hlib);
+			return false;
+		}
+		TESTLHPR_INTERFACE_FUNC test_helper_interface = (TESTLHPR_INTERFACE_FUNC)GetProcAddress(hlib, "test_helper_interface");
+		if (!test_helper_interface) {
+			FreeLibrary(hlib);
+			return false;
+		}
+
+		TestHelperInterface *itf = test_helper_interface();
+
+
+		itf->logMessage = [](QString msg) {
+			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Debug);
+		};
+
+		itf->refreshPropertyWindowContent = [this]() {
+			main_window->property_window->refreshContent();
+		};
+
+		itf->setAvailablePlatformsForConfiguration = [this]() {
+			main_window->setAvailablePlatformsForConfiguration();
+		};
+
+		itf->getCurrentProjectCollection = [this]() {
+			return GixGlobals::getCurrentProjectCollection();
+		};
+
+		itf->getFirstProjectInCurrentProjectCollection = [this]() {
+			return GixGlobals::getCurrentProjectCollection()->GetChildren()->at(0);
+		};
+
+		itf->duplicateConsole = [this](QString out, QString err) {
+			console_dup_out = out;
+			console_dup_err = err;
+		};
+
+		itf->duplicateIdeOutput = [this](QString out) {
+			ide_output_dup_out = out;
+		};
+
+		itf->getOutputWindowContent = [this]() {
+			return output_window->getTextContent();
+		};
+
+		itf->getConsoleWindowContent = [this]() {
+			return console_window->getTextContent();
+		};
+
+		itf->getPropertyWindowItem = [this]() {
+			return main_window->property_window->item;
+		};
+
+		itf->addBreakpoints = [this](QStringList brkps) {
+			for (auto brkp : brkps) {
+				QString src_file = brkp.mid(brkp.indexOf("@") + 1);
+				int ln = brkp.mid(0, brkp.indexOf("@")).toInt();
+				addBreakpoint(src_file.replace("\\", "/"), ln);
+			}
+		};
+
+		itf->addWatchedVars = [this](QStringList wvars) {
+			for (auto wvar : wvars) {
+				addWatchedVar(wvar);
+			}
+		};
+
+		itf->getWatchedVarsValues = [this]() {
+			QMap<QString, QString> res;
+			auto dm = getDebugManager();
+			if (dm) {
+				QMap<QString, QString> watched_var_contents = dm->getPrintableVarListContent(dm->getWatchedVarList());
+				res = watched_var_contents;
+			}
+			return res;
+		};
+
+		itf->getDbgStatus = [this](int *st, QString& dbg_src_file, int *dbg_ln) {
+			*st = (int)getStatus();
+			if (getStatus() == IdeStatus::DebuggingOnBreak) {
+				auto dm = getDebugManager();
+				if (!dm) {
+					*st = -1;
+					dbg_src_file = "";
+					*dbg_ln = 0;
+				}
+				dbg_src_file = dm->getCurrentSourceFile();
+				*dbg_ln = dm->getCurrentLine();
+			}
+			else {
+				dbg_src_file = "";
+				*dbg_ln = 0;
+			}
+		};
+
+		TestHelper *th = testhlpr_init(itf);
+		if (!th) {
+			FreeLibrary(hlib);
+			return false;
+		}
+
+		test_helper = th;
+		return true;
+	}
+
+
+	return false;
+}
+
+
+TestHelper *IdeTaskManager::getTestHelper()
+{
+	return test_helper;
+}
+
+QString IdeTaskManager::getIdeOutputDupFile()
+{
+	return ide_output_dup_out;
+}
+
+QString IdeTaskManager::getConsoleOutDupFile()
+{
+	return console_dup_out;
+}
+
+QString IdeTaskManager::getConsoleErrDupFile()
+{
+	return console_dup_err;
+}
+#endif

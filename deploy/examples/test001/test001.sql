@@ -14,6 +14,7 @@ CREATE TABLE emptable (
 
 
 INSERT INTO emptable (eno,lname,fname,street,city,st,zip,dept,payrate,com,miscdata) VALUES 
-(123,'Doe','John','123, Nowhere Lane','Noplace','NA','00100','DEP1',100.00,0.00, 'abcd1234'),
-(456,'Smith','Jane','456, Someplace Rd.','Somewhere','NA','00111','DEP2',200.00,1.00, 'defg5678hijk')
+(123,'Doe','John','123, Nowhere Lane','Noplace','N1','00100','DEP1',100.00,0.00, 'abcd1234'),
+(456,'Smith','Jane','456, Someplace Rd.','Somewhere','N2','00111','DEP2',200.00,1.00, 'defg5678hijk'),
+(789,'Green','David','789, Somewhere Else st.','Somewhere again','N3','00177','DEP4',120.00,0.20, 'zxcvb12345')
 ;

@@ -156,7 +156,8 @@ void IdeDbManager::loadDbConnection(QString pfx)
 	QString default_schema = settings.value(pfx + "dbdefault_schema").toString();
 
 	DbConnection* dbc = new DbConnection;
-	dbc->conn_info = ConnectionString::parseEx(conn_info_s.toStdString());
+	std::string ci = conn_info_s.toStdString();
+	dbc->conn_info = ConnectionString::parseEx(ci);
 	dbc->internal_conn = new Connection();
 	dbc->internal_conn->setConnectionInfo(dbc->conn_info);
 	dbc->internal_conn->setName(conn_name.toStdString());

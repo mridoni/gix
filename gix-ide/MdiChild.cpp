@@ -186,7 +186,10 @@ bool MdiChild::loadFile(const QString &fileName)
 		QString src_file = bkp.mid(bkp.indexOf("@") + 1);
         int ln = bkp.left(bkp.indexOf("@")).toInt();
         if (src_file == fileName)
-		    markerAdd(ln - 1, MRKR_BKP);
+            markerAdd(ln - 1, MRKR_BKP);
+        else
+            GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Failed to map file %1 against %2").arg(src_file).arg(fileName), QLogger::LogLevel::Debug);
+
 	}
 
     markerDeleteAll(MRKR_BOOKMARK);
@@ -237,11 +240,12 @@ bool MdiChild::loadFile(const QString &fileName)
 	ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
 	if (ppj != nullptr) {
 		ProjectFile* pf = this->getProjectFile();
-        
-        QString fmt = pf->PropertyGetValue("cobc_source_format", settings.value("cobc_default_source_format")).toString();
-        this->setSourceFormat(fmt == "fixed" ? SourceFileFormat::Fixed : SourceFileFormat::Free);
+        if (pf) {
+            QString fmt = pf->PropertyGetValue("cobc_source_format", settings.value("cobc_default_source_format")).toString();
+            this->setSourceFormat(fmt == "fixed" ? SourceFileFormat::Fixed : SourceFileFormat::Free);
 
-		emit Ide::TaskManager()->fileLoaded(pf);
+            emit Ide::TaskManager()->fileLoaded(pf);
+        }
 	}
 
     MainWindow *mw = (MainWindow *)getNestedParent(this, 4);

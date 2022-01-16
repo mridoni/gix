@@ -35,6 +35,7 @@ public:
 	~OutputWindow();
 
 	void print(QString msg, QLogger::LogLevel log_level);
+	QString getTextContent();
 
 public slots:
 	void clearAll();
