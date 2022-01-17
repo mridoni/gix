@@ -1,6 +1,6 @@
 /*
 This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
-Copyright (C) 2021 Marco Ridoni
+Copyright (C) 2021,2022 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -288,6 +288,7 @@ bool TPESQLProcessing::processNextFile()
 		return true;
 	}
 
+	std::string f1 = filename_absolute_path(the_file);
 	for (int input_line = 1; input_line <= input_lines.size(); input_line++) {
 		current_input_line = input_line;
 
@@ -300,7 +301,7 @@ bool TPESQLProcessing::processNextFile()
 
 		bool in_ws = (input_line >= working_begin_line) && (input_line <= working_end_line);
 
-		cb_exec_sql_stmt_ptr exec_sql_stmt = find_exec_sql_stmt(the_file, input_line);
+		cb_exec_sql_stmt_ptr exec_sql_stmt = find_exec_sql_stmt(f1, input_line);
 		if (!exec_sql_stmt) {
 			put_output_line(cur_line);
 			continue;
@@ -505,12 +506,11 @@ void TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 	}
 }
 
-cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const std::string filename, int i)
+cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const std::string f1, int i)
 {
 	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
 	for (auto e : *p) {
-		std::string f1 = filename_absolute_path(filename);
-		std::string f2 = filename_absolute_path(e->src_file);
+		std::string f2 = e->src_abs_path;
 		if (f1 == f2 && (e->startLine <= i && e->endLine >= i))
 			return e;
 	}

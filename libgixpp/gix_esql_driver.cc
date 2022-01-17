@@ -1,6 +1,6 @@
 /*
 This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
-Copyright (C) 2021 Marco Ridoni
+Copyright (C) 2021,2021 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -268,6 +268,7 @@ void gix_esql_driver::put_exec_list()
 	l->incfileName = incfilename;
 	l->cursor_hold = cursor_hold;
 	l->src_file = filename_clean_path(lexer.src_location_stack.top().filename);
+	l->src_abs_path=filename_absolute_path(l->src_file);
 
 	l->startup_item = 0;
 	l->sql_query_list_id = sqlnum;

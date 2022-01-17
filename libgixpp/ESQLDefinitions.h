@@ -1,6 +1,6 @@
 /*
 This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
-Copyright (C) 2021 Marco Ridoni
+Copyright (C) 2021,2022 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ USA.
 		int sql_query_list_id;
 		
 		std::string src_file;
+		std::string src_abs_path;
 
 		cb_exec_sql_stmt_t()
 		{
