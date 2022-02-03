@@ -33,6 +33,7 @@ USA.
 class CobolUtils;
 class MdiChild;
 class DataEntry;
+class ProjectFile;
 
 class MdiChild : public CodeEditor
 {
@@ -53,6 +54,8 @@ public:
     EolMode getFileConfiguredEolMode();
     EolMode getFileActualEolMode();
     void setFileEolMode(EolMode m);
+
+    ProjectFile *getProjectFile();
 
 signals:
     void caretPositionChanged();
@@ -75,6 +78,6 @@ private:
     QString curFile;
     bool isUntitled;
 
-	CobolUtils *syntaxHighlighter;
+	//CobolUtils *syntaxHighlighter;
 };
 

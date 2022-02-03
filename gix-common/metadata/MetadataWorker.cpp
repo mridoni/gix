@@ -138,7 +138,7 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 	if (!cmm) {
 		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while building or retrieving metadata for module %1 (%2)").arg(program_id).arg(err_data.err_code), QLogger::LogLevel::Trace);
 		for (auto errmsg : err_data.err_messages) {
-			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + errmsg, QLogger::LogLevel::Trace);
+			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + QString::fromStdString(errmsg), QLogger::LogLevel::Trace);
 		}
 		return nullptr;
 	}

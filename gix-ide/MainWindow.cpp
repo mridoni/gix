@@ -46,9 +46,8 @@ USA.
 #include "GixGlobals.h"
 #include "GixVersion.h"
 
-using namespace cpplinq;
 
-//static IdeTaskManager ide_task_manager;
+using namespace cpplinq;
 
 MainWindow::MainWindow()
 	: mdiArea(new QMdiArea)
@@ -173,6 +172,12 @@ MainWindow::MainWindow()
 		}
 	});
 
+#ifdef WIN32
+	if (Ide::TaskManager()->checkAndSetupTestHelper()) {
+		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "WARNING! test helper started", QLogger::LogLevel::Debug);
+	}
+#endif
+
 	emit Ide::TaskManager()->IdeReady();
 }
 
@@ -237,6 +242,9 @@ void MainWindow::openPrj(QString fileName)
 	}
 
 	bool rc = Ide::TaskManager()->loadProjectCollection(fileName);
+	if (!rc) {
+		UiUtils::ErrorDialog(tr(QString("Cannot load project collection %1").arg(fileName).toUtf8()));
+	}
 }
 
 void MainWindow::editSettings()
@@ -705,6 +713,9 @@ void MainWindow::updateMenus()
 void MainWindow::subWindowActivated()
 {
 	if (this->activeMdiChild() != nullptr) {
+		bool subwindow_changed = last_active != this->activeMdiChild();
+		last_active = this->activeMdiChild();
+
 		QString f = this->activeMdiChild()->currentFile();
 
 		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Activated window for " + f, QLogger::LogLevel::Debug);
@@ -712,17 +723,13 @@ void MainWindow::subWindowActivated()
 		ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
 		if (ppj != nullptr) {
 			ProjectFile *pf = ppj->locateProjectFileByPath(f, true);
-			if (pf != nullptr && pf->PropertyGetValue("build_action") == "compile") {
-				if (working_storage_dock->isVisible()) {
-					if (true)
-						working_storage_window->setContent(pf);
-					else
-						Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Data window will not be updated", QLogger::LogLevel::Debug);
-				}
-			}
-			emit Ide::TaskManager()->fileActivated(pf);
+			if (subwindow_changed)
+				emit Ide::TaskManager()->fileActivated(pf);
 		}
 	}
+	else
+		last_active = nullptr;
+
 	updateMenus();
 }
 
@@ -1142,9 +1149,8 @@ void MainWindow::createActions()
 	});
 
 	cbPlatform = new QComboBox(this);
-	QStringList available_platforms = this->getPlatformsForConfiguration(cbConfiguration->itemData(DEFAULT_TARGET_CONFIG).toString());
-	for (QString p : available_platforms)
-		cbPlatform->addItem(p, p);
+
+	setAvailablePlatformsForConfiguration();
 
 	connect(cbPlatform, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i) {
 		if (Ide::TaskManager()->getStatus() != IdeStatus::LoadingOrSaving)
@@ -1306,6 +1312,15 @@ void MainWindow::createActions()
 	});
 }
 
+void MainWindow::setAvailablePlatformsForConfiguration()
+{
+	cbPlatform->clear();
+
+	QStringList available_platforms = this->getPlatformsForConfiguration(cbConfiguration->itemData(DEFAULT_TARGET_CONFIG).toString());
+	for (QString p : available_platforms)
+		cbPlatform->addItem(p, p);
+}
+
 void MainWindow::createStatusBar()
 {
 	statusBar()->showMessage(tr("Ready"));
@@ -1351,6 +1366,11 @@ void MainWindow::blockMdiSignals(bool f)
 	mdiArea->blockSignals(f);
 }
 
+PropertyWindow *MainWindow::getPropertyWindow()
+{
+	return property_window;
+}
+
 void MainWindow::openSearch(SearchType search_type)
 {
 	QString search_spec = "";
@@ -1377,7 +1397,6 @@ QStringList MainWindow::getPlatformsForConfiguration(QString config)
 	CompilerDefinition* c = compilers[compiler_id];
 	return c->getTargetPlatforms().keys();
 }
-
 
 QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
 {

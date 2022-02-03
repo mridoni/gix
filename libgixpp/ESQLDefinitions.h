@@ -20,8 +20,8 @@ USA.
 
 #pragma once
 
-#include <QString>
-#include <QList>
+#include <string>
+#include <vector>
 
 //namespace gix::esql {
 
@@ -35,11 +35,11 @@ USA.
 		NativeBinary
 	};
 
-	typedef QString cb_sql_token_t;
+	typedef std::string cb_sql_token_t;
 
 	struct cb_hostreference_t
 	{
-		QString hostreference;
+		std::string hostreference;
 		int hostno;
 		int lineno;
 	};
@@ -48,7 +48,7 @@ USA.
 
 	struct cb_res_hostreference_t
 	{
-		QString hostreference;
+		std::string hostreference;
 		int lineno;
 	};
 
@@ -60,23 +60,23 @@ USA.
 		int endLine;
 		int period;
 
-		QList<cb_hostreference_ptr> *host_list;
-		QList<cb_res_hostreference_ptr> *res_host_list;
-		QList<cb_sql_token_t> *sql_list;
+		std::vector<cb_hostreference_ptr> *host_list;
+		std::vector<cb_res_hostreference_ptr> *res_host_list;
+		std::vector<cb_sql_token_t> *sql_list;
 
 		bool conn_use_other_db;
-		QString  dbName;
-		QString  cursorName;
-		QString  commandName;
+		std::string  dbName;
+		std::string  cursorName;
+		std::string  commandName;
 		bool command_putother;
-		QString  sqlName;
-		QString  incfileName;
+		std::string  sqlName;
+		std::string  incfileName;
 		bool startup_item;
 		bool cursor_hold;
 
 		int sql_query_list_id;
 		
-		QString src_file;
+		std::string src_file;
 
 		cb_exec_sql_stmt_t()
 		{
@@ -85,9 +85,9 @@ USA.
 			period = 0;
 			sql_query_list_id = 0;
 
-			host_list = new QList<cb_hostreference_ptr>;
-			res_host_list = new QList<cb_res_hostreference_ptr>;
-			sql_list = new QList<cb_sql_token_t>;
+			host_list = new std::vector<cb_hostreference_ptr>;
+			res_host_list = new std::vector<cb_res_hostreference_ptr>;
+			sql_list = new std::vector<cb_sql_token_t>;
 
 			command_putother = false;
 			conn_use_other_db = false;
@@ -119,8 +119,8 @@ USA.
 
 	struct cb_field_t
 	{
-		QString sname;
-		QString path;
+		std::string sname;
+		std::string path;
 		DataSectionType data_section = DataSectionType::Unknown;
 		int		level;
 		Usage	usage;
@@ -138,7 +138,7 @@ USA.
 		bool sign_leading;
 		bool separate;
 
-		QString defined_at_source_file;
+		std::string defined_at_source_file;
 		int defined_at_source_line;
 	};
 

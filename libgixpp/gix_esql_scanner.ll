@@ -27,6 +27,7 @@
 
 #include "gix_esql_driver.hh"
 #include "gix_esql_parser.hh"
+#include "libcpputils.h"
 
 int flag_insqlstring = 0;
 int flag_selectcommand = 0;
@@ -146,7 +147,7 @@ LOW_VALUE "LOW\-VALUE"
 		driver.commandname = yytext;
 
 		driver.sqlnum++;
-		driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 
 		return yy::gix_esql_parser::make_SELECT(yytext, loc);
 	}
@@ -158,7 +159,7 @@ LOW_VALUE "LOW\-VALUE"
 		driver.commandname = yytext;
 					
 		driver.sqlnum++;
-		driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 
 		return yy::gix_esql_parser::make_INSERT(yytext, loc);
 	}
@@ -170,7 +171,7 @@ LOW_VALUE "LOW\-VALUE"
 		driver.commandname = yytext;
 					
 		driver.sqlnum++;
-		driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 
 		return yy::gix_esql_parser::make_DELETE(yytext, loc);
 	}		
@@ -204,7 +205,7 @@ LOW_VALUE "LOW\-VALUE"
 		driver.commandname = yytext;
 					
 		driver.sqlnum++;
-		driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 		
 		return yy::gix_esql_parser::make_DISCONNECT(yytext, loc);
 	}
@@ -216,7 +217,7 @@ LOW_VALUE "LOW\-VALUE"
 		driver.commandname = yytext;
 					
 		driver.sqlnum++;
-		driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 					
 		return yy::gix_esql_parser::make_UPDATE(yytext, loc);
 	}	
@@ -318,7 +319,7 @@ LOW_VALUE "LOW\-VALUE"
 		driver.commandname = yytext;
 					
 		driver.sqlnum++;
-		driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 		
 		driver.command_putother = 1;
 		return yy::gix_esql_parser::make_OTHERFUNC(yytext, loc);
@@ -353,7 +354,7 @@ LOW_VALUE "LOW\-VALUE"
 			driver.commandname = yytext;
 					
 			driver.sqlnum++;
-			driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+			driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 
 			return yy::gix_esql_parser::make_SELECT(yytext, loc);
 	}
@@ -479,8 +480,8 @@ LOW_VALUE "LOW\-VALUE"
 		if (p < 0)
 			p = 5;
 		
-		QString tts = QString(yytext).mid(p);
-		tts = tts.left(tts.length() - 1);
+		std::string tts = std::string(yytext).substr(p);
+		tts = string_chop(tts, 1);
 		
 		driver.incfilename = tts;
 
@@ -691,7 +692,7 @@ LOW_VALUE "LOW\-VALUE"
 			driver.commandname = yytext;
 						
 			driver.sqlnum++;
-     		driver.sqlname.sprintf("SQ%04d", driver.sqlnum);
+     		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
 
 			return yy::gix_esql_parser::make_SELECT(yytext, loc); 
 	}
@@ -848,8 +849,8 @@ LOW_VALUE "LOW\-VALUE"
 		if (p < 0)
 			p = 5;
 		
-		QString tts = QString(yytext).mid(p);
-		tts = tts.left(tts.length() - 1);
+		std::string tts = std::string(yytext).substr(p);
+		tts = string_chop(tts, 1);
 		
 		driver.incfilename = tts;
 
@@ -948,7 +949,7 @@ LOW_VALUE "LOW\-VALUE"
 
 	{INCFILE}[ ]*"." {
 		driver.commandname = "INCFILE";
-		driver.incfilename = QString(yytext) + ".";
+		driver.incfilename = std::string(yytext) + ".";
 		yy_pop_state();
 	    return yy::gix_esql_parser::make_COPY_FILE(loc);
 	}
@@ -982,9 +983,9 @@ LOW_VALUE "LOW\-VALUE"
  
 . {
 	if (strlen(yytext) == 1 && yytext[0] == '.') {
-		if (!driver.procedure_division_started && cur_line_content.contains("PROGRAM-ID")) {
-			QString pid = cur_line_content.replace("PROGRAM-ID", "");
-			pid = pid.replace(".", "").trimmed();
+		if (!driver.procedure_division_started && string_contains(cur_line_content, "PROGRAM-ID")) {
+			std::string pid = string_replace(cur_line_content, "PROGRAM-ID", "");
+			pid = trim_copy(string_replace(pid, ".", ""));
 			driver.program_id = pid;
 		}
 		else
@@ -993,7 +994,7 @@ LOW_VALUE "LOW\-VALUE"
 				loc->filename = driver.lexer.src_location_stack.top().filename;
 				loc->line = yylineno;
 				loc->is_included = driver.lexer.src_location_stack.size() > 1;
-				QString paragraph_name = cur_line_content.trimmed().chopped(1).trimmed();
+				std::string paragraph_name = trim_copy(string_chop(trim_copy(cur_line_content), 1));
 			
 				driver.paragraphs[paragraph_name] = *loc;
 			}

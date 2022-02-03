@@ -25,6 +25,7 @@ DbConnection::DbConnection()
 	internal_conn = nullptr;
 	conn_info = nullptr;
 	dbi = nullptr;
+	dbm = nullptr;
 	save_password = false;
 	last_error = 0;
 }

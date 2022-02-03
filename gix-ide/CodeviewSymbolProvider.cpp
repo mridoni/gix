@@ -29,6 +29,10 @@ USA.
 static BOOL __stdcall DLL_EnumSourceFilesProc(PSOURCEFILE pSourceFile, PVOID UserContext);
 static BOOL __stdcall DLL_EnumLinesProc(PSRCCODEINFO LineInfo, PVOID UserContext);
 
+#ifdef _WIN32
+#include "BufferedStackWalker.h"
+#endif
+
 // Just in case: MSVC has some symbol decoration issue in x86/x64
 #ifdef _WIN64
 #define COB_MODULE_GLOBAL_ENTER "cob_module_global_enter"
@@ -60,21 +64,6 @@ BOOL __stdcall _ProcessMemoryReader(HANDLE  hProcess,
 	return bRet;
 
 }
-
-static class BufferedStackWalker : public StackWalker
-{
-public:
-	BufferedStackWalker(DWORD dwProcessId, HANDLE hProcess) : StackWalker(dwProcessId, hProcess) {}
-	QStringList lines;
-
-protected:
-	virtual void OnOutput(LPCSTR szText)
-	{
-		lines.append(szText);
-		StackWalker::OnOutput(szText);
-	}
-};
-
 
 QString CodeviewSymbolProvider::dumpStackFrame(GixDebugger *gd, void *hproc, void *hthread)
 {
@@ -229,8 +218,6 @@ static BOOL __stdcall DLL_GetSymbolFromDLL(PSYMBOL_INFO pSymInfo, ULONG SymbolSi
 	return false;
 }
 
-
-
 bool CodeviewSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void *hmod, void *userdata, int *err)
 {
 	bool res = true;
@@ -247,9 +234,10 @@ bool CodeviewSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void
 	}
 
 #if _WIN64
-	res &= ((bool)(pSymbol->Flags & 0x400000));
+	//res &= ((bool)(pSymbol->Flags & 0x400000));
+	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags & 0x400000);
 #else
-	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags == 0);
+	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags & 0x400000);
 #endif
 	return res;
 }
@@ -316,7 +304,6 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 			return nullptr;
 		}
 	}
-
 
 	// COBOL-line breakpoints are created here (not installed at hardware level)
 	for (auto sf : mi->source_files) {

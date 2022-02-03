@@ -20,17 +20,14 @@ USA.
 
 #include "GixPreProcessor.h"
 
-#include <QCoreApplication>
-#include <QMap>
-#include <QFile>
-#include <QDir>
+#include <string>
 
 #include "FileData.h"
-#include "SysUtils.h"
+#include "libcpputils.h"
 #include "TPESQLProcessing.h"
 
 
-#define SET_ERR(I,S) err_data.err_code = I; err_data.err_messages << QCoreApplication::translate("gix", S)
+#define SET_ERR(I,S) err_data.err_code = I; err_data.err_messages.push_back(S)
 
 GixPreProcessor::GixPreProcessor()
 {
@@ -50,14 +47,14 @@ GixPreProcessor::~GixPreProcessor()
 	}
 }
 
-//const QStringList GixPreProcessor::getCopyDirs()
+//const std::stringList GixPreProcessor::getCopyDirs()
 //{
 //	return copy_dirs;
 //}
 
-//void GixPreProcessor::setCopyDirs(QString cdl)
+//void GixPreProcessor::setCopyDirs(std::string cdl)
 //{
-//	copy_dirs = cdl.split(QDir::listSeparator());
+//	copy_dirs = cdl.string_split(QDir::listSeparator());
 //}
 
 void GixPreProcessor::setCopyResolver(const CopyResolver *cr)
@@ -70,7 +67,7 @@ CopyResolver *GixPreProcessor::getCopyResolver() const
 	return copy_resolver;
 }
 
-//void GixPreProcessor::setCopyDirs(const QStringList cdl)
+//void GixPreProcessor::setCopyDirs(const std::stringList cdl)
 //{
 //	copy_dirs = cdl;
 //}
@@ -81,23 +78,53 @@ void GixPreProcessor::addCustomStep(ITransformationStep *stp)
 	this->addStep(stp);
 }
 
+struct AnyGet
+{
+	std::string operator()(bool value) { return value ? "true" : "false"; }
+	std::string operator()(char value) { return std::string(1, value); }
+	std::string operator()(int value) { return std::to_string(value); }
+	std::string operator()(double value) { return std::to_string(value); }
+	std::string operator()(const std::string &value) { return value; }
+};
+
+static std::string variant_to_string(const variant &input)
+{
+	return std::visit(AnyGet{}, input);
+}
+
+
 bool GixPreProcessor::process()
 {
-    if (input_file.isEmpty()) {
+    if (input_file.empty()) {
         SET_ERR(1, "Bad input file");
         return false;
     }
 
-    if (!getOpt("no_output").toBool() && output_file.isEmpty()) {
+    if (!std::get<bool>(getOpt("no_output")) && output_file.empty()) {
         SET_ERR(2, "Bad output file");
         return false;
     }
 
-    QFile input_module(input_file);
-    if (!input_module.exists()) {
+    if (!file_exists(input_file)) {
         SET_ERR(4, "Input file does not exist");
         return false;
     }
+
+	if (verbose) {
+		printf("ESQL: Input file: %s\n", input_file.c_str());
+		printf("ESQL: Output file: %s\n", output_file.c_str());
+		for (std::string cd : copy_resolver->getCopyDirs()) {
+			printf("ESQL: Copy dir: %s\n", cd.c_str());
+		}
+		for (std::string ce : copy_resolver->getExtensions()) {
+			printf("ESQL: Copy extension: %s\n", ce.c_str());
+		}
+		for (auto it = this->getOpts().begin(); it != this->getOpts().end(); ++it) {
+			std::string k = it->first;
+			std::string v = variant_to_string(it->second);
+			printf("ESQL: Option [%s] : [%s]\n", k.c_str(), v.c_str());
+		}
+	}
 
 	bool b = this->transform();
 
@@ -120,46 +147,46 @@ bool GixPreProcessor::transform()
 
 void GixPreProcessor::addStep(ITransformationStep *s)
 {
-	steps.append(s);
+	steps.push_back(s);
 }
 
-bool GixPreProcessor::setInputFile(QString infile)
+bool GixPreProcessor::setInputFile(std::string infile)
 {
 	if (!steps.size()) {
-		input_file = QString();
+		input_file = std::string();
 		return false;
 	}
 
-	steps.first()->setInput(infile);
+	steps.at(0)->setInput(infile);
 	input_file = infile;
 
 	return true;
 }
 
-bool GixPreProcessor::setOutputFile(QString outfile)
+bool GixPreProcessor::setOutputFile(std::string outfile)
 {
 	if (!steps.size()) {
-		output_file = QString();
+		output_file = std::string();
 		return false;
 	}
 
-	steps.last()->setOutput(outfile);
+	steps.back()->setOutput(outfile);
 	output_file = outfile;
 
 	return true;
 }
 
-QVariant GixPreProcessor::getOpt(QString id, QVariant v)
-{
-	return (opts.contains(id)) ? opts[id] : v;
+variant GixPreProcessor::getOpt(std::string id, bool b)
+{	
+	return map_contains<std::string, variant>(opts, id) ? opts[id] : variant(b);
 }
 
-QVariantMap& GixPreProcessor::getOpts() const
+variant_map& GixPreProcessor::getOpts() const
 {
-	return const_cast<QVariantMap&>(opts);
+	return const_cast<variant_map &>(opts);
 }
 
-void GixPreProcessor::setOpt(QString id, QVariant v)
+void GixPreProcessor::setOpt(std::string id, variant v)
 {
 	opts[id] = v;
 }

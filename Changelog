@@ -1,3 +1,25 @@
+=== v1.0.7 =======================================================
+- Fixed several bugs in gixpp and in ESQL preprocessing
+- Fixed a bug that prevented debugging from working on Windows x86
+- Fixed a DLL/EXE build bug 
+- Fixed a debugger run issue (Windows)
+- Added separate build scripts/solution files for GixSQL
+- Added automated tests (Windows)
+
+=== v1.0.6 =======================================================
+- Fixed one more regression when creating a new project
+- Added code (Windows-only) to generate a minudump file in %TEMP% in case of a crash
+
+=== v1.0.5 =======================================================
+- Fixed a regression when creating a new project (regression from v1.0.4)
+
+=== v1.0.4 =======================================================
+- Implemented "free" source format handling in the editor
+- Removed Qt dependencies for GixSQL/gixpp, now they are standard C++
+- Fixed a few bugs in COMP-3/BINARY handling
+- Drag and drop is now supported for adding new files to a project collection 
+- Drag and drop is now supported for adding new fields to the Watch window
+
 === v1.0.3 =======================================================
 - Web modules can now be correctly created and launched from the IDE
 - Web modules can non be debugged under Windows

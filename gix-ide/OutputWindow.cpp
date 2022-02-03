@@ -56,15 +56,21 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
 {
-#if defined(_DEBUG_LOG_ON)
-    fprintf(stderr, "%s\n", msg.toUtf8().constData());
-#if defined(_WIN32) || defined(_WIN64)
-    OutputDebugStringA(QString("[" + QLogger::QLoggerManager::levelToText(log_level) + "] ").toUtf8().constData());
-	OutputDebugStringA(msg.toUtf8().constData());
-    OutputDebugStringA("\n");
-#endif
-#endif
+#ifdef WIN32	
+    if (Ide::TaskManager()->getTestHelper()) {
+        QString ide_out_dup_file = Ide::TaskManager()->getIdeOutputDupFile();
+        if (!ide_out_dup_file.isEmpty()) {
 
+            if (!msg.endsWith("\n"))
+                msg += "\n";
+
+            QFile f(ide_out_dup_file);
+            f.open(QIODevice::OpenModeFlag::Append);
+            f.write(msg.toUtf8().constData());
+            f.close();
+        }
+    }
+#endif
     if (!Ide::TaskManager()->isDebugOutputEnabled() && (log_level == QLogger::LogLevel::Debug || log_level == QLogger::LogLevel::Trace))
         return;
 
@@ -95,6 +101,11 @@ void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
     textArea->append(msg);
     textArea->ensureCursorVisible();
 
+}
+
+QString OutputWindow::getTextContent()
+{
+    return textArea->document()->toPlainText();
 }
 
 void OutputWindow::clearAll()

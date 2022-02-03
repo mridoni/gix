@@ -19,10 +19,11 @@ USA.
 */
 
 #include "ESQLCall.h"
+#include "libcpputils.h"
 
 #define LINE_PREFIX			 "GIXSQL     "
 
-ESQLCall::ESQLCall(const QString _call_name, bool _is_static)
+ESQLCall::ESQLCall(const std::string _call_name, bool _is_static)
 {
 	call_name = _call_name;
 	is_static = _is_static;
@@ -33,28 +34,28 @@ ESQLCall::ESQLCall(bool _is_static)
 	is_static = _is_static;
 }
 
-void ESQLCall::addParameter(QString value, bool by_reference)
+void ESQLCall::addParameter(std::string value, bool by_reference)
 {
-	params.append({ value, by_reference });
+	params.push_back({ value, by_reference });
 }
 
 void ESQLCall::addParameter(int value, bool by_reference)
 {
-	params.append({ QString::number(value), by_reference });
+	params.push_back({ std::to_string(value), by_reference });
 }
 
-QStringList ESQLCall::format() const
+std::vector<std::string> ESQLCall::format() const
 {
-	QStringList res;
+	std::vector<std::string> res;
 	const char *lp = LINE_PREFIX;
 
-	res.append(lp + QString("CALL %1\"%2\"").arg(is_static ? "STATIC " : "", call_name) + (params.size() ? " USING" : ""));
+	res.push_back(lp + string_format("CALL %s\"%s\"", (is_static ? "STATIC " : ""), call_name) + (params.size() ? " USING" : ""));
 	
 	for (auto p : params) {
-		res.append(lp + QString("    BY %1 %2").arg(p.by_reference ? "REFERENCE" : "VALUE", p.value));
+		res.push_back(lp + string_format("    BY %s %s", (p.by_reference ? "REFERENCE" : "VALUE"), p.value));
 	}
 
-	res.append(lp + QString("END-CALL"));
+	res.push_back(lp + std::string("END-CALL"));
 
 	return res;
 }

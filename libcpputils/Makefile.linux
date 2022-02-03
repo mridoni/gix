@@ -1,0 +1,19 @@
+CXXFLAGS=-I. -I../libcpputils -std=c++17
+LDFLAGS=
+
+DEPS = CopyResolver.cpp  libcpputils.cpp
+OBJS = CopyResolver.o  libcpputils.o
+
+all: libcpputils.a
+
+libcpputils.a: $(OBJS)
+	ar rcs $@ $^
+
+%.o: %.cpp $(DEPS)
+	$(CXX) -c -o  $@ $< $(CXXFLAGS)
+
+
+.PHONY: all clean
+
+clean:
+	rm -f libcpputils.a *.o

@@ -473,7 +473,11 @@ ProjectFile* Project::locateProjectFileByPath(QString filepath, bool include_cop
 	QList<ProjectFile*> files;
 	add_compilable_children(files, (ProjectItem*)this, include_copy_files);
 
-	auto res = from(files).where([filepath](ProjectFile* pf) { return QDir::cleanPath(pf->GetFileFullPath()) == QDir::cleanPath(filepath);  }).to_vector();
+	QStringList filenames;
+	for (auto ff : files)
+		filenames.append(ff->GetFileFullPath());
+
+	auto res = from(files).where([filepath](ProjectFile* pf) { return QFileInfo(pf->GetFileFullPath()) == QFileInfo(filepath);  }).to_vector();
 	return (res.size() == 1) ? res.at(0) : nullptr;
 }
 

@@ -187,10 +187,10 @@ bool BuildDriver::handle_single_target(BuildTarget *target, QString &provides_it
 		if (prj->isEsql() && !qgetenv("GIXSQL_DATA_DIR").isEmpty()) {
 			copy_dirs.append(QString::fromLocal8Bit(qgetenv("GIXSQL_DATA_DIR")));
 		}
-		this->copy_resolver.setCopyDirs(copy_dirs);
+		this->copy_resolver.setCopyDirs(SysUtils::to_std_string_vector(copy_dirs));
+		this->copy_resolver.addCopyDir(prj->GetBaseDir().toStdString());	// ? Is this correct/necessary ?
 
-		this->copy_resolver.setExtensions(prj->getCopyExtList());
-		this->copy_resolver.setBaseDir(prj->GetBaseDir());
+		this->copy_resolver.setExtensions(SysUtils::to_std_string_vector(prj->getCopyExtList()));
 	}
 
 	QList<BuildTarget *> *deps = target->dependencies();

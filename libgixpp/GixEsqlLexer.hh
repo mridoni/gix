@@ -30,9 +30,9 @@ USA.
 // in `FlexLexer.h`:
 #undef yyFlexLexer
 #include <FlexLexer.h>
-#include <QStack>
-#include <QMap>
-#include <QString>
+#include <stack>
+#include <map>
+#include <string>
 
 // We need this for the yy::calcxx_parser::symbol_type:
 #include "gix_esql_parser.hh"
@@ -41,7 +41,7 @@ USA.
 
 struct srcLocation
 {
-    QString filename;
+    std::string filename;
     int line;
     bool is_included;
 };
@@ -63,21 +63,24 @@ public:
     yy::gix_esql_parser::symbol_type yylex(gix_esql_driver& driver);
     
     void setDriver(gix_esql_driver *_driver) { driver = _driver;  }
+    void setReservedWordsList(const std::vector<std::string> &rwl) { reserved_words_list = rwl; }
 
     int LexerInput(char *buf, int max_size);
 
     void push_state(int s) { this->yy_push_state(s); }
 
-    void pushNewFile(const QString file_name, gix_esql_driver *driver, bool resolve_as_copy, bool is_included);
+    void pushNewFile(const std::string file_name, gix_esql_driver *driver, bool resolve_as_copy, bool is_included);
 
-    QStack<srcLocation> src_location_stack;
+    std::stack<srcLocation> src_location_stack;
 
     int getLineNo() { return yylineno;  }
 
-    QString cur_line_content;
+    std::string cur_line_content;
 
 
 private:
-    bool isParagraph(const QString &text);
+    bool isParagraph(const std::string &text);
+
+    std::vector<std::string> reserved_words_list;
 
 };

@@ -1,7 +1,7 @@
 CC=x86_64-w64-mingw32.shared-g++
 CXX=x86_64-w64-mingw32.shared-g++
 
-CPPFLAGS=-fPIC -g -std=c++11
+CPPFLAGS=-fPIC -g -std=c++17
 DEPS = ocdb.h  ocdblog.h  ocdbutil.h  gixsql.h  ocodbc.h connhandler.h dbifactory.h ocpgsql.h ocodbc.h
 OBJS = Connection.o ConnectionString.o CursorManager.o DbInterfaceFactory.o \
 	dllmain.o gixsql.o SqlVar.o utils.o \

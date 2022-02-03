@@ -50,7 +50,9 @@ HEADERS += \
 	./AddCompilerDialog.h \
 	./NoWheelComboBox.h \
 	./AddCompilerWizard.h \
-	./IdeStatusSyncSetter.h
+	./IdeStatusSyncSetter.h \ 
+	./DragDropTreeWidget.h \
+	./DragDropTableWidget.h
 
 SOURCES += \
     ./Changeling.cpp \
@@ -97,7 +99,9 @@ SOURCES += \
 	./WatchWindow.cpp \
 	./AddCompilerDialog.cpp \
 	./AddCompilerWizard.cpp \
-	./IdeStatusSyncSetter.cpp
+	./IdeStatusSyncSetter.cpp \ 
+	./DragDropTreeWidget.cpp \
+	./DragDropTableWidget.cpp
 
 FORMS += ./NewProject.ui \
 	./Settings.ui  \

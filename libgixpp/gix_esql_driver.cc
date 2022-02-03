@@ -19,10 +19,11 @@ USA.
 */
 
 #include "gix_esql_driver.hh"
-#include "gix_esql_parser.hh"
-#include "PathUtils.h"
 
-#include <QFileInfo>
+#include <vector>
+
+#include "gix_esql_parser.hh"
+#include "libcpputils.h"
 
 #if _DEBUG
 #define DEBUG_PARSER false
@@ -69,10 +70,10 @@ gix_esql_driver::gix_esql_driver ()
 
 	pp_inst = nullptr;
 
-	host_reference_list = new QList<cb_hostreference_ptr>();
-	res_host_reference_list = new QList<cb_res_hostreference_ptr>();
-	sql_list = new QList<cb_sql_token_t>();
-	exec_list = new QList<cb_exec_sql_stmt_ptr>();
+	host_reference_list = new std::vector<cb_hostreference_ptr>();
+	res_host_reference_list = new std::vector<cb_res_hostreference_ptr>();
+	sql_list = new std::vector<cb_sql_token_t>();
+	exec_list = new std::vector<cb_exec_sql_stmt_ptr>();
 
 }
 
@@ -84,18 +85,16 @@ gix_esql_driver::~gix_esql_driver ()
 	delete exec_list;
 }
 
-int gix_esql_driver::parse (GixPreProcessor *gpp, const QString &f)
+int gix_esql_driver::parse (GixPreProcessor *gpp, const std::string &f)
 {
 	pp_inst = gpp;
 
-	QString tf = PathUtils::changeExtension(f, "");
-	tf = PathUtils::getFilename(tf);
+	std::string tf = filename_change_ext(f, "");
 
-	filenameID = strdup(tf.toLocal8Bit().constData());
-    
-	file = f.toStdString();
+	filenameID = filename_get_name(tf);
+	file = f;
 
-	lexer.src_location_stack.push({ QFileInfo(f).absoluteFilePath() , 1 });
+	lexer.src_location_stack.push({ filename_absolute_path(f), 1 });
 
     scan_begin ();
     yy::gix_esql_parser parser (*this);
@@ -107,17 +106,19 @@ int gix_esql_driver::parse (GixPreProcessor *gpp, const QString &f)
     return res;
 }
 
-void gix_esql_driver::error (const yy::location& l, const std::string& m)
-{
-	QString msg = QString("ESQL parse error at line %1 of file %2: %3").arg(lexer.getLineNo()).arg(this->lexer.src_location_stack.top().filename).arg(QString::fromStdString(m));
-    //std::cerr << l << ": " << m << std::endl;
-	this->pp_inst->err_data.err_messages << msg;
-	this->pp_inst->err_data.err_code = 1;
+void gix_esql_driver::error (const yy::location& l, const std::string& m, int err_code)
+{   //std::cerr << l << ": " << m << std::endl;
+	std::string msg = string_format("ESQL parse error at line %d of file %s: %s", lexer.getLineNo(), this->lexer.src_location_stack.top().filename, m);
+	this->pp_inst->err_data.err_messages.push_back(msg);
+	this->pp_inst->err_data.err_code = err_code;
 }
 
-void gix_esql_driver::error (const std::string& m)
+void gix_esql_driver::error (const std::string& m, int err_code)
 {
-    std::cerr << m << std::endl;
+    //std::cerr << m << std::endl;
+	std::string msg = string_format("ESQL parse error (no location data available): %s", m);
+	this->pp_inst->err_data.err_messages.push_back(msg);
+	this->pp_inst->err_data.err_code = err_code;
 }
 
 // CHANGE: functions moved from the bottom of `gix_esql_scanner.ll`
@@ -145,36 +146,36 @@ void gix_esql_driver::scan_end ()
 }
 
 
-QList<cb_sql_token_t> *cb_sql_list_dup(const QList<cb_sql_token_t> *orig)
+std::vector<cb_sql_token_t> *cb_sql_list_dup(const std::vector<cb_sql_token_t> *orig)
 {
-	return new QList<cb_sql_token_t>(*orig);
+	return new std::vector<cb_sql_token_t>(*orig);
 }
 
-QList<cb_sql_token_t> *gix_esql_driver::cb_text_list_add(QList<cb_sql_token_t> *list, QString text)
+std::vector<cb_sql_token_t> *gix_esql_driver::cb_text_list_add(std::vector<cb_sql_token_t> *list, std::string text)
 {
-	QList<cb_sql_token_t> *l = (list != nullptr) ? list : new QList<cb_sql_token_t>();
-	l->append(text);
+	std::vector<cb_sql_token_t> *l = (list != nullptr) ? list : new std::vector<cb_sql_token_t>();
+	l->push_back(text);
 	return l;
 }
 
-QList<cb_sql_token_t> *gix_esql_driver::cb_concat_text_list(QList<cb_sql_token_t> *list, QList<cb_sql_token_t> *targetlist)
+std::vector<cb_sql_token_t> *gix_esql_driver::cb_concat_text_list(std::vector<cb_sql_token_t> *list, std::vector<cb_sql_token_t> *targetlist)
 {
-	list->append(*targetlist);
+	list->insert(list->end(), targetlist->begin(), targetlist->end());
 	sql_list = list;
 	return list;
 }
 
-QString gix_esql_driver::cb_host_list_add(QList<cb_hostreference_ptr> *list, QString text)
+std::string gix_esql_driver::cb_host_list_add(std::vector<cb_hostreference_ptr> *list, std::string text)
 {
 	int hostno = cb_search_list(text);
 
 	if (!opt_use_anonymous_params)
-		return "$" + QString::number(hostno);
+		return "$" + std::to_string(hostno);
 	else
 		return "?";
 }
 
-QString gix_esql_driver::cb_host_list_add_force(QList<cb_hostreference_ptr> *list, QString text)
+std::string gix_esql_driver::cb_host_list_add_force(std::vector<cb_hostreference_ptr> *list, std::string text)
 {
 	int hostno = list->size() + 1;
 
@@ -183,26 +184,26 @@ QString gix_esql_driver::cb_host_list_add_force(QList<cb_hostreference_ptr> *lis
 	p->hostno = hostno;
 	p->lineno = hostlineno;
 
-	list->append(p);
+	list->push_back(p);
 
 	if (!opt_use_anonymous_params)
-		return "$" + QString::number(hostno);
+		return "$" + std::to_string(hostno);
 	else
 		return "?";
 }
 
 
-void gix_esql_driver::cb_res_host_list_add(QList<cb_res_hostreference_ptr> *list, QString text)
+void gix_esql_driver::cb_res_host_list_add(std::vector<cb_res_hostreference_ptr> *list, std::string text)
 {
 	cb_res_hostreference_ptr p = new cb_res_hostreference_t();
 	p->hostreference = text;
 	p->lineno = hostlineno;
 
-	res_host_reference_list->append(p);
+	res_host_reference_list->push_back(p);
 }
 
 int
-gix_esql_driver::cb_search_list(QString text)
+gix_esql_driver::cb_search_list(std::string text)
 {
 	if (!opt_use_anonymous_params) {
 		for (auto it = host_reference_list->begin(); it != host_reference_list->end(); ++it) {
@@ -219,20 +220,20 @@ gix_esql_driver::cb_search_list(QString text)
 	p->hostno = hostno;
 	p->lineno = hostlineno;
 
-	host_reference_list->append(p);
+	host_reference_list->push_back(p);
 
 	// return
 	return hostno;
 }
 
 void
-gix_esql_driver::cb_set_cursorname(QString text)
+gix_esql_driver::cb_set_cursorname(std::string text)
 {
 	cursorname = filenameID + "_" + text;
 }
 
 void
-gix_esql_driver::cb_set_commandname(QString text)
+gix_esql_driver::cb_set_commandname(std::string text)
 {
 	commandname = text;
 }
@@ -247,7 +248,7 @@ gix_esql_driver::cb_set_cursor_hold(bool h)
 void gix_esql_driver::put_startup_exec_list()
 {
 	put_exec_list();
-	exec_list->last()->startup_item = true;
+	exec_list->back()->startup_item = true;
 }
 
 void gix_esql_driver::put_exec_list()
@@ -266,16 +267,16 @@ void gix_esql_driver::put_exec_list()
 	l->sqlName = sqlname;
 	l->incfileName = incfilename;
 	l->cursor_hold = cursor_hold;
-	l->src_file = lexer.src_location_stack.top().filename;
+	l->src_file = filename_clean_path(lexer.src_location_stack.top().filename);
 
 	l->startup_item = 0;
 	l->sql_query_list_id = sqlnum;
 
-	host_reference_list = new QList<cb_hostreference_ptr>();
-	res_host_reference_list = new QList<cb_res_hostreference_ptr>();
-	sql_list = new QList<cb_sql_token_t>();
+	host_reference_list = new std::vector<cb_hostreference_ptr>();
+	res_host_reference_list = new std::vector<cb_res_hostreference_ptr>();
+	sql_list = new std::vector<cb_sql_token_t>();
 
-	exec_list->append(l);
+	exec_list->push_back(l);
 
 }
 
@@ -312,12 +313,12 @@ cb_field_ptr cb_field_founder(cb_field_ptr f)
 	return f;
 }
 
-cb_field_ptr gix_esql_driver::cb_build_field_tree(int level, QString name, cb_field_ptr last_field)
+cb_field_ptr gix_esql_driver::cb_build_field_tree(int level, std::string name, cb_field_ptr last_field)
 {
 	int lv;
 	cb_field_ptr f, p;
 
-	if (name == NULL)
+	if (name.empty())
 		return NULL;
 
 	lv = cb_get_level(level);
@@ -351,8 +352,8 @@ cb_field_ptr gix_esql_driver::cb_build_field_tree(int level, QString name, cb_fi
 	}
 	else {
 		if (last_field == NULL) {
-			fprintf(stderr, "parse error: %s level should start from 01 or 66 or 77 or 88\n", name.toUtf8().constData());
-			exit(-1);
+			fprintf(stderr, "parse error: %s level should start from 01 or 66 or 77 or 88\n", name.c_str());
+			//exit(-1);
 			return NULL;
 		}
 
@@ -395,7 +396,7 @@ cb_field_ptr gix_esql_driver::cb_build_field_tree(int level, QString name, cb_fi
 	}
 
 	if (f) {
-		QString path = f->sname;
+		std::string path = f->sname;
 		cb_field_ptr p = f;
 		while (p->parent) {
 			path = p->parent->sname + ":" + path;
@@ -421,15 +422,14 @@ cb_field_ptr gix_esql_driver::cb_build_field_tree(int level, QString name, cb_fi
 	}
 
 	f->defined_at_source_line = lexer.getLineNo();
-	f->defined_at_source_file = QString::fromStdString(lexer.driver->file);
+	f->defined_at_source_file = lexer.driver->file;
 
 	return f;
 }
 
-int gix_esql_driver::build_picture(const QString str, cb_field_ptr pic)
+int gix_esql_driver::build_picture(const std::string str, cb_field_ptr pic)
 {
-	auto ba = str.toLocal8Bit();
-    const char *p = ba.data();
+	const char *p = str.c_str();
 
 	int			i;
 	int			n;

@@ -20,8 +20,8 @@ USA.
 
 #pragma once
 
-#include <QString>
-#include <QList>
+#include <string>
+#include <vector>
 
 #define BY_REFERENCE	true
 #define BY_VALUE		false
@@ -29,7 +29,7 @@ USA.
 class ESqlCallParameter
 {
 public:
-	QString value;
+	std::string value;
 	bool by_reference;
 };
 
@@ -37,16 +37,16 @@ class ESQLCall
 {
 public:
 	ESQLCall(bool _is_static);
-	ESQLCall(const QString _call_name, bool _is_static);
+	ESQLCall(const std::string _call_name, bool _is_static);
 
-	void addParameter(QString value, bool by_reference);
+	void addParameter(std::string value, bool by_reference);
 	void addParameter(int value, bool by_reference);
 
-	QStringList format() const;
+	std::vector<std::string> format() const;
 
 private:
 	bool is_static;
-	QString call_name;
-	QList<ESqlCallParameter> params;
+	std::string call_name;
+	std::vector<ESqlCallParameter> params;
 };
 

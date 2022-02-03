@@ -11,9 +11,9 @@ HEADERS +=  ./CobolVar.h \
 			./ServerConfig.h \
 			./SymbolBufferReader.h \
 			./SymbolMappingEntry.h \
-			./utils.h \
 			./XPathParser.h \
 			./ESQLConfiguration.h \
+			./SourceFileFormat.h \
 			./projectsystem/IPersistableProjectItem.h \
 			./projectsystem/MultiBinaryProject.h \
 			./projectsystem/PrjCollPropertyDefinitionCollection.h \
@@ -67,7 +67,6 @@ SOURCES +=  ./GixGlobals.cpp \
 			./CobolVar.cpp \
 			./PropertyConsts.cpp \
 			./RsrcUtils.cpp \
-			./utils.cpp \
 			./ESQLConfiguration.cpp \
 			./projectsystem/Project.cpp \
 			./projectsystem/WebProject.cpp \

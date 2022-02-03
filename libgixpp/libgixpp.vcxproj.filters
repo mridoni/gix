@@ -3,67 +3,21 @@
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
-      <Extensions>qrc;*</Extensions>
-      <ParseFiles>false</ParseFiles>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="libgixpp_global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <QtMoc Include="libgixpp.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <ClCompile Include="libgixpp.cpp">
+    <ClCompile Include="ESQLCall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="ESQLDefinitions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gix_esql_driver.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GixEsqlLexer.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GixPreProcessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ITransformationStep.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TPESQLProcessing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gix_esql_parser.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="location.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ESQLCall.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TPSourceConsolidation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="FileData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -82,18 +36,68 @@
     <ClCompile Include="TPESQLProcessing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TPSourceConsolidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MapFileReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MapFileWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="gix_esql_parser.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gix_esql_scanner.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ESQLCall.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TPSourceConsolidation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ESQLCall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ESQLDefinitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gix_esql_driver.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GixEsqlLexer.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GixPreProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ITransformationStep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libgixpp_global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TPESQLProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TPSourceConsolidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapFileReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapFileWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gix_esql_parser.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="location.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libgixpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="gix_esql_parser.yy" />

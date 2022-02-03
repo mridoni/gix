@@ -858,6 +858,8 @@ void SqlVar::display_to_comp3(const char *data, bool has_sign) // , int total_le
 	int comp3_len = (this->length / 2) + 1;
 	j = comp3_len - 1; /* byte index */
 
+	memset(pknum, 0, comp3_len);
+
 	pknum[j] = has_sign ? 0x0c : 0x0f; // start with positive sign (if unsigned), otherwise 0x0f)
 
 	while (i > -1) {

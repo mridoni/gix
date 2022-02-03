@@ -18,6 +18,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <imagehlp.h>
+#include "BufferedStackWalker.h"
+#endif
+
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
@@ -26,6 +32,7 @@ USA.
 #include <QTimer>
 
 #include <QDebug>
+#include <QDataStream>
 
 #if defined(Q_OS_LINUX) && defined(_DEBUG)
 #include <execinfo.h>
@@ -41,6 +48,8 @@ USA.
 #include "IGixLogManager.h"
 #include "IdeLogManager.h"
 #include "GixVersion.h"
+#include "DataEntry.h"
+
 
 #if 0
 class GixApplication final : public QApplication {
@@ -102,9 +111,65 @@ handler_t()
 
 #endif
 
+#ifdef _WIN32
+
+LONG WINAPI GixCrashHandler(EXCEPTION_POINTERS *ex_info)
+{
+    bool bFailed = true;
+    HANDLE hFile;
+    char bfr[MAX_PATH];
+
+    ExpandEnvironmentStrings("%TEMP%\\gix-ide.dmp", bfr, MAX_PATH);
+
+    hFile = CreateFile(bfr, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile != INVALID_HANDLE_VALUE) {
+        MINIDUMP_EXCEPTION_INFORMATION stMDEI;
+        stMDEI.ThreadId = GetCurrentThreadId();
+        stMDEI.ExceptionPointers = ex_info;
+        stMDEI.ClientPointers = TRUE;
+
+        if (MiniDumpWriteDump(
+            GetCurrentProcess(),
+            GetCurrentProcessId(),
+            hFile,
+            MiniDumpNormal,
+            &stMDEI,
+            NULL,
+            NULL
+        )) {
+            bFailed = false;  // suceeded
+        }
+        CloseHandle(hFile);
+    }
+
+    if (bFailed) {
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+
+    //FatalAppExit(-1, "Sorry, Gix-IDE crashed!");
+
+    return EXCEPTION_CONTINUE_SEARCH;  // this will trigger the "normal" OS error-dialog
+}
+
+#endif
+
+QDataStream &operator<<(QDataStream &out, DataEntry **const &rhs)
+{
+	out.writeRawData(reinterpret_cast<const char *>(&rhs), sizeof(rhs));
+	return out;
+}
+
+QDataStream &operator >> (QDataStream &in, DataEntry * &rhs)
+{
+	in.readRawData(reinterpret_cast<char *>(&rhs), sizeof(rhs));
+	return in;
+}
 
 int main(int argc, char *argv[])
 {
+    qRegisterMetaTypeStreamOperators<DataEntry *>("DataEntry *");
+    qRegisterMetaType<DataEntry>("DataEntry");
+
 #if 0 && defined(Q_OS_WIN) && defined(_DEBUG)
     _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
     _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF);
@@ -119,6 +184,10 @@ int main(int argc, char *argv[])
     signal(SIGSEGV, handler);   // install our handler
     std::set_terminate( handler_t );
 #endif
+
+#ifdef _WIN32
+    SetUnhandledExceptionFilter(GixCrashHandler);
+#endif 
 
 #if defined(__linux__)
 	if (!qgetenv("QT_FONT_DPI").size())

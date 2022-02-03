@@ -1,7 +1,7 @@
 TEMPLATE = lib
 CONFIG += staticlib
 TARGET = gixpp
-INCLUDEPATH += . ../libgixutils
+INCLUDEPATH += . ../libcpputils
 
 CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
 CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
@@ -14,10 +14,10 @@ linux:BISONSOURCES = gix_esql_parser.yy
 linux:PRE_TARGETDEPS += compiler_flex_make_all compiler_bison_make_all
 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic -Wl,--whole-archive
-linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
+linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas -I ../build-tools/grammar-tools
 
 linux:QMAKE_LFLAGS_RELEASE+= -Wl,--whole-archive
-linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
+linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas -I ../build-tools/grammar-tools
 
 win32:QMAKE_LFLAGS_RELEASE+=
 win32:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas -I ../build-tools/grammar-tools
@@ -31,11 +31,18 @@ win32:DEFINES -= UNICODE _UNICODE
 #win32:YACCSOURCES = gix_esql_parser.yy
 #win32:LEXSOURCES  = gix_esql_scanner.ll
 
-HEADERS += ESQLCall.h  ESQLDefinitions.h  FileData.h  GixPreProcessor.h  ITransformationStep.h  \
-			libgixpp_global.h  libgixpp.h  TPESQLProcessing.h  TPSourceConsolidation.h \
-			gix_esql_driver.hh  GixEsqlLexer.hh  gix_esql_parser.hh  location.hh \
-			gix_esql_parser.hh gix_esql_scanner.hh
+HEADERS += ESQLCall.h ESQLDefinitions.h FileData.h gix_esql_driver.hh GixEsqlLexer.hh GixPreProcessor.h \
+			ITransformationStep.h libgixpp_global.h MapFileReader.h MapFileWriter.h \
+			TPESQLProcessing.h TPSourceConsolidation.h libgixpp.h
 
-SOURCES += ESQLCall.cpp  FileData.cpp  GixEsqlLexer.cpp  GixPreProcessor.cpp \
-			ITransformationStep.cpp  libgixpp.cpp  TPESQLProcessing.cpp  TPSourceConsolidation.cpp \
-			gix_esql_driver.cc
+
+
+SOURCES += ESQLCall.cpp FileData.cpp gix_esql_driver.cc GixEsqlLexer.cpp GixPreProcessor.cpp \
+			ITransformationStep.cpp MapFileReader.cpp MapFileWriter.cpp \
+			TPESQLProcessing.cpp TPSourceConsolidation.cpp 
+
+
+
+
+
+

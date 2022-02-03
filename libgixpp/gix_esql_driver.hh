@@ -67,7 +67,7 @@ public:
     
     // Run the parser on file F.
     // Return 0 on success.
-    int parse (GixPreProcessor *gpp, const QString& f);
+    int parse (GixPreProcessor *gpp, const std::string& f);
     // The name of the file being parsed.
     // Used later to pass the file name to the location tracker.
     std::string file;
@@ -75,35 +75,35 @@ public:
     bool trace_parsing;
 
     // Error handling.
-    void error (const yy::location& l, const std::string& m);
-    void error (const std::string& m);
+    void error (const yy::location& l, const std::string& m, int err_code = 1);
+    void error (const std::string& m, int err_code = 1);
 
 #pragma endregion
 
 
 #pragma region ESQL data structures
 
-    //QList<cb_sql_token_t> *cb_sql_list_dup(const QList<cb_sql_token_t> *orig);
+    //std::vector<cb_sql_token_t> *cb_sql_list_dup(const std::vector<cb_sql_token_t> *orig);
     
-    //struct cb_sql_list *cb_text_list_add(struct cb_sql_list *list, QString text);
-    QList<cb_sql_token_t> *cb_text_list_add(QList<cb_sql_token_t> *list, QString text);
+    //struct cb_sql_list *cb_text_list_add(struct cb_sql_list *list, std::string text);
+    std::vector<cb_sql_token_t> *cb_text_list_add(std::vector<cb_sql_token_t> *list, std::string text);
 
     //struct cb_sql_list *cb_concat_text_list(struct cb_sql_list *list, struct cb_sql_list *targetlist);
-    QList<cb_sql_token_t> *cb_concat_text_list(QList<cb_sql_token_t> *list, QList<cb_sql_token_t> *targetlist);
+    std::vector<cb_sql_token_t> *cb_concat_text_list(std::vector<cb_sql_token_t> *list, std::vector<cb_sql_token_t> *targetlist);
 
-    QString cb_host_list_add(QList<cb_hostreference_ptr> *list, QString text);
-    QString cb_host_list_add_force(QList<cb_hostreference_ptr> *list, QString text);
+    std::string cb_host_list_add(std::vector<cb_hostreference_ptr> *list, std::string text);
+    std::string cb_host_list_add_force(std::vector<cb_hostreference_ptr> *list, std::string text);
     
-    void cb_res_host_list_add(QList<cb_res_hostreference_ptr> *list, QString text);
+    void cb_res_host_list_add(std::vector<cb_res_hostreference_ptr> *list, std::string text);
     
-    int cb_search_list(QString text);
+    int cb_search_list(std::string text);
     
-    void cb_set_cursorname(QString text);
-    void cb_set_commandname(QString text);
+    void cb_set_cursorname(std::string text);
+    void cb_set_commandname(std::string text);
     void cb_set_cursor_hold(bool h);
 
-    int build_picture(const QString str, cb_field_ptr pic);
-    cb_field_ptr cb_build_field_tree(int level, QString, cb_field_ptr last_field);
+    int build_picture(const std::string str, cb_field_ptr pic);
+    cb_field_ptr cb_build_field_tree(int level, std::string, cb_field_ptr last_field);
 
     void put_startup_exec_list();
     void put_exec_list();
@@ -114,21 +114,21 @@ public:
     int period;
     int sqlnum;
     int command_putother;
-    QString filenameID;
+    std::string filenameID;
     int currenthostno;
     int cursor_hold;
-    QString commandname;
-    QString cursorname;
-    QString sqlname;
-    QString incfilename;
+    std::string commandname;
+    std::string cursorname;
+    std::string sqlname;
+    std::string incfilename;
 
     int orig_state = 0;
 
     int hostreferenceCount;
-    QList<cb_hostreference_ptr> *host_reference_list;
-    QList<cb_res_hostreference_ptr> *res_host_reference_list;
-    QList<cb_sql_token_t> *sql_list;
-    QList<cb_exec_sql_stmt_ptr> *exec_list;
+    std::vector<cb_hostreference_ptr> *host_reference_list;
+    std::vector<cb_res_hostreference_ptr> *res_host_reference_list;
+    std::vector<cb_sql_token_t> *sql_list;
+    std::vector<cb_exec_sql_stmt_ptr> *exec_list;
 
     cb_field_ptr current_field;
     cb_field_ptr description_field;
@@ -145,11 +145,11 @@ public:
 #pragma region Management
     GixPreProcessor *pp_inst;
     
-    QMap<QString, cb_field_ptr> field_map;
+    std::map<std::string, cb_field_ptr> field_map;
 
-    QMap<QString, srcLocation> paragraphs;
+    std::map<std::string, srcLocation> paragraphs;
 
-    QString program_id;
+    std::string program_id;
 
 #pragma endregion
 

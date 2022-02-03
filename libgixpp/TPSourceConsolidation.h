@@ -22,10 +22,10 @@ USA.
 
 #include "ITransformationStep.h"
 
-#include <QString>
-#include <QStringList>
-#include <QMap>
-#include <QStack>
+#include <string>
+#include <vector>
+#include <map>
+#include <stack>
 
 class TPSourceConsolidation : public ITransformationStep
 {
@@ -35,18 +35,18 @@ public:
 	// Inherited via ITransformationStep
 	virtual bool run(ITransformationStep* prev_step) override;
 
-	virtual QString getOutput(ITransformationStep* me = nullptr) override;
+	virtual std::string getOutput(ITransformationStep* me = nullptr) override;
 
-	QMap<QString, QString> &getSrcLineMap() const;
-	QMap<int, QString> &getFileMap() const;
+	std::map<std::string, std::string> &getSrcLineMap() const;
+	std::map<int, std::string> &getFileMap() const;
 
 private:
-	QStringList all_lines;
+	std::vector<std::string> all_lines;
 
-	QMap<int, QString> filemap;
-	QMap<QString, QString> in_to_out;
+	std::map<int, std::string> filemap;
+	std::map<std::string, std::string> in_to_out;
 
-	QStack<QString> input_file_stack;
+	std::stack<std::string> input_file_stack;
 
 	int current_input_line;
 	int cur_output_line;
@@ -56,7 +56,7 @@ private:
 	bool map_only;
 
 	bool processNextFile();
-	void put_output_line(const QString &line);
-	bool is_copy_statement(const QString line, QString &copy_name);
+	void put_output_line(const std::string &line);
+	bool is_copy_statement(const std::string line, std::string &copy_name);
 };
 

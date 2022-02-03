@@ -33,6 +33,7 @@
 #define LOG_ERROR(format, ...)fprintf(stderr, format, ##__VA_ARGS__)
 #endif
 
+// TODO: fix this
 #define CLIENT_SIDE_CURSOR
 
 DbInterfaceMySQL::DbInterfaceMySQL()
@@ -58,7 +59,7 @@ int DbInterfaceMySQL::init(ILogger *_logger)
 	return DBERR_NO_ERROR;
 }
 
-int DbInterfaceMySQL::connect(IConnectionString * conn_string, int autocommit, string encoding)
+int DbInterfaceMySQL::connect(IConnectionString *conn_string, int autocommit, string encoding)
 {
 	MYSQL *conn;
 	string connstr;
@@ -66,7 +67,7 @@ int DbInterfaceMySQL::connect(IConnectionString * conn_string, int autocommit, s
 	connaddr = NULL;
 
 	LOG_DEBUG(__FILE__, __func__, "connstring: %s - autocommit: %d - encoding: %s\n",
-						conn_string->get().c_str(), autocommit, encoding.c_str());
+		conn_string->get().c_str(), autocommit, encoding.c_str());
 
 	conn = mysql_init(NULL);
 	conn = mysql_real_connect(conn, conn_string->getHost().c_str(), conn_string->getUsername().c_str(),
@@ -136,7 +137,7 @@ int DbInterfaceMySQL::end_transaction(string completion_type)
 
 char *DbInterfaceMySQL::get_error_message()
 {
-	return (char*)last_error.c_str();
+	return (char *)last_error.c_str();
 }
 
 int DbInterfaceMySQL::get_error_code()
@@ -149,15 +150,15 @@ void DbInterfaceMySQL::set_owner(IConnection *conn)
 	owner = conn;
 }
 
-IConnection* DbInterfaceMySQL::get_owner()
+IConnection *DbInterfaceMySQL::get_owner()
 {
 	return owner;
 }
 
-int DbInterfaceMySQL::_mysql_exec_params(ICursor* crsr, string query, int nParams, int* paramTypes, vector<string>& paramValues, int* paramLengths, int* paramFormats, int resultFormat)
+int DbInterfaceMySQL::_mysql_exec_params(ICursor *crsr, string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats, int resultFormat)
 {
 	string q = query;
-	MySQLCursorData* exec_data = NULL;
+	MySQLCursorData *exec_data = NULL;
 	LOG_DEBUG(__FILE__, __func__, "SQL: %s\n", q.c_str());
 
 	if (!crsr) {
@@ -169,8 +170,8 @@ int DbInterfaceMySQL::_mysql_exec_params(ICursor* crsr, string query, int nParam
 		exec_data->cursor_stmt = mysql_stmt_init(connaddr);
 	}
 	else {
-		exec_data = (MySQLCursorData *) crsr->getPrivateData();
-}
+		exec_data = (MySQLCursorData *)crsr->getPrivateData();
+	}
 
 	/*
 		Prepared statements are restricted to only a few category of statements.
@@ -187,16 +188,16 @@ int DbInterfaceMySQL::_mysql_exec_params(ICursor* crsr, string query, int nParam
 		if (last_rc) {
 			last_error = retrieve_mysql_error_message(exec_data->cursor_stmt);
 			return DBERR_SQL_ERROR;
-}
+		}
 
 
 
-		MYSQL_BIND* bound_param_defs = (MYSQL_BIND*)calloc(sizeof(MYSQL_BIND), nParams);
+		MYSQL_BIND *bound_param_defs = (MYSQL_BIND *)calloc(sizeof(MYSQL_BIND), nParams);
 		for (int i = 0; i < nParams; i++) {
-			MYSQL_BIND* bound_param = &bound_param_defs[i];
+			MYSQL_BIND *bound_param = &bound_param_defs[i];
 
 			bound_param->buffer_type = MYSQL_TYPE_STRING;
-			bound_param->buffer = (char*)paramValues.at(i).c_str();
+			bound_param->buffer = (char *)paramValues.at(i).c_str();
 			bound_param->buffer_length = paramValues.at(i).size();
 		}
 		mysql_stmt_bind_param(exec_data->cursor_stmt, bound_param_defs);
@@ -209,7 +210,7 @@ int DbInterfaceMySQL::_mysql_exec_params(ICursor* crsr, string query, int nParam
 			last_error = retrieve_mysql_error_message(exec_data->cursor_stmt);
 			exec_data->clear();
 			LOG_ERROR("MySQL: Error while executing query (%d): %s\n", last_rc, q.c_str());
-		return DBERR_SQL_ERROR;
+			return DBERR_SQL_ERROR;
 		}
 
 		if (mysql_stmt_field_count(exec_data->cursor_stmt)) {
@@ -225,8 +226,8 @@ int DbInterfaceMySQL::_mysql_exec_params(ICursor* crsr, string query, int nParam
 				mysql_stmt_close(exec_data->cursor_stmt);
 				last_error = retrieve_mysql_error_message(exec_data->cursor_stmt);
 				exec_data->clear();
-		return DBERR_SQL_ERROR;
-	}
+				return DBERR_SQL_ERROR;
+			}
 #endif
 			if (!exec_data->init()) {
 				LOG_ERROR("MySQL: Error while initializing cursor buffers\n");
@@ -250,17 +251,17 @@ int DbInterfaceMySQL::_mysql_exec_params(ICursor* crsr, string query, int nParam
 			LOG_ERROR("MySQL: Error while executing query [%d : %s] - %s\n", last_rc, get_error_message(), q.c_str());
 			last_error = retrieve_mysql_error_message(exec_data->cursor_stmt);
 			exec_data->clear();
-		return DBERR_SQL_ERROR;
-	}
+			return DBERR_SQL_ERROR;
+		}
 	}
 
 	return DBERR_NO_ERROR;
 }
 
-int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
+int DbInterfaceMySQL::_mysql_exec(ICursor *crsr, const string query)
 {
 	string q = query;
-	MySQLCursorData* exec_data = NULL;
+	MySQLCursorData *exec_data = NULL;
 
 	LOG_DEBUG(__FILE__, __func__, "SQL: %s\n", q.c_str());
 
@@ -273,7 +274,7 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 		exec_data->cursor_stmt = mysql_stmt_init(connaddr);
 	}
 	else {
-		exec_data = (MySQLCursorData*)crsr->getPrivateData();
+		exec_data = (MySQLCursorData *)crsr->getPrivateData();
 	}
 
 	/*
@@ -289,7 +290,7 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 		last_rc = mysql_stmt_prepare(exec_data->cursor_stmt, q.c_str(), q.size());
 		if (last_rc) {
 			last_error = retrieve_mysql_error_message(exec_data->cursor_stmt);
-		return DBERR_SQL_ERROR;
+			return DBERR_SQL_ERROR;
 		}
 
 
@@ -301,7 +302,7 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 			mysql_stmt_close(exec_data->cursor_stmt);
 			exec_data->clear();
 			return DBERR_SQL_ERROR;
-	}
+		}
 
 		if (mysql_stmt_field_count(exec_data->cursor_stmt)) {
 
@@ -316,8 +317,8 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 				LOG_ERROR("MySQL: Error while storing resultset (%d) - %s\n", last_rc, last_error.c_str());
 				mysql_stmt_close(exec_data->cursor_stmt);
 				exec_data->clear();
-		return DBERR_SQL_ERROR;
-	}
+				return DBERR_SQL_ERROR;
+			}
 #endif
 			if (!exec_data->init()) {
 				last_error = retrieve_mysql_error_message(exec_data->cursor_stmt);
@@ -331,8 +332,8 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 				}
 				last_rc = DBERR_INVALID_COLUMN_DATA;
 				exec_data->clear();
-		return DBERR_SQL_ERROR;
-	}
+				return DBERR_SQL_ERROR;
+			}
 		}
 	}
 	else {
@@ -348,18 +349,20 @@ int DbInterfaceMySQL::_mysql_exec(ICursor* crsr, const string query)
 	return DBERR_NO_ERROR;
 }
 
-const char* DbInterfaceMySQL::retrieve_mysql_error_message(MYSQL_STMT* stmt)
+const char *DbInterfaceMySQL::retrieve_mysql_error_message(MYSQL_STMT *stmt)
 {
+	const char *err = NULL;
 	if (stmt != NULL)
-		return mysql_stmt_error(stmt);
+		err = mysql_stmt_error(stmt);
 	else
 		if (connaddr != NULL)
-			return mysql_error(connaddr);
-		else
-			return NULL;
+			err = mysql_error(connaddr);
+
+	if (!err)
+			return "Unknown error";
 }
 
-int DbInterfaceMySQL::retrieve_mysql_error_code(MYSQL_STMT* stmt)
+int DbInterfaceMySQL::retrieve_mysql_error_code(MYSQL_STMT *stmt)
 {
 	if (stmt != NULL)
 		return mysql_stmt_errno(stmt);
@@ -376,7 +379,7 @@ int DbInterfaceMySQL::exec(string query)
 }
 
 
-int DbInterfaceMySQL::exec_params(string query, int nParams, int* paramTypes, vector<string>& paramValues, int* paramLengths, int* paramFormats, int resultFormat)
+int DbInterfaceMySQL::exec_params(string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats, int resultFormat)
 {
 	return _mysql_exec_params(NULL, query, nParams, paramTypes, paramValues, paramLengths, paramFormats, resultFormat);
 }
@@ -391,7 +394,7 @@ int DbInterfaceMySQL::close_cursor(ICursor *cursor)
 		return DBERR_CLOSE_CURSOR_FAILED;
 	}
 
-	MySQLCursorData* cursor_data = (MySQLCursorData*)cursor->getPrivateData();
+	MySQLCursorData *cursor_data = (MySQLCursorData *)cursor->getPrivateData();
 	if (!cursor_data) {
 		LOG_ERROR("MySQL: ERROR: closing uninitialized cursor (%s)\n", cursor->getName().c_str());
 		return DBERR_CLOSE_CURSOR_FAILED;
@@ -423,10 +426,10 @@ int DbInterfaceMySQL::cursor_declare(ICursor *cursor, bool with_hold, int res_ty
 		return DBERR_DECLARE_CURSOR_FAILED;
 	}
 
-	MySQLCursorData* cursor_data = new MySQLCursorData();
+	MySQLCursorData *cursor_data = new MySQLCursorData();
 	cursor_data->cursor_stmt = cursor_stmt;
 
-	std::map<string, ICursor*>::iterator it = _declared_cursors.find(cursor->getName());
+	std::map<string, ICursor *>::iterator it = _declared_cursors.find(cursor->getName());
 	if (it == _declared_cursors.end()) {
 		_declared_cursors[cursor->getName()] = cursor;
 		cursor->setPrivateData(cursor_data);
@@ -442,17 +445,17 @@ int DbInterfaceMySQL::cursor_declare_with_params(ICursor *cursor, char **param_v
 	if (!cursor)
 		return DBERR_DECLARE_CURSOR_FAILED;
 
-	MYSQL_STMT* cursor_stmt = mysql_stmt_init(connaddr);
+	MYSQL_STMT *cursor_stmt = mysql_stmt_init(connaddr);
 	if (!cursor_stmt) {
 		last_rc = retrieve_mysql_error_code(NULL);
 		last_error = retrieve_mysql_error_message(NULL);
 		return DBERR_DECLARE_CURSOR_FAILED;
 	}
 
-	MySQLCursorData* cursor_data = new MySQLCursorData();
+	MySQLCursorData *cursor_data = new MySQLCursorData();
 	cursor_data->cursor_stmt = cursor_stmt;
 
-	std::map<string, ICursor*>::iterator it = _declared_cursors.find(cursor->getName());
+	std::map<string, ICursor *>::iterator it = _declared_cursors.find(cursor->getName());
 	if (it == _declared_cursors.end()) {
 		_declared_cursors[cursor->getName()] = cursor;
 		cursor->setPrivateData(cursor_data);
@@ -461,7 +464,7 @@ int DbInterfaceMySQL::cursor_declare_with_params(ICursor *cursor, char **param_v
 	return DBERR_NO_ERROR;
 }
 
-int DbInterfaceMySQL::cursor_open(ICursor* cursor)
+int DbInterfaceMySQL::cursor_open(ICursor *cursor)
 {
 	LOG_DEBUG(__FILE__, __func__, "MySQL: open cursor invoked\n");
 	if (!cursor) {
@@ -492,7 +495,7 @@ int DbInterfaceMySQL::fetch_one(ICursor *cursor, int fetchmode)
 		return DBERR_FETCH_ROW_FAILED;
 	}
 
-	MySQLCursorData* cursor_data = (MySQLCursorData*)cursor->getPrivateData();;
+	MySQLCursorData *cursor_data = (MySQLCursorData *)cursor->getPrivateData();;
 	if (!cursor_data) {
 		LOG_ERROR("MySQL: ERROR: invalid cursor data (%s)\n", cursor->getName().c_str());
 		return DBERR_FETCH_ROW_FAILED;
@@ -519,7 +522,9 @@ int DbInterfaceMySQL::fetch_one(ICursor *cursor, int fetchmode)
 
 	int rc = mysql_stmt_bind_result(cursor_data->cursor_stmt, bound_res_cols);
 	if (rc) {
-		//fprintf(stderr, "%s\n", mysql_stmt_error(cur_stmt));
+		last_error = retrieve_mysql_error_message(cursor_data->cursor_stmt);
+		//LOG_ERROR("MySQL: Error while fetching row from cursor (%d : %s) %s\n", get_error_code(), get_error_message(), cursor->getName().c_str());
+		return DBERR_FETCH_ROW_FAILED;
 	}
 
 	last_rc = mysql_stmt_fetch(cursor_data->cursor_stmt);
@@ -532,11 +537,11 @@ int DbInterfaceMySQL::fetch_one(ICursor *cursor, int fetchmode)
 	return DBERR_NO_ERROR;
 }
 
-bool DbInterfaceMySQL::get_resultset_value(ICursor* cursor, int row, int col, char* bfr, int bfrlen)
+bool DbInterfaceMySQL::get_resultset_value(ICursor *cursor, int row, int col, char *bfr, int bfrlen)
 {
-	MySQLCursorData* cursor_data = (MySQLCursorData*)((cursor != NULL) ? cursor->getPrivateData() : &cur_crsr);
+	MySQLCursorData *cursor_data = (MySQLCursorData *)((cursor != NULL) ? cursor->getPrivateData() : &cur_crsr);
 	if (col < cursor_data->data_buffers.size()) {
-		char* data = cursor_data->data_buffers.at(col);
+		char *data = cursor_data->data_buffers.at(col);
 		int datalen = cursor_data->data_buffer_lengths.at(col);
 		if (datalen > bfrlen) {
 			LOG_ERROR("MySQL: WARNING : possible truncation error: needed %d bytes, %d allocated\n", datalen, bfrlen);
@@ -555,7 +560,7 @@ int DbInterfaceMySQL::move_to_first_record()
 {
 	LOG_DEBUG(__FILE__, __func__, "MySQL: moving to first row in resultset\n");
 
-	MySQLCursorData* cursor_data = &cur_crsr;
+	MySQLCursorData *cursor_data = &cur_crsr;
 	if (!cursor_data) {
 		LOG_ERROR("MySQL: ERROR: invalid statement data\n");
 		return DBERR_MOVE_TO_FIRST_FAILED;
@@ -572,9 +577,9 @@ int DbInterfaceMySQL::move_to_first_record()
 		return DBERR_MOVE_TO_FIRST_FAILED;
 	}
 
-	MYSQL_BIND* bound_res_cols = (MYSQL_BIND*)calloc(sizeof(MYSQL_BIND), ncols);
+	MYSQL_BIND *bound_res_cols = (MYSQL_BIND *)calloc(sizeof(MYSQL_BIND), ncols);
 	for (int i = 0; i < ncols; i++) {
-		MYSQL_BIND* bound_res_col = &bound_res_cols[i];
+		MYSQL_BIND *bound_res_col = &bound_res_cols[i];
 		bound_res_col->buffer_type = MYSQL_TYPE_STRING;
 		bound_res_col->buffer = cursor_data->data_buffers.at(i);
 		bound_res_col->buffer_length = cursor_data->data_buffer_lengths.at(i) + 1;
@@ -603,7 +608,7 @@ int DbInterfaceMySQL::supports_num_rows()
 int DbInterfaceMySQL::get_num_rows()
 {
 	if (cur_crsr.cursor_stmt)
-		return  (int) mysql_stmt_num_rows(cur_crsr.cursor_stmt);
+		return  (int)mysql_stmt_num_rows(cur_crsr.cursor_stmt);
 	else
 		return -1;
 }
@@ -631,7 +636,7 @@ bool MySQLCursorData::init()
 	if (!cursor_stmt)
 		return false;
 
-	MYSQL_RES* metadata = mysql_stmt_result_metadata(cursor_stmt);
+	MYSQL_RES *metadata = mysql_stmt_result_metadata(cursor_stmt);
 
 	clear_buffers();
 
@@ -640,11 +645,11 @@ bool MySQLCursorData::init()
 	}
 
 	unsigned int field_count = mysql_stmt_field_count(cursor_stmt);
-	
+
 	for (unsigned int i = 0; i < field_count; i++) {
-		MYSQL_FIELD* f = &metadata->fields[i];
+		MYSQL_FIELD *f = &metadata->fields[i];
 		int len = f->max_length + 1;
-		char* bfr = (char*)calloc(len, 1);
+		char *bfr = (char *)calloc(len, 1);
 		data_buffers.push_back(bfr);
 		data_buffer_lengths.push_back(len);
 	}

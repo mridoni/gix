@@ -22,6 +22,7 @@ USA.
 
 #include <QString>
 #include <QList>
+#include <QDataStream>
 
 #include "gixcommon_global.h"
 #include "gix_esql_driver.hh"
@@ -127,4 +128,9 @@ private:
 //#endif
 
 };
+
+Q_DECLARE_METATYPE(DataEntry)
+Q_DECLARE_METATYPE(DataEntry *)
+
+
 

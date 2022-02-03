@@ -27,6 +27,7 @@ USA.
 #include "utils.h"
 #include "IdeTaskManager.h"
 #include "SysUtils.h"
+#include "libcpputils.h"
 
 #include <QtWidgets>
 #include <QFrame>

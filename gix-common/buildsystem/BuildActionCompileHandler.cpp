@@ -21,6 +21,7 @@ USA.
 #include "BuildActionCompileHandler.h"
 
 #include <QEventLoop>
+#include <QSet>
 
 #include "ProjectFile.h"
 #include "PathUtils.h"
@@ -45,6 +46,8 @@ bool BuildActionCompileHandler::startBuild()
 {
 	QSettings settings;
 	QString target_final_path;
+
+	QSet<QString> cobc_special_ops({ "cobc_source_format" });	// cobc_* options that will be handled separately
 
 	importProjectEnvironment();
 	importFileEnvironment();
@@ -93,6 +96,18 @@ bool BuildActionCompileHandler::startBuild()
 	if (environment.contains("compiler_dialect")) {
 		cobc_opts.append("-std");
 		cobc_opts.append(environment["compiler_dialect"].toString());
+	}
+
+	if (environment.contains("cobc_source_format")) {
+		QString src_format = environment["cobc_source_format"].toString();
+		if (src_format.isEmpty() || (src_format != "free" && src_format != "fixed"))
+			src_format = settings.value("cobc_default_source_format").toString();
+
+		if (src_format == "fixed")
+			cobc_opts.append("-fixed");
+
+		if (src_format == "free")
+			cobc_opts.append("-free");
 	}
 
 	if (build_configuration == "debug") {
@@ -151,7 +166,7 @@ bool BuildActionCompileHandler::startBuild()
 	}
 
 	auto ekeys = QStringList(environment.keys());
-	auto comp_opts = from(ekeys).where([](QString key) { return key.startsWith("cobc_");  }).to_vector();
+	auto comp_opts = from(ekeys).where([cobc_special_ops](QString key) { return key.startsWith("cobc_") && !cobc_special_ops.contains(key);  }).to_vector();
 	for (QString opt : comp_opts) {
 		QString v = environment.value(opt).toString();
 		if (!v.isEmpty())
@@ -159,15 +174,15 @@ bool BuildActionCompileHandler::startBuild()
 	}
 
 	ProjectType prj_type = (ProjectType)environment["__project_type_id"].toInt();
-	switch (prj_type) {
+	QString default_build_type = environment.value("build_type").toString();
+	QString file_build_type = environment.value(PropertyConsts::CustomBuildType, default_build_type).toString();
+	switch (prj_type) {	// TODO: check the semantics of this operation, for the moment they are one and the same
 		case ProjectType::SingleBinary:
-			if (environment.value(PropertyConsts::IsStartupItem, false).toBool())
+			if (file_build_type == BuildConsts::MODULE_EXECUTABLE)
 				cobc_opts.append("-x");
 			break;
 
 		case ProjectType::MultipleBinaries:
-			QString default_build_type = environment.value("build_type").toString();
-			QString file_build_type = environment.value(PropertyConsts::CustomBuildType, default_build_type).toString();
 			if (file_build_type == BuildConsts::MODULE_EXECUTABLE)
 				cobc_opts.append("-x");
 			break;

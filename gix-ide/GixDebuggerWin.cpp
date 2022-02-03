@@ -24,7 +24,7 @@ USA.
 #include "CodeviewSymbolProvider.h"
 #include "DwarfSymbolProvider.h"
 #include "PathUtils.h"
-#include "utils.h"
+#include "libcpputils.h"
 
 #include <QDir>
 
@@ -203,8 +203,11 @@ int GixDebuggerWin::start()
 		}
 	}
 
+
 	// TODO: verify that this works in all cases (internal/external console, stdir redirected or not, etc.)
 	// WAS : if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, !use_external_console, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
+	if_blk->debuggerMessage(this, QString("Working directory is: [%1]").arg(working_dir), 0);
+	if_blk->debuggerMessage(this, QString("CreateProcess called with: [%1]").arg(fcl), 0);
 	if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, TRUE, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
 		TerminateThread(hThreadReadStdOut, 0);
 		TerminateThread(hThreadReadStdErr, 0);
@@ -289,7 +292,7 @@ int GixDebuggerWin::start()
 				if (!is_debugging_enabled)
 					break;
 
-				if_blk->debuggerMessage(this, QString::fromStdString(std_string_format("Thread 0x%x (Id: %d) created at: 0x%x",
+				if_blk->debuggerMessage(this, QString::fromStdString(string_format("Thread 0x%x (Id: %d) created at: 0x%x",
 					debug_event.u.CreateThread.hThread,
 					debug_event.dwThreadId,
 					debug_event.u.CreateThread.lpStartAddress)), 0); // Thread 0xc (Id: 7920) created at: 0x77b15e58
@@ -300,7 +303,7 @@ int GixDebuggerWin::start()
 				if (!is_debugging_enabled)
 					break;
 
-				if_blk->debuggerMessage(this, QString::fromStdString(std_string_format("The thread %d exited with code: %d",
+				if_blk->debuggerMessage(this, QString::fromStdString(string_format("The thread %d exited with code: %d",
 					debug_event.dwThreadId,
 					debug_event.u.ExitThread.dwExitCode)), 0);	// The thread 2760 exited with code: 0
 				strEventMessage = "EXIT_THREAD_DEBUG_EVENT";
@@ -311,7 +314,7 @@ int GixDebuggerWin::start()
 				if_blk->debuggerProcessExit(this, exit_code, exepath);		
 #if _DEBUG
 				if_blk->debuggerMessage(this, ":: EXIT CODE: " + QString::number(exit_code), 0);
-				OutputDebugStringA(std_string_format("*** %s says goodbye (%d)\n", exepath.toLocal8Bit().constData(), exit_code).c_str());
+				OutputDebugStringA(string_format("*** %s says goodbye (%d)\n", exepath.toLocal8Bit().constData(), exit_code).c_str());
 #endif
 				bContinueDebugging = false;
 				break;
@@ -478,7 +481,7 @@ int GixDebuggerWin::start()
 								if (this->source_lines_by_addr.find(last_bkp->address) != source_lines_by_addr.end()) {
 									_DBG_OUT("EXCEPTION_SINGLE_STEP: Successfully decoded source line info\n");
 									SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
-									if_blk->debuggerMessage(this, QString::fromStdString(std_string_format("Found breakpoint at 0x%08p (%s:%d)\n", last_bkp->address, sli->source_file, sli->line)), 0);
+									if_blk->debuggerMessage(this, QString::fromStdString(string_format("Found breakpoint at 0x%08p (%s:%d)\n", last_bkp->address, sli->source_file, sli->line)), 0);
 									if_blk->debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
 								}
 							}
@@ -518,13 +521,13 @@ int GixDebuggerWin::start()
 #endif
 								CloseHandle(h_exc_thread);
 
-								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %016p, exception-code: 0x%08x\nStack frame: %s\n================\n",
+								strEventMessage = QString::fromStdString(string_format("First chance exception at %016p, exception-code: 0x%08x\nStack frame: %s\n================\n",
 									exception.ExceptionRecord.ExceptionAddress,
 									exception.ExceptionRecord.ExceptionCode,
 									stack_dump.toLocal8Bit().constData()));
 							}
 							else {
-								strEventMessage = QString::fromStdString(std_string_format("First chance exception at %016p, exception-code: 0x%08x\nStack frame: not available\n================\n",
+								strEventMessage = QString::fromStdString(string_format("First chance exception at %016p, exception-code: 0x%08x\nStack frame: not available\n================\n",
 									exception.ExceptionRecord.ExceptionAddress,
 									exception.ExceptionRecord.ExceptionCode));
 							}

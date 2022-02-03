@@ -20,17 +20,19 @@ USA.
 
 #pragma once
 
-#include <QString>
-#include <QMap>
-#include <QStringList>
-#include <QDateTime>
-#include <QVariantMap>
+#include <string>
+#include <map>
+#include <vector>
+#include <variant>
 
 #include "ITransformationStep.h"
 #include "CopyResolver.h"
 #include "ErrorData.h"
 
 class FileData;
+
+using variant = std::variant<int, float, bool, std::string>;
+using variant_map = std::map<std::string, variant>;
 
 class GixPreProcessor
 {
@@ -54,22 +56,22 @@ public:
 	bool process();
 	
 	void addStep(ITransformationStep *);
-	bool setInputFile(QString infile);
-	bool setOutputFile(QString outfile);
+	bool setInputFile(std::string infile);
+	bool setOutputFile(std::string outfile);
 
-	QVariantMap& getOpts() const;
-	QVariant getOpt(QString id, QVariant v = QVariant());
-	void setOpt(QString id, QVariant v);
+	variant_map& getOpts() const;
+	variant getOpt(std::string id, bool b = false);
+	void setOpt(std::string id, variant v);
 
 private:
-	QString input_file;
-	QString output_file;
+	std::string input_file;
+	std::string output_file;
 
-	QList< ITransformationStep *> steps;
-	QString copy_file_path;
-	QStringList copy_dirs;
+	std::vector<ITransformationStep *> steps;
+	std::string copy_file_path;
+	std::vector<std::string> copy_dirs;
 
-	QVariantMap opts;
+	variant_map opts;
 
 	CopyResolver *copy_resolver;
 

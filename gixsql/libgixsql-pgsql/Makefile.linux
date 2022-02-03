@@ -1,0 +1,19 @@
+CXXFLAGS=-fPIC -I ../libgixsql -I /usr/include/postgresql/ -std=c++17
+DEPS = DbInterfacePGSQL.h
+OBJS = DbInterfacePGSQL.o  dblib.o
+
+LDFLAGS=-lm -lpq
+
+all: libgixsql-pgsql.so
+
+%.o: %.cpp $(DEPS)
+	$(CXX) -c -o  $@ $< $(CXXFLAGS)
+
+libgixsql-pgsql.so: $(OBJS)
+	$(CXX) -shared -o $@ -Wl,--out-implib,libgixsql-pgsql.a $^ $(CXXFLAGS) $(LDFLAGS)
+
+.PHONY: clean
+
+clean:
+	rm -f libgixsql-pgsql.so *.o
+

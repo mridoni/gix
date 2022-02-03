@@ -132,7 +132,6 @@ private:
 
 	QMap<QString, Paragraph *> paragraphs;
 
-	// From MapFileReader
 	QMap <int, QString> filemap;
 	QMap <QString, int> reverse_filemap;
 	QMap<uint64_t, uint64_t> orig_to_running_linemap;

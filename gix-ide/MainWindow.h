@@ -33,6 +33,10 @@ USA.
 
 #include "IdeStatus.h"
 
+#ifdef WIN32
+#include "testhlpr.h"
+#endif
+
 class MdiChild;
 class ProjectCollectionWindow;
 class OutputWindow;
@@ -63,6 +67,9 @@ class MainWindow : public QMainWindow
 
 	friend class IdeTaskManager;
 
+    friend class TestHelper;
+
+
 public:
     MainWindow();
 
@@ -77,6 +84,8 @@ public:
     MdiChild* activeMdiChild() const;
 
     void blockMdiSignals(bool f);
+
+    PropertyWindow *getPropertyWindow();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -137,6 +146,7 @@ private:
 	void IdeEditorChangedPosition(QString, int);
 
     void createActions();
+    void setAvailablePlatformsForConfiguration();
     void createStatusBar();
     void readSettings();
     void writeSettings();
@@ -155,9 +165,6 @@ private:
     void openSearch(SearchType search_type);
 
     QStringList getPlatformsForConfiguration(QString config);
-
-	//void loadProjectCollectionState(ProjectCollection *);
-	//bool closeCurrentProjectCollection();
 
     QMdiArea *mdiArea;
 
@@ -254,6 +261,9 @@ private:
 	NewProjectDialog *new_prj_dlg;
 	SettingsDialog *settings_dlg;
 	SearchDialog *search_dlg;
+
+    MdiChild *last_active = nullptr;
+
 };
 
 #endif

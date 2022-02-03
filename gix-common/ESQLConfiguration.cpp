@@ -227,18 +227,52 @@ QStringList ESQLConfiguration::getRuntimeLibPathList(QString driver_type)
 	return res;
 }
 
+bool ESQLConfiguration::isVerbose()
+{
+	return verbose;
+}
+
+bool ESQLConfiguration::isVerboseDebug()
+{
+	return verbose_debug;
+}
+
+void ESQLConfiguration::setVerbose(bool b)
+{
+	verbose = b;
+}
+
+void ESQLConfiguration::setVerboseDebug(bool b)
+{
+	verbose_debug = b;
+}
+
+struct AnyGet
+{
+	std::string operator()(bool value) { return value ? "true" : "false"; }
+	std::string operator()(char value) { return std::string(1, value); }
+	std::string operator()(int value) { return std::to_string(value); }
+	std::string operator()(double value) { return std::to_string(value); }
+	std::string operator()(const std::string &value) { return value; }
+};
+
+static std::string variant_to_string(const variant &input)
+{
+	return std::visit(AnyGet{}, input);
+}
+
 bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString input_file, QString output_file, QMap<QString, QVariant> opts)
 {
 	GixPreProcessor gp;
 	bool opt_esql_preprocess_copy_files = opts["esql_preprocess_copy_files"].toBool();
 	bool opt_anonymous_params = opts["esql_anon_params"].toBool();
 
-	gp.verbose = true;
-	gp.verbose_debug = true;
+	gp.verbose = isVerbose();
+	gp.verbose_debug = isVerboseDebug();
 
 	CopyResolver cr(*build_driver->getCopyResolver());
-	cr.addCopyDir(GixGlobals::getGixCopyDir());
-		
+	cr.addCopyDir(GixGlobals::getGixCopyDir().toStdString());
+
 	gp.setCopyResolver(&cr);
 
 	gp.setOpt("emit_debug_info", true);
@@ -250,14 +284,28 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 
 	gp.addStep(new TPESQLProcessing(&gp));
 
-	gp.setInputFile(input_file);
-	gp.setOutputFile(output_file);
+	gp.setInputFile(input_file.toStdString());
+	gp.setOutputFile(output_file.toStdString());
+
+	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Input file: %1").arg(input_file), QLogger::LogLevel::Debug);
+	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Output file: %1").arg(output_file), QLogger::LogLevel::Debug);
+	for (std::string cd : cr.getCopyDirs()) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Copy dir: %1").arg(QString::fromStdString(cd)), QLogger::LogLevel::Debug);
+	}
+	for (std::string ce : cr.getExtensions()) {
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Copy extension: %1").arg(QString::fromStdString(ce)), QLogger::LogLevel::Debug);
+	}
+	for (auto it = gp.getOpts().begin(); it != gp.getOpts().end(); ++it) {
+		QString k = QString::fromStdString(it->first);
+		QString v = QString::fromStdString(variant_to_string(it->second));
+		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Option [%1] : [%2]").arg(k).arg(v), QLogger::LogLevel::Debug);
+	}
 
 	bool b = gp.process();
 
 	if (!b || !QFile(output_file).exists()) {
-		for (QString m : gp.err_data.err_messages)
-			build_driver->log_build_message("ERROR: " + m, QLogger::LogLevel::Error);
+		for (std::string m : gp.err_data.err_messages)
+			build_driver->log_build_message("ERROR: " + QString::fromStdString(m), QLogger::LogLevel::Error);
 		return false;
 	}
 

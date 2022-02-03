@@ -67,6 +67,20 @@ void Ide::init()
 		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
 		UiUtils::ErrorDialog(msg);
 	}
+	
+#ifdef WIN32
+	// We copy default settings from Global to User, if missing
+	QStringList misc_settings = { "ReleaseCompilerId", "DebugCompilerId", "editor_font_name", "editor_font_size", "grid_font_name", "grid_font_size", "treeview_font_name", "treeview_font_size", "default_eol_mode" };
+	for (QString k : misc_settings) {
+		QString v = SysUtils::RegistryGetValue("HKEY_CURRENT_USER\\Software\\MediumGray\\gix-ide", k);
+		if (v.isEmpty()) {
+			v = SysUtils::RegistryGetValue("HKEY_LOCAL_MACHINE\\Software\\MediumGray\\gix-ide", k);
+			if (!v.isEmpty())
+				SysUtils::RegistrySetValue("HKEY_CURRENT_USER\\Software\\MediumGray\\gix-ide", k, v);
+		}
+	}
+
+#endif
 }
 
 IdeTaskManager *Ide::TaskManager()

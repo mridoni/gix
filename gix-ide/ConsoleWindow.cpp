@@ -123,3 +123,14 @@ void ConsoleWindow::appendErr(QString s)
 {
 	append(s, true);
 }
+
+QString ConsoleWindow::getTextContent()
+{
+#if defined(__linux__)
+	return QString();
+#elif defined(WIN32)	
+	return console->document()->toPlainText();
+#else
+	return QString();
+#endif	
+}

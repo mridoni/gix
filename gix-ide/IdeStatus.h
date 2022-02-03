@@ -22,7 +22,7 @@ USA.
 
 
 enum class IdeStatus {
-	LoadingOrSaving,
+	LoadingOrSaving = 0,
 	Started,
 	Editing,
 	Building,

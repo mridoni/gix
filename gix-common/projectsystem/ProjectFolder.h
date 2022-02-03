@@ -23,11 +23,13 @@ USA.
 #include <QString>
 
 #include "ProjectItem.h"
+#include "Project.h"
 #include "PropertySource.h"
 #include "BuildTarget.h"
 #include "IBuildableItem.h"
 
 class ProjectFile;
+class Project;
 
 class GIXCOMMON_EXPORT ProjectFolder : public ProjectItem, public PropertySource
 {
@@ -37,6 +39,8 @@ public:
 
 	bool CreateIfNotExists();
 	void getFilesRecursively(QList<ProjectFile *>&);
+
+	Project *getParentProject();
 
 	// Inherited via ProjectItem
 	virtual ProjectItemType GetItemType() override;

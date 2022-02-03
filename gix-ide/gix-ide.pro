@@ -8,7 +8,7 @@ QT += core xml network gui xmlpatterns uitools widgets
 CONFIG += c++17
 INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build \
 				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata \
-				 ../libgixutils ../libgixpp ../gixsql/libgixsql ../libs/scintilla/include 
+				 ../libgixutils ../libgixpp ../libcpputils ../gixsql/libgixsql ../libs/scintilla/include 
 
 linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"				 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic
@@ -49,8 +49,8 @@ gix-ide.files = gix-ide
 
 INSTALLS += gix-ide
 
-win32:HEADERS += ./CodeviewSymbolProvider.h ./DwarfSymbolProvider.h ./GixDebuggerWin.h ./StackWalker.h
-win32:SOURCES += ./CodeviewSymbolProvider.cpp ./DwarfSymbolProvider.cpp ./GixDebuggerWin.cpp  ./StackWalker.cpp
+win32:HEADERS += ./CodeviewSymbolProvider.h ./DwarfSymbolProvider.h ./GixDebuggerWin.h ./StackWalker.h ./BufferedStackWalker.h
+win32:SOURCES += ./CodeviewSymbolProvider.cpp ./DwarfSymbolProvider.cpp ./GixDebuggerWin.cpp  ./StackWalker.cpp ./BufferedStackWalker.cpp
 
 linux:HEADERS += ./GixDebuggerLinux.h ./LinuxProcessRunner.h ./DwarfSymbolProvider.h ./registers.hpp
 linux:SOURCES += ./GixDebuggerLinux.cpp ./LinuxProcessRunner.cpp ./DwarfSymbolProvider.cpp

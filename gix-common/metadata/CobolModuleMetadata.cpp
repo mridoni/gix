@@ -839,7 +839,7 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 
 	if (!pf) {
 		err_data->err_code = -1;
-		err_data->err_messages.append(QCoreApplication::translate("gix", "Bad parameters"));
+		err_data->err_messages.push_back(QCoreApplication::translate("gix", "Bad parameters").toStdString());
 		return nullptr;
 	}
 
@@ -850,7 +850,7 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 
 	if (!prj) {
 		err_data->err_code = -1;
-		err_data->err_messages.append(QCoreApplication::translate("gix", "Bad parameters"));
+		err_data->err_messages.push_back(QCoreApplication::translate("gix", "Bad parameters").toStdString());
 		return nullptr;
 	}
 
@@ -860,26 +860,32 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		QSettings settings;
 		QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, QVariantMap()));
 
-		QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
-		CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
-		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, configuration, platform));
-		if (!esql_cfg.isNull()) {
-			QStringList esql_copy_dirs = esql_cfg->getCopyPathList();
-			if (!esql_copy_dirs.isEmpty())
-				copy_dirs.append(esql_copy_dirs);
+		if (!ccfg.isNull()) {
+			QString esql_cfg_id = settings.value("esql_preprocessor_id", ESQLConfigurationType::GixInternal).toString();
+			CompilerEnvironment esql_cfg_env = ccfg.get()->getCompilerEnvironment();
+			QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, configuration, platform));
+			if (!esql_cfg.isNull()) {
+				QStringList esql_copy_dirs = esql_cfg->getCopyPathList();
+				if (!esql_copy_dirs.isEmpty())
+					copy_dirs.append(esql_copy_dirs);
+			}
+		}
+		else {
+			err_data->err_code = -1;
+			err_data->err_messages.push_back(QCoreApplication::translate("gix", "Compiler(s) not available").toStdString());
 		}
 	}
 
-	copy_resolver.setCopyDirs(copy_dirs);
-	copy_resolver.setExtensions(prj->getCopyExtList());
+	copy_resolver.setCopyDirs(SysUtils::to_std_string_vector(copy_dirs));
+	copy_resolver.setExtensions(SysUtils::to_std_string_vector(prj->getCopyExtList()));
 
 	gp.setCopyResolver(&copy_resolver);
 
 	gp.setOpt("no_output", true);
 	gp.setOpt("preprocess_copy_files", true);
 
-	gp.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true));
-	gp.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true));
+	gp.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true).toBool());
+	gp.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true).toBool());
 
 	TPESQLProcessing *pp = new TPESQLProcessing(&gp);
 	gp.addStep(pp);
@@ -888,7 +894,7 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 	gp.verbose = false;
 	gp.verbose_debug = false;
 
-	gp.setInputFile(pf->GetFileFullPath());
+	gp.setInputFile(pf->GetFileFullPath().toStdString());
 	gp.setOutputFile("");
 
 	bool b = gp.process();
@@ -900,17 +906,17 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 
 	CobolModuleMetadata *cmm = new CobolModuleMetadata();
 
-	cmm->module_name = pp->getModuleName();
+	cmm->module_name = QString::fromStdString(pp->getModuleName());
 
 	// *********************
 	bool prj_opt_preprocess_copy_files = prj->PropertyGetValue("esql_preprocess_copy_files", false).toBool();
 	if (prj_opt_preprocess_copy_files) {
-		cmm->orig_to_running_linemap = pp->getBinarySrcLineMap();
-		cmm->running_to_orig_linemap = pp->getBinarySrcLineMapReverse();
-		cmm->reverse_filemap = pp->getFileMap();
-		cmm->filemap = pp->getReverseFileMap();
-		cmm->original_module_file_id = cmm->reverse_filemap.value(pp->getInput());
-		cmm->running_module_file_id = cmm->reverse_filemap.value(pp->getOutput());
+		cmm->orig_to_running_linemap = SysUtils::map_to_qmap<uint64_t, uint64_t>(pp->getBinarySrcLineMap());
+		cmm->running_to_orig_linemap = SysUtils::map_to_qmap<uint64_t, uint64_t>(pp->getBinarySrcLineMapReverse());
+		cmm->reverse_filemap = SysUtils::to_qmap_qstring_int(pp->getFileMap());
+		cmm->filemap = SysUtils::to_qmap_int_qstring(pp->getReverseFileMap());
+		cmm->original_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp->getInput()));
+		cmm->running_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp->getOutput()));
 		cmm->flags |= FLAG_M_PREPROCD_COPY;
 	}
 	else {
@@ -921,8 +927,8 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		gp2.setOpt("no_output", true);
 		gp2.setOpt("preprocess_copy_files", false);
 
-		gp2.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true));
-		gp2.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true));
+		gp2.setOpt("emit_static_calls", prj->PropertyGetValue("esql_static_calls", true).toBool());
+		gp2.setOpt("anonymous_params", prj->PropertyGetValue("esql_anon_params", true).toBool());
 
 		TPESQLProcessing *pp2 = new TPESQLProcessing(&gp2);
 		gp2.addStep(pp2);
@@ -931,7 +937,7 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		gp2.verbose = false;
 		gp2.verbose_debug = false;
 
-		gp2.setInputFile(pf->GetFileFullPath());
+		gp2.setInputFile(pf->GetFileFullPath().toStdString());
 		gp2.setOutputFile("");
 
 		bool b = gp2.process();
@@ -944,16 +950,16 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 			return nullptr;
 		}
 
-		cmm->orig_to_running_linemap = pp2->getBinarySrcLineMap();
-		cmm->running_to_orig_linemap = pp2->getBinarySrcLineMapReverse();
-		cmm->reverse_filemap = pp2->getFileMap();
-		cmm->filemap = pp2->getReverseFileMap();
-		cmm->original_module_file_id = cmm->reverse_filemap.value(pp2->getInput());
-		cmm->running_module_file_id = cmm->reverse_filemap.value(pp2->getOutput());
+		cmm->orig_to_running_linemap = SysUtils::map_to_qmap<uint64_t, uint64_t>(pp2->getBinarySrcLineMap());
+		cmm->running_to_orig_linemap = SysUtils::map_to_qmap<uint64_t, uint64_t>(pp2->getBinarySrcLineMapReverse());
+		cmm->reverse_filemap = SysUtils::to_qmap_qstring_int(pp2->getFileMap());
+		cmm->filemap = SysUtils::to_qmap_int_qstring(pp2->getReverseFileMap());
+		cmm->original_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp2->getInput()));
+		cmm->running_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp2->getOutput()));
 	}
 	// *********************
 
-	QMap<QString, cb_field_ptr> fmap = pp->getVariableDeclarationInfoMap();
+	QMap<QString, cb_field_ptr> fmap = SysUtils::to_qmap_qstring_usertype<cb_field_ptr>(pp->getVariableDeclarationInfoMap());
 
 	QList<cb_field_ptr> fvals = fmap.values();
 	QList<cb_field_ptr> ftree = QList<cb_field_ptr>::fromStdList(cpplinq::from(fvals).where([](cb_field_ptr a) { return a->parent == nullptr;  }).to_list());
@@ -970,19 +976,18 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 	dump_field_tree(cmm->working_storage, &l);
 #endif
 
-	QMap<QString, srcLocation> ps = pp->getParagraphs();
+	auto ps = pp->getParagraphs();
 	for (auto it = ps.begin(); it != ps.end(); ++it) {
 		Paragraph *p = new Paragraph();
-		QString name = it.key();
-		srcLocation loc = it.value();
+		QString name = QString::fromStdString(it->first);
+		srcLocation loc = it->second;
 		p->name = name;
-		p->file = loc.filename;
+		p->file = QString::fromStdString(loc.filename);
 		p->line = loc.line;
 		cmm->paragraphs[name] = p;
 	}
 
-	cmm->file_dependencies = pp->getFileDependencies();
-
+	cmm->file_dependencies = SysUtils::to_qmap_qstring_qstringlist(pp->getFileDependencies());
 
 	int i = 0;
 
