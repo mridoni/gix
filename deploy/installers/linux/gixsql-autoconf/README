@@ -54,7 +54,7 @@ You can also use other formats for your connection statements, like
 
 or
 
-	CONNECT :USERNAME IDENTIFIED_BY :PASSWORD USING :PASSWORD
+	CONNECT :USERNAME IDENTIFIED_BY :PASSWORD USING :DATASOURCE
 
 All the identifiers for data sources, usernames and passwords can be either COBOL variables (prefixed by a semi-colon) or string literals.
 
@@ -292,7 +292,7 @@ You will need the development packages for the DBMS client libraries, e.g.:
 
 You will also need a modern enough version of bison. If you are using Ubuntu 20.04, you can download it from Debian's repositories and install it over the current one:
 
-	wget http://ftp.us.debian.org/debian/pool/main/b/bison/bison_3.7.5+dfsg-1_amd64.deb
+	wget http://ftp.debian.org/debian/pool/main/b/bison/bison_3.7.6+dfsg-1_amd64.deb
 
 and
 

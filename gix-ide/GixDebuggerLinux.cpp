@@ -48,6 +48,9 @@ USA.
 #include <sys/prctl.h>
 #include <sys/uio.h>
 
+#undef GIX_DBGR_USES_DOUBLEFORK
+#define LOG_DEBUG(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
+
 bool single_step = false;
 QString last_source_file;
 int last_source_line = 0;
@@ -150,6 +153,18 @@ int GixDebuggerLinux::start()
 
     uint64_t pid;
     _DBG_OUT("Starting process\n");
+    
+    if (is_debugging_enabled) {
+        auto fd = open(this->exepath.toLocal8Bit().data(), O_RDONLY);
+        m_elf = elf::elf{ elf::create_mmap_loader(fd) };
+    
+        sym_provider = new DwarfSymbolProvider();
+        sym_provider->initialize(this, NULL, NULL);
+    
+        if_blk->debuggerMessage(this, "Symbols loaded\n", 0);
+        _DBG_OUT("Symbols loaded\n");
+    }
+    
     if (process.start(&pid)) {
         m_pid = pid;
 
@@ -171,14 +186,7 @@ int GixDebuggerLinux::start()
         _DBG_OUT("Process started (%d)\n", m_pid);
 
         if (is_debugging_enabled) {
-            auto fd = open(this->exepath.toLocal8Bit().data(), O_RDONLY);
-            m_elf = elf::elf{ elf::create_mmap_loader(fd) };
 
-            sym_provider = new DwarfSymbolProvider();
-            sym_provider->initialize(this, NULL, NULL);
-
-            if_blk->debuggerMessage(this, "Symbols loaded\n", 0);
-            _DBG_OUT("Symbols loaded\n");
 
 //            initialise_load_address();
 
@@ -887,4 +895,5 @@ bool LinuxUserBreakpoint::uninstall()
     _DBG_OUT("Removing breakpoint at %p - old data: %p, new data : %p, orig_instr: %02x\n", this->address, data, restored_data, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, restored_data);
     this->orig_instr = 0x00;
+    return true;
 }

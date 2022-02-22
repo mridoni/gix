@@ -54,7 +54,7 @@ You can also use other formats for your connection statements, like
 
 or
 
-	CONNECT :USERNAME IDENTIFIED_BY :PASSWORD USING :PASSWORD
+	CONNECT :USERNAME IDENTIFIED_BY :PASSWORD USING :DATASOURCE
 
 All the identifiers for data sources, usernames and passwords can be either COBOL variables (prefixed by a semi-colon) or string literals.
 
