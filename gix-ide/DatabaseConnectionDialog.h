@@ -37,9 +37,9 @@ USA.
 #include <QPushButton>
 #include <QGroupBox>
 
-//#include "IConnectionString.h"
+//#include "IDataSourceInfo.h"
 
-class IConnectionString;
+class IDataSourceInfo;
 
 class DatabaseConnectionDialog : public QDialog
 {
@@ -47,13 +47,13 @@ class DatabaseConnectionDialog : public QDialog
 
 public:
 
-    IConnectionString *getConnectionInfo();
+    IDataSourceInfo *getConnectionInfo();
 
 private:
 
     void updateFields();
 
-    IConnectionString *conn_info;
+    IDataSourceInfo *conn_info;
     /*!
     * The display label for the database driver name.
     */

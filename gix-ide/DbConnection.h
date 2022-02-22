@@ -20,7 +20,7 @@ USA.
 
 #pragma once
 
-#include "IConnectionString.h"
+#include "IDataSourceInfo.h"
 #include "IdeDbManager.h"
 #include "IDbInterface.h"
 #include "IDbManagerInterface.h"
@@ -44,7 +44,7 @@ public:
 	
 private:
 	QString id;
-	IConnectionString *conn_info;
+	IDataSourceInfo *conn_info;
 	IConnection* internal_conn;
 	IDbInterface *dbi;
 	IDbManagerInterface *dbm;

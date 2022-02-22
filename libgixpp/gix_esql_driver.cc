@@ -31,11 +31,6 @@ USA.
 #define DEBUG_PARSER false
 #endif
 
-#define PIC_ALPHABETIC 		0x01
-#define PIC_NUMERIC 		0x02
-#define PIC_NATIONAL		0x04
-#define PIC_ALPHANUMERIC	(PIC_ALPHABETIC | PIC_NUMERIC)
-
 #if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
 #define PATH_SEP "\\"
 #else
@@ -272,9 +267,13 @@ void gix_esql_driver::put_exec_list()
 	l->startup_item = 0;
 	l->sql_query_list_id = sqlnum;
 
+	l->conninfo = conninfo;
+	l->connectionId = connectionid;
+
 	host_reference_list = new std::vector<cb_hostreference_ptr>();
 	res_host_reference_list = new std::vector<cb_res_hostreference_ptr>();
 	sql_list = new std::vector<cb_sql_token_t>();
+	conninfo = new esql_connection_info_t();
 
 	exec_list->push_back(l);
 

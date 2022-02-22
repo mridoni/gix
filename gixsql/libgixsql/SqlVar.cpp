@@ -50,6 +50,7 @@
 
 #define CBL_FIELD_FLAG_NONE	0x0
 #define CBL_FIELD_FLAG_VARLEN	0x80
+#define CBL_FIELD_FLAG_BINARY	0x100
 
 #define ASCII_ZERO ((unsigned char)0x30)
 
@@ -58,14 +59,16 @@ const char SqlVar::_decimal_point = [] {
     return lc->decimal_point[0];
 }();
 
-SqlVar::SqlVar()
+SqlVar::SqlVar(int _type, int _length, int _power, uint32_t _flags, void *_addr)
 {
-	type = 0;
-	length = 0;
-	power = 0;
-	addr = NULL;
-	realdata = NULL;
-	is_variable_length = false;
+	type = _type;
+	length = _length;
+	power = _power;
+	addr = _addr;
+	is_variable_length = (_flags & CBL_FIELD_FLAG_VARLEN);
+	is_binary = (_flags & CBL_FIELD_FLAG_BINARY);
+	
+	allocate_realdata_buffer();
 }
 
 
@@ -77,15 +80,18 @@ SqlVar::~SqlVar()
 
 SqlVar* SqlVar::copy()
 {
-	SqlVar* v = new SqlVar();
+	SqlVar* v = new SqlVar(type, length, power, 0, addr);
 
-	v->type = type;
-	v->length = length;
-	v->power = power;
-	v->addr = addr;
 	v->is_variable_length = is_variable_length;
-
-	v->realdata = realdata != NULL ? strdup(realdata) : NULL;
+	v->is_binary = is_binary;
+	if (realdata) {
+		v->realdata = (char *)calloc(realdata_len, sizeof(char));
+		v->realdata_len = realdata_len;
+	}
+	else {
+		v->realdata = nullptr;
+		v->realdata_len = 0;
+	}
 
 	return v;
 }
@@ -95,35 +101,6 @@ char* SqlVar::getRealData()
 	return realdata;
 }
 
-void SqlVar::setType(int t)
-{
-	type = t;
-}
-
-void SqlVar::setLength(int l)
-{
-	length = l;
-}
-
-void SqlVar::setPower(int p)
-{
-	power = p;
-}
-
-void SqlVar::setAddr(void* a)
-{
-	addr = a;
-}
-
-void SqlVar::setFlags(uint32_t flags)
-{
-	is_variable_length = (flags & CBL_FIELD_FLAG_VARLEN);
-}
-
-void SqlVar::setRealData(char* r)
-{
-	realdata = r;
-}
 
 void SqlVar::createRealData()
 {
@@ -134,28 +111,13 @@ void SqlVar::createRealData()
 	int power = this->power;
 	void* addr = this->addr;
 
-	int realdata_length = 0;
-
-	if (realdata) {
-		free(realdata);
-		realdata = NULL;
-	}
-
 	switch (type) {
 		case COBOL_TYPE_UNSIGNED_NUMBER:
 		{
-			/* set real data */
-			realdata_length = length;
-
-			// 小数点
-			if (power < 0) {
-				realdata_length++;
-			}
-			realdata = (char*)calloc(realdata_length + TERMINAL_LENGTH, sizeof(char));
-			memcpy(realdata, addr, realdata_length);
+			memcpy(realdata, addr, realdata_len);
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_length, power);
+				insert_decimal_point(realdata, realdata_len, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -163,18 +125,8 @@ void SqlVar::createRealData()
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_TC:
 		{
-			/* set real data */
-			// 符号部分
-			realdata_length = SIGN_LENGTH + length;
-			// 小数点
-			if (power < 0) {
-				realdata_length++;
-			}
-
-			realdata = (char*)calloc(realdata_length + TERMINAL_LENGTH, sizeof(char));
 			memcpy(realdata + SIGN_LENGTH, addr, length);
 
-			// 符号は最後の1桁で判別
 			if (type_tc_is_positive(realdata + SIGN_LENGTH + length - 1)) {
 				realdata[0] = '+';
 			}
@@ -183,7 +135,7 @@ void SqlVar::createRealData()
 			}
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_length, power);
+				insert_decimal_point(realdata, realdata_len, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -191,20 +143,10 @@ void SqlVar::createRealData()
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_LS:
 		{
-
-			/* set real data */
-			// 符号部分
-			realdata_length = SIGN_LENGTH + length;
-			// 小数点
-			if (power < 0) {
-				realdata_length++;
-			}
-
-			realdata = (char*)calloc(realdata_length + TERMINAL_LENGTH, sizeof(char));
-			memcpy(realdata, addr, realdata_length);
+			memcpy(realdata, addr, realdata_len);
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_length, power);
+				insert_decimal_point(realdata, realdata_len, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -214,7 +156,6 @@ void SqlVar::createRealData()
 		{
 			double dlength;
 			int skip_first;
-			int realdata_length;
 
 			dlength = ceil(((double)length + 1) / 2);
 			skip_first = (length + 1) % 2; // 1 -> skip first 4 bits
@@ -230,13 +171,6 @@ void SqlVar::createRealData()
 			unsigned char ubit = 0xF0;
 			unsigned char lbit = 0x0F;
 
-			realdata_length = length;
-			// 小数点
-			if (power < 0) {
-				realdata_length++;
-			}
-
-			realdata = (char*)calloc(realdata_length + TERMINAL_LENGTH, sizeof(char));
 			for (i = 0; i < (int)dlength; i++) {
 				char val[3];
 
@@ -258,7 +192,7 @@ void SqlVar::createRealData()
 			}
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_length, power);
+				insert_decimal_point(realdata, realdata_len, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -272,9 +206,6 @@ void SqlVar::createRealData()
 			dlength = ceil(((double)length + 1) / 2);
 			skip_first = (length + 1) % 2; // 1 -> skip first 4 bits
 
-			//sv_tmp.data = (char*)calloc((int)dlength + TERMINAL_LENGTH, sizeof(char));
-			//memcpy(sv_tmp.data, addr, (int)dlength);
-
 			/* set real data */
 			int i;
 			int index = SIGN_LENGTH;
@@ -283,14 +214,6 @@ void SqlVar::createRealData()
 			unsigned char ubit = 0xF0;
 			unsigned char lbit = 0x0F;
 
-			// 符号部分
-			realdata_length = SIGN_LENGTH + length;
-			// 小数点
-			if (power < 0) {
-				realdata_length++;
-			}
-
-			realdata = (char*)calloc(realdata_length + TERMINAL_LENGTH, sizeof(char));
 			for (i = 0; i < (int)dlength; i++) {
 				char val[3];
 
@@ -320,7 +243,7 @@ void SqlVar::createRealData()
 			}
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_length, power);
+				insert_decimal_point(realdata, realdata_len, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -333,15 +256,13 @@ void SqlVar::createRealData()
 		case COBOL_TYPE_ALPHANUMERIC:
 		{
 			if (!is_variable_length) {
-				realdata = (char*)calloc(length + TERMINAL_LENGTH, sizeof(char));
 				memcpy(realdata, (char*)addr, length);
 				LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
 			}
 			else {
-				void* actual_addr = (char*)addr + 2;
-				uint16_t* len_addr = (uint16_t*)addr;
-				int actual_len = COB_BSWAP_16(*len_addr);
-				realdata = (char*)calloc(actual_len + TERMINAL_LENGTH, sizeof(char));
+				void* actual_addr = (char*)addr + VARLEN_LENGTH_SZ;
+				VARLEN_LENGTH_T *len_addr = (VARLEN_LENGTH_T *)addr;
+				int actual_len = VARLEN_BSWAP(*len_addr);
 				memcpy(realdata, (char*)actual_addr, actual_len);
 				LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
 			}
@@ -349,7 +270,6 @@ void SqlVar::createRealData()
 		break;
 
 		case COBOL_TYPE_UNSIGNED_BINARY:
-			realdata = (char*)calloc(length + TERMINAL_LENGTH, sizeof(char));
 
 			if (this->length == 1) {	// 1 byte
 				uint8_t n8 = *((uint8_t*)addr);
@@ -390,7 +310,6 @@ void SqlVar::createRealData()
 			break;
 
 		case COBOL_TYPE_SIGNED_BINARY:
-			realdata = (char*)calloc(length + TERMINAL_LENGTH, sizeof(char));
 
 			if (this->length == 1) {	// 1 byte
 				int8_t n8 = *((int8_t*)addr);
@@ -446,7 +365,7 @@ void* SqlVar::getAddr()
 }
 
 
-void SqlVar::createCobolData(char* retstr)
+void SqlVar::createCobolData(char *retstr, int datalen)
 {
 	void* addr = this->addr;
 
@@ -456,13 +375,7 @@ void SqlVar::createCobolData(char* retstr)
 		case COBOL_TYPE_UNSIGNED_NUMBER:
 		{
 			char* ptr;
-
 			int fillzero;
-			//int zcount;
-			//char* final;
-
-			// fill zero
-			//final = (char*)calloc(length + TERMINAL_LENGTH, sizeof(char));
 
 			// before decimal point
 			int beforedp = 0;
@@ -479,9 +392,6 @@ void SqlVar::createCobolData(char* retstr)
 			if (fillzero < 0)
 				fillzero = 0;
 
-			//for (zcount = 0; zcount < fillzero; zcount++) {
-			//	strcat(final, "0");
-			//}
 			memset(addr, ASCII_ZERO, fillzero);
 
 			memcpy((uint8_t *)addr + fillzero, retstr, beforedp);
@@ -504,14 +414,8 @@ void SqlVar::createCobolData(char* retstr)
 
 				fillzero = -power - afterdp;
 				uint8_t* ptr = ((uint8_t*)addr + fillzero + beforedp) + afterdp;
-				//for (zcount = 0; zcount < fillzero; zcount++) {
-				//	strcat(final, "0");
-				//}
 				memset(ptr, ASCII_ZERO, fillzero);
 			}
-
-			//memcpy(addr, final, length);
-			//free(final);
 			break;
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_TC:
@@ -521,12 +425,7 @@ void SqlVar::createCobolData(char* retstr)
 			int is_negative = false;
 
 			int fillzero;
-			//int zcount;
-			//char* final;
 			int final_length;
-
-			// fill zero
-			//final = (char*)calloc(length + TERMINAL_LENGTH, sizeof(char));
 
 			if (retstr[0] == '-') {
 				is_negative = true;
@@ -551,12 +450,7 @@ void SqlVar::createCobolData(char* retstr)
 			if (fillzero < 0)
 				fillzero = 0;
 
-			//for (zcount = 0; zcount < fillzero; zcount++) {
-			//	strcat(final, "0");
-			//}
 			memset(addr, ASCII_ZERO, fillzero);
-
-			//memcpy(final + fillzero, value, beforedp);
 			memcpy((uint8_t *)addr + fillzero, value, beforedp);
 
 			if (power < 0) {
@@ -575,9 +469,6 @@ void SqlVar::createCobolData(char* retstr)
 
 				// fill zero
 				fillzero = -power - afterdp;
-				//for (zcount = 0; zcount < fillzero; zcount++) {
-				//	strcat(final, "0");
-				//}
 				uint8_t* ptr = ((uint8_t*)addr + fillzero + beforedp) + afterdp;
 				memset(ptr, ASCII_ZERO, fillzero);
 
@@ -589,9 +480,6 @@ void SqlVar::createCobolData(char* retstr)
 				int index = *(addr_ptr + (final_length - 1)) - '0';
 				addr_ptr[final_length - 1] = type_tc_negative_final_number[index];
 			}
-
-			//memcpy(addr, final, length + SIGN_LENGTH);
-			//free(final);
 			break;
 		} 
 		case COBOL_TYPE_SIGNED_NUMBER_LS:
@@ -600,11 +488,6 @@ void SqlVar::createCobolData(char* retstr)
 			unsigned char* ptr;
 
 			int fillzero;
-			//int zcount;
-			//char* final;
-
-			// fill zero
-			//final = (char*)calloc(SIGN_LENGTH + length + TERMINAL_LENGTH, sizeof(char));
 
 			if (retstr[0] == '-') {
 				((uint8_t *)addr)[0] = '-';
@@ -627,9 +510,6 @@ void SqlVar::createCobolData(char* retstr)
 			}
 
 			fillzero = length - beforedp + power;
-			//for (zcount = 0; zcount < fillzero; zcount++) {
-			//	strcat(final, "0");
-			//}
 			memset(addr, ASCII_ZERO, fillzero);
 
 			memcpy((uint8_t *)addr + SIGN_LENGTH + fillzero, value, beforedp);
@@ -651,15 +531,9 @@ void SqlVar::createCobolData(char* retstr)
 				}
 
 				fillzero = -power - afterdp;
-				//for (zcount = 0; zcount < fillzero; zcount++) {
-				//	strcat(final, "0");
-				//}
 				ptr = ((uint8_t*)addr + SIGN_LENGTH + fillzero + beforedp) + afterdp;
 				memset(ptr, ASCII_ZERO, fillzero);
 			}
-
-			//memcpy(addr, final, length + SIGN_LENGTH);
-			//free(final);
 			break;
 		} 
 
@@ -676,32 +550,35 @@ void SqlVar::createCobolData(char* retstr)
 		}
 
 		case COBOL_TYPE_ALPHANUMERIC:
-			// 文字の長さだけメモリコピー
+
 			if (!is_variable_length) {
-				if (strlen(retstr) >= length) {
+				if (datalen >= length) {
 					memcpy(addr, retstr, length);
 				}
 				else {
-					memset(addr, ' ', length);
-					memcpy(addr, retstr, strlen(retstr));
+					char pad_char = is_binary ? 0 : ' ';
+					memset(addr, pad_char, length);
+					memcpy(addr, retstr, datalen);
 				}
 			}
 			else {
-				void* actual_addr = (uint8_t*)addr + 2;
-				int actual_len = length - 2;
-				if (strlen(retstr) >= length) {
+				void* actual_addr = (uint8_t*)addr + VARLEN_LENGTH_SZ;
+				int actual_len = length - VARLEN_LENGTH_SZ;
+				if (datalen >= actual_len) {
 					memcpy(actual_addr, retstr, actual_len);
 				}
 				else {
-					memset(actual_addr, ' ', actual_len);
-					memcpy(actual_addr, retstr, strlen(retstr));
+					char pad_char = is_binary ? 0 : ' ';
+					memset(actual_addr, pad_char, actual_len);
+					memcpy(actual_addr, retstr, datalen);
 				}
-				int16_t* fld_len_addr = (int16_t *)addr;
-				*fld_len_addr = COB_BSWAP_16((int16_t) strlen(retstr));
+				VARLEN_LENGTH_T* fld_len_addr = (VARLEN_LENGTH_T *)addr;
+				*fld_len_addr = VARLEN_BSWAP((VARLEN_LENGTH_T) datalen);
 			}
 			break;
+
 		case COBOL_TYPE_JAPANESE:
-			// 文字の長さだけメモリコピー
+
 			if (strlen(retstr) >= length * 2) {
 				memcpy(addr, retstr, length * 2);
 			}
@@ -715,7 +592,7 @@ void SqlVar::createCobolData(char* retstr)
 				memcpy(addr, retstr, strlen(retstr));
 			}
 			break;
-			//std::stoi, std::stol, std::stoll
+
 		case COBOL_TYPE_UNSIGNED_BINARY:
 
 			memset(addr, 0, length);
@@ -892,5 +769,75 @@ void SqlVar::display_to_comp3(const char *data, bool has_sign) // , int total_le
 	}
 
 	free(tmp);
+}
+
+char *SqlVar::allocate_realdata_buffer()
+{
+	switch (type) {
+		case COBOL_TYPE_UNSIGNED_NUMBER:
+		{
+			realdata_len = length;
+			if (power < 0) {
+				realdata_len++;
+			}
+			break;
+		}
+		case COBOL_TYPE_SIGNED_NUMBER_TC:
+		{
+			realdata_len = SIGN_LENGTH + length;
+			if (power < 0) {
+				realdata_len++;
+			}
+			break;
+		}
+		case COBOL_TYPE_SIGNED_NUMBER_LS:
+		{
+			realdata_len = SIGN_LENGTH + length;
+			if (power < 0) {
+				realdata_len++;
+			}
+			break;
+		}
+		case COBOL_TYPE_UNSIGNED_NUMBER_PD:
+		{
+			realdata_len = length;
+			if (power < 0) {
+				realdata_len++;
+			}
+			break;
+		}
+		case COBOL_TYPE_SIGNED_NUMBER_PD:
+		{
+			realdata_len = SIGN_LENGTH + length;
+			if (power < 0) {
+				realdata_len++;
+			}
+			break;
+		}
+
+		case COBOL_TYPE_JAPANESE:
+			length = length * 2;
+			/* no break */
+		case COBOL_TYPE_ALPHANUMERIC:
+			realdata_len = length;	// we always allocate the maximum size, to handle variable length types (the length field includes the extra 2 bytes)
+			break;
+
+		case COBOL_TYPE_UNSIGNED_BINARY:
+			realdata_len = length;
+			break;
+
+		case COBOL_TYPE_SIGNED_BINARY:
+			realdata_len = length;
+			break;
+
+		default:
+			realdata_len = length;
+			break;
+	}
+
+	if (realdata_len)
+		realdata = (char *)calloc(realdata_len + TERMINAL_LENGTH, sizeof(char));
+
+	return realdata;
 }
 

@@ -236,7 +236,7 @@
       <AdditionalIncludeDirectories>%PGSQL32_HOME%\include;..\libgixsql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%PGSQL32_HOME%\lib;%PGSQL32_HOME%\bin;</AdditionalLibraryDirectories>
@@ -284,7 +284,7 @@
       <AdditionalIncludeDirectories>..\libgixsql;%PGSQL_HOME%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%PGSQL_HOME%\lib;%PGSQL_HOME%\bin;$(OutDir)</AdditionalLibraryDirectories>

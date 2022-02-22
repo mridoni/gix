@@ -33,6 +33,8 @@ USA.
 #define LOG_ERROR(format, ...)
 #endif
 
+#define OID_TYPEA	17
+
 DbInterfacePGSQL::DbInterfacePGSQL()
 {}
 
@@ -52,7 +54,7 @@ int DbInterfacePGSQL::init(ILogger *_logger)
 	return DBERR_NO_ERROR;
 }
 
-int DbInterfacePGSQL::connect(IConnectionString *conn_string, int autocommit, string encoding)
+int DbInterfacePGSQL::connect(IDataSourceInfo *conn_info, int autocommit, string encoding)
 {
 	PGconn *conn;
 	string connstr;
@@ -60,11 +62,11 @@ int DbInterfacePGSQL::connect(IConnectionString *conn_string, int autocommit, st
 	connaddr = NULL;
 	resaddr = NULL;
 
-	connstr = (conn_string->getDbName().empty() ? "" : "dbname=" + conn_string->getDbName() + " ") +
-		(conn_string->getHost().empty() ? "" : "host=" + conn_string->getHost() + " ") +
-		(conn_string->getPort() > 0 ? "" : "port=" + std::to_string(conn_string->getPort()) + " ") +
-		(conn_string->getUsername().empty() ? "" : "user=" + conn_string->getUsername() + " ") +
-		(conn_string->getPassword().empty() ? "" : "password=" + conn_string->getPassword() + " ");
+	connstr = (conn_info->getDbName().empty() ? "" : "dbname=" + conn_info->getDbName() + " ") +
+		(conn_info->getHost().empty() ? "" : "host=" + conn_info->getHost() + " ") +
+		(conn_info->getPort() == 0 ? "" : "port=" + std::to_string(conn_info->getPort()) + " ") +
+		(conn_info->getUsername().empty() ? "" : "user=" + conn_info->getUsername() + " ") +
+		(conn_info->getPassword().empty() ? "" : "password=" + conn_info->getPassword() + " ");
 
 	conn = PQconnectdb(connstr.c_str());
 
@@ -77,7 +79,46 @@ int DbInterfacePGSQL::connect(IConnectionString *conn_string, int autocommit, st
 		return DBERR_CONNECTION_FAILED;
 	}
 
-	PQsetClientEncoding(conn, encoding.c_str());
+	if (!encoding.empty()) {
+		if (PQsetClientEncoding(conn, encoding.c_str())) {
+			last_rc = 1;
+			last_error = PQerrorMessage(conn);
+			LOG_ERROR("%s\n", last_error);
+			PQfinish(conn);
+			return DBERR_CONNECTION_FAILED;
+		}
+	}
+
+	auto opts = conn_info->getOptions();
+	if (opts.find("default_schema") != opts.end()) {
+		std::string default_schema = opts["default_schema"];
+		if (!default_schema.empty()) {
+			std::string default_schema = opts["default_schema"];
+			std::string spq = "set search_path to " + default_schema;
+			auto r = PQexec(conn, spq.c_str());
+			auto rc = PQresultStatus(r);
+			if (rc != PGRES_COMMAND_OK) {
+				last_rc = rc;
+				last_error = PQresultErrorMessage(r);
+				LOG_ERROR("%s\n", last_error);
+				PQfinish(conn);
+				return DBERR_CONNECTION_FAILED;
+			}
+		}
+	}
+
+	if (opts.find("decode_binary") != opts.end()) {
+		std::string opt_decode_binary = opts["decode_binary"];
+		if (!opt_decode_binary.empty()) {
+			if (opt_decode_binary == "on" || opt_decode_binary == "1") {
+				this->decode_binary = DECODE_BINARY_ON;
+			}
+
+			if (opt_decode_binary == "off" || opt_decode_binary == "0") {
+				this->decode_binary = DECODE_BINARY_OFF;
+			}
+		}
+	}
 
 	connaddr = conn;
 	resaddr = NULL;
@@ -148,17 +189,6 @@ IConnection *DbInterfacePGSQL::get_owner()
 	return owner;
 }
 
-
-int DbInterfacePGSQL::_pgsql_exec_params(ICursor *, const string, int, int *, vector<string> &, int *, int *, int)
-{
-	return 0;
-}
-
-int DbInterfacePGSQL::_pgsql_exec(ICursor *, const string)
-{
-	return 0;
-}
-
 int DbInterfacePGSQL::exec(string query)
 {
 	string q = query;
@@ -167,7 +197,9 @@ int DbInterfacePGSQL::exec(string query)
 	if (resaddr)
 		PQclear(resaddr);
 
-	resaddr = PQexec(connaddr, q.c_str());
+	//resaddr = PQexec(connaddr, q.c_str());
+	resaddr = PQexecParams(connaddr, q.c_str(), 0, NULL, NULL, NULL, NULL, 0);
+
 	last_rc = PQresultStatus(resaddr);
 	last_error = PQresultErrorMessage(resaddr);
 
@@ -182,11 +214,17 @@ int DbInterfacePGSQL::exec(string query)
 		}
 	}
 
-	return (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK) ? DBERR_NO_ERROR : DBERR_SQL_ERROR;
+	//return (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK) ? DBERR_NO_ERROR : DBERR_SQL_ERROR;
+	if (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK)
+		return DBERR_NO_ERROR;
+	else {
+		last_rc = -(10000 + last_rc);
+		return DBERR_SQL_ERROR;
+	}
 }
 
 
-int DbInterfacePGSQL::exec_params(string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats, int resultFormat)
+int DbInterfacePGSQL::exec_params(string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats)
 {
 	string q = query;
 
@@ -201,8 +239,7 @@ int DbInterfacePGSQL::exec_params(string query, int nParams, int *paramTypes, ve
 	if (resaddr)
 		PQclear(resaddr);
 
-	resaddr = PQexecParams(connaddr, q.c_str(), nParams, NULL, pvals,	//  (const Oid *)paramTypes
-		paramLengths, paramFormats, resultFormat);
+	resaddr = PQexecParams(connaddr, q.c_str(), nParams, NULL, pvals, paramLengths, paramFormats, 0);
 
 	free(pvals);
 
@@ -220,7 +257,13 @@ int DbInterfacePGSQL::exec_params(string query, int nParams, int *paramTypes, ve
 		}
 	}
 
-	return (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK) ? DBERR_NO_ERROR : DBERR_SQL_ERROR;
+	//return (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK) ? DBERR_NO_ERROR : DBERR_SQL_ERROR;
+	if (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK)
+		return DBERR_NO_ERROR;
+	else {
+		last_rc = -(10000 + last_rc);
+		return DBERR_SQL_ERROR;
+	}
 }
 
 
@@ -354,7 +397,7 @@ int DbInterfacePGSQL::cursor_open(ICursor *cursor)
 	}
 
     auto pvalues = cursor->getParameterValues();
-	int rc = exec_params(string(true_query), cursor->getNumParams(), NULL, pvalues, NULL, NULL, 0);
+	int rc = exec_params(string(true_query), cursor->getNumParams(), NULL, pvalues, NULL, NULL);
 
 	cursor->setOpened(rc == DBERR_NO_ERROR);
 	return (rc == DBERR_NO_ERROR) ? DBERR_NO_ERROR : DBERR_DECLARE_CURSOR_FAILED;
@@ -415,16 +458,43 @@ int DbInterfacePGSQL::fetch_one(ICursor *cursor, int fetchmode)
 	return DBERR_NO_ERROR;
 }
 
-bool DbInterfacePGSQL::get_resultset_value(ICursor *c, int row, int col, char *bfr, int bfrlen)
+bool DbInterfacePGSQL::get_resultset_value(ICursor *c, int row, int col, char *bfr, int bfrlen, int *value_len)
 {
+	*value_len = 0;
+	size_t to_length = 0;
+
+	auto type = PQftype(resaddr, col);
 	const char *res = PQgetvalue(resaddr, row, col);
 	if (res) {
-		strcpy(bfr, res);
+		if (type != OID_TYPEA || !this->decode_binary) {
+			to_length = strlen(res);
+			if (to_length > bfrlen) {
+				return false;
+			}
+
+			strcpy(bfr, res);
+			*value_len = strlen(bfr);
+		}
+		else {
+
+			unsigned char *tmp_bfr = PQunescapeBytea((const unsigned char *) res, &to_length);
+			if (!tmp_bfr)
+				return false;
+
+			if (to_length > bfrlen) {
+				PQfreemem(tmp_bfr);
+				return false;
+			}
+
+			memset(bfr, 0, bfrlen);
+			memcpy(bfr, tmp_bfr, to_length);
+			PQfreemem(tmp_bfr);
+			*value_len = to_length;
+		}
 		return true;
 	}
 
 	return false;
-
 }
 
 int DbInterfacePGSQL::move_to_first_record()

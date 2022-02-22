@@ -21,15 +21,14 @@ USA.
 #pragma once
 
 #include <string>
+#include <map>
 
-
-
-class IConnectionString
+class IDataSourceInfo
 {
 
 public:
 
-	virtual int init(std::string name, std::string user, std::string password) = 0;
+	virtual int init(const std::string &data_source, const std::string &username, const std::string &password) = 0;
 	virtual std::string get() = 0;
 
 	virtual std::string getDbType() = 0;
@@ -38,7 +37,7 @@ public:
 	virtual std::string getDbName() = 0;
 	virtual std::string getUsername() = 0;
 	virtual std::string getPassword() = 0;
-	virtual std::string getDefaultSchema() = 0;
+	virtual const std::map<std::string, std::string> &getOptions() = 0;
 
 	virtual void setPassword(std::string) = 0;
 

@@ -32,7 +32,7 @@
 
 #include "IConnection.h"
 #include "IDbInterface.h"
-#include "IConnectionString.h"
+#include "IDataSourceInfo.h"
 
 
 
@@ -47,12 +47,12 @@ public:
 	LIBGIXSQL_API Connection();
 	LIBGIXSQL_API ~Connection();
 
-	LIBGIXSQL_API IConnectionString *getConnectionInfo() override;
-	LIBGIXSQL_API void setConnectionInfo(IConnectionString *) override;
+	LIBGIXSQL_API IDataSourceInfo *getConnectionInfo() override;
+	LIBGIXSQL_API void setConnectionInfo(IDataSourceInfo *) override;
 	LIBGIXSQL_API IDbInterface *getDbInterface() override;
 	LIBGIXSQL_API void setDbInterface(IDbInterface *) override;
 
-	LIBGIXSQL_API static bool test(IConnectionString*);
+	LIBGIXSQL_API static bool test(IDataSourceInfo*);
 
 	int getId() override;
 	bool isOpen() override;
@@ -69,8 +69,8 @@ public:
 private:
 
 	int id;
-	std::string cname;
-	IConnectionString *conninfo;
+	std::string name;
+	IDataSourceInfo *conninfo;
 	bool autocommit;
 	bool is_opened; //open flag
 	std::string encoding;

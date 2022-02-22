@@ -55,13 +55,6 @@ ProjectPropertyDefinitionCollection::ProjectPropertyDefinitionCollection() : Pro
 	compiler_dialect_opts->insert("rm", "RM-COBOL (lax)");
 	compiler_dialect_opts->insert("xopen", "X/Open COBOL");
 
-	esql_opts = new QMap<QString, QVariant>();
-	esql_opts->insert("_GIXSQL_DB_MODE", "From environment (GIXSQL_DB_MODE)");
-	esql_opts->insert("_URL", "Dynamic (from connection URL)");
-	esql_opts->insert("ODBC", "ODBC");
-	esql_opts->insert("MYSQL", "MySQL");
-	esql_opts->insert("PGSQL", "PostgreSQL");
-
 	defs.append(new PropertyDefinition("__project_type", "Project type", PropertyType::PropertyTypeText, "", true));
 
 	//defs.append(new PropertyDefinition("build_type", "Build type", PropertyType::PropertyTypeOption, "exe", false, build_type_opts));
@@ -103,7 +96,6 @@ ProjectPropertyDefinitionCollection::ProjectPropertyDefinitionCollection() : Pro
 	defs.append(new PropertyDefinition("dbg_run_env_vars", "Run/Debug environment", PropertyType::PropertyTypeEnvVarsList, "", false, nullptr, "debug"));
 	defs.append(new PropertyDefinition("dbg_merge_env", "Merge environment", PropertyType::PropertyTypeBoolean, true, false, nullptr, "debug"));
 
-	defs.append(new PropertyDefinition("esql_default_driver", "Default driver", PropertyType::PropertyTypeOption, "", false, esql_opts, "esql"));
 	defs.append(new PropertyDefinition("esql_preprocess_copy_files", "Preprocess COPY files", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
 	defs.append(new PropertyDefinition("esql_anon_params", "Use anonymous parameters", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
 	defs.append(new PropertyDefinition("esql_static_calls", "Emit static calls", PropertyType::PropertyTypeBoolean, true, false, nullptr, "esql"));

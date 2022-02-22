@@ -1,6 +1,7 @@
+
 ## GixSQL
 
-GixSQL is an ESQL preprocessor and a series of runtime libraries to enable GnuCOBOL to access ODBC, MySQL, PostgreSQL databases.
+GixSQL is an ESQL preprocessor and a series of runtime libraries to enable GnuCOBOL to access ODBC, MySQL and PostgreSQL databases.
 
 It originated as a (private) fork of OceSQL but has been almost completely rewritten: while the semantics related to the GnuCOBOL interface are similar and several support functions have been kept, the parser, scanner and library frameworks have been developed in C++ and have a different organization, with dynamically loadable modules as "database drivers".
 
@@ -15,50 +16,139 @@ As of v1.0.7 GixSQL comes also in a standalone install package, so it can also b
 GixSQL comprises a preprocessor (a standalone executable or a library) and a set of runtime libraries. libgixsql.dll/.so is the main library and it is the one that will be linked to your COBOL modules. The other libraries (e.g. libgisql-odbc.dll/.so) will be dynamically loaded at runtime depending on the DB you chose in your configuration (see below). It is possible, if so desired, to develop additional libraries for specific DBMSs not covered in the standard install.
 
 ### Using GixSQL from Gix-IDE
-When you create a project in Gix-IDE, you are asked whether you want to enable it for ESQL preprocessing. This is not an absolute requirement. At any point you can set the project property "Preprocess for ESQL" (under "General") to "Yes". There are several properties you can configure here:
+When you create a project in Gix-IDE, you are asked whether you want to enable it for ESQL preprocessing. This is not an absolute requirement. At any point you can set the project property "Preprocess for ESQL" (under "General") to "Yes". There are several properties you can configure here that affed code generation by the preprocessor:
 
-- **Default driver**: the database driver to be loaded and used. You can choose between:
-	- MySQL
-	- PostgreSQL
-	- ODBC
-	- Dynamically selected (based on a "connection string" supplied to the driver)
-	- Dynamically selected (based on the GIXSQL_DB_MODE environment variable)
 - **Preprocess COPY files**: if set to "Yes" all copy files (not only those in EXEC SQL INCLUDE sections) will be parsed by the ESQL preprocessor. This is useful when you have copy files containing code that includes EXEC SQL statements.
 - **Use anonymous parameters**: if set to "Yes", parameters in SQL statments will be represented as "?", otherwise a numeric indicator (i.e "$1") will be used.
 - **Emit static calls**: if set to "Yes", the calls to the gixsql library functions will be emitted as static. This should be normally set to "Yes".
 
 ### Connecting to a database from COBOL
 
-There is no "bind" procedure in GixSQL, you will have to manually open a connection to a database. This is done with a syntax that is quite similar to the one used in Micro Focus COBOL:
+*Note: the "connection string" format has changed in v1.0.8 and is incompatible with the old one. Given the amount of fixes and improvements, it is strongly suggested to upgrade to the latest version anyway.*
 
-    ACCEPT DBNAME FROM ENVIRONMENT-VALUE.                        
+There is no "bind" procedure in GixSQL, you will have to manually open a connection to a database. This can be done in different ways: this is an example of a syntax that is quite similar to the one used in Micro Focus COBOL:
+
+    ACCEPT DATASRC FROM ENVIRONMENT-VALUE.                        
     ACCEPT DBAUTH FROM ENVIRONMENT-VALUE.                      
     EXEC SQL
-      CONNECT TO :DBNAME USER :DBAUTH
+      CONNECT TO :DATASRC USER :DBAUTH
     END-EXEC. 
 
 In this case the two values are retrieved from the environment variables DBNAME and DBAUTH and passed to the CONNECT function.
 
-DBAUTH is a "connection string"-style alphanumeric field, whose format is basically
+DATASRC is a "connection string"-style alphanumeric field, whose format is basically
 
-    localhost:5432/mydb
+    <dbtype>://<host>[:port][/dbname][?[opt1=val1]&...]
 
-or
+e.g. (if using PostgreSQL)
 
-    PGSQL;localhost:5432/mydb
+    pgsql://localhost:5432/testdb?default_schema=myschema
 
-if you want to specify a database type (that can be ODBC, MYSQL or PGSQL) instead of providing it in the environment variable named GIXSQL_DB_MODE.
-
-User name and password are provided in the second parameter (DBAUTH in this case) and follow the format:
+In this case the username and password are provided in the second parameter (DBAUTH in this case) and follow the format (yes, that's a dot):
 
     username.password
 
-(yes, that's a dot)
-*Note: I acknowledge this is rather simplistic and should be improved with more options, parameters, etc.*
+You can also use other formats for your connection statements, like
+
+	CONNECT TO :DATASOURCE USER :USERNAME USING :PASSWORD
+
+or
+
+	CONNECT :USERNAME IDENTIFIED_BY :PASSWORD USING :PASSWORD
+
+All the identifiers for data sources, usernames and passwords can be either COBOL variables (prefixed by a semi-colon) or string literals.
 
 When you run your code from the IDE, the path for the runtime libraries needed for the DBMS you chose are automatically added to your PATH. Obviously, when you are running outside the IDE, you will have to do this manually: the runtime libraries and their dependencies reside in `{gix-install-dir}\lib\{platform}\{architecture}` (**platform** can be either x64 or x86, **architecture** can either be msvc or gcc, depending on the compiler type you are using).
 
 At the moment  Gix-IDE always uses its embedded version of GixSQL. In the future this will be extended to allow for other preprocessors.
+
+### Multiple connections
+
+Starting with version 1.0.8 of GixSQL/Gix-IDE, it is possible to open and manage multiple connections:
+
+	CONNECT TO :db_data_source AS :db_conn_id USER :username.:opt_password [ USING password ]
+
+or 
+
+	CONNECT :username IDENTIFIED BY :password [ AT :db_conn_id ] USING :db_data_source
+	
+where **db_conn_id** is an identifier for your connection.
+
+Then you can use this identifier in your SQL statements, e.g.:
+
+	       EXEC SQL
+              CONNECT TO :DATASRC-1 AS CONN1 USER :DBUSR-1
+           END-EXEC.    
+           
+           EXEC SQL
+              CONNECT TO :DATASRC-2 AS CONN2 USER :DBUSR-2
+           END-EXEC.   
+           
+           EXEC SQL AT CONN1 DROP TABLE IF EXISTS TAB1 END-EXEC.
+
+           EXEC SQL AT CONN2 DROP TABLE IF EXISTS TAB2 END-EXEC.
+           
+
+
+### Declaring SQL host variables
+
+You can use any COBOL field in SQL statements, e.g.:
+
+	      WORKING-STORAGE SECTION. 
+
+           01 T1     PIC 9(4) VALUE 0.  
+	       
+	       ...
+	       
+	       EXEC SQL AT CONN1
+               SELECT SUM(FLD1) INTO :T1 FROM TAB1
+           END-EXEC. 
+
+As a special case, if you need to declare and use field to be associated with variable length database fields (i.e. VARBINARY or VARCHAR), you can do it in one of the following ways:
+
+1) use the "SQL TYPE IS" clause:  
+
+	     01 VBFLD SQL TYPE IS VARBINARY(100).
+
+This will get translated by the preprocessor to:
+
+	     01 VBFLD.
+             49 VBFLD-LENGTH PIC 9(4) BINARY.
+             49 VBFLD-DATA PIC X(100).
+
+As it is standard practice in COBOL, "level 49" fields are used to store a VARCHAR/VARBINARY field, handling separately its length in the first child data-item and the actual data in the second.
+
+*(Note: you can select 2 or 4 bytes for the data item length indicator, the standard being 2. This option can be currently changed at compile time  only, by defining the USE_VARLEN_32 constant).*
+
+ 2) use the "EXEC SQL VAR" syntax for a given field:
+ 
+         WORKING-STORAGE SECTION. 
+     
+              01 VARD PIC X(120).
+
+         ....
+
+	     EXEC SQL VAR
+              VARD IS VARCHAR(120)
+        END-EXEC.   
+        
+
+3) manually define "level 49" fields as in case 1, this is the case with some legacy code.
+
+
+### Driver options and notes
+
+Starting from v1.0.8 it is possible to pass options to the backend "drivers", i.e., the submodules of GixSQL that interface with a specific DBMS. For now only a few options are supported, but their number will probably grow in the next releases:
+
+- client_encoding: sets the default text encoding for client connections (supported in MySQL and PostgreSQL)
+- autocommit: sets autocommit on or off (default: off, supported in MySQL and PostgreSQL)
+- default_schema: selects the default schema (supported in PostgreSQL, maps to the search_path)
+
+Driver options are passed in the connection string, e.g.:
+
+	pgsql://localhost/mydb?autocommit=on&client_encoding=UTF8&default_schema=myschema
+
+For "binary" options you can use either on/off or 1/0 to enable or disable them.
 
 ### Examples
 
@@ -69,8 +159,8 @@ You can find a sample project collection for GixSQL (TEST001.gix) in the folder 
 If you want to manually precompile COBOL programs for ESQL, you can use the preprocessor binary (**gixpp** or **gixpp.exe**) you will find in the **bin** folder in Gix-IDE's install directory. When you run it from the console, ensure you have the same **bin** directory in your PATH/LD_LIBRARY_PATH since it contains some libraries that are needed by **gixpp**. These are the command line options available, that correspond to those described earlier:
 
 	gixpp - the ESQL preprocessor for Gix-IDE/GixSQL
-	Version: 1.0.7
-	libgixpp version: 1.0.7
+	Version: 1.0.8
+	libgixpp version: 1.0.8
 	
 	Options:
 	  -h, --help                  displays help on commandline options
@@ -90,7 +180,7 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
 	  -d, --verbose-debug         verbose (debug)
 	  
 
-When you want to build and link from the console, remember also to add the `<gix-install-dir>/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.
+When you want to build and link from the console, remember also to add the `<gix-install-dir>/lib/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.
 
 
 ### Basic command line example
@@ -141,10 +231,6 @@ On Linux the packages are installed in /opt, so it would be (the "lib" prefix in
 	cobc -x TEST001.cbsql -L /opt/gix-ide/lib/x64/gcc -lgixsql	
 
 Now we can run the test program, we just need to set some environment variables (on Linux just use the appropriate paths and syntax):
-
-- Set libgixsql to use the PostgreSQL driver
-		
-		set GIXSQL_DB_MODE=PGSQL
 	
 - Add the path for libgixsql (and the driver library, in this case libgixsql-pgsql.dll) to the path
 	
@@ -157,10 +243,10 @@ Now we can run the test program, we just need to set some environment variables 
 	
 - Set the two environment variables needed by the COBOL code itself (obviously they can be named as you wish):
 
-		set DBNAME=192.168.1.1:5432/testdb
+		set DBNAME=pgsql://192.168.1.1:5432/testdb
 		set DBAUTH=test.test
 
-The first variable uses the standard format for a GixSQL connection string used in the `EXEC SQL CONNECT TO` command: `host:port/dbname`. As an exception, if you are using the ODBC driver, it must only contain the DSN name, with no formatting, e.g.:
+The first variable uses the standard format for a GixSQL connection string used in the `EXEC SQL CONNECT TO` command: `host:port/dbname`.
 
 	set DBNAME=MYODBCCONN
 
@@ -194,25 +280,13 @@ Keep pressing 'y' to advance in the loop and display all the three records in th
 
 ### Windows (Visual Studio)
 
-In the top-level directory, beside the main solution file for Gix-IDE (`gix-ide.sln`) you will find a second solution file (`gixsql.sln`). You can use Visual Studio 2019 to build it, but first you likely will have to adjust the include and library definitions for the PostgreSQL and MySQL client libraries (32/and or 64 bit). The preprocessor (`gixpp`) and the main library (`libgixsql`) do not have any specific dependency.
+For now you will have to clone the whole repository or the source package that includes the IDE. In the top-level directory, beside the main solution file for Gix-IDE (`gix-ide.sln`) you will find a second solution file (`gixsql.sln`). You can use Visual Studio 2019 to build it, but first you likely will have to adjust the include and library definitions for the PostgreSQL and MySQL client libraries (32/and or 64 bit). The preprocessor (`gixpp`) and the main library (`libgixsql`) do not have any specific dependency.
 
 ### Linux
 
 *All comands and packages refer to Ubuntu 20.04, You might need to adjust them depending on your distribution or environment.*
 
-Move to the `gixsql` subdirectory under the top-level directory and run:
-
-    make -f Makefile.linux
-
-It should compile all the libraries, then the preprocessing library and the preprocessor. You can install with:
-
-	sudo make -f Makefile.linux install
-
-The default forectory for install is `/opt/gixsql`, you can select a different directory by setting the `DEST_DIR` variable, e.g.
-
-	DEST_DIR=/usr/local/gixsql make -f Makefile.linux install
-
-You will also need the development packages for the DBMS client libraries, e.g.:
+You will need the development packages for the DBMS client libraries, e.g.:
 
 	apt install libmysqlclient-dev libpq-dev unixodbc-dev flex
 
@@ -223,6 +297,31 @@ You will also need a modern enough version of bison. If you are using Ubuntu 20.
 and
 
 	sudo dpkg -i bison_3.7.6+dfsg-1_amd64.deb
+
+Download the .tar.gz.package from the Releases page, e.g.
+
+	gixsql-1.0.8-xxxx.tar.gz
+
+Untar the package:
+
+	tar xzvf gixsql-1.0.8-1541.tar.gz
+
+cd to the directory created by the tar command and run configure (in this case we will install to /opt/gixsql)
+
+	cd gixsql-1.0.8-1541
+	./configure --prefix=/opt/gixsql
+
+By default configure tries to build all the drivers. If you nly need one, you can disable the others. For instance, to build only the PostgreSQL driver:
+
+	./configure --prefix=/opt/install --disable-mysql --disable-odbc
+
+If all goes well you can just do:
+
+    make
+
+It should compile all the libraries, then the preprocessing library and the preprocessor. You can install with:
+
+	sudo make install
 	
 ### Windows (MinGW)
-Currently there are no specific Makefiles for MinGW x86/x64, you can adjust the PATHs for include and library files and reuse the Windows ones
+Currently there are no specific Makefiles/autoconf scripts for MinGW x86/x64, they will be provided ina future release, but you can try to use the configure script.

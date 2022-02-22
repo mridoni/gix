@@ -20,7 +20,7 @@ USA.
 
 #include "DatabaseConnectionDialog.h"
 #include "DbInterfaceFactory.h"
-#include "ConnectionString.h"
+#include "DataSourceInfo.h"
 #include "Connection.h"
 #include "UiUtils.h"
 #include "IdeDbManager.h"
@@ -45,7 +45,7 @@ DatabaseConnectionDialog::DatabaseConnectionDialog(QWidget* parent) :
 	conn_info = nullptr;
 }
 
-IConnectionString *DatabaseConnectionDialog::getConnectionInfo()
+IDataSourceInfo *DatabaseConnectionDialog::getConnectionInfo()
 {
 	return conn_info;
 }
@@ -250,8 +250,8 @@ bool DatabaseConnectionDialog::checkFormData() {
 void DatabaseConnectionDialog::doDatabaseConnection() 
 {
 	QString cs = buildConnectionString();
-	ConnectionString *conn = ConnectionString::parseEx(cs.toStdString());
-	if (conn) {
+	DataSourceInfo *conn = new DataSourceInfo();
+	if (!conn->init(cs.toStdString(), "***", "***")) {	// FIXME!!
 		if (!Ide::DbManager()->test(conn)) {
 			UiUtils::ErrorDialog(tr("Cannot connect, please check the connection parameters"));
 			return;

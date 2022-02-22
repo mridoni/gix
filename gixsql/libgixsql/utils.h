@@ -22,6 +22,7 @@
 #define OCDBUTIL_H
 
 #include <string>
+#include <vector>
 
 #define SIGN_LENGTH 1
 #define TERMINAL_LENGTH 1
@@ -47,24 +48,27 @@ bool is_commit_or_rollback_statement(std::string query);
 bool is_dml_statement(std::string query);
 bool is_begin_transaction_statement(std::string query);
 
-inline void ltrim(std::string &s);
+void ltrim(std::string &s);
 
 // trim from end (in place)
-inline void rtrim(std::string &s);
+void rtrim(std::string &s);
 
 // trim from both ends (in place)
-inline void trim(std::string &s);
+void trim(std::string &s);
 
 // trim from start (copying)
-inline std::string ltrim_copy(std::string s);
+std::string ltrim_copy(std::string s);
 
 // trim from end (copying)
-inline std::string rtrim_copy(std::string s);
+std::string rtrim_copy(std::string s);
 
 // trim from both ends (copying)
-inline std::string trim_copy(std::string s);
+std::string trim_copy(std::string s);
 
-inline bool startsWith(const std::string s, const std::string s1);
+bool starts_with(const std::string &s1, const std::string &s2);
+bool ends_with(std::string const &s1, std::string const &s2);
+std::vector<std::string> string_split(const std::string str, const std::string regex_str);
+std::string string_replace(std::string subject, const std::string &search, const std::string &replace);
 
 bool caseInsensitiveStringCompare(const std::string& str1, const std::string& str2);
 

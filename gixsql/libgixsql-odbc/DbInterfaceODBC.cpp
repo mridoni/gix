@@ -40,7 +40,6 @@
 
 DbInterfaceODBC::DbInterfaceODBC()
 {
-
 }
 
 
@@ -116,7 +115,7 @@ int DbInterfaceODBC::init(ILogger* _logger)
 	return DBERR_NO_ERROR;
 }
 
-int DbInterfaceODBC::connect(IConnectionString* conn_string, int autocommit, string encoding)
+int DbInterfaceODBC::connect(IDataSourceInfo* conn_string, int autocommit, string encoding)
 {
 	char dbms_name[256];
 	string host = conn_string->getHost();
@@ -368,12 +367,12 @@ int DbInterfaceODBC::_odbc_exec(ICursor* crsr, const string query)
 	return DBERR_NO_ERROR;
 }
 
-int DbInterfaceODBC::exec_params(string _query, int nParams, int* paramTypes, vector<string>& paramValues, int* paramLengths, int* paramFormats, int resultFormat)
+int DbInterfaceODBC::exec_params(string _query, int nParams, int* paramTypes, vector<string>& paramValues, int* paramLengths, int* paramFormats)
 {
-	return _odbc_exec_params(nullptr, _query, nParams, paramTypes, paramValues, paramLengths, paramFormats, resultFormat);
+	return _odbc_exec_params(nullptr, _query, nParams, paramTypes, paramValues, paramLengths, paramFormats);
 }
 
-int DbInterfaceODBC::_odbc_exec_params(ICursor* crsr, string _query, int nParams, int* paramTypes, vector<string>& paramValues, int* paramLengths, int* paramFormats, int resultFormat)
+int DbInterfaceODBC::_odbc_exec_params(ICursor* crsr, string _query, int nParams, int* paramTypes, vector<string>& paramValues, int* paramLengths, int* paramFormats)
 {
 	string query = _query;
 	int rc = 0;
@@ -646,7 +645,7 @@ int DbInterfaceODBC::cursor_open(ICursor* cursor)
 	if (cursor->getNumParams() > 0) {
 		vector<string> params = cursor->getParameterValues();
 		vector<int> param_types = cursor->getParameterTypes();
-		rc = _odbc_exec_params(cursor, string(query), cursor->getNumParams(), param_types.data(), params, NULL, NULL, 0);
+		rc = _odbc_exec_params(cursor, string(query), cursor->getNumParams(), param_types.data(), params, NULL, NULL);
 	}
 	else {
 		rc = _odbc_exec(cursor, string(query));
@@ -695,11 +694,13 @@ int DbInterfaceODBC::fetch_one(ICursor* cursor, int fetchmode)
 	return res;
 }
 
-bool DbInterfaceODBC::get_resultset_value(ICursor* cursor, int row, int col, char* bfr, int bfrlen)
+bool DbInterfaceODBC::get_resultset_value(ICursor* cursor, int row, int col, char* bfr, int bfrlen, int *value_len)
 {
 	int rc = 0;
 	SQLLEN reslen;
 	SQLHANDLE save_handle;
+
+	*value_len = 0;
 
 	if (cursor) {
 		save_handle = cur_stmt_handle;
@@ -725,6 +726,8 @@ bool DbInterfaceODBC::get_resultset_value(ICursor* cursor, int row, int col, cha
 		retrieve_odbc_error(ERR_SRC_STMT);
 		return NULL;
 	}
+
+	*value_len = reslen;
 
 	return bfr;
 }
