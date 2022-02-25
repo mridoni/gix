@@ -291,11 +291,11 @@ bool GixDebuggerLinux::getVariables(QList<VariableData *> var_list)
                 VariableResolverData *vrootvar = current_cbl_module->locals[vrd->base_var_name];
 
                 uint64_t addr = (uint64_t)sym_provider->resolveLocalVariableAddress(this, (void *)m_pid, current_cbl_module, m_load_address, vrootvar, vrd);
-
-                vd->data = new uint8_t[vrd->storage_size];
+                
                 vd->resolver_data = vrd;
-
-                memset(vd->data, 0x00, vrd->storage_size);
+                          
+                vd->data = new uint8_t[vrd->storage_size];
+                memset(vd->data, 0x00, vrd->storage_size);      
 
                 if (!readProcessMemory((void *)addr, vd->data, vrd->storage_size)) {
                     this->printLastError();
@@ -303,8 +303,11 @@ bool GixDebuggerLinux::getVariables(QList<VariableData *> var_list)
                 }
 
 #if _DEBUG
-                vd->data[vrd->storage_size - 1] = 0;
-                _DBG_OUT("%s : [%s]\n", vd->var_name.toLocal8Bit().constData(), vd->data);
+                char *_bfr = new char[vrd->storage_size + 1];
+                memcpy(_bfr, vd->data, vrd->storage_size);
+                _bfr[vrd->storage_size] = 0;
+                _DBG_OUT("%s : [%s]\n", vd->var_name.toLocal8Bit().constData(), _bfr);
+                delete[] _bfr;
 #endif
             }
         }

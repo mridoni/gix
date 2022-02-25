@@ -63,10 +63,15 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	cbEolMode->addItem(tr("Unix/Linux (LF)"), (int)EolMode::Unix);
 	cbEolMode->addItem(tr("Classic MacOS (CR)"), (int)EolMode::ClassicMacOS);
 
-	//cbDebugStartupBehaviour->addItem(tr("Stop at breakpoints"), (int)0x01);
-	//cbDebugStartupBehaviour->addItem(tr("Stop at the first line of the main module"), (int)0x02);
-	//cbDebugStartupBehaviour->addItem(tr("Stop at the first line of every module"), (int)0x03);
-	//cbSkipCheckPackageVersionCheck->setChecked(false);
+	cbScreenRes->clear();
+    cbScreenRes->addItem("System Default", (int)0);
+	cbScreenRes->addItem("48", (int)48);
+	cbScreenRes->addItem("72", (int)72);
+	cbScreenRes->addItem("96", (int)96);
+	cbScreenRes->addItem("120", (int)120);
+	cbScreenRes->addItem("144", (int)144);
+    cbScreenRes->addItem("192", (int)192);
+    cbScreenRes->addItem("216", (int)216);
 
 	cb_esql_pp_driver_list->addItem("Gix (Internal)", "esql_driver_gix_internal");
 	cb_esql_pp_driver_list->addItem("Gix (External)", "esql_driver_gix_external");
@@ -270,6 +275,7 @@ void SettingsDialog::EditorCfgTab_LoadSettings()
 	cbConsoleFontSize->setCurrentText(settings.value("console_font_size", 10).toString());
 	cbEolMode->setCurrentIndex(cbEolMode->findData(settings.value("default_eol_mode", -1).toInt()));
 	cbConvertOnOpen->setChecked(settings.value("convert_eols_on_open", false).toBool());
+	cbScreenRes->setCurrentText(settings.value("screen_resolution", 0).toString());
 }
 
 bool SettingsDialog::EditorCfgTab_CheckSettings()
@@ -290,6 +296,7 @@ bool SettingsDialog::EditorCfgTab_SaveSettings()
 	changed |= settingsSetValue("console_font_size", cbConsoleFontSize->currentText().toInt());
 	changed |= settingsSetValue("default_eol_mode", cbEolMode->currentData().toInt());
 	changed |= settingsSetValue("convert_eols_on_open", cbConvertOnOpen->isChecked());
+	changed |= settingsSetValue("screen_resolution", cbScreenRes->currentData().toInt());
 	return changed;
 }
 
