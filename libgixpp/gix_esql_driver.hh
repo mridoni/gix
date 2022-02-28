@@ -35,6 +35,11 @@ USA.
 #include "ESQLDefinitions.h"
 #include "GixPreProcessor.h"
 
+#define PIC_ALPHABETIC 		0x01
+#define PIC_NUMERIC 		0x02
+#define PIC_NATIONAL		0x04
+#define PIC_ALPHANUMERIC	(PIC_ALPHABETIC | PIC_NUMERIC)
+
 // Conducting the whole scanning and parsing of Calc++.
 class gix_esql_driver
 {
@@ -83,12 +88,7 @@ public:
 
 #pragma region ESQL data structures
 
-    //std::vector<cb_sql_token_t> *cb_sql_list_dup(const std::vector<cb_sql_token_t> *orig);
-    
-    //struct cb_sql_list *cb_text_list_add(struct cb_sql_list *list, std::string text);
     std::vector<cb_sql_token_t> *cb_text_list_add(std::vector<cb_sql_token_t> *list, std::string text);
-
-    //struct cb_sql_list *cb_concat_text_list(struct cb_sql_list *list, struct cb_sql_list *targetlist);
     std::vector<cb_sql_token_t> *cb_concat_text_list(std::vector<cb_sql_token_t> *list, std::vector<cb_sql_token_t> *targetlist);
 
     std::string cb_host_list_add(std::vector<cb_hostreference_ptr> *list, std::string text);
@@ -122,6 +122,8 @@ public:
     std::string sqlname;
     std::string incfilename;
 
+    hostref_or_literal_t *connectionid = nullptr;
+
     int orig_state = 0;
 
     int hostreferenceCount;
@@ -132,6 +134,8 @@ public:
 
     cb_field_ptr current_field;
     cb_field_ptr description_field;
+
+    esql_connection_info_t *conninfo = nullptr;
 
     bool has_esql_in_cbl_copybooks;
     bool procedure_division_started = false;
@@ -146,6 +150,7 @@ public:
     GixPreProcessor *pp_inst;
     
     std::map<std::string, cb_field_ptr> field_map;
+    std::map<std::string, std::tuple<uint64_t, int, int>> field_sql_type_info;
 
     std::map<std::string, srcLocation> paragraphs;
 

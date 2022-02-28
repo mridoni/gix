@@ -193,6 +193,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>D:\gix-ide-x64\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

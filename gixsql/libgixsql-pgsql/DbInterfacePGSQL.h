@@ -29,8 +29,12 @@ USA.
 #include "ICursor.h"
 #include "IDbInterface.h"
 #include "IDbManagerInterface.h"
-#include "IConnectionString.h"
+#include "IDataSourceInfo.h"
 #include "ISchemaManager.h"
+
+#define DECODE_BINARY_ON		1
+#define DECODE_BINARY_OFF		0
+#define DECODE_BINARY_DEFAULT	DECODE_BINARY_ON
 
 using namespace std;
 
@@ -41,19 +45,19 @@ public:
 	~DbInterfacePGSQL();
 
 	virtual int init(ILogger *) override;
-	virtual int connect(IConnectionString *, int, string) override;
+	virtual int connect(IDataSourceInfo *, int, string) override;
 	virtual int reset() override;
 	virtual int terminate_connection() override;
 	virtual int begin_transaction() override;
 	virtual int end_transaction(string) override;
 	virtual int exec(string) override;
-	virtual int exec_params(string, int, int *, vector<string>&, int *, int *, int) override;
+	virtual int exec_params(std::string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats) override;
 	virtual int close_cursor(ICursor *) override;
 	virtual int cursor_declare(ICursor *, bool, int) override;
 	virtual int cursor_declare_with_params(ICursor *, char **, bool, int) override;
 	virtual int cursor_open(ICursor* cursor);
 	virtual int fetch_one(ICursor *, int) override;
-	virtual bool get_resultset_value(ICursor* c, int row, int col, char* bfr, int bfrlen);
+	virtual bool get_resultset_value(ICursor* c, int row, int col, char* bfr, int bfrlen, int *value_len);
 	virtual int move_to_first_record() override;
 	virtual int supports_num_rows() override;
 	virtual int get_num_rows() override;
@@ -77,8 +81,6 @@ private:
 
 	map<string, ICursor*> _declared_cursors;
 
-	int _pgsql_exec_params(ICursor*, const string, int, int*, vector<string>&, int*, int*, int);
-	int _pgsql_exec(ICursor*, const string);
-
+	int decode_binary = DECODE_BINARY_DEFAULT;
 };
 

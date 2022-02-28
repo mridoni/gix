@@ -21,7 +21,7 @@
 %skeleton "lalr1.cc" /* -*- c++ -*- */
 %require "3.7"
 %defines
-%define parser_class_name {gix_esql_parser}
+%define api.parser.class {gix_esql_parser}
 
 %define api.token.constructor
 %define api.value.type variant
@@ -30,13 +30,12 @@
 %code requires
 {
 #include <string>
+#include <cstring>
 #include <vector>
 
 #include "ESQLDefinitions.h"
 
-#define  SIGNLEADING 1
-#define  FLAGVARYING 1
-
+#define SIGN_LEADING 1
 #define SIGN_SEPARATE 1
 
 class gix_esql_driver;
@@ -66,7 +65,8 @@ class gix_esql_driver;
 static std::string to_std_string(std::string *sp) { return (sp != NULL) ? *sp : "(NULL)"; }
 static std::string to_std_string(const std::string s) { return s; }
 static std::string to_std_string(const std::vector<std::string> *slp) { if (!slp) return "(NULL-LIST)"; int n = slp->size() > 3 ? 3 : slp->size(); std::string res; for (int i = 0; i < n; i++) res += slp->at(i); return (res + " ..."); }
-static std::string to_std_string(const int i) { return ""; }
+static std::string to_std_string(const int i) { char buffer [33]; sprintf(buffer, "%d", i); char *res = (char*) malloc(strlen(buffer) + 1); strcpy (res, buffer); return res; }
+static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 
 }
 
@@ -116,6 +116,11 @@ static std::string to_std_string(const int i) { return ""; }
 %token COMMIT_WORK
 %token ROLLBACK_WORK
 %token CONNECT
+%token TO
+%token AS
+%token AT
+%token IS
+%token DECLARE_VAR
 %token USING
 %token OPEN
 %token CLOSE
@@ -126,12 +131,18 @@ static std::string to_std_string(const int i) { return ""; }
 %token COMP_3
 %token COMP_5
 %token COMP
-%token BINARY
+%token<uint64_t> CHAR
+%token<uint64_t> VARCHAR
+%token<uint64_t> BINARY
+%token<uint64_t> VARBINARY
+%token<uint64_t> FLOAT
+%token<uint64_t> INTEGER
+%token<uint64_t> DECIMAL
 %token USAGE
 %token SIGN
 %token LEADING
 %token SEPARATE
-%token IS
+%token SQL_TYPE_IS
 %token ARE
 %token VALUE
 %token ALL
@@ -139,23 +150,24 @@ static std::string to_std_string(const int i) { return ""; }
 %token EXTERNAL
 %token TIMES
 %token CONST
-
-%token CONNECT_TO
 %token USER
 %token TABLE
-%token TO
 %token BEGIN_DECLARE_SPECIAL
 %token COPY
 %token COPY_FILE
 %token<int> WITH_HOLD
 %token WHERE_CURRENT_OF
 
-%type <std::vector<std::string> *> token_list declaresql includesql incfile
+%type <std::vector<std::string> *> token_list declaresql includesql incfile 
 %type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql declare_cursor
 %type <std::string> declare_special declare_table
 %type <std::vector<std::string> *> update deletesql delete disconnect disconnectsql othersql
 %type <std::string> host_reference expr
+//%type <uint32_t> opt_size
 
+%type <hostref_or_literal_t *> strliteral_or_hostref dbid opt_connect_as opt_at opt_using opt_dbid
+
+%type <uint64_t> opt_sql_type_def sql_type
 
 // No %destructors are needed, since memory will be reclaimed by the
 // regular destructors.
@@ -163,11 +175,13 @@ static std::string to_std_string(const int i) { return ""; }
 
 // Grammar:
 %%
-sqlstate_list:
+sqlstate_list: 
+%empty
 | sqlstate_list sqlstate;
 
 sqlstate: 
-| sqlvariantstates
+/*%empty
+| */ sqlvariantstates
 | incfile
 | connectsql
 | opensql
@@ -185,13 +199,17 @@ sqlstate:
 | declaresql
 ;
 
+execsql_with_opt_at: EXECSQL opt_at {
+	driver.connectionid = $2;
+};
+
 updatesql:
-EXECSQL update token_list END_EXEC
+execsql_with_opt_at update token_list END_EXEC
 {
 	$$ = driver.cb_concat_text_list ($2, $3);
 	driver.put_exec_list();
 }
-| EXECSQL update token_list WHERE_CURRENT_OF expr END_EXEC
+| execsql_with_opt_at update token_list WHERE_CURRENT_OF expr END_EXEC
 {
 	driver.cb_set_cursorname($5);
 	$$ = driver.cb_concat_text_list ($2, $3);
@@ -215,7 +233,7 @@ disconnect:
 DISCONNECT {$$ = driver.cb_text_list_add (NULL, $1);}
 
 deletesql:
-EXECSQL delete token_list END_EXEC
+execsql_with_opt_at delete token_list END_EXEC
 {
 	$$ = driver.cb_concat_text_list ($2, $3);
 	driver.put_exec_list();
@@ -226,7 +244,7 @@ delete:
 DELETE {$$ = driver.cb_text_list_add (NULL, $1);}
 
 insertsql:
-EXECSQL insert token_list END_EXEC
+execsql_with_opt_at insert token_list END_EXEC
 {
 	$$ = driver.cb_concat_text_list ($2, $3);
 	driver.put_exec_list();
@@ -239,12 +257,12 @@ INSERT {$$ = driver.cb_text_list_add (NULL, $1);}
 
 
 rollbacksql:
-EXECSQL ROLLBACK_WORK END_EXEC {
+execsql_with_opt_at ROLLBACK_WORK END_EXEC {
 	driver.put_exec_list();
 }
 
 commitsql:
-EXECSQL COMMIT_WORK END_EXEC {
+execsql_with_opt_at COMMIT_WORK END_EXEC {
 	driver.put_exec_list();
 }
 
@@ -283,45 +301,110 @@ EXECSQL OPEN expr END_EXEC {
 }
 
 connectsql:
-EXECSQL connect identified using END_EXEC { driver.put_exec_list(); }
-| EXECSQL connect END_EXEC { driver.put_exec_list(); }
-| EXECSQL connect_to END_EXEC { driver.put_exec_list(); } 
-
-connect_to:
-CONNECT_TO HOSTTOKEN USER HOSTTOKEN { 
-	driver.cb_host_list_add (driver.host_reference_list, $4);
-	driver.cb_host_list_add_force (driver.host_reference_list, $4);
-	driver.cb_host_list_add (driver.host_reference_list, $2);
+// EXEC SQL CONNECT TO :db_data_source [ AS :db_conn_id ] USER :username.:opt_password [ USING password ];
+EXECSQL CONNECT TO strliteral_or_hostref opt_connect_as USER strliteral_or_hostref opt_using END_EXEC {
+	driver.conninfo = new esql_connection_info_t();
+	driver.conninfo->id = $5;
+	driver.conninfo->data_source = $4;
+	driver.conninfo->username = $7;
+	driver.conninfo->password = $8;
+	driver.put_exec_list();
 }
+// EXEC SQL CONNECT :username IDENTIFIED BY :password [ AT :db_conn_id ] USING :db_data_source
+| EXECSQL CONNECT strliteral_or_hostref IDENTIFIED_BY strliteral_or_hostref opt_at USING strliteral_or_hostref END_EXEC {
+	driver.conninfo = new esql_connection_info_t();
+	driver.conninfo->id = $6;
+	driver.conninfo->data_source = $8;
+	driver.conninfo->username = $3;
+	driver.conninfo->password = $5;
+	driver.put_exec_list();
+}
+;
 
+declaresqlvar:
+DECLARE_VAR TOKEN IS sql_type END_EXEC {
+	
+	cb_field_ptr x;
+
+	std::string var_name = $2;
+	uint64_t t = $4;
+
+	uint32_t length = t & 0xffffffff;
+	uint16_t precision = (length >> 16);
+	uint16_t scale = (length & 0xffff);
+	int type = t >> 32;
+
+	if (driver.field_map.find(var_name) == driver.field_map.end()) {
+		std::tuple<uint64_t, int, int> d = std::make_tuple(t, driver.startlineno, driver.endlineno);
+		driver.field_sql_type_info[var_name] = d;
+	}
+	else {
+		x = driver.field_map[var_name];
+		x->sql_type = t;
+
+		x->is_varlen = IS_VARLEN(type);
+		x->usage = IS_BINARY(type) ? Usage::Binary : Usage::None;
+
+		x->pictype = -1;	// Preprocessor will build the correct PIC
+		x->picnsize = precision;
+		x->scale = scale;
+
+		driver.cb_set_commandname("DECLARE_VAR");
+		driver.cb_host_list_add (driver.host_reference_list, x->sname);
+		driver.put_exec_list(); 
+		
+		// This will be rewritten by the preprocessor, so
+		// we comment out the original variable definition
+		cb_exec_sql_stmt_ptr stmt = new cb_exec_sql_stmt_t();
+		stmt->commandName = "COMMENT";
+		stmt->src_file = x->defined_at_source_file;
+		stmt->startLine = x->defined_at_source_line;
+		stmt->endLine = x->defined_at_source_line;
+		driver.exec_list->push_back(stmt);
+	}
+}
+;
+
+dbid: strliteral_or_hostref { $$ = $1; }
+
+opt_using:
+USING strliteral_or_hostref  { $$ = $2; }
+| %empty { $$ = new hostref_or_literal_t(); }
+;
+
+opt_connect_as:
+AS dbid  { $$ = $2; }
+| %empty { $$ = new hostref_or_literal_t(); }
+;
+
+opt_at:
+AT dbid { $$ = $2; }
+| %empty { $$ = new hostref_or_literal_t(); }
+;
+
+opt_dbid:
+%empty { $$ = new hostref_or_literal_t(); }
+| dbid { $$ = $1; }
+;
+
+strliteral_or_hostref : 
+TOKEN { $$ = new hostref_or_literal_t($1, true); }
+| host_reference { $$ = new hostref_or_literal_t($1, false); }
+;
 
 resetsql: 
-EXECSQL CONNECT_RESET END_EXEC { 
- driver.put_exec_list();
- }
+EXECSQL CONNECT_RESET opt_dbid END_EXEC { 
+	driver.connectionid = $3;
+	driver.put_exec_list();
+}
+;
 
 othersql:
-EXECSQL OTHERFUNC token_list END_EXEC {
+execsql_with_opt_at OTHERFUNC token_list END_EXEC {
 	$$ = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, $2), $3);
 	driver.put_exec_list();
 }
-
-connect:
-CONNECT host_reference {
-	driver.cb_host_list_add (driver.host_reference_list, $2);
-}
-
-
-identified:
-IDENTIFIED_BY host_reference {
-	driver.cb_host_list_add (driver.host_reference_list, $2);
-}
-
-using:
-USING host_reference {
-	driver.cb_host_list_add (driver.host_reference_list, $2);
-}
-
+;
 
 incfile:
 EXECSQL_INCLUDE INCLUDE_FILE END_EXEC{
@@ -341,20 +424,20 @@ EXECSQL_INCLUDE INCLUDE_SQLCA END_EXEC{
 }
 
 selectintosql:
-EXECSQL SELECT token_list INTO res_host_references SELECTFROM token_list END_EXEC  {
+execsql_with_opt_at SELECT token_list INTO res_host_references SELECTFROM token_list END_EXEC  {
 	$$ = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, $2), $3);
 	driver.cb_concat_text_list($$, driver.cb_text_list_add(NULL, $6));
 	driver.cb_concat_text_list($$, $7);
 	driver.put_exec_list();
 }
-| EXECSQL SELECT token_list INTO res_host_references END_EXEC  {
+| execsql_with_opt_at SELECT token_list INTO res_host_references END_EXEC  {
 	$$ = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, $2), $3);
 	driver.put_exec_list();
 }
 
 
 declaresql:
-EXECSQL declare_for select END_EXEC { driver.put_exec_list(); }
+execsql_with_opt_at declare_for select END_EXEC { driver.put_exec_list(); }
 
 select:
 SELECT token_list{ $$ = driver.cb_concat_text_list (driver.cb_text_list_add (NULL, $1), $2);}
@@ -416,6 +499,7 @@ FILEEND {
 
 
 sqlvariantstate_list:
+%empty
 |sqlvariantstate_list incfile
 |sqlvariantstate_list includesql
 |sqlvariantstate_list declare_cursor
@@ -423,6 +507,7 @@ sqlvariantstate_list:
 |sqlvariantstate_list sqlvariantstate PERIOD
 |sqlvariantstate_list HOSTVARIANTBEGIN { driver.put_exec_list(); }
 |sqlvariantstate_list HOSTVARIANTEND { driver.put_exec_list(); }
+|sqlvariantstate_list declaresqlvar
 ;
 
 declare_cursor:
@@ -450,14 +535,33 @@ declare_special:
 	BEGIN_DECLARE_SPECIAL expr { $$ = $2; }
 	
 sqlvariantstate:
-NUMERIC WORD {
+NUMERIC WORD opt_sql_type_def {
 	cb_field_ptr x;
 
 	x =  driver.cb_build_field_tree( $1, $2 , driver.current_field);
-	if( x != NULL)
+	if(x != NULL)
 	{
 		if( x->level != 78)
 			driver.current_field = x;
+
+		if ($3 != 0) {
+			uint64_t t = $3;
+			uint32_t length = t & 0xffffffff;
+			uint16_t precision = (length >> 16);
+			uint16_t scale = (length & 0xffff);
+			int type = t >> 32;
+
+			x->sql_type = type;
+			x->is_varlen = IS_VARLEN(type);
+			x->usage = IS_BINARY(type) ? Usage::Binary : Usage::None;
+
+			x->pictype = -1;	// Preprocessor will build the correct PIC for "SQL TYPE IS" defs
+			x->picnsize = precision;
+			x->scale = scale;
+			driver.cb_set_commandname("DECLARE_VAR");
+			driver.cb_host_list_add (driver.host_reference_list, x->sname);
+			driver.put_exec_list(); 
+		}
 	}
 }
 data_description_clause_sequence
@@ -479,9 +583,25 @@ data_description_clause_sequence
 }
 ;
 
+opt_sql_type_def:
+%empty { $$ = 0; }
+| SQL_TYPE_IS sql_type {
+		$$ = $2;
+}
+;
+
+sql_type:
+  BINARY	{ $$ = (TYPE_SQL_BINARY << 32) + $1; }
+| VARBINARY { $$ = (TYPE_SQL_VARBINARY << 32) + $1; }
+| CHAR		{ $$ = (TYPE_SQL_CHAR << 32) + $1; }
+| VARCHAR	{ $$ = (TYPE_SQL_VARCHAR << 32) + $1; }
+| INTEGER  	{ $$ = (TYPE_SQL_INT << 32) + $1; }
+| FLOAT   	{ $$ = (TYPE_SQL_FLOAT << 32) + $1; }
+| DECIMAL  	{ $$ = (TYPE_SQL_DECIMAL << 32) + $1; }
+;
 
 data_description_clause_sequence:
-{}
+%empty {}
 | data_description_clause_sequence data_description_clause 
 {}
 ;
@@ -524,7 +644,7 @@ NUMERIC {}
 sign_clause:
 _sign_is LEADING flag_separate
 {
-	driver.current_field->sign_leading = SIGNLEADING;
+	driver.current_field->sign_leading = SIGN_LEADING;
 }
 | _sign_is TRAILING flag_separate
 {
@@ -536,6 +656,7 @@ _sign_is:	 SIGN  {}
 | SIGN IS {}
 ;
 flag_separate:
+%empty 
 | SEPARATE { driver.current_field->separate = SIGN_SEPARATE; }
 ;
 
@@ -550,10 +671,10 @@ external_clause:
 _is EXTERNAL {}
 ;
 
-_is:		| IS;
-_is_are:    | IS | ARE;
-_all:       | ALL;
-_times:		| TIMES;
+_is:		%empty | IS;
+_is_are:    %empty | IS | ARE;
+_all:       %empty | ALL;
+_times:		%empty | TIMES;
 
 
 %%

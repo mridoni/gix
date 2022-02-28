@@ -172,18 +172,7 @@ QString ESQLConfiguration::getCmdLine()
 
 QMap<QString, QString> ESQLConfiguration::getEnvironment(QString esql_driver_type)
 {
-	QMap<QString, QString> res;
-
-	if (id == ESQLConfigurationType::GixInternal || id == ESQLConfigurationType::GixExternal) {
-		if (esql_driver_type == "_GIXSQL_DB_MODE") {
-			QString db_mode = qgetenv("GIXSQL_DB_MODE");
-			if (!db_mode.isEmpty()) {
-				res.insert("GIXSQL_DB_MODE", db_mode);
-			}
-		}
-		res.insert("GIXSQL_DB_MODE", esql_driver_type);
-	}
-	return res;
+	return QMap<QString, QString>();
 }
 
 QStringList ESQLConfiguration::getCopyPathList()

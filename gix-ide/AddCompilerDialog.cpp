@@ -24,7 +24,6 @@ USA.
 #include "PathUtils.h"
 #include "GixGlobals.h"
 #include "Ide.h"
-#include "utils.h"
 #include "IdeTaskManager.h"
 #include "SysUtils.h"
 #include "libcpputils.h"

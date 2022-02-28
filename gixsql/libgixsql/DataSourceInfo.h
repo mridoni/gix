@@ -29,19 +29,19 @@
 #endif
 
 #include <string>
-#include "IConnectionString.h"
+#include <map>
+#include "IDataSourceInfo.h"
 
 
 
-class ConnectionString : public IConnectionString
+class DataSourceInfo : public IDataSourceInfo
 {
 public:
-	LIBGIXSQL_API ConnectionString();
-	LIBGIXSQL_API ~ConnectionString();
-	LIBGIXSQL_API int init(const std::string& c);
+	LIBGIXSQL_API DataSourceInfo();
+	LIBGIXSQL_API ~DataSourceInfo();
 	LIBGIXSQL_API std::string get() override;
 
-	int init(std::string name, std::string user, std::string password) override;
+	int init(const std::string &data_source, const std::string &username, const std::string &password) override;
 
 	LIBGIXSQL_API std::string getDbType() override;
 	LIBGIXSQL_API std::string getHost() override;
@@ -49,24 +49,28 @@ public:
 	LIBGIXSQL_API std::string getDbName() override;
 	LIBGIXSQL_API std::string getUsername() override;
 	LIBGIXSQL_API std::string getPassword() override;
-	LIBGIXSQL_API std::string getDefaultSchema() override;
-
-	LIBGIXSQL_API static ConnectionString * parseEx(std::string cs);
 
 	LIBGIXSQL_API std::string toConnectionString(bool use_pwd, std::string pwd = "") override;
+
 	LIBGIXSQL_API std::string getName() override;
 	LIBGIXSQL_API virtual void setPassword(std::string) override;
+
+	LIBGIXSQL_API const std::map<std::string, std::string>& getOptions() override;
+
+	std::string dump(bool with_password = false);
+
+
 
 private:
 	std::string dbtype;
 	std::string conn_string;
 	std::string host;
-	int port; 
+	int port = 0; 
 	std::string dbname;
 	std::string username;
 	std::string password;
-	std::string default_schema;
-	int parse();
+	std::map<std::string, std::string> options;
 
+	static DataSourceInfo *parse(const std::string& data_source);
 };
 

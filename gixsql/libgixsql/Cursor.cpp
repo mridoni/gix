@@ -44,6 +44,11 @@ void Cursor::setConnection(IConnection *c)
 	connection = (Connection *) c;
 }
 
+void Cursor::setConnectionName(std::string n)
+{
+	connection_name = n;
+}
+
 void Cursor::setName(std::string n)
 {
 	name = n;
@@ -62,6 +67,11 @@ void Cursor::setNumParams(int np)
 IConnection *Cursor::getConnection()
 {
 	return (IConnection *) connection;
+}
+
+std::string Cursor::getConnectionName()
+{
+	return connection_name;
 }
 
 std::string Cursor::getName()

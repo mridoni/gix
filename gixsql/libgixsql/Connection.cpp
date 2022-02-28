@@ -50,10 +50,10 @@ bool Connection::isOpen()
 
 void Connection::setName(std::string name)
 {
-	cname = name;
+	this->name = name;
 }
 
-void Connection::setConnectionInfo(IConnectionString *conn_string)
+void Connection::setConnectionInfo(IDataSourceInfo *conn_string)
 {
 	conninfo = conn_string;
 	if (conn_string)
@@ -80,12 +80,12 @@ void Connection::setDbInterface(IDbInterface *_dbi)
 	dbi = _dbi;
 }
 
-bool Connection::test(IConnectionString*)
+bool Connection::test(IDataSourceInfo*)
 {
 	return false;
 }
 
-IConnectionString *Connection::getConnectionInfo()
+IDataSourceInfo *Connection::getConnectionInfo()
 {
 	return conninfo;
 }

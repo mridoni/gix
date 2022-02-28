@@ -39,7 +39,7 @@
 #include "Cursor.h"
 #include "CursorManager.h"
 #include "DbInterfaceFactory.h"
-#include "ConnectionString.h"
+#include "DataSourceInfo.h"
 #include "SqlVar.h"
 #include "SqlVarList.h"
 
@@ -70,7 +70,8 @@ static CursorManager cursor_manager;
 
 static void sqlca_initialize(struct sqlca_t *);
 static int setStatus(struct sqlca_t * st, IDbInterface *dbi, int err);
-static bool env_get_autocommit();
+static bool get_autocommit(DataSourceInfo *);
+static std::string get_client_encoding(DataSourceInfo *);
 static void init_sql_var_list(void);
 
 /* sql var list */
@@ -79,10 +80,9 @@ SqlVarList _res_sql_var_list;
 
 static int _gixsqlExec(Connection *conn, struct sqlca_t *st, char *_query);
 static int _gixsqlExecParams(Connection *conn, struct sqlca_t *st, char *_query, unsigned int nParams);
-static int _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, char *cname, int with_hold, char *query, int nParams);
-static int _gixsqlConnectMain(struct sqlca_t *st, std::string name, std::string user, std::string passwd, int type, std::string conndbname);
+static int _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, std::string connection_name, std::string cursor_name, int with_hold, char *query, int nParams);
 
-//static int _gixsqlResolveCONNID(struct sqlca_t *, char *, int);
+static std::string get_hostref_or_literal(void *data, int connection_id_tl);
 
 DECLARE_LOGGER_STATIC(logger);
 
@@ -93,138 +93,59 @@ sqlca_initialize(struct sqlca_t * sqlca)
 }
 
 LIBGIXSQL_API int
-GIXSQLConnect(struct sqlca_t *st, char *user, int userlen, char *passwd, int passwdlen, char *name, int namelen) {
-	LOG_DEBUG(__FILE__, __func__, "GIXSQLConnect start\n");
-	char *dbuser, *dbpasswd, *dbname;
-	char *tmpuser, *tmppasswd, *tmpname;
-	int ret;
-	int dbtype = DB_SET_RUNTIME;
-
-	tmpname = getenv("GIXSQL_DB_NAME");
-	tmpuser = getenv("GIXSQL_DB_USER");
-	tmppasswd = getenv("GIXSQL_DB_PASS");
-
-	if (((dbname = trim_end(oc_strndup(name, namelen))) == NULL) ||
-		(strlen(dbname) <= 0)) {
-		dbname = safe_strdup(tmpname);
-	}
-
-	if (((dbuser = trim_end(oc_strndup(user, userlen))) == NULL) ||
-		(strlen(dbuser) <= 0)) {
-		dbuser = safe_strdup(tmpuser);
-	}
-
-	if (((dbpasswd = trim_end(oc_strndup(passwd, passwdlen))) == NULL) ||
-		(strlen(dbpasswd) <= 0)) {
-		dbpasswd = safe_strdup(tmppasswd);
-	}
-
-	if (strcmp(dbuser, dbpasswd) == 0 && strstr(dbuser, ".")) {
-		char *p = strdup(strstr(dbpasswd, ".") + 1);
-		char *u = strndup(dbuser, strlen(dbuser) - (strlen(p) + 1));
-		free(dbuser);
-		free(dbpasswd);
-		dbuser = u;
-		dbpasswd = p;
-	}
-
-	if (!dbuser || !dbpasswd || !dbname) {
-		LOG_ERROR("Invalid credentials, aborting");
-		return RESULT_FAILED;
-	}
-
-	LOG_DEBUG(__FILE__, __func__, ">>>> DBNAME: %s\n", dbname);
-	LOG_DEBUG(__FILE__, __func__, ">>>> USR   : %s\n", dbuser);
-	LOG_DEBUG(__FILE__, __func__, ">>>> PWD   : %s\n", dbpasswd);
-
-	std::string theuser = dbuser;
-	std::string thepwd = dbpasswd;
-	std::string thename = dbname;
-	std::string s_dbtype = "";
-	size_t type_spec = thename.find(";");
-
-	if (type_spec != std::string::npos) {
-		s_dbtype = thename.substr(0, type_spec);
-		thename = thename.substr(type_spec + 1);
-	}
-	else {
-		char *d = getenv("GIXSQL_DB_MODE");
-		if (d) {
-			s_dbtype = d;
-		}
-	}
-
-	if (s_dbtype == "PGSQL")
-		dbtype = DB_PGSQL;
-	else
-		if (s_dbtype == "ODBC")
-			dbtype = DB_ODBC;
-		else
-			if (s_dbtype == "ORACLE")
-				dbtype = DB_ORACLE;
-			else
-				if (s_dbtype == "MYSQL")
-					dbtype = DB_MYSQL;
-				else
-					if (s_dbtype == "MSSQL")
-						dbtype = DB_MSSQL;
-					else
-						if (s_dbtype == "DB2")
-							dbtype = DB_DB2;
-
-
-
-
-	ret = _gixsqlConnectMain(st, thename, theuser, thepwd, dbtype, GIXSQL_DEFAULT_DBNAME);
-	LOG_DEBUG(__FILE__, __func__, ">>>> RES   : %d\n", ret);
-	if (dbname) free(dbname);
-	if (dbuser) free(dbuser);
-	if (dbpasswd) free(dbpasswd);
-
-	return ret;
-}
-
-static int
-_gixsqlConnectMain(struct sqlca_t *st, std::string name, std::string user, std::string passwd, int type, std::string conndbname)
+GIXSQLConnect(struct sqlca_t *st, void *d_data_source, int data_source_tl, void *d_connection_id, int connection_id_tl,
+				void *d_username, int username_tl, void *d_password, int password_tl)
 {
+	LOG_DEBUG(__FILE__, __func__, "GIXSQLConnect start\n");
 
-	const char *cencoding = "UTF8";
+	std::string data_source_info;
+	std::string connection_id;
+	std::string username;
+	std::string password;
+
+	// CONNECT ... AS
+	connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+
+	data_source_info = get_hostref_or_literal(d_data_source, data_source_tl);
+	username = get_hostref_or_literal(d_username, username_tl);
+	password = get_hostref_or_literal(d_password, password_tl);
 
 	sqlca_initialize(st);
 
-	if (connection_manager.exists(conndbname)) {
-		LOG_DEBUG(__FILE__, __func__, "Connection already defined: %s", conndbname.c_str());
-		connection_manager.setCurrent(conndbname);
+	if (!connection_id.empty() && connection_manager.exists(connection_id)) {
+		LOG_DEBUG(__FILE__, __func__, "Connection already defined: %s", connection_id.c_str());
 		setStatus(st, NULL, DBERR_NO_ERROR);
 		return RESULT_FAILED;
 	}
 
-	ConnectionString *conn_string = new ConnectionString();
-	int rc = conn_string->init(name, user, passwd);
+	DataSourceInfo *data_source = new DataSourceInfo();
+	int rc = data_source->init(data_source_info, username, password);
 	if (rc != 0) {
-		LOG_ERROR("Cannot initialize connection parameters, aborting");
+		LOG_ERROR("Cannot initialize connection parameters, aborting, data source is [%s]", data_source_info.c_str());
 		setStatus(st, NULL, DBERR_CONN_INIT_ERROR);
 		return RESULT_FAILED;
 	}
 
-	bool autocommit = env_get_autocommit();
-
-	LOG_DEBUG(__FILE__, __func__, "Connection std::string : %s\n", conn_string->get().c_str());
-	LOG_DEBUG(__FILE__, __func__, "Autocommit        : %d\n", autocommit);
-
-	IDbInterface *dbi = DbInterfaceFactory::getInterface(type);
+	std::string dbtype = data_source->getDbType();
+	IDbInterface *dbi = DbInterfaceFactory::getInterface(dbtype);
 	if (dbi == NULL) {
-		LOG_ERROR("Cannot determine or load database type (%s), aborting", type);
+		LOG_ERROR("Cannot determine or load database type (%s), aborting", dbtype.c_str());
 		setStatus(st, NULL, DBERR_CONN_INVALID_DBTYPE);
 		return RESULT_FAILED;
 	}
 
-	rc = dbi->connect(conn_string, autocommit, cencoding);
+	bool autocommit = get_autocommit(data_source);
+	std::string client_encoding = get_client_encoding(data_source);
+
+	LOG_DEBUG(__FILE__, __func__, "Connection string : %s\n", data_source->get().c_str());
+	LOG_DEBUG(__FILE__, __func__, "Data source info  : %s\n", data_source->dump().c_str());
+	LOG_DEBUG(__FILE__, __func__, "Autocommit        : %d\n", autocommit);
+
+	rc = dbi->connect(data_source, autocommit, client_encoding);
 	if (rc != DBERR_NO_ERROR) {
 		setStatus(st, dbi, DBERR_CONNECTION_FAILED);
 		return RESULT_FAILED;
 	}
-
 
 	if (autocommit) {
 		rc = dbi->begin_transaction();
@@ -236,26 +157,27 @@ _gixsqlConnectMain(struct sqlca_t *st, std::string name, std::string user, std::
 	}
 
 	Connection *c = connection_manager.create();
-	c->setName(conndbname);
+	c->setName(connection_id);	// it might still be empty, the connection manager will assign a default name
 	c->setAutoCommit(autocommit);
-	c->setConnectionInfo(conn_string);
-	c->setEncoding(cencoding);
+	c->setConnectionInfo(data_source);
+	c->setEncoding(client_encoding);
 	c->setDbInterface(dbi);
 	c->setOpened(true);
 	connection_manager.add(c);
 
 	dbi->set_owner((IConnection *)c);
 
-	LOG_DEBUG(__FILE__, __func__, "connection success. connectId = %d, dbname = %s\n", c->getId(), conndbname.c_str());
+	LOG_DEBUG(__FILE__, __func__, "connection success. connectId = %d, dbname = %s\n", c->getId(), connection_id.c_str());
 
 	setStatus(st, NULL, DBERR_NO_ERROR);
 	return RESULT_SUCCESS;
 }
 
 LIBGIXSQL_API int
-GIXSQLConnectReset(struct sqlca_t *st)
+GIXSQLConnectReset(struct sqlca_t *st, void *d_connection_id, int connection_id_tl)
 {
-	Connection *conn = connection_manager.current();
+	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+	Connection *conn = connection_manager.get(connection_id);
 	if (conn == NULL) {
 		setStatus(st, NULL, DBERR_CONN_NOT_FOUND);
 		return RESULT_FAILED;
@@ -281,12 +203,14 @@ GIXSQLConnectReset(struct sqlca_t *st)
 }
 
 LIBGIXSQL_API int
-GIXSQLExec(struct sqlca_t *st, char *_query)
+GIXSQLExec(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *_query)
 {
 
 	LOG_DEBUG(__FILE__, __func__, "GIXSQLExec start\n");
 	LOG_DEBUG(__FILE__, __func__, "GIXSQLExec SQL: %s\n", _query);
-	Connection *conn = connection_manager.current();
+
+	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+	Connection *conn = connection_manager.get(connection_id);
 	if (conn == NULL) {
 		LOG_ERROR("Can't find a connection");
 		setStatus(st, NULL, DBERR_CONN_NOT_FOUND);
@@ -343,10 +267,12 @@ static int _gixsqlExec(Connection *conn, struct sqlca_t *st, char *_query)
 }
 
 LIBGIXSQL_API int
-GIXSQLExecParams(struct sqlca_t *st, char *_query, int nParams)
+GIXSQLExecParams(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *_query, int nParams)
 {
 	LOG_DEBUG(__FILE__, __func__, "GIXSQLExecParams start\n");
-	Connection *conn = connection_manager.current();
+
+	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+	Connection *conn = connection_manager.get(connection_id);
 	if (conn == NULL) {
 		LOG_ERROR("Can't find a connection");
 		setStatus(st, NULL, DBERR_CONN_NOT_FOUND);
@@ -386,10 +312,11 @@ static int _gixsqlExecParams(Connection *conn, struct sqlca_t *st, char *_query,
 		param_types.push_back((*it)->getType());
 	}
 
-
 	std::string query = _query;
 	int rc = 0;
 	IDbInterface *dbi = conn->getDbInterface();
+	if (!dbi)
+		FAIL_ON_ERROR(1, st, dbi, DBERR_SQL_ERROR)
 
 	if (is_commit_or_rollback_statement(query)) {
 		cursor_manager.clearConnectionCursors(conn->getId(), false);
@@ -402,12 +329,12 @@ static int _gixsqlExecParams(Connection *conn, struct sqlca_t *st, char *_query,
 			FAIL_ON_ERROR(rc, st, dbi, DBERR_BEGIN_TX_FAILED)
 		}
 		else {
-			rc = dbi->exec_params(query, nParams, param_types.data(), params, NULL, NULL, 0);
+			rc = dbi->exec_params(query, nParams, param_types.data(), params, NULL, NULL);
 			FAIL_ON_ERROR(rc, st, dbi, DBERR_SQL_ERROR)
 		}
 	}
 	else {
-		rc = dbi->exec_params(query, nParams, param_types.data(), params, NULL, NULL, 0);
+		rc = dbi->exec_params(query, nParams, param_types.data(), params, NULL, NULL);
 		FAIL_ON_ERROR(rc, st, dbi, DBERR_SQL_ERROR)
 
 			if (is_dml_statement(query) && conn->getAutoCommit()) {
@@ -424,23 +351,20 @@ static int _gixsqlExecParams(Connection *conn, struct sqlca_t *st, char *_query,
 }
 
 LIBGIXSQL_API int
-GIXSQLCursorDeclareParams(struct sqlca_t *st, char *cname, int with_hold, char *_query, int nParams) {
-	LOG_DEBUG(__FILE__, __func__, "GIXSQLCursorDeclareParams start for cursor [%s]\n", cname);
+GIXSQLCursorDeclareParams(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *cursor_name, int with_hold, char *_query, int nParams) {
+	LOG_DEBUG(__FILE__, __func__, "GIXSQLCursorDeclareParams start for cursor [%s]\n", cursor_name);
 	LOG_DEBUG(__FILE__, __func__, "SQL:#%s#\n", _query);
 
 	int id;
-	Connection *conn = connection_manager.current();
+	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+	Connection *conn = connection_manager.get(connection_id);
 	if (conn == NULL) {
-		LOG_DEBUG(__FILE__, __func__, "connection id is not found. Marking cursor for use with default connection\n");
-		id = USE_DEFAULT_CONNECTION;
-	}
-	else {
-		id = conn->getId();
+		LOG_DEBUG(__FILE__, __func__, "connection id is not found. Cursor will be completely initialized later\n");
 	}
 
 	// check argument
 	if (_query == NULL || strlen(_query) == 0 ||
-		cname == NULL || strlen(cname) == 0) {
+		cursor_name == NULL || strlen(cursor_name) == 0) {
 		LOG_ERROR("Empty query/cursor");
 		setStatus(st, NULL, DBERR_EMPTY_QUERY);
 		return RESULT_FAILED;
@@ -461,28 +385,25 @@ GIXSQLCursorDeclareParams(struct sqlca_t *st, char *cname, int with_hold, char *
 		return RESULT_FAILED;
 	}
 
-	return _gixsqlCursorDeclare(st, conn, cname, with_hold, _query, nParams);
+	return _gixsqlCursorDeclare(st, conn, connection_id, cursor_name, with_hold, _query, nParams);
 }
 
 
 LIBGIXSQL_API int
-GIXSQLCursorDeclare(struct sqlca_t *st, char *cname, int with_hold, char *_query) {
-	LOG_DEBUG(__FILE__, __func__, "GIXSQLCursorDeclare start for cursor [%s]\n", cname);
+GIXSQLCursorDeclare(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *cursor_name, int with_hold, char *_query) {
+	LOG_DEBUG(__FILE__, __func__, "GIXSQLCursorDeclare start for cursor [%s]\n", cursor_name);
 	LOG_DEBUG(__FILE__, __func__, "SQL:#%s#\n", _query);
 
 	int id;
-	Connection *conn = connection_manager.current();
+	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+	Connection *conn = connection_manager.get(connection_id);
 	if (conn == NULL) {
-		LOG_DEBUG(__FILE__, __func__, "connection id is not found. Marking cursor for use with default connection\n");
-		id = USE_DEFAULT_CONNECTION;
-	}
-	else {
-		id = conn->getId();
+		LOG_DEBUG(__FILE__, __func__, "connection id is not found. Cursor will be completely initialized later\n");
 	}
 
 	// check argument
 	if (_query == NULL || strlen(_query) == 0 ||
-		cname == NULL || strlen(cname) == 0) {
+		cursor_name == NULL || strlen(cursor_name) == 0) {
 		LOG_ERROR("Empty query/cursor");
 		setStatus(st, NULL, DBERR_EMPTY_QUERY);
 		return RESULT_FAILED;
@@ -490,20 +411,21 @@ GIXSQLCursorDeclare(struct sqlca_t *st, char *cname, int with_hold, char *_query
 
 	sqlca_initialize(st);
 
-	return _gixsqlCursorDeclare(st, conn, cname, with_hold, _query, 0);
+	return _gixsqlCursorDeclare(st, conn, connection_id, cursor_name, with_hold, _query, 0);
 }
 
-static int  _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, char *cname, int with_hold, char *query, int nParams)
+static int  _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, std::string connection_name, std::string cursor_name, int with_hold, char *query, int nParams)
 {
-	if (cursor_manager.exists(cname)) {
-		LOG_ERROR((std::string("Cursor exists: ") + std::string(cname)).c_str());
+	if (cursor_manager.exists(cursor_name)) {
+		LOG_ERROR((std::string("Cursor exists: ") + std::string(cursor_name)).c_str());
 		setStatus(st, NULL, DBERR_CURSOR_EXISTS);
 		return RESULT_FAILED;
 	}
 
 	Cursor *c = cursor_manager.create();
 	c->setConnection((IConnection *)conn);
-	c->setName(std::string(cname));
+	c->setConnectionName(connection_name);
+	c->setName(std::string(cursor_name));
 	c->setQuery(std::string(query));
 	c->setNumParams(nParams);
 	c->setWithHold(with_hold);
@@ -515,7 +437,7 @@ static int  _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, char *cna
 	if (conn) {
 		IDbInterface* dbi = conn->getDbInterface();
 		if (dbi->cursor_declare(c, with_hold, nParams)) {
-			LOG_ERROR((std::string("Invalid cursor data: ") + std::string(cname)).c_str());
+			LOG_ERROR((std::string("Invalid cursor data: ") + std::string(cursor_name)).c_str());
 			setStatus(st, NULL, DBERR_DECLARE_CURSOR_FAILED);
 			delete c;
 			return RESULT_FAILED;
@@ -559,7 +481,8 @@ GIXSQLCursorOpen(struct sqlca_t *st, char *cname)
 
 	// This was not properly declared, we have to set it up
 	if (!cursor->getConnection()) {
-		cursor->setConnection((IConnection *)connection_manager.current());
+		std::string connection_id = cursor->getConnectionName();
+		cursor->setConnection((IConnection *)connection_manager.get(connection_id));
 		if (cursor->getConnection()) {
 			IDbInterface* cdbi = cursor->getConnection()->getDbInterface();
 			if (!cdbi || cdbi->cursor_declare(cursor, cursor->isWithHold(), cursor->getNumParams())) {
@@ -584,55 +507,23 @@ GIXSQLCursorOpen(struct sqlca_t *st, char *cname)
 		rc = dbi->close_cursor(cursor);
 		FAIL_ON_ERROR(rc, st, dbi, DBERR_CLOSE_CURSOR_FAILED)
 
-			cursor->setOpened(false);
+		cursor->setOpened(false);
 	}
 
-	if (cursor->getConnection() == NULL) {		// USE_DEFAULT_CONNECTION
-		Connection *conn = connection_manager.current();
-		if (conn == NULL) {
-			LOG_ERROR("connection id is not found\n");
-			setStatus(st, NULL, DBERR_CONN_NOT_FOUND);
-			return RESULT_FAILED;
-		}
-		cursor->setConnection((IConnection *)conn);
-	}
-
-
-	//if (cursor->getNumParams() > 0) {
-
-	//	SqlVarList parameters = cursor->getParameters();
-	//	char **arr;
-	//	if ((arr = (char **)malloc(sizeof(char *) * cursor->getNumParams())) == NULL) {
-	//		LOG_ERROR("memory allocation failed.\n");
-	//		setStatus(st, NULL, DBERR_OUT_OF_MEMORY);
+	//if (cursor->getConnection() == NULL) {		// USE_DEFAULT_CONNECTION
+	//	Connection *conn = connection_manager.current();
+	//	if (conn == NULL) {
+	//		LOG_ERROR("connection id is not found\n");
+	//		setStatus(st, NULL, DBERR_CONN_NOT_FOUND);
 	//		return RESULT_FAILED;
 	//	}
-
-	//	cursor->createRealDataforParameters();
-
-	//	SqlVarList& l = cursor->getParameters();
-	//	std::vector<SqlVar *>::iterator it;
-	//	int i = 0;
-	//	for (it = l.begin(); it != l.end(); it++) {
-	//		SqlVar *v = *it;
-	//		arr[i] = v->getRealData();
-	//		LOG_DEBUG(__FILE__, __func__, "params[%d]:#%s#\n", i++, v->getRealData());
-	//	}
-
-	//	rc = dbi->cursor_declare_with_params(cursor, arr, 0, 0);
-
-	//	free(arr);
+	//	cursor->setConnection((IConnection *)conn);
 	//}
-	//else {
-	//	rc = dbi->cursor_declare(cursor, 0, 0);
-	//}
-
-	//FAIL_ON_ERROR(rc, st, dbi, DBERR_DECLARE_CURSOR_FAILED)
 
 	rc = dbi->cursor_open(cursor);
 	FAIL_ON_ERROR(rc, st, dbi, DBERR_OPEN_CURSOR_FAILED)
 
-		cursor->setOpened(true);
+	cursor->setOpened(true);
 
 	setStatus(st, NULL, DBERR_NO_ERROR);
 	return RESULT_SUCCESS;
@@ -673,16 +564,18 @@ LIBGIXSQL_API int GIXSQLCursorFetchOne(struct sqlca_t *st, char *cname) {
 	FAIL_ON_ERROR(rc, st, dbi, DBERR_FETCH_ROW_FAILED)
 
 
-	int bsize = _res_sql_var_list.getMaxLength() + 2;
+	int bsize = _res_sql_var_list.getMaxLength() + VARLEN_LENGTH_SZ + 1;
 	char *buffer = (char *) calloc(1, bsize);
 	std::vector<SqlVar *>::iterator it;
 	int i = 0;
+	int datalen = 0;
 	for (it = _res_sql_var_list.begin(); it != _res_sql_var_list.end(); it++) {
-		if (!dbi->get_resultset_value(cursor, 0, i++, buffer, bsize)) {
+		if (!dbi->get_resultset_value(cursor, 0, i++, buffer, bsize, &datalen)) {
 			setStatus(st, dbi, DBERR_INVALID_COLUMN_DATA);
 			continue;
 		}
-		(*it)->createCobolData(buffer);
+
+		(*it)->createCobolData(buffer, datalen);
 
 	}
 	free(buffer);
@@ -733,11 +626,12 @@ GIXSQLCursorClose(struct sqlca_t *st, char *cname) {
 }
 
 LIBGIXSQL_API int
-GIXSQLExecSelectIntoOne(struct sqlca_t *st, char *_query, int nParams, int nResParams) {
+GIXSQLExecSelectIntoOne(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *_query, int nParams, int nResParams) {
 	LOG_DEBUG(__FILE__, __func__, "GIXSQLExecSelectIntoOne start\n");
 	LOG_DEBUG(__FILE__, __func__, "SQL:#%s#\n", _query);
 
-	Connection *conn = connection_manager.current();
+	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+	Connection *conn = connection_manager.get(connection_id);
 	if (conn == NULL) {
 		LOG_ERROR("Can't find a connection");
 		setStatus(st, NULL, DBERR_CONN_NOT_FOUND);
@@ -767,7 +661,7 @@ GIXSQLExecSelectIntoOne(struct sqlca_t *st, char *_query, int nParams, int nResP
 	LOG_DEBUG(__FILE__, __func__, "************ move_to_first_record: %d\n", rc);
 	FAIL_ON_ERROR(rc, st, dbi, DBERR_MOVE_TO_FIRST_FAILED)
 
-		int nfields = dbi->get_num_fields();
+	int nfields = dbi->get_num_fields();
 	if (nfields != nResParams) {
 		LOG_ERROR("ResParams(%d) and fields(%d) are different\n", nResParams, nfields);
 		setStatus(st, NULL, DBERR_FIELD_COUNT_MISMATCH);
@@ -792,16 +686,18 @@ GIXSQLExecSelectIntoOne(struct sqlca_t *st, char *_query, int nParams, int nResP
 	}
 
 	// set params
-	int bsize = _res_sql_var_list.getMaxLength() + 2;
+	int datalen = 0;
+	bool has_invalid_column_data = false;
+	int bsize = _res_sql_var_list.getMaxLength() + VARLEN_LENGTH_SZ + 1;
 	char* buffer = (char*)calloc(1, bsize);
 	for (int i = 0; i < _res_sql_var_list.size(); i++) {
 		SqlVar *v = _res_sql_var_list.at(i);
-		if (!dbi->get_resultset_value(NULL, 0, i, buffer, bsize)) {
+		if (!dbi->get_resultset_value(NULL, 0, i, buffer, bsize, &datalen)) {
 			setStatus(st, dbi, DBERR_INVALID_COLUMN_DATA);
-			continue;
+			return RESULT_FAILED;
 		}
 
-		v->createCobolData(buffer);
+		v->createCobolData(buffer, datalen);
 
 #if _DEBUG
 		LOG_DEBUG(__FILE__, __func__, "Result parameter %d - addr: %016llx\n", i + 1, v->getAddr());
@@ -814,10 +710,11 @@ GIXSQLExecSelectIntoOne(struct sqlca_t *st, char *_query, int nParams, int nResP
 }
 
 LIBGIXSQL_API int
-GIXSQLDisconnect(struct sqlca_t *st) {
+GIXSQLDisconnect(struct sqlca_t *st, void *d_connection_id, int connection_id_tl) {
 	LOG_DEBUG(__FILE__, __func__, "GIXSQLDisconnect start\n");
 
-	Connection *conn = connection_manager.current();
+	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
+	Connection *conn = connection_manager.get(connection_id);
 	if (conn == NULL) {
 		LOG_ERROR("connection is not found\n");
 		return RESULT_FAILED;
@@ -1037,6 +934,7 @@ static int setStatus(struct sqlca_t * st, IDbInterface *dbi, int err)
 			}
 			st->sqlerrm.sqlerrml = strlen(st->sqlerrm.sqlerrmc);
 		}
+
 		st->sqlcode = dbi->get_error_code();
 		if (st->sqlcode == 0)
 			st->sqlcode = err;
@@ -1053,16 +951,49 @@ static int setStatus(struct sqlca_t * st, IDbInterface *dbi, int err)
 	return RESULT_SUCCESS;
 }
 
-static bool env_get_autocommit()
+static bool get_autocommit(DataSourceInfo *ds)
 {
+	std::map<std::string, std::string> options = ds->getOptions();
+	if (options.find("autocommit") != options.end()) {
+		std::string o = options["autocommit"];
+		return (o == "on" || o == "1") ? GIXSQL_AUTOCOMMIT_ON : GIXSQL_AUTOCOMMIT_OFF;
+	}
+
 	char *v = getenv("GIXSQL_AUTOCOMMIT");
 	if (v) {
 		if (strcmp(v, "1") == 0 || strcasecmp(v, "ON") == 0)
-			return OCDB_AUTOCOMMIT_ON;
+			return GIXSQL_AUTOCOMMIT_ON;
 
 		if (strcmp(v, "0") == 0 || strcasecmp(v, "OFF") == 0)
-			return OCDB_AUTOCOMMIT_OFF;
+			return GIXSQL_AUTOCOMMIT_OFF;
 	}
 
-	return OCDB_AUTOCOMMIT_DEFAULT;
+	return GIXSQL_AUTOCOMMIT_DEFAULT;
+}
+
+static std::string get_client_encoding(DataSourceInfo *ds)
+{
+	std::map<std::string, std::string> options = ds->getOptions();
+	if (options.find("client_encoding") != options.end()) {
+		return options["client_encoding"];
+	}
+
+	char *v = getenv("GIXSQL_CLIENT_ENCODING");
+	if (v) {
+		return std::string(v);
+	}
+
+	return GIXSQL_CLIENT_ENCODING_DEFAULT;
+}
+
+std::string get_hostref_or_literal(void *data, int l)
+{
+	if (!data)
+		return std::string();
+
+	if (!l)
+		return std::string((char *)data);
+
+	std::string s = std::string((char *)data, l);
+	return trim_copy(s);
 }

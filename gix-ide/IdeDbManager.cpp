@@ -20,7 +20,8 @@ USA.
 
 #include "IdeDbManager.h"
 #include "DbConnection.h"
-#include "ConnectionString.h"
+#include "IDataSourceInfo.h"
+#include "DataSourceInfo.h"
 #include "Ide.h"
 #include "IdeTaskManager.h"
 #include "DbInterfaceFactory.h"
@@ -70,7 +71,7 @@ bool IdeDbManager::cleanup()
 	return false;
 }
 
-bool IdeDbManager::test(IConnectionString* conn_info)
+bool IdeDbManager::test(IDataSourceInfo* conn_info)
 {
 	Connection conn;
 	conn.setConnectionInfo(conn_info);
@@ -90,7 +91,7 @@ bool IdeDbManager::test(IConnectionString* conn_info)
 	return true;
 }
 
-void IdeDbManager::newConnection(IConnectionString* conn_info, bool save_password)
+void IdeDbManager::newConnection(IDataSourceInfo * conn_info, bool save_password)
 {
 	QSettings settings;
 
@@ -137,7 +138,7 @@ void IdeDbManager::saveConnection(DbConnection* conn, bool save_password)
 	settings.setValue(pfx + "dbname", QString::fromStdString(conn->conn_info->getDbName()));
 	settings.setValue(pfx + "dbusername", QString::fromStdString(conn->conn_info->getUsername()));
 	settings.setValue(pfx + "dbpassword", save_password ? QString::fromStdString(conn->conn_info->getPassword()) : "");
-	settings.setValue(pfx + "dbdefault_schema", QString::fromStdString(conn->conn_info->getDefaultSchema()));
+	//settings.setValue(pfx + "dbdefault_schema", QString::fromStdString(conn->conn_info->getDefaultSchema()));
 }
 
 void IdeDbManager::loadDbConnection(QString pfx)
@@ -157,7 +158,8 @@ void IdeDbManager::loadDbConnection(QString pfx)
 
 	DbConnection* dbc = new DbConnection;
 	std::string ci = conn_info_s.toStdString();
-	dbc->conn_info = ConnectionString::parseEx(ci);
+	dbc->conn_info = new DataSourceInfo();
+	dbc->conn_info->init(ci, "***", "***");	// FIXME
 	dbc->internal_conn = new Connection();
 	dbc->internal_conn->setConnectionInfo(dbc->conn_info);
 	dbc->internal_conn->setName(conn_name.toStdString());
@@ -169,7 +171,7 @@ void IdeDbManager::loadDbConnection(QString pfx)
 	emit connectionAdded(conn_name, dbc);
 }
 
-DbConnection* IdeDbManager::createConnection(IConnectionString * conn_info)
+DbConnection* IdeDbManager::createConnection(IDataSourceInfo * conn_info)
 {
 	IDbInterface* dbi = DbInterfaceFactory::getInterface(conn_info->getDbType());
 	if (!dbi)

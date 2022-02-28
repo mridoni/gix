@@ -203,12 +203,8 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 
 		ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Using ESQL driver: %1")).arg(esql_cfg_id), QLogger::LogLevel::Trace);
 
-		QString esql_driver_type = prj->PropertyGetValue("esql_default_driver").toString();
-		if ((esql_cfg_id == ESQLConfigurationType::GixInternal || esql_cfg_id == ESQLConfigurationType::GixExternal) && esql_driver_type.isEmpty()) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, tr("ESQL DBMS driver not set for gixsql driver"), QLogger::LogLevel::Error);
-			return false;
-		}
-		QMap<QString, QString> esql_env = esql_cfg->getEnvironment(esql_driver_type);
+		QString esql_driver_type = "*";	// placeholder
+		QMap<QString, QString> esql_env = esql_cfg->getEnvironment("*");
 
 		for (auto it = esql_env.begin(); it != esql_env.end(); ++it) {
 			env.insert(it.key(), it.value());
@@ -224,7 +220,8 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		}
 
 		if (esql_cfg_id == ESQLConfigurationType::GixInternal || esql_cfg_id == ESQLConfigurationType::GixExternal) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg(esql_env.value("GIXSQL_DB_MODE")), QLogger::LogLevel::Debug);
+			// Not needed anymore
+			// ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg(esql_env.value("GIXSQL_DB_MODE")), QLogger::LogLevel::Debug);
 
 			bool esql_debug_log_on = prj->PropertyGetValue("esql_debug_log_on").toBool();
 			if (esql_debug_log_on) {

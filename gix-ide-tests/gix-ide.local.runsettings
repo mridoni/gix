@@ -11,17 +11,20 @@
       <VC_COMPILER_ID>comp_32616</VC_COMPILER_ID>
       <MINGW_COMPILER_X86_ID>gnucobol-3.1.2-std-gcc-x86</MINGW_COMPILER_X86_ID>
       <MINGW_COMPILER_X64_ID>gnucobol-3.1.2-std-mingw-x64</MINGW_COMPILER_X64_ID>
+
+      <PGSQL_PATH>C:\Program Files\PostgreSQL\13\bin</PGSQL_PATH>
+      <PGSQL_PATH32>C:\pgsql32\bin</PGSQL_PATH32>
       
-      <MYSQL_DB>192.168.1.171:3306/testdb</MYSQL_DB>
+      <MYSQL_DB>mysql://192.168.1.171/testdb1</MYSQL_DB>
       <MYSQL_AUTH>test.test</MYSQL_AUTH>
       
-      <PGSQL_DB>localhost:5432/testdb</PGSQL_DB>
+      <PGSQL_DB>pgsql://localhost/testdb1</PGSQL_DB>
       <PGSQL_AUTH>test.test</PGSQL_AUTH>
       
-      <ODBC_DSN_1>TESTDB_MYSQL</ODBC_DSN_1>
+      <ODBC_DSN_1>odbc://TESTDB_MYSQL</ODBC_DSN_1>
       <ODBC_AUTH_1>test.test</ODBC_AUTH_1>
 
-      <ODBC_DSN_2>TESTDB_PGSQL</ODBC_DSN_2>
+      <ODBC_DSN_2>odbc://TESTDB_PGSQL</ODBC_DSN_2>
       <ODBC_AUTH_2>test.test</ODBC_AUTH_2>
 
     </EnvironmentVariables>

@@ -257,7 +257,7 @@ namespace gix_ide_tests
         }
 
         protected void run(string prj_name, string prj_dir, string configuration, string platform, string filename,
-                            string expected_md5_output_hash = "", string[] check_output_contains = null, int wait_runtime = 3000)
+                            string expected_md5_output_hash = "", string[] check_output_contains = null, bool check_output_uses_regex = false, int wait_runtime = 3000)
         {
             if (__before_run != null)
             {
@@ -299,8 +299,14 @@ namespace gix_ide_tests
                 {
                     foreach (string t in check_output_contains)
                     {
-                        Regex rx = new Regex(t);
-                        Assert.IsTrue(rx.IsMatch(console_out), "Output does not match" + "\n\nBuild log:\n" + File.ReadAllText(ide_output));
+                        string console_out_content = File.ReadAllText(console_out);
+                        if (check_output_uses_regex) {
+                            Regex rx = new Regex(t);
+                            Assert.IsTrue(rx.IsMatch(console_out_content), "Output does not match" + "\n\nBuild log:\n" + File.ReadAllText(ide_output));
+                        }
+                        else {
+                            Assert.IsTrue(console_out_content.Contains(t));
+                        }
 
                         // Assert was successful
                         Console.WriteLine("Output: OK");
@@ -327,7 +333,7 @@ namespace gix_ide_tests
 
         protected void debug(string prj_name, string prj_dir, string src_file, string configuration, string platform, string filename,
                             List<string> breakpoints, List<string> watched_vars, List<Dictionary<string, string>> expected_values,
-                            string expected_md5_output_hash = "", string[] check_output_contains = null, int wait_runtime = 10000)
+                            string expected_md5_output_hash = "", string[] check_output_contains = null, bool check_output_uses_regex = false, int wait_runtime = 10000)
         {
             if (__before_debug != null)
             {
@@ -434,8 +440,16 @@ namespace gix_ide_tests
                 {
                     foreach (string t in check_output_contains)
                     {
-                        Regex rx = new Regex(t);
-                        Assert.IsTrue(rx.IsMatch(console_out), "Output does not match" + "\n\nBuild log:\n" + File.ReadAllText(ide_output));
+                        string console_out_content = File.ReadAllText(console_out);
+                        if (check_output_uses_regex)
+                        {
+                            Regex rx = new Regex(t);
+                            Assert.IsTrue(rx.IsMatch(console_out_content), "Output does not match" + "\n\nBuild log:\n" + File.ReadAllText(ide_output));
+                        }
+                        else
+                        {
+                            Assert.IsTrue(console_out_content.Contains(t));
+                        }
 
                         // Assert was successful
                         Console.WriteLine("Output: OK");

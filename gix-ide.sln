@@ -63,6 +63,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gix-ide-tests", "gix-ide-te
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testhlpr", "testhlpr\testhlpr.vcxproj", "{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gixsql-tests", "gixsql-tests\gixsql-tests.csproj", "{2DC3D86A-319C-4656-9CE6-A09DB069EABF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_5.15.2|Any CPU = Debug_5.15.2|Any CPU
@@ -476,6 +478,36 @@ Global
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Test_Release|Win32.Build.0 = Release|Win32
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Test_Release|x64.ActiveCfg = Release|x64
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Test_Release|x64.Build.0 = Release|x64
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug_5.15.2|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug_5.15.2|Any CPU.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug_5.15.2|Win32.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug_5.15.2|Win32.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug_5.15.2|x64.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug_5.15.2|x64.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug|Win32.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Debug|x64.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Win32.ActiveCfg = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Win32.Build.0 = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|x64.ActiveCfg = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|x64.Build.0 = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|Win32.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|Win32.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|x64.ActiveCfg = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|x64.Build.0 = Debug|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|Any CPU.Build.0 = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|Win32.ActiveCfg = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|Win32.Build.0 = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|x64.ActiveCfg = Release|Any CPU
+		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -492,7 +524,7 @@ Global
 		{1BA5A886-6EC9-434A-8B66-AF29211B4499} = {03E0162F-A04E-40F0-94A8-6E897A00EFB7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 		Qt5Version = Qt_5.14_msvc64
+		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 	EndGlobalSection
 EndGlobal

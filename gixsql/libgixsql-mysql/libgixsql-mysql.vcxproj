@@ -237,7 +237,7 @@
       <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%MYSQL32_HOME%\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>libmysql.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -287,7 +287,7 @@
       <AdditionalIncludeDirectories>..\libgixsql;%MYSQL_HOME%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%MYSQL_HOME%\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>

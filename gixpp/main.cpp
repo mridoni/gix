@@ -37,7 +37,7 @@ USA.
 #define PATH_LIST_SEP ":"
 #endif
 
-#define GIXPP_VER "1.0.7"
+#define GIXPP_VER "1.0.8"
 
 using namespace popl;
 
@@ -73,6 +73,7 @@ int main(int argc, char **argv)
 	auto opt_keep = options.add<Switch>("k", "keep", "keep temporary files");
 	auto opt_verbose = options.add<Switch>("v", "verbose", "verbose");
 	auto opt_verbose_debug = options.add<Switch>("d", "verbose-debug", "verbose (debug)");
+	auto opt_emit_map_file = options.add<Switch>("m", "map", "emit map file");
 
 
 	options.parse(argc, argv);
@@ -116,6 +117,7 @@ int main(int argc, char **argv)
 			gp.setOpt("anonymous_params", opt_esql_anon_params->is_set());
 			gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy->is_set());
 			gp.setOpt("consolidated_map", true);
+			gp.setOpt("emit_map_file", opt_emit_map_file->is_set());
 			gp.addStep(new TPESQLProcessing(&gp));
 			if (opt_esql_copy_exts->is_set())
 				copy_resolver.setExtensions(string_split(opt_esql_copy_exts->value(), ","));
