@@ -24,7 +24,7 @@ USA.
 #include <QObject>
 #include <QString>
 
-#include "IConnectionString.h"
+#include "IDataSourceInfo.h"
 #include "DbConnection.h"
 
 class DbConnection;
@@ -39,12 +39,12 @@ public:
 
 	bool init();
 	bool cleanup();
-	bool test(IConnectionString*);
-	void newConnection(IConnectionString *, bool save_password);
+	bool test(IDataSourceInfo *);
+	void newConnection(IDataSourceInfo *, bool save_password);
 	void saveConnection(DbConnection *, bool save_password);
 	void loadDbConnection(QString conn_pfx);
 
-	static DbConnection* createConnection(IConnectionString*);
+	static DbConnection* createConnection(IDataSourceInfo *);
 private:
 	QMap<QString, DbConnection *> connections;
 

@@ -29,7 +29,7 @@ void DbCodeGenerator::setUseUpperCaseForCopyFields(bool b)
 	uc_copy_fields = b;
 }
 
-bool DbCodeGenerator::generateCopyFile(IConnectionString *conn_info, QString schema, QString table, QString& res)
+bool DbCodeGenerator::generateCopyFile(IDataSourceInfo *conn_info, QString schema, QString table, QString& res)
 {
 	QStringList lines;
 	QString line;

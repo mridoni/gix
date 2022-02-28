@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -83,7 +83,7 @@
        <x>10</x>
        <y>10</y>
        <width>451</width>
-       <height>101</height>
+       <height>91</height>
       </rect>
      </property>
      <property name="title">
@@ -95,7 +95,7 @@
         <x>10</x>
         <y>20</y>
         <width>431</width>
-        <height>71</height>
+        <height>64</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout">
@@ -183,9 +183,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>120</y>
+       <y>104</y>
        <width>451</width>
-       <height>101</height>
+       <height>91</height>
       </rect>
      </property>
      <property name="title">
@@ -197,7 +197,7 @@
         <x>10</x>
         <y>20</y>
         <width>431</width>
-        <height>71</height>
+        <height>64</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_2">
@@ -281,7 +281,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>450</y>
+       <y>457</y>
        <width>451</width>
        <height>61</height>
       </rect>
@@ -338,9 +338,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>230</y>
+       <y>198</y>
        <width>451</width>
-       <height>101</height>
+       <height>91</height>
       </rect>
      </property>
      <property name="title">
@@ -352,7 +352,7 @@
         <x>10</x>
         <y>20</y>
         <width>431</width>
-        <height>71</height>
+        <height>64</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_3">
@@ -436,9 +436,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>340</y>
+       <y>293</y>
        <width>451</width>
-       <height>101</height>
+       <height>91</height>
       </rect>
      </property>
      <property name="title">
@@ -450,7 +450,7 @@
         <x>10</x>
         <y>20</y>
         <width>431</width>
-        <height>71</height>
+        <height>64</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_5">
@@ -532,6 +532,67 @@
           </size>
          </property>
         </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_10">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>390</y>
+       <width>451</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Misc display settings</string>
+     </property>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>431</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Screen resolution (dpi)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="cbScreenRes">
+         <property name="minimumSize">
+          <size>
+           <width>130</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>130</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

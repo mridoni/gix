@@ -23,6 +23,9 @@ USA.
 #include <string>
 #include <vector>
 
+#include "ESQLDefinitions.h"
+#include "gix_esql_driver.hh"
+
 #define BY_REFERENCE	true
 #define BY_VALUE		false
 
@@ -41,12 +44,18 @@ public:
 
 	void addParameter(std::string value, bool by_reference);
 	void addParameter(int value, bool by_reference);
+	void addParameter(gix_esql_driver *driver, hostref_or_literal_t *p);
 
 	std::vector<std::string> format() const;
+	std::string error() const;
+	bool hasError() const;
 
 private:
 	bool is_static;
 	std::string call_name;
 	std::vector<ESqlCallParameter> params;
+
+	bool has_error = false;
+	std::string error_msg;
 };
 

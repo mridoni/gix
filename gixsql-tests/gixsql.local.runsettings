@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <GIX_BASE_PATH_X64>D:\gix-ide-x64</GIX_BASE_PATH_X64>
+      <GIX_BASE_PATH_X86>D:\gix-ide-x86</GIX_BASE_PATH_X86>
+
+      <KEEP_TEMPS>1</KEEP_TEMPS>
+      <TEST_TEMP_DIR>C:\Users\marchetto\source\repos\gix-ide-gixsql-post-1.0.7\tmp_test</TEST_TEMP_DIR>
+
+      <VC_COMPILER_ID>comp_32616</VC_COMPILER_ID>
+      <MINGW_COMPILER_X86_ID>gnucobol-3.1.2-std-gcc-x86</MINGW_COMPILER_X86_ID>
+      <MINGW_COMPILER_X64_ID>gnucobol-3.1.2-std-mingw-x64</MINGW_COMPILER_X64_ID>
+
+      <MYSQL_1_HOST>192.168.1.171</MYSQL_1_HOST>
+      <MYSQL_1_PORT>3306</MYSQL_1_PORT>
+      <MYSQL_1_DBNAME>testdb1</MYSQL_1_DBNAME>
+      <MYSQL_1_USR>test</MYSQL_1_USR>
+      <MYSQL_1_PWD>test</MYSQL_1_PWD>
+      <MYSQL_1_OPTS></MYSQL_1_OPTS>
+
+      <MYSQL_2_HOST>192.168.1.171</MYSQL_2_HOST>
+      <MYSQL_2_PORT>3306</MYSQL_2_PORT>
+      <MYSQL_2_DBNAME>testdb2</MYSQL_2_DBNAME>
+      <MYSQL_2_USR>test</MYSQL_2_USR>
+      <MYSQL_2_PWD>test</MYSQL_2_PWD>
+      <MYSQL_2_OPTS></MYSQL_2_OPTS>
+
+      <MYSQL_3_HOST>192.168.1.171</MYSQL_3_HOST>
+      <MYSQL_3_PORT>3306</MYSQL_3_PORT>
+      <MYSQL_3_DBNAME>testdb3</MYSQL_3_DBNAME>
+      <MYSQL_3_USR>test</MYSQL_3_USR>
+      <MYSQL_3_PWD>test</MYSQL_3_PWD>
+      <MYSQL_3_OPTS></MYSQL_3_OPTS>
+
+      <PGSQL_1_HOST>localhost</PGSQL_1_HOST>
+      <PGSQL_1_PORT>5432</PGSQL_1_PORT>
+      <PGSQL_1_DBNAME>testdb1</PGSQL_1_DBNAME>
+      <PGSQL_1_USR>test</PGSQL_1_USR>
+      <PGSQL_1_PWD>test</PGSQL_1_PWD>
+      <PGSQL_1_OPTS></PGSQL_1_OPTS>
+
+      <PGSQL_2_HOST>localhost</PGSQL_2_HOST>
+      <PGSQL_2_PORT>5432</PGSQL_2_PORT>
+      <PGSQL_2_DBNAME>testdb2</PGSQL_2_DBNAME>
+      <PGSQL_2_USR>test</PGSQL_2_USR>
+      <PGSQL_2_PWD>test</PGSQL_2_PWD>
+      <PGSQL_2_OPTS></PGSQL_2_OPTS>
+
+      <PGSQL_3_HOST>localhost</PGSQL_3_HOST>
+      <PGSQL_3_PORT>5432</PGSQL_3_PORT>
+      <PGSQL_3_DBNAME>testdb</PGSQL_3_DBNAME>
+      <PGSQL_3_USR>test</PGSQL_3_USR>
+      <PGSQL_3_PWD>test</PGSQL_3_PWD>
+      <PGSQL_3_OPTS>default_schema=public</PGSQL_3_OPTS>
+
+      <ODBC_1_HOST>ODBC_TEST1_64</ODBC_1_HOST>
+      <ODBC_1_USR>test</ODBC_1_USR>
+      <ODBC_1_PWD>test</ODBC_1_PWD>
+      <ODBC_1_OPTS></ODBC_1_OPTS>
+
+      <ODBC_2_HOST>ODBC_TEST2_64</ODBC_2_HOST>
+      <ODBC_2_USR>test</ODBC_2_USR>
+      <ODBC_2_PWD>test</ODBC_2_PWD>
+      <ODBC_2_OPTS></ODBC_2_OPTS>
+
+      <ODBC_3_HOST>ODBC_TEST3_32</ODBC_3_HOST>
+      <ODBC_3_USR>test</ODBC_3_USR>
+      <ODBC_3_PWD>test</ODBC_3_PWD>
+      <ODBC_3_OPTS></ODBC_3_OPTS>
+
+
+
+      <!--<MYSQL_DATASRC_1>mysql://192.168.1.171/testdb</MYSQL_DATASRC_1>
+      <MYSQL_USR_1>test</MYSQL_USR_1>
+      <MYSQL_PWD_1>test</MYSQL_PWD_1>
+      <MYSQL_OPTS_1></MYSQL_OPTS_1>
+
+      <MYSQL_DATASRC_2>mysql://test.test@192.168.1.171/testdb</MYSQL_DATASRC_2>
+      <MYSQL_USR_2></MYSQL_USR_2>
+      <MYSQL_PWD_2></MYSQL_PWD_2>
+      <MYSQL_OPTS_2></MYSQL_OPTS_2>
+
+      <MYSQL_DATASRC_3>mysql://test.test@192.168.1.171:3306/testdb</MYSQL_DATASRC_3>
+      <MYSQL_USR_3></MYSQL_USR_3>
+      <MYSQL_PWD_3></MYSQL_PWD_3>
+      <MYSQL_OPTS_3></MYSQL_OPTS_3>
+
+      <MYSQL_DATASRC_4>mysql://192.168.1.171:3306/testdb</MYSQL_DATASRC_4>
+      <MYSQL_USR_4>test</MYSQL_USR_4>
+      <MYSQL_PWD_4>test</MYSQL_PWD_4>
+      <MYSQL_OPTS_4></MYSQL_OPTS_4>
+
+      <PGSQL_DATASRC_1>pgsql://localhost/testdb</PGSQL_DATASRC_1>
+      <PGSQL_USR_1>test</PGSQL_USR_1>
+      <PGSQL_PWD_1>test</PGSQL_PWD_1>
+      <PGSQL_OPTS_1></PGSQL_OPTS_1>
+
+      <PGSQL_DATASRC_2>pgsql://test.test@localhost/testdb</PGSQL_DATASRC_2>
+      <PGSQL_USR_2></PGSQL_USR_2>
+      <PGSQL_PWD_2></PGSQL_PWD_2>
+      <PGSQL_OPTS_2></PGSQL_OPTS_2>
+
+      <PGSQL_DATASRC_3>pgsql://test.test@localhost:5432/testdb</PGSQL_DATASRC_3>
+      <PGSQL_USR_3></PGSQL_USR_3>
+      <PGSQL_PWD_3></PGSQL_PWD_3>
+      <PGSQL_OPTS_3></PGSQL_OPTS_3>
+
+      <PGSQL_DATASRC_4>pgsql://localhost:5432/testdb</PGSQL_DATASRC_4>
+      <PGSQL_USR_4>test</PGSQL_USR_4>
+      <PGSQL_PWD_4>test</PGSQL_PWD_4>
+      <PGSQL_OPTS_4></PGSQL_OPTS_4>
+
+      <ODBC_DATASRC_1>odbc://TESTDB_MYSQL</ODBC_DATASRC_1>
+      <ODBC_USR_1>test</ODBC_USR_1>
+      <ODBC_PWD_1>test</ODBC_PWD_1>
+      <ODBC_OPTS_1></ODBC_OPTS_1>
+
+      <ODBC_DATASRC_2>odbc://TESTDB_PGSQL</ODBC_DATASRC_2>
+      <ODBC_USR_2>test</ODBC_USR_2>
+      <ODBC_PWD_2>test</ODBC_PWD_2>
+      <ODBC_OPTS_2></ODBC_OPTS_2>-->
+
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>

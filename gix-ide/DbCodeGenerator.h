@@ -22,7 +22,7 @@ USA.
 
 #include <QString>
 
-#include "IConnectionString.h"
+#include "IDataSourceInfo.h"
 #include "DbConnection.h"
 //#include "DbInterfaceFactory.h"
 
@@ -46,7 +46,7 @@ class DbCodeGenerator
 {
 public:
 	void setUseUpperCaseForCopyFields(bool);
-	bool generateCopyFile(IConnectionString* conn_info, QString schema, QString table, QString& res);
+	bool generateCopyFile(IDataSourceInfo* conn_info, QString schema, QString table, QString& res);
 
 private: 
 	bool uc_copy_fields;

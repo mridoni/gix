@@ -33,6 +33,33 @@ DECLARE_LOGGER_STATIC(logger);
 
 typedef IDbInterface *(*DBLIB_PROVIDER_FUNC)(void);
 
+#if defined(_WIN32)
+//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
+std::string GetLastErrorAsString()
+{
+	//Get the error message ID, if any.
+	DWORD errorMessageID = ::GetLastError();
+	if (errorMessageID == 0) {
+		return std::string(); //No error message has been recorded
+	}
+
+	LPSTR messageBuffer = nullptr;
+
+	//Ask Win32 to give us the string version of that message ID.
+	//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
+	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+	//Copy the error message into a std::string.
+	std::string message(messageBuffer, size);
+
+	//Free the Win32's string's buffer.
+	LocalFree(messageBuffer);
+
+	return message;
+}
+#endif
+
 IDbInterface *DbInterfaceFactory::getInterface(int type)
 {
 	switch (type) {
@@ -84,7 +111,7 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 	sprintf(bfr, "libgixsql-");
 	strcat(bfr, lib_id);
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32)
 
 	strcat(bfr, ".dll");
 	LOG_DEBUG(__FILE__, __func__, "loading DB provider: %s\n", bfr);
@@ -102,7 +129,7 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 			char dll_path[MAX_PATH];
 			int rc = GetModuleFileName(libHandle, dll_path, MAX_PATH);
 			if (rc) {
-				LOG_DEBUG(__FILE__, __func__, "DB provider loaded from: %s\n", dll_path);
+				LOG_DEBUG(__FILE__, __func__, "DB provider loaded from: %s", dll_path);
 			}
 #endif
 			dbi = dblib_provider();
@@ -115,7 +142,11 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 		// Library not freed here
 	}
 	else {
-		LOG_ERROR("ERROR while loading DB provider: %s\n", bfr);
+		auto err = GetLastErrorAsString();
+		LOG_ERROR("ERROR while loading DB provider %s: %s", bfr, err.c_str());
+#if _DEBUG
+		LOG_ERROR("PATH is: %s\n", getenv("PATH"));
+#endif
 	}
 
 #else

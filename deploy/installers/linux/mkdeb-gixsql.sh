@@ -2,6 +2,9 @@
 
 echo "************ Packaging GixSQL $GIXIDEMAJ.$GIXIDEMIN.$GIXIDEREL-$GIX_REVISION"
 
+# No leading "/"
+export INSTALL_PREFIX=opt/gixsql
+
 cd $WORKSPACE_LINUX
 
 export WORKSPACE=$WORKSPACE_LINUX
@@ -10,64 +13,69 @@ export PKGDEBDIR=$WORKSPACE/pkg
 export PKGNAME=gixsql-linux-x64-$GIXIDEMAJ.$GIXIDEMIN.$GIXIDEREL-$GIX_REVISION
 export PKGFILE=$PKGNAME.deb
 
-rm -fr $PKGDEBDIR
+mkdir -p $PKGDEBDIR/${INSTALL_PREFIX}/share/gixsql/examples && \
+	mkdir -p $PKGDEBDIR/${INSTALL_PREFIX}/share/gixsql/doc && \
+	mkdir -p $PKGDEBDIR/DEBIAN
+if [ "$?" != "0" ] ; then echo "Cannot create package directory" ; exit 1 ; fi
 
-mkdir -p $PKGDEBDIR && \
-mkdir -p $PKGDEBDIR/opt/gixsql/bin && \
-mkdir -p $PKGDEBDIR/opt/gixsql/lib/copy && \
-mkdir -p $PKGDEBDIR/opt/gixsql/lib/x64/gcc && \
-mkdir -p $PKGDEBDIR/opt/gixsql/examples && \
-mkdir -p $PKGDEBDIR/opt/gixsql/doc && \
-mkdir -p $PKGDEBDIR/DEBIAN
+# ********************************
 
+BUILD_NAME=gixsql-$GIXIDEMAJ.$GIXIDEMIN.$GIXIDEREL-$GIX_REVISION
+BUILD_DIR=$WORKSPACE/$BUILD_NAME
+
+mkdir $BUILD_DIR
+if [ "$?" != "0" ] ; then echo "Cannot create build directory" ; exit 1 ; fi
+
+mv libcpputils libgixutils libgixpp gixpp gixsql/copy gixsql/libgixsql gixsql/libgixsql-mysql gixsql/libgixsql-odbc gixsql/libgixsql-pgsql $BUILD_DIR
+if [ "$?" != "0" ] ; then echo "Cannot setup build directory" ; exit 1 ; fi
+
+cd $BUILD_DIR
+if [ "$?" != "0" ] ; then echo "Cannot switch to build directory" ; exit 1 ; fi
+
+cp -fravp $WORKSPACE/deploy/installers/linux/gixsql-autoconf/* .
+if [ "$?" != "0" ] ; then echo "Cannot copy build scripts" ; exit 1 ; fi
+
+autoreconf --install --force
+if [ "$?" != "0" ] ; then echo "Cannot reconfigure into build directory" ; exit 1 ; fi
+
+cp $WORKSPACE/build-tools/grammar-tools/FlexLexer.h ./libgixpp/
+if [ "$?" != "0" ] ; then echo "Cannot copy lexer support files" ; exit 1 ; fi
+
+rm -fr $(find . -name ".svn")
+rm -fr $(find . -name "x64")
+rm -fr $(find . -name "x86")
+rm -fr $(find . -name "Makefile.linux")
+rm -fr $(find . -name "Makefile.macOS")
+rm -fr $(find . -name "Makefile.mingw-w64")
+rm -fr $(find . -name "*.sln")
+rm -fr $(find . -name "*.vcxproj")
+rm -fr $(find . -name "*.filters")
+rm -fr $(find . -name "*.user")
+rm -fr $(find . -name "*.pro")
+rm -fr $(find . -name "*.pri")
+
+./configure --prefix=$PKGDEBDIR/${INSTALL_PREFIX}
+if [ "$?" != "0" ] ; then echo "Cannot configure the build environment" ; exit 1 ; fi
+
+make
+if [ "$?" != "0" ] ; then echo "Build failed" ; exit 1 ; fi
+
+make install
+if [ "$?" != "0" ] ; then echo "Cannot install build" ; exit 1 ; fi
+
+# ********************************
+
+cp -frv $WORKSPACE/deploy/installers/linux/gixsql-test/* $PKGDEBDIR/${INSTALL_PREFIX}/share/gixsql/examples
 if [ "$?" -ne "0" ] ; then
-	echo "Error while creating package structure"
+	echo "Error while packaging GixSQL examples"
     exit 1
 fi  
 
-cp gixpp/gixpp $PKGDEBDIR/opt/gixsql/bin 
+cp -frv $WORKSPACE/doc/gixsql.md $PKGDEBDIR/${INSTALL_PREFIX}/share/gixsql/doc/
 if [ "$?" -ne "0" ] ; then
-	echo "Error while packaging Gix-IDE binaries (files)"
+	echo "Error while packaging GixSQL docs"
     exit 1
 fi  
-
-cp -frv $(find . -type f -name "libgixsql*.so*") $PKGDEBDIR/opt/gixsql/lib/x64/gcc
-if [ "$?" -ne "0" ] ; then
-	echo "Error while packaging GixSQL libraries (files)"
-    exit 1
-fi  
-
-LNKS=$(find . -type l -name "libgixsql*.so*")
-if [ "$LNKS" != "" ] ; then
-	cp -frv $(find . -type l -name "libgixsql*.so*") $PKGDEBDIR/opt/gixsql/lib/x64/gcc
-	if [ "$?" -ne "0" ] ; then
-		echo "Error while packaging GixSQL libraries (links)"
-		exit 1
-	fi  
-fi
-
-cp -fv gixsql/copy/SQLCA.cpy $PKGDEBDIR/opt/gixsql/lib/copy
-if [ "$?" -ne "0" ] ; then
-	echo "Error while packaging GixSQL (COPY files)"
-    exit 1
-fi  
-
-cp -frv $WORKSPACE/deploy/examples/* $PKGDEBDIR/opt/gixsql/examples
-if [ "$?" -ne "0" ] ; then
-	echo "Error while packaging Gix-IDE examples"
-    exit 1
-fi  
-
-cp -frv $WORKSPACE/doc/* $PKGDEBDIR/opt/gixsql/doc
-if [ "$?" -ne "0" ] ; then
-	echo "Error while packaging Gix-IDe examples"
-    exit 1
-fi  
-
-# md5sums
-cd $PKGDEBDIR
-find ./opt -type f -exec md5sum '{}' \; > ./DEBIAN/md5sums
-
 
 cd $WORKSPACE
 
@@ -75,24 +83,16 @@ cd $WORKSPACE
 echo "2.0" > $PKGDEBDIR/DEBIAN/debian-binary
 
 # control.tar.gz
-cat $WORKSPACE/deploy/installers/linux/control.tpl | \
+cat $WORKSPACE/deploy/installers/linux/control-gixsql.tpl | \
 	sed "s/#GIXIDEMAJ#/$GIXIDEMAJ/g" | \
 	sed "s/#GIXIDEMIN#/$GIXIDEMIN/g" | \
 	sed "s/#GIXIDEREL#/$GIXIDEREL/g" | \
 	sed "s/#GIX_REVISION#/$GIX_REVISION/g" > $PKGDEBDIR/DEBIAN/control
 	
 cat <<EOF > $PKGDEBDIR/DEBIAN/postinst
-#!/bin/bash
+#!/bin/sh
 
-mkdir -p /home/\$SUDO_USER/Documents/gix/examples
-mv /opt/gix-examples/* /home/\$SUDO_USER/Documents/gix/examples
-rm -fr /opt/gix-examples
-
-mkdir -p /home/\$SUDO_USER/Documents/gix/doc
-mv /opt/gix-doc/* /home/\$SUDO_USER/Documents/gix/doc
-rm -fr /opt/gix-doc
-chown -R \$SUDO_USER:\$SUDO_USER /home/\$SUDO_USER/Documents/gix/
-chmod -R 775 /home/\$SUDO_USER/Documents/gix/
+exit 0
 EOF
 
 cd $WORKSPACE
@@ -118,8 +118,6 @@ if [ "$?" -ne "0" ] ; then
     exit 1
 fi
 
-
-
 echo "Done, package is $PKGFILE, signature is $PKGFILE.sig"
 
-
+exit 0

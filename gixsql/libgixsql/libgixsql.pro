@@ -18,13 +18,13 @@ win32:DEFINES -= UNICODE _UNICODE
 
 HEADERS += Connection.h \
            ConnectionManager.h \
-           ConnectionString.h \
+           DataSourceInfo.h \
            Cursor.h \
            CursorManager.h \
            DbInterfaceFactory.h \
            gixsql.h \
            IConnection.h \
-           IConnectionString.h \
+           IDataSourceInfo.h \
            ICursor.h \
            IDbInterface.h \
            ILogger.h \
@@ -38,7 +38,7 @@ HEADERS += Connection.h \
 
 SOURCES += Connection.cpp \
            ConnectionManager.cpp \
-           ConnectionString.cpp \
+           DataSourceInfo.cpp \
            Cursor.cpp \
            CursorManager.cpp \
            DbInterfaceFactory.cpp \

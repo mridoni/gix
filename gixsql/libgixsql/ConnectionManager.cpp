@@ -27,12 +27,11 @@
 #include "ConnectionManager.h"
 #include "DbInterfaceFactory.h"
 
-
+#define GIXSQL_DEFAULT_CONN_PREFIX "DEFAULT"
 
 static std::vector<Connection *> _connections;
 static std::map<int, Connection *> _connection_map;
 static std::map<std::string, Connection *> _connection_name_map;
-static Connection *current_connection;
 
 static int next_conn_id = 1;
 
@@ -45,21 +44,34 @@ ConnectionManager::~ConnectionManager()
 {
 }
 
-Connection * ConnectionManager::create()
+Connection *ConnectionManager::create()
 {
 	return new Connection();
 }
 
-Connection *ConnectionManager::current()
+Connection *ConnectionManager::get(std::string name)
 {
-	return current_connection;
+	if (name.empty())
+		return default_connection;
+
+	if (_connection_name_map.find(name) != _connection_name_map.end())
+		return _connection_name_map[name];
+
+	return nullptr;
 }
 
 int ConnectionManager::add(Connection *conn)
 {
+	conn->id = ++next_conn_id;
+	if (conn->name.empty()) {
+		conn->name = GIXSQL_DEFAULT_CONN_PREFIX + std::to_string(conn->id);
+		this->default_connection = conn;
+	}
+
 	_connections.push_back(conn);
-	current_connection = conn;
-	conn->id = next_conn_id++;
+	_connection_map[conn->id] = conn;
+	_connection_name_map[conn->name] = conn;
+
 	return conn->id;
 }
 
@@ -69,7 +81,7 @@ void ConnectionManager::remove(Connection *conn)
 		return;
 
 	int id = conn->id;
-	std::string name = conn->cname;
+	std::string name = conn->name;
 	_connections.erase(std::remove(_connections.begin(), _connections.end(), conn), _connections.end());
 	_connection_map.erase(id);
 	_connection_name_map.erase(name);
@@ -79,16 +91,6 @@ void ConnectionManager::remove(Connection *conn)
 bool ConnectionManager::exists(std::string cname)
 {
 	return false;
-}
-
-int ConnectionManager::setCurrent(std::string cname)
-{
-	return 0;
-}
-
-int ConnectionManager::setCurrent(int cid)
-{
-	return 0;
 }
 
 

@@ -7,7 +7,7 @@
     <ClCompile Include="ConnectionManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConnectionString.cpp">
+    <ClCompile Include="DataSourceInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Cursor.cpp">
@@ -48,7 +48,7 @@
     <ClInclude Include="ConnectionManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConnectionString.h">
+    <ClInclude Include="DataSourceInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Cursor.h">
@@ -84,7 +84,7 @@
     <ClInclude Include="IConnection.h">
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="IConnectionString.h">
+    <ClInclude Include="IDataSourceInfo.h">
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="ICursor.h">

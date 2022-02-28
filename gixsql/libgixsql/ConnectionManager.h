@@ -22,7 +22,7 @@
 
 #include <string>
 #include "Connection.h"
-#include "IConnectionString.h"
+#include "IDataSourceInfo.h"
 
 
 
@@ -35,12 +35,12 @@ public:
 	~ConnectionManager();
 
 	Connection *create();
-	Connection *current();
-	int add(Connection *);
-	void remove(Connection *);
+	Connection *get(std::string name = "");
+	int add(Connection *conn);
+	void remove(Connection *conn);
 	bool exists(std::string cname);
-	int setCurrent(std::string cname);
-	int setCurrent(int cid);
 
+private:
+	Connection *default_connection = nullptr;
 };
 

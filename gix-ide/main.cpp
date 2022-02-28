@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
+#define ORG_NAME "MediumGray"
+#define APP_NAME "gix-ide"
+
 #ifdef _WIN32
 #include <Windows.h>
 #include <imagehlp.h>
@@ -33,6 +36,7 @@ USA.
 
 #include <QDebug>
 #include <QDataStream>
+#include <QSettings>
 
 #if defined(Q_OS_LINUX) && defined(_DEBUG)
 #include <execinfo.h>
@@ -175,10 +179,22 @@ int main(int argc, char *argv[])
     _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF);
     _CrtSetDbgFlag(_CRTDBG_CHECK_CRT_DF);
 #endif
+    
+    if (!qgetenv("QT_FONT_DPI").size()) {
 
+        QSettings settings(ORG_NAME, APP_NAME);
+        int dpi = settings.value("screen_resolution", 0).toInt();
+        if (dpi > 0)
+            qputenv("QT_FONT_DPI", QString::number(dpi).toUtf8().data());
+    }
+    
     QApplication app(argc, argv);
 
 	Q_INIT_RESOURCE(icons);
+
+	QCoreApplication::setApplicationName(APP_NAME);
+	QCoreApplication::setOrganizationName(ORG_NAME);
+    QCoreApplication::setApplicationVersion(getGixIdePrintableVersion());
 
 #if 0 && defined(Q_OS_LINUX) && defined(_DEBUG)
     signal(SIGSEGV, handler);   // install our handler
@@ -188,12 +204,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
     SetUnhandledExceptionFilter(GixCrashHandler);
 #endif 
-
-#if defined(__linux__)
-	if (!qgetenv("QT_FONT_DPI").size())
-        qputenv("QT_FONT_DPI", "96");
-#endif
-
+    
 	QPixmap pixmap(":/icons/splash.png");
 	QPainter painter(&pixmap);
 	QFont font("Trebuchet MS", 8);
@@ -207,9 +218,7 @@ int main(int argc, char *argv[])
 
 	app.processEvents();
 
-	QCoreApplication::setApplicationName("gix-ide");
-	QCoreApplication::setOrganizationName("MediumGray");
-    QCoreApplication::setApplicationVersion(getGixIdePrintableVersion());
+
 
 #ifdef Q_OS_MACOS
     QApplication::setStyle("macintosh");

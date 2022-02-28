@@ -59,7 +59,7 @@ int DbInterfaceMySQL::init(ILogger *_logger)
 	return DBERR_NO_ERROR;
 }
 
-int DbInterfaceMySQL::connect(IConnectionString *conn_string, int autocommit, string encoding)
+int DbInterfaceMySQL::connect(IDataSourceInfo *conn_string, int autocommit, string encoding)
 {
 	MYSQL *conn;
 	string connstr;
@@ -69,17 +69,20 @@ int DbInterfaceMySQL::connect(IConnectionString *conn_string, int autocommit, st
 	LOG_DEBUG(__FILE__, __func__, "connstring: %s - autocommit: %d - encoding: %s\n",
 		conn_string->get().c_str(), autocommit, encoding.c_str());
 
+	unsigned int port = conn_string->getPort() > 0 ? conn_string->getPort() : 3306;
 	conn = mysql_init(NULL);
 	conn = mysql_real_connect(conn, conn_string->getHost().c_str(), conn_string->getUsername().c_str(),
 		conn_string->getPassword().c_str(), conn_string->getDbName().c_str(),
-		conn_string->getPort(), NULL, 0); // CLIENT_MULTI_STATEMENTS?
+		port, NULL, 0); // CLIENT_MULTI_STATEMENTS?
 
 	if (conn == NULL) {
 		return DBERR_CONNECTION_FAILED;
 	}
 
-	string qenc = "SET NAMES " + encoding;
-	mysql_real_query(conn, qenc.c_str(), qenc.size());
+	if (!encoding.empty()) {
+		string qenc = "SET NAMES " + encoding;
+		mysql_real_query(conn, qenc.c_str(), qenc.size());
+	}
 
 	connaddr = conn;
 	cur_crsr.clear();
@@ -155,7 +158,7 @@ IConnection *DbInterfaceMySQL::get_owner()
 	return owner;
 }
 
-int DbInterfaceMySQL::_mysql_exec_params(ICursor *crsr, string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats, int resultFormat)
+int DbInterfaceMySQL::_mysql_exec_params(ICursor *crsr, string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats)
 {
 	string q = query;
 	MySQLCursorData *exec_data = NULL;
@@ -379,9 +382,9 @@ int DbInterfaceMySQL::exec(string query)
 }
 
 
-int DbInterfaceMySQL::exec_params(string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats, int resultFormat)
+int DbInterfaceMySQL::exec_params(string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats)
 {
-	return _mysql_exec_params(NULL, query, nParams, paramTypes, paramValues, paramLengths, paramFormats, resultFormat);
+	return _mysql_exec_params(NULL, query, nParams, paramTypes, paramValues, paramLengths, paramFormats);
 }
 
 
@@ -477,7 +480,7 @@ int DbInterfaceMySQL::cursor_open(ICursor *cursor)
 	if (cursor->getNumParams() > 0) {
 		vector<string> params = cursor->getParameterValues();
 
-		int rc = _mysql_exec_params(cursor, string(query), cursor->getNumParams(), NULL, params, NULL, NULL, 0);
+		int rc = _mysql_exec_params(cursor, string(query), cursor->getNumParams(), NULL, params, NULL, NULL);
 		return (rc == DBERR_NO_ERROR) ? DBERR_NO_ERROR : DBERR_OPEN_CURSOR_FAILED;
 	}
 	else {
@@ -537,17 +540,22 @@ int DbInterfaceMySQL::fetch_one(ICursor *cursor, int fetchmode)
 	return DBERR_NO_ERROR;
 }
 
-bool DbInterfaceMySQL::get_resultset_value(ICursor *cursor, int row, int col, char *bfr, int bfrlen)
+bool DbInterfaceMySQL::get_resultset_value(ICursor *cursor, int row, int col, char *bfr, int bfrlen, int *value_len)
 {
+	*value_len = 0;
+
 	MySQLCursorData *cursor_data = (MySQLCursorData *)((cursor != NULL) ? cursor->getPrivateData() : &cur_crsr);
 	if (col < cursor_data->data_buffers.size()) {
 		char *data = cursor_data->data_buffers.at(col);
-		int datalen = cursor_data->data_buffer_lengths.at(col);
+		unsigned long datalen = *(cursor_data->data_lengths.at(col));
 		if (datalen > bfrlen) {
-			LOG_ERROR("MySQL: WARNING : possible truncation error: needed %d bytes, %d allocated\n", datalen, bfrlen);
-			//return false;
+			LOG_ERROR("MySQL: ERROR: data truncated: needed %d bytes, %d allocated\n", datalen, bfrlen);	// was just a warning
+			return false;
 		}
+
 		strcpy(bfr, cursor_data->data_buffers.at(col));
+		*value_len = strlen(bfr);
+
 		return true;
 	}
 	else {
@@ -583,11 +591,13 @@ int DbInterfaceMySQL::move_to_first_record()
 		bound_res_col->buffer_type = MYSQL_TYPE_STRING;
 		bound_res_col->buffer = cursor_data->data_buffers.at(i);
 		bound_res_col->buffer_length = cursor_data->data_buffer_lengths.at(i) + 1;
+		bound_res_col->length = cursor_data->data_lengths.at(i);
 	}
 
 	int rc = mysql_stmt_bind_result(cursor_data->cursor_stmt, bound_res_cols);
 	if (rc) {
-		//fprintf(stderr, "%s\n", mysql_stmt_error(cur_stmt));
+		LOG_ERROR("MySQL: Error while binding resultset (%d) : %s\n", get_error_code(), get_error_message());
+		return DBERR_MOVE_TO_FIRST_FAILED;
 	}
 
 	last_rc = mysql_stmt_fetch(cursor_data->cursor_stmt);
@@ -652,6 +662,9 @@ bool MySQLCursorData::init()
 		char *bfr = (char *)calloc(len, 1);
 		data_buffers.push_back(bfr);
 		data_buffer_lengths.push_back(len);
+
+		unsigned long *dl = (unsigned long *)calloc(1, sizeof(int));
+		data_lengths.push_back(dl);
 	}
 
 	mysql_free_result(metadata);

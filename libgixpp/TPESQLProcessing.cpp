@@ -30,30 +30,32 @@ USA.
 #include <Windows.h>
 #endif
 
-
-#define ESQL_CONNECT				"CONNECT"
-#define ESQL_CONNECT_TO				"CONNECT_TO"
-#define ESQL_CLOSE					"CLOSE"
-#define ESQL_COMMIT					"COMMIT"
-#define ESQL_FETCH					"FETCH"
-#define ESQL_INCFILE				"INCFILE"
-#define ESQL_INCSQLCA				"INCSQLCA"
-#define ESQL_INSERT					"INSERT"
-#define ESQL_OPEN					"OPEN"
-#define ESQL_SELECT					"SELECT"
-#define ESQL_UPDATE					"UPDATE"
-#define ESQL_DELETE					"DELETE"
-#define ESQL_WORKING_BEGIN			"WORKING_BEGIN"
-#define ESQL_WORKING_END			"WORKING_END"
-#define ESQL_FILE_BEGIN				"FILE_BEGIN"
-#define ESQL_FILE_END				"FILE_END"
-#define ESQL_LINKAGE_BEGIN			"LINKAGE_BEGIN"
-#define ESQL_LINKAGE_END			"LINKAGE_END"
-#define ESQL_PROCEDURE_DIVISION		"PROCEDURE_DIVISION"
-#define ESQL_DECLARE_TABLE			"DECLARE_TABLE"
+#define ESQL_CONNECT					"CONNECT"
+#define ESQL_CONNECT_RESET				"CONNECT_RESET"
+#define ESQL_CLOSE						"CLOSE"
+#define ESQL_COMMIT						"COMMIT"
+#define ESQL_FETCH						"FETCH"
+#define ESQL_INCFILE					"INCFILE"
+#define ESQL_INCSQLCA					"INCSQLCA"
+#define ESQL_INSERT						"INSERT"
+#define ESQL_OPEN						"OPEN"
+#define ESQL_SELECT						"SELECT"
+#define ESQL_UPDATE						"UPDATE"
+#define ESQL_DELETE						"DELETE"
+#define ESQL_WORKING_BEGIN				"WORKING_BEGIN"
+#define ESQL_WORKING_END				"WORKING_END"
+#define ESQL_FILE_BEGIN					"FILE_BEGIN"
+#define ESQL_FILE_END					"FILE_END"
+#define ESQL_LINKAGE_BEGIN				"LINKAGE_BEGIN"
+#define ESQL_LINKAGE_END				"LINKAGE_END"
+#define ESQL_PROCEDURE_DIVISION			"PROCEDURE_DIVISION"
+#define ESQL_DECLARE_TABLE				"DECLARE_TABLE"
+#define ESQL_DECLARE_VAR				"DECLARE_VAR"
+#define ESQL_COMMENT					"COMMENT"
 
 #define AREA_B_PREFIX       "           " // 11 spaces
 #define AREA_B_CPREFIX      "GIXSQL     " // comment + 5 spaces
+#define TAB					"    "		  // 4 spaces
 
 #define PIC_ALPHABETIC 		0x01
 #define PIC_NUMERIC 		0x02
@@ -62,6 +64,7 @@ USA.
 
 #define CBL_FIELD_FLAG_NONE		(uint32_t)0x0
 #define CBL_FIELD_FLAG_VARLEN	(uint32_t)0x80
+#define CBL_FIELD_FLAG_BINARY	(uint32_t)0x100
 
 #define MAP_FILE_FMT_VER ((uint16_t) 0x0100)
 #define FLAG_M_BASE					0
@@ -86,10 +89,25 @@ USA.
 
 #define ERR_NOTDEF_CONVERSION -1
 
+// These must be in sync with the ones in SqlVar.h
+#define VARLEN_SUFFIX_DATA		"DATA"
+#define VARLEN_SUFFIX_LENGTH	"LENGTH"
+#ifdef USE_VARLEN_32
+#define VARLEN_LENGTH_PIC		"9(05) BINARY"
+#define VARLEN_LENGTH_SZ		4
+#define VARLEN_LENGTH_T			uint32_t
+#define VARLEN_BSWAP			COB_BSWAP_32
+#else
+#define VARLEN_LENGTH_PIC		"9(4) BINARY"
+#define VARLEN_LENGTH_SZ		2
+#define VARLEN_LENGTH_T			uint16_t
+#define VARLEN_BSWAP			COB_BSWAP_16
+#endif
+
 enum class ESQL_Command
 {
 	Connect,
-	ConnectTo,
+	ConnectReset,
 	Close,
 	Commit,
 	Fetch,
@@ -113,19 +131,26 @@ enum class ESQL_Command
 	StartSQL,
 	EndSQL,
 
+	// Fields declaration
+	DeclareVar,
+
+	// Comment code ranges
+	Comment,
+
 	Unknown
 };
 
 
 
-static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_TO, ESQL_Command::ConnectTo },{ ESQL_CLOSE, ESQL_Command::Close },
+static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_RESET, ESQL_Command::ConnectReset }, { ESQL_CLOSE, ESQL_Command::Close },
 												 { ESQL_COMMIT, ESQL_Command::Commit }, { ESQL_FETCH, ESQL_Command::Fetch },{ ESQL_DELETE, ESQL_Command::Delete },
 												 { ESQL_INCFILE, ESQL_Command::Incfile }, { ESQL_INCSQLCA, ESQL_Command::IncSQLCA }, { ESQL_INSERT, ESQL_Command::Insert },
 												 { ESQL_OPEN, ESQL_Command::Open }, { ESQL_SELECT, ESQL_Command::Select }, { ESQL_UPDATE, ESQL_Command::Update },
 												 { ESQL_WORKING_BEGIN, ESQL_Command::WorkingBegin }, { ESQL_WORKING_END, ESQL_Command::WorkingEnd } ,
 												 { ESQL_LINKAGE_BEGIN, ESQL_Command::LinkageBegin }, { ESQL_LINKAGE_END, ESQL_Command::WorkingEnd } ,
 												 { ESQL_FILE_BEGIN, ESQL_Command::FileBegin }, { ESQL_FILE_END, ESQL_Command::FileEnd } ,
-												 { ESQL_PROCEDURE_DIVISION, ESQL_Command::ProcedureDivision }, { ESQL_DECLARE_TABLE, ESQL_Command::DeclareTable } };
+												 { ESQL_PROCEDURE_DIVISION, ESQL_Command::ProcedureDivision }, { ESQL_DECLARE_TABLE, ESQL_Command::DeclareTable },
+												 { ESQL_DECLARE_VAR, ESQL_Command::DeclareVar }, { ESQL_COMMENT, ESQL_Command::Comment }};
 
 #define CALL_PREFIX	"GIXSQL"
 #define TAG_PREFIX	"GIXSQL"
@@ -144,6 +169,7 @@ TPESQLProcessing::TPESQLProcessing(GixPreProcessor *gpp) : ITransformationStep(g
 	opt_emit_compat = std::get<bool>(gpp->getOpt("emit_compat", false));
 	opt_consolidated_map = std::get<bool>(gpp->getOpt("consolidated_map", false));
 	opt_no_output = std::get<bool>(gpp->getOpt("no_output", false));
+	opt_emit_map_file = std::get<bool>(gpp->getOpt("emit_map_file", false));
 
 	output_line = 0;
 	working_begin_line = 0;
@@ -233,6 +259,10 @@ int TPESQLProcessing::outputESQL()
 
 	startup_items = cpplinq::from(*(main_module_driver.exec_list)).where([](cb_exec_sql_stmt_ptr p) { return p->startup_item != 0; }).to_vector();
 	process_sql_query_list();
+	if (!fixup_declared_vars()) {
+		return false;
+	}
+
 
 #if defined(_WIN32) && defined(_DEBUG)
 	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
@@ -247,7 +277,19 @@ int TPESQLProcessing::outputESQL()
 		return 1;
 
 	bool b1 = opt_no_output ? true : file_write_all_lines(output_file, output_lines);
-	bool b2 = opt_no_output ? build_map_data() : write_map_file(output_file);
+	bool b2;
+	if (opt_no_output) {
+		build_map_data();
+		b2 = true;
+	}
+	else {
+		if (opt_emit_map_file)
+			b2 = write_map_file(output_file);
+		else {
+			build_map_data();
+			b2 = true;
+		}
+	}
 
 	return (b1 && b2) ? 0 : 1;
 }
@@ -344,7 +386,7 @@ bool TPESQLProcessing::processNextFile()
 
 				// Add ESQL calls
 				if (!handle_esql_stmt(cmd, exec_sql_stmt, in_ws)) {
-					owner->err_data.err_messages.push_back(string_format("Unsupported ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
+					owner->err_data.err_messages.push_back(string_format("Error in ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
 					return false;
 				}
 		}
@@ -352,7 +394,7 @@ bool TPESQLProcessing::processNextFile()
 		// Special case
 		if (exec_sql_stmt->endLine == working_end_line) {
 			if (!handle_esql_stmt(ESQL_Command::WorkingEnd, find_esql_cmd(ESQL_WORKING_END, 0), 0)) {
-				owner->err_data.err_messages.push_back(string_format("Unsupported ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
+				owner->err_data.err_messages.push_back(string_format("Error in ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
 				return false;
 			}
 		}
@@ -458,34 +500,42 @@ bool TPESQLProcessing::put_cursor_declarations()
 
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
 
+				int flags = is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE;
+				flags |= (hr->usage == Usage::Binary) ? CBL_FIELD_FLAG_BINARY : CBL_FIELD_FLAG_NONE;
+
 				p_call.addParameter(f_type, BY_VALUE);
 				p_call.addParameter(f_size, BY_VALUE);
 				p_call.addParameter(f_scale, BY_VALUE);
-				p_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
+				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-				put_call(p_call, stmt->period);
+				if (!put_call(p_call, stmt->period))
+					return false;
 			}
 
 			ESQLCall cd_call(get_call_id("CursorDeclareParams"), emit_static);
 			cd_call.addParameter("SQLCA", BY_REFERENCE);
+			cd_call.addParameter(&main_module_driver, stmt->connectionId);
 			cd_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE); //& x\"00\"
 			cd_call.addParameter(std::to_string(stmt->cursor_hold ? 1 : 0), BY_VALUE);
 			cd_call.addParameter(stmt->sqlName, BY_REFERENCE); //& x\"00\"
 			cd_call.addParameter(std::to_string(stmt->host_list->size()), BY_VALUE);
 
-			put_call(cd_call, stmt->period);
+			if (!put_call(cd_call, stmt->period))
+				return false;
 
 			put_end_exec_sql(stmt->period);
 		}
 		else { // (struct sqlca_t *st, char *cname, int with_hold, char *_query)
 			ESQLCall cd_call(get_call_id("CursorDeclare"), emit_static);
 			cd_call.addParameter("SQLCA", BY_REFERENCE);
+			cd_call.addParameter(&main_module_driver, stmt->connectionId);
 			cd_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE);
 			cd_call.addParameter(stmt->cursor_hold, BY_VALUE);
 			cd_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 
-			put_call(cd_call, stmt->period);
+			if (!put_call(cd_call, stmt->period))
+				return false;
 		}
 	}
 
@@ -493,8 +543,13 @@ bool TPESQLProcessing::put_cursor_declarations()
 	return true;
 }
 
-void TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
+bool TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 {
+	if (c.hasError()) {
+		owner->err_data.err_messages.push_back(c.error());
+		return false;
+	}
+
 	auto lines = c.format();
 
 	if (terminate_with_period) {
@@ -504,6 +559,8 @@ void TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 	for (auto ln : lines) {
 		put_output_line(ln);
 	}
+
+	return true;
 }
 
 cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const std::string f1, int i)
@@ -607,35 +664,29 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 		}
 		break;
 
-
 		case ESQL_Command::Connect:
-		case ESQL_Command::ConnectTo:
 		{
 			ESQLCall connect_call(get_call_id("Connect"), emit_static);
 			connect_call.addParameter("SQLCA", BY_REFERENCE);
 
-			if (main_module_driver.field_map.find(stmt->host_list->at(0)->hostreference.substr(1)) == main_module_driver.field_map.end()) {
-				owner->err_data.err_messages.push_back("Cannot find host variable: " + stmt->host_list->at(0)->hostreference.substr(1));
+			connect_call.addParameter(&main_module_driver, stmt->conninfo->data_source);
+			connect_call.addParameter(&main_module_driver, stmt->conninfo->id);
+			connect_call.addParameter(&main_module_driver, stmt->conninfo->username);
+			connect_call.addParameter(&main_module_driver, stmt->conninfo->password);
+			
+			if (!put_call(connect_call, stmt->period))
 				return false;
-			}
-			connect_call.addParameter(stmt->host_list->at(0)->hostreference.substr(1), BY_REFERENCE);
-			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(0)->hostreference.substr(1)]->picnsize, BY_VALUE);
+		}
+		break;
 
-			if (main_module_driver.field_map.find(stmt->host_list->at(1)->hostreference.substr(1)) == main_module_driver.field_map.end()) {
-				owner->err_data.err_messages.push_back("Cannot find host variable: " + stmt->host_list->at(1)->hostreference.substr(1));
+		case ESQL_Command::ConnectReset:
+		{
+			ESQLCall connect_call(get_call_id("ConnectReset"), emit_static);
+			connect_call.addParameter("SQLCA", BY_REFERENCE);
+			connect_call.addParameter(&main_module_driver, stmt->connectionId);
+
+			if (!put_call(connect_call, stmt->period))
 				return false;
-			}
-			connect_call.addParameter(stmt->host_list->at(1)->hostreference.substr(1), BY_REFERENCE);
-			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(1)->hostreference.substr(1)]->picnsize, BY_VALUE);
-
-			if (main_module_driver.field_map.find(stmt->host_list->at(2)->hostreference.substr(1)) == main_module_driver.field_map.end()) {
-				owner->err_data.err_messages.push_back("Cannot find host variable: " + stmt->host_list->at(2)->hostreference.substr(1));
-				return false;
-			}
-			connect_call.addParameter(stmt->host_list->at(2)->hostreference.substr(1), BY_REFERENCE);
-			connect_call.addParameter(main_module_driver.field_map[stmt->host_list->at(2)->hostreference.substr(1)]->picnsize, BY_VALUE);
-
-			put_call(connect_call, stmt->period);
 		}
 		break;
 
@@ -652,17 +703,27 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			put_start_exec_sql(stmt->period);
 			for (cb_res_hostreference_ptr rp : *stmt->res_host_list) {
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
+
+				if (main_module_driver.field_map.find(rp->hostreference.substr(1)) == main_module_driver.field_map.end()) {
+					owner->err_data.err_messages.push_back("Cannot find host variable: " + rp->hostreference.substr(1));
+					return false;
+				}
+
 				cb_field_ptr hr = main_module_driver.field_map[rp->hostreference.substr(1)];
 
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
 
+				int flags = is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE;
+				flags |= (hr->usage == Usage::Binary) ? CBL_FIELD_FLAG_BINARY : CBL_FIELD_FLAG_NONE;
+
 				rp_call.addParameter(f_type, BY_VALUE);
 				rp_call.addParameter(f_size, BY_VALUE);
 				rp_call.addParameter(f_scale, BY_VALUE);
-				rp_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
+				rp_call.addParameter(flags, BY_VALUE);
 				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
-				put_call(rp_call, stmt->period);
+				if (!put_call(rp_call, stmt->period))
+					return false;
 			}
 
 			for (cb_hostreference_ptr p : *stmt->host_list) {
@@ -677,13 +738,17 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
 
+				int flags = is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE;
+				flags |= (hr->usage == Usage::Binary) ? CBL_FIELD_FLAG_BINARY : CBL_FIELD_FLAG_NONE;
+
 				p_call.addParameter(f_type, BY_VALUE);
 				p_call.addParameter(f_size, BY_VALUE);
 				p_call.addParameter(f_scale, BY_VALUE);
-				p_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
+				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-				put_call(p_call, stmt->period);
+				if (!put_call(p_call, stmt->period))
+					return false;
 			}
 
 			std::string call_id;
@@ -699,18 +764,23 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			if (stmt->cursorName.empty()) {
 				ESQLCall select_call(call_id, emit_static);
 				select_call.addParameter("SQLCA", BY_REFERENCE);
+				select_call.addParameter(&main_module_driver, stmt->connectionId);
 				select_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 				select_call.addParameter(stmt->host_list->size(), BY_VALUE);
 				select_call.addParameter(stmt->res_host_list->size(), BY_VALUE);
-				put_call(select_call, stmt->period);
+				if (!put_call(select_call, stmt->period))
+					return false;
 			}
 			else {
 				ESQLCall select_call(call_id, emit_static);
 				select_call.addParameter("SQLCA", BY_REFERENCE);
+				select_call.addParameter(&main_module_driver, stmt->connectionId);
 				select_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE);
 				select_call.addParameter(stmt->cursor_hold, BY_VALUE);
 				select_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
-				put_call(select_call, stmt->period);
+				
+				if (!put_call(select_call, stmt->period))
+					return false;
 			}
 			put_end_exec_sql(stmt->period);
 		}
@@ -722,7 +792,9 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			ESQLCall open_call(get_call_id("CursorOpen"), emit_static);
 			open_call.addParameter("SQLCA", BY_REFERENCE);
 			open_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
-			put_call(open_call, stmt->period);
+			
+			if (!put_call(open_call, stmt->period))
+				return false;
 		}
 		break;
 
@@ -732,7 +804,9 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			ESQLCall close_call(get_call_id("CursorClose"), emit_static);
 			close_call.addParameter("SQLCA", BY_REFERENCE);
 			close_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
-			put_call(close_call, stmt->period);
+			
+			if (!put_call(close_call, stmt->period))
+				return false;
 		}
 		break;
 
@@ -749,20 +823,27 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
 
+				int flags = is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE;
+				flags |= (hr->usage == Usage::Binary) ? CBL_FIELD_FLAG_BINARY : CBL_FIELD_FLAG_NONE;
+
 				rp_call.addParameter(f_type, BY_VALUE);
 				rp_call.addParameter(f_size, BY_VALUE);
 				rp_call.addParameter(f_scale, BY_VALUE);
-				rp_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
+				rp_call.addParameter(flags, BY_VALUE);
 				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
-				put_call(rp_call, stmt->period);
+				if (!put_call(rp_call, stmt->period))
+					return false;
 			}
 
 			std::string cursor_id = stmt->cursorName;
 			ESQLCall fetch_call(get_call_id("CursorFetchOne"), emit_static);
 			fetch_call.addParameter("SQLCA", BY_REFERENCE);
 			fetch_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
-			put_call(fetch_call, stmt->period);
+			
+			if (!put_call(fetch_call, stmt->period))
+				return false;
+			
 			put_end_exec_sql(stmt->period);
 		}
 		break;
@@ -772,8 +853,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			put_start_exec_sql(stmt->period);
 			ESQLCall fetch_call(get_call_id("Exec"), emit_static);
 			fetch_call.addParameter("SQLCA", BY_REFERENCE);
+			fetch_call.addParameter(&main_module_driver, stmt->connectionId);
 			fetch_call.addParameter("\"COMMIT\" & x\"00\"", BY_REFERENCE);
-			put_call(fetch_call, stmt->period);
+			
+			if (!put_call(fetch_call, stmt->period))
+				return false;
+			
 			put_end_exec_sql(stmt->period);
 		}
 		break;
@@ -790,27 +875,101 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 					owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
 					return false;
 				}
+
 				cb_field_ptr hr = main_module_driver.field_map[p->hostreference.substr(1)];
+
 				bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
+
+				int flags = is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE;
+				flags |= (hr->usage == Usage::Binary) ? CBL_FIELD_FLAG_BINARY : CBL_FIELD_FLAG_NONE;
 
 				p_call.addParameter(f_type, BY_VALUE);
 				p_call.addParameter(f_size, BY_VALUE);
 				p_call.addParameter(f_scale, BY_VALUE);
-				p_call.addParameter(is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE, BY_VALUE);
+				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-				put_call(p_call, stmt->period);
+				if (!put_call(p_call, stmt->period))
+					return false;
 			}
 
 			ESQLCall dml_call(get_call_id(stmt->host_list->size() == 0 ? "Exec" : "ExecParams"), emit_static);
 			dml_call.addParameter("SQLCA", BY_REFERENCE);
+			dml_call.addParameter(&main_module_driver, stmt->connectionId);
 			dml_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 			dml_call.addParameter(stmt->host_list->size(), BY_VALUE);
-			put_call(dml_call, stmt->period);
+			
+			if  (!put_call(dml_call, stmt->period))
+				return false;
+			
 			put_end_exec_sql(stmt->period);
 		}
 		break;
 
+		case ESQL_Command::DeclareVar:
+			{		
+				if (stmt->host_list->size() != 1) {
+					owner->err_data.err_messages.push_back("Cannot find host variable (invalid declaration)");
+					return false;
+				}
+
+				std::string var_name = stmt->host_list->at(0)->hostreference; 
+				if (main_module_driver.field_map.find(var_name) == main_module_driver.field_map.end()) {
+					owner->err_data.err_messages.push_back("Cannot find host variable: " + var_name);
+					return false;
+				}
+
+				cb_field_ptr var = main_module_driver.field_map[var_name];
+				if (var->level != 1) {
+					owner->err_data.err_messages.push_back(string_format("Invalid level for SQL variable, it is %02d, should be 01", var->level));
+					return false;
+				}
+
+				if (!var->is_varlen) {
+					put_output_line(AREA_B_CPREFIX + string_format("01 %s PIC X(%d).", var->sname, var->picnsize));
+
+					cb_field_ptr fdata = new cb_field_t();
+					fdata->level = 1;
+					fdata->sname = var->sname;
+					fdata->pictype = var->pictype != -1 ? var->pictype : (IS_NUMERIC(var->sql_type) ? PIC_NUMERIC : PIC_ALPHANUMERIC);
+					fdata->usage = var->usage;
+					fdata->picnsize = var->picnsize;
+					fdata->scale = var->scale;
+					fdata->parent = nullptr;
+					main_module_driver.field_map[fdata->sname] = fdata;
+				}
+				else {
+					put_output_line(AREA_B_CPREFIX + string_format("01 %s.", var->sname));
+					put_output_line(AREA_B_CPREFIX + string_format("    49 %s-%s PIC %s.", var->sname, VARLEN_SUFFIX_LENGTH, VARLEN_LENGTH_PIC));
+					put_output_line(AREA_B_CPREFIX + string_format("    49 %s-%s PIC X(%d).", var->sname, VARLEN_SUFFIX_DATA, var->picnsize));
+
+					cb_field_ptr flength = new cb_field_t();
+					flength->level = 49;
+					flength->sname = var->sname + "-" + VARLEN_SUFFIX_LENGTH;
+					flength->pictype = PIC_NUMERIC;
+					flength->usage = var->usage;
+					flength->picnsize = 5;
+					flength->parent = var;
+					var->children = flength;
+
+					cb_field_ptr fdata = new cb_field_t();
+					fdata->level = 49;
+					fdata->sname = var->sname + "-" + VARLEN_SUFFIX_DATA;
+					fdata->pictype = PIC_ALPHANUMERIC;
+					fdata->usage = Usage::None;
+					fdata->picnsize = var->picnsize;
+					fdata->parent = var;
+					var->children->sister = fdata;
+
+					main_module_driver.field_map[flength->sname] = flength;
+					main_module_driver.field_map[fdata->sname] = fdata;
+				}
+			}
+			break;
+
+		case ESQL_Command::Comment:
+			/* Do nothing */
+			break;
 
 		default:
 		{
@@ -818,8 +977,11 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			//return false;
 			ESQLCall exec_call(get_call_id("Exec"), emit_static);
 			exec_call.addParameter("SQLCA", BY_REFERENCE);
+			exec_call.addParameter(&main_module_driver, stmt->connectionId);
 			exec_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
-			put_call(exec_call, stmt->period);
+			
+			if (!put_call(exec_call, stmt->period))
+				return false;
 		}
 		break;
 
@@ -973,19 +1135,27 @@ int gethostvarianttype(cb_field_ptr p, int *type)
 bool TPESQLProcessing::get_actual_field_data(cb_field_ptr f, int *type, int *size, int *scale)
 {
 	bool is_varlen = is_var_len_group(f);
-	if (!is_varlen) {
+	bool is_implicit_varlen = f->is_varlen;
+
+	if (!is_varlen && !is_implicit_varlen) {
 		gethostvarianttype(f, type);
 		//*type = f->pictype;
 		*size = f->picnsize;
 		*scale = f->scale;
 	}
 	else {
-		std::string f_name = f->children->sister->sname;
-		cb_field_ptr f_actual = main_module_driver.field_map[f_name];
+		std::string f_actual_name;
+		if (is_varlen) {
+			f_actual_name = f->children->sister->sname;
 
+		}
+		else {	// is_implicit_varlen
+			f_actual_name = f->sname + "-" + VARLEN_SUFFIX_DATA;
+		}
+
+		cb_field_ptr f_actual = main_module_driver.field_map[f_actual_name];
 		gethostvarianttype(f_actual, type);
-		//*type = f_actual->pictype;
-		*size = f_actual->picnsize + 2;
+		*size = f_actual->picnsize + VARLEN_LENGTH_SZ;
 		*scale = f_actual->scale;
 	}
 	return is_varlen;
@@ -999,6 +1169,55 @@ void TPESQLProcessing::process_sql_query_list()
 			ws_query_list.push_back(sql);
 		}
 	}
+}
+
+bool TPESQLProcessing::fixup_declared_vars()
+{
+	int n = 99999;
+	for (auto it = main_module_driver.field_sql_type_info.begin(); it != main_module_driver.field_sql_type_info.end(); ++it) {
+		std::string var_name = it->first;
+		std::tuple<uint64_t, int, int> d = it->second;
+		uint64_t sql_type = std::get<0>(d);
+		int orig_start_line = std::get<1>(d);
+		int orig_end_line = std::get<2>(d);
+
+		if (main_module_driver.field_map.find(var_name) == main_module_driver.field_map.end()) {
+			owner->err_data.err_messages.push_back("Cannot find host variable: " + var_name);
+			return false;
+		}
+
+		auto var = main_module_driver.field_map[var_name];
+		if (var->level != 1) {
+			std::string msg = string_format("Host variable %s has level %02d, should be 01", var_name, var->level);
+			owner->err_data.err_messages.push_back(msg);
+			return false;
+		}
+
+		var->sql_type = sql_type;
+		var->is_varlen = IS_VARLEN(sql_type >> 32);
+		var->usage = IS_BINARY(sql_type >> 32) ? Usage::Binary : Usage::None;
+
+		cb_exec_sql_stmt_ptr stmt = new cb_exec_sql_stmt_t();
+		stmt->commandName = ESQL_DECLARE_VAR;
+		stmt->src_file = filename_clean_path(var->defined_at_source_file);
+		stmt->startLine = var->defined_at_source_line;
+		stmt->endLine = var->defined_at_source_line;
+		cb_hostreference_ptr p = new cb_hostreference_t();
+		p->hostno = n++;
+		p->hostreference = var_name;
+		p->lineno = var->defined_at_source_line;
+		stmt->host_list->push_back(p);
+		main_module_driver.exec_list->push_back(stmt);
+
+		stmt = new cb_exec_sql_stmt_t();
+		stmt->commandName = ESQL_COMMENT;
+		stmt->src_file = filename_clean_path(var->defined_at_source_file);
+		stmt->startLine = orig_start_line;
+		stmt->endLine = orig_end_line;
+		main_module_driver.exec_list->push_back(stmt);
+	}
+
+	return true;
 }
 
 std::map<uint64_t, uint64_t> &TPESQLProcessing::getBinarySrcLineMap() const

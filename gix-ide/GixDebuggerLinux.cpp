@@ -48,6 +48,9 @@ USA.
 #include <sys/prctl.h>
 #include <sys/uio.h>
 
+#undef GIX_DBGR_USES_DOUBLEFORK
+#define LOG_DEBUG(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
+
 bool single_step = false;
 QString last_source_file;
 int last_source_line = 0;
@@ -150,6 +153,18 @@ int GixDebuggerLinux::start()
 
     uint64_t pid;
     _DBG_OUT("Starting process\n");
+    
+    if (is_debugging_enabled) {
+        auto fd = open(this->exepath.toLocal8Bit().data(), O_RDONLY);
+        m_elf = elf::elf{ elf::create_mmap_loader(fd) };
+    
+        sym_provider = new DwarfSymbolProvider();
+        sym_provider->initialize(this, NULL, NULL);
+    
+        if_blk->debuggerMessage(this, "Symbols loaded\n", 0);
+        _DBG_OUT("Symbols loaded\n");
+    }
+    
     if (process.start(&pid)) {
         m_pid = pid;
 
@@ -171,14 +186,7 @@ int GixDebuggerLinux::start()
         _DBG_OUT("Process started (%d)\n", m_pid);
 
         if (is_debugging_enabled) {
-            auto fd = open(this->exepath.toLocal8Bit().data(), O_RDONLY);
-            m_elf = elf::elf{ elf::create_mmap_loader(fd) };
 
-            sym_provider = new DwarfSymbolProvider();
-            sym_provider->initialize(this, NULL, NULL);
-
-            if_blk->debuggerMessage(this, "Symbols loaded\n", 0);
-            _DBG_OUT("Symbols loaded\n");
 
 //            initialise_load_address();
 
@@ -283,11 +291,11 @@ bool GixDebuggerLinux::getVariables(QList<VariableData *> var_list)
                 VariableResolverData *vrootvar = current_cbl_module->locals[vrd->base_var_name];
 
                 uint64_t addr = (uint64_t)sym_provider->resolveLocalVariableAddress(this, (void *)m_pid, current_cbl_module, m_load_address, vrootvar, vrd);
-
-                vd->data = new uint8_t[vrd->storage_size];
+                
                 vd->resolver_data = vrd;
-
-                memset(vd->data, 0x00, vrd->storage_size);
+                          
+                vd->data = new uint8_t[vrd->storage_size];
+                memset(vd->data, 0x00, vrd->storage_size);      
 
                 if (!readProcessMemory((void *)addr, vd->data, vrd->storage_size)) {
                     this->printLastError();
@@ -295,8 +303,11 @@ bool GixDebuggerLinux::getVariables(QList<VariableData *> var_list)
                 }
 
 #if _DEBUG
-                vd->data[vrd->storage_size - 1] = 0;
-                _DBG_OUT("%s : [%s]\n", vd->var_name.toLocal8Bit().constData(), vd->data);
+                char *_bfr = new char[vrd->storage_size + 1];
+                memcpy(_bfr, vd->data, vrd->storage_size);
+                _bfr[vrd->storage_size] = 0;
+                _DBG_OUT("%s : [%s]\n", vd->var_name.toLocal8Bit().constData(), _bfr);
+                delete[] _bfr;
 #endif
             }
         }
@@ -887,4 +898,5 @@ bool LinuxUserBreakpoint::uninstall()
     _DBG_OUT("Removing breakpoint at %p - old data: %p, new data : %p, orig_instr: %02x\n", this->address, data, restored_data, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, restored_data);
     this->orig_instr = 0x00;
+    return true;
 }

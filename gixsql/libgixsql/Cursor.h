@@ -41,10 +41,12 @@ public:
 
 	// ICursor
 	void setConnection(IConnection *) override;
+	void setConnectionName(std::string) override;
 	void setName(std::string) override;
 	void setQuery(std::string) override;
 	void setNumParams(int) override;
 	IConnection *getConnection() override;
+	std::string getConnectionName() override;
 	std::string getName() override;
 	std::string getQuery() override;
 	int getNumParams() override;
@@ -70,6 +72,7 @@ public:
 private:
 
 	Connection *connection; // connection id
+	std::string connection_name; // default NULL
 	std::string name; // default NULL
 	std::string query; // default NULL
 	int nParams; // params for query

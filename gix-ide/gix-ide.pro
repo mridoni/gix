@@ -15,7 +15,8 @@ linux:QMAKE_LFLAGS_DEBUG += -rdynamic
 linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
 linux:QMAKE_LFLAGS_RELEASE+= 
 linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
-linux:DEFINES += QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _GCDEBUGGER_NET_DEBUG _DEBUG
+linux:DEFINES += QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB
+linux:DEFINES_DEBUG += _GCDEBUGGER_NET_DEBUG _DEBUG
 linux:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEditBase ../libs/scintilla/qt/ScintillaEdit ../gixsql/libgixsql /usr/include/libdwarf /usr/include/libelfin
 linux:LIBPATH += ../libs/scintilla/src/scintilla/bin $(DESTDIR) 
 linux:LIBS += -lScintillaEdit -L$(DESTDIR) -lgix-common -lgixsql -ldwarf -ldwarf++ -lelf++ -lqtermwidget5

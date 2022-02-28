@@ -65,7 +65,9 @@ static struct sqlca_t sqlca_init =
 	{
 		0,
 		{
-			0
+			' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',
+			' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',
+			' ',' ',' ',' ',' ',' ',' ',' ',' ',' '
 		}
 	},
 
@@ -102,15 +104,14 @@ static struct sqlca_t sqlca_init =
 #define RESULT_SUCCESS	0
 #define RESULT_FAILED	1
 
-#define GIXSQL_DEFAULT_DBNAME "OCDB_DEFAULT_DBNAME"
-#define GIXSQL_DEFAULT_DBLENG strlen(GIXSQL_DEFAULT_DBNAME)
-
 //#define GIXSQL_USE_DEFAULT_CONNECTION -999
 
 // autocommit
-#define OCDB_AUTOCOMMIT_OFF 0
-#define OCDB_AUTOCOMMIT_ON 1
-#define OCDB_AUTOCOMMIT_DEFAULT OCDB_AUTOCOMMIT_OFF
+#define GIXSQL_AUTOCOMMIT_OFF false
+#define GIXSQL_AUTOCOMMIT_ON  true
+#define GIXSQL_AUTOCOMMIT_DEFAULT GIXSQL_AUTOCOMMIT_OFF
+
+#define GIXSQL_CLIENT_ENCODING_DEFAULT ""
 
 #if defined(_WIN32) || defined(_WIN64)
 #define LIBGIXSQL_API __declspec(dllexport)   
@@ -119,16 +120,19 @@ static struct sqlca_t sqlca_init =
 #endif  
 
 extern "C" {
-	LIBGIXSQL_API int GIXSQLConnect(struct sqlca_t* st, char* user, int userlen, char* passwd, int passwdlen, char* name, int namelen);
-	LIBGIXSQL_API int GIXSQLConnectReset(struct sqlca_t *);
-	LIBGIXSQL_API int GIXSQLDisconnect(struct sqlca_t *);
+	//LIBGIXSQL_API int GIXSQLConnect(struct sqlca_t* st, char* user, int userlen, char* passwd, int passwdlen, char* name, int namelen);
+	LIBGIXSQL_API int GIXSQLConnect(struct sqlca_t *st, void *d_data_source, int data_source_tl, void *d_connection_id, int connection_id_tl,
+										void *d_username, int username_tl, void *d_password, int password_tl);
 
-	LIBGIXSQL_API int GIXSQLExec(struct sqlca_t *, char *);
-	LIBGIXSQL_API int GIXSQLExecParams(struct sqlca_t *, char *, int);
-	LIBGIXSQL_API int GIXSQLExecSelectIntoOne(struct sqlca_t *, char *, int, int);
+	LIBGIXSQL_API int GIXSQLConnectReset(struct sqlca_t *, void *d_connection_id, int connection_id_tl);
+	LIBGIXSQL_API int GIXSQLDisconnect(struct sqlca_t *, void *d_connection_id, int connection_id_tl);
 
-	LIBGIXSQL_API int GIXSQLCursorDeclare(struct sqlca_t *, char *, int, char *);
-	LIBGIXSQL_API int GIXSQLCursorDeclareParams(struct sqlca_t* st, char* cname, int with_hold, char* _query, int nParams);
+	LIBGIXSQL_API int GIXSQLExec(struct sqlca_t *, void *d_connection_id, int connection_id_tl, char *);
+	LIBGIXSQL_API int GIXSQLExecParams(struct sqlca_t *, void *d_connection_id, int connection_id_tl, char *, int);
+	LIBGIXSQL_API int GIXSQLExecSelectIntoOne(struct sqlca_t *, void *d_connection_id, int connection_id_tl, char *, int, int);
+
+	LIBGIXSQL_API int GIXSQLCursorDeclare(struct sqlca_t *, void *d_connection_id, int connection_id_tl, char *, int, char *);
+	LIBGIXSQL_API int GIXSQLCursorDeclareParams(struct sqlca_t* st, void *d_connection_id, int connection_id_tl, char* cname, int with_hold, char* _query, int nParams);
 	LIBGIXSQL_API int GIXSQLCursorOpen(struct sqlca_t *, char *);
 	LIBGIXSQL_API int GIXSQLCursorFetchOne(struct sqlca_t *, char *);
 	LIBGIXSQL_API int GIXSQLCursorClose(struct sqlca_t *, char *);

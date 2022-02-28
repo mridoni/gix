@@ -25,7 +25,7 @@ USA.
 #include <QTreeWidget>
 
 #include "IdeStatus.h"
-//#include "IConnectionString.h"
+//#include "IDataSourceInfo.h"
 //#include "DbConnection.h"
 #include "MainWindow.h"
 //#include "DbCodeGenerator.h"

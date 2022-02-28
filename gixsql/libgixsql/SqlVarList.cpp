@@ -39,13 +39,7 @@ SqlVarList::~SqlVarList()
 
 SqlVar * SqlVarList::AddVar(int type, int length, int power, uint32_t flags, void *addr)
 {
-	SqlVar * v = new SqlVar();
-
-	v->setType(type);
-	v->setLength(length);
-	v->setPower(power);
-	v->setAddr(addr);
-	v->setFlags(flags);
+	SqlVar * v = new SqlVar(type, length, power, flags, addr);
 
 	v->createRealData();
 

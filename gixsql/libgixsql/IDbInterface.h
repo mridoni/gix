@@ -26,7 +26,7 @@ USA.
 #include "ICursor.h"
 #include "ILogger.h"
 #include "IConnection.h"
-#include "IConnectionString.h"
+#include "IDataSourceInfo.h"
 #include "IDbManagerInterface.h"
 
 
@@ -66,7 +66,7 @@ USA.
 #define FETCH_PREV_ROW	2
 #define FETCH_CUR_ROW	3
 
-class IConnectionString;
+class IDataSourceInfo;
 class IConnection;
 class ICursor;
 
@@ -74,19 +74,19 @@ class IDbInterface
 {
 public:
 	virtual int init(ILogger *) = 0;
-	virtual int connect(IConnectionString *, int, std::string) = 0;
+	virtual int connect(IDataSourceInfo *, int, std::string) = 0;
 	virtual int reset() = 0;
 	virtual int terminate_connection() = 0;
 	virtual int begin_transaction() = 0;
 	virtual int end_transaction(std::string) = 0;
 	virtual int exec(std::string) = 0;
-	virtual int exec_params(std::string, int, int *, std::vector<std::string>&, int *, int *, int) = 0;
+	virtual int exec_params(std::string query, int nParams, int *paramTypes, std::vector<std::string> &paramValues, int *paramLengths, int *paramFormats) = 0;
 	virtual int close_cursor(ICursor *) = 0;
 	virtual int cursor_declare(ICursor *, bool, int) = 0;
 	virtual int cursor_declare_with_params(ICursor *, char **, bool, int) = 0;
 	virtual int cursor_open(ICursor *) = 0;
 	virtual int fetch_one(ICursor *, int) = 0;
-	virtual bool get_resultset_value(ICursor *, int, int, char* bfr, int bfrlen) = 0;
+	virtual bool get_resultset_value(ICursor *, int, int, char* bfr, int bfrlen, int *value_len) = 0;
 	virtual int move_to_first_record() = 0;
 	virtual int supports_num_rows() = 0;
 	virtual int get_num_rows() = 0;

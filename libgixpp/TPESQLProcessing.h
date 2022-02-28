@@ -69,6 +69,7 @@ private:
 	bool opt_emit_compat;
 	bool opt_consolidated_map;
 	bool opt_no_output;
+	bool opt_emit_map_file;
 
 	gix_esql_driver main_module_driver;
 
@@ -101,11 +102,12 @@ private:
 	void put_query_defs();
 	void put_working_storage();
 	bool put_cursor_declarations();
-	void put_call(const ESQLCall &call, bool terminate_with_period);
+	bool put_call(const ESQLCall &call, bool terminate_with_period);
 
 	bool is_var_len_group(cb_field_ptr f);
 	bool get_actual_field_data(cb_field_ptr f, int *type, int *size, int *scale);
 	void process_sql_query_list();
+	bool fixup_declared_vars();
 
 	bool write_map_file(const std::string &preprocd_file);
 	bool build_map_data();

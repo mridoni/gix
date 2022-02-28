@@ -39,6 +39,30 @@ void ESQLCall::addParameter(std::string value, bool by_reference)
 	params.push_back({ value, by_reference });
 }
 
+void ESQLCall::addParameter(gix_esql_driver *driver, hostref_or_literal_t *p)
+{
+	if (!p || !p->is_set) {
+		addParameter("x\"00\"", BY_REFERENCE);
+		addParameter(0, BY_VALUE);
+		return;
+	}
+
+	if (p->is_literal) {
+		addParameter("\"" + p->name + "\" & x\"00\"", BY_REFERENCE);
+		addParameter(0, BY_VALUE);
+	}
+	else {
+		if (!map_contains<std::string, cb_field_ptr>(driver->field_map, p->name.substr(1)) || !driver->field_map[p->name.substr(1)]) {
+			this->error_msg = "Invalid or undefined parameter name: " + p->name.substr(1);
+			this->has_error = true;
+			return;
+		}
+		addParameter(p->name.substr(1), BY_REFERENCE);
+		addParameter(driver->field_map[p->name.substr(1)]->picnsize, BY_VALUE);
+	}
+
+}
+
 void ESQLCall::addParameter(int value, bool by_reference)
 {
 	params.push_back({ std::to_string(value), by_reference });
@@ -58,5 +82,15 @@ std::vector<std::string> ESQLCall::format() const
 	res.push_back(lp + std::string("END-CALL"));
 
 	return res;
+}
+
+std::string ESQLCall::error() const
+{
+	return error_msg;
+}
+
+bool ESQLCall::hasError() const
+{
+	return has_error;
 }
 

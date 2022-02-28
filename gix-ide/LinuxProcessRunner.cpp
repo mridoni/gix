@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
 #include <signal.h>
@@ -18,8 +19,10 @@
 #include <sys/param.h>
 #include <sys/ptrace.h>
 
+#undef GIX_DBGR_USES_DOUBLEFORK
+#define LOG_DEBUG(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
+
 #define LIBSTDBUF   "/usr/lib/x86_64-linux-gnu/coreutils/libstdbuf.so"
-#define GIXDBGHELPER   "/home/marchetto/gix-ide/deploy/examples/webtest001/bin/debug/x64/gixdbghelper.so"
 
 pid_t find_pid(QString prgname, QString astring);
 
@@ -222,16 +225,19 @@ bool LinuxProcessRunner::start(uint64_t *pid)
 #else
 bool LinuxProcessRunner::start(uint64_t *pid)
 {
-//    if (QFile::exists(LIBSTDBUF)) {
-//        environment.append(QString("LD_PRELOAD=%1").arg(LIBSTDBUF));
-//        environment.append("_STDBUF_O=0");
-//    }
+#if 0
+    if (QFile::exists(LIBSTDBUF)) {
+        environment.append(QString("LD_PRELOAD=%1").arg(LIBSTDBUF));
+        environment.append("_STDBUF_O=0");
+    }
 
-//    environment.append(QString("LD_PRELOAD=%1").arg(GIXDBGHELPER));
+    environment.append(QString("LD_PRELOAD=%1").arg(GIXDBGHELPER));
+#endif
 
     pid_t childPid = fork();
 
     if (childPid == 0) {
+        // we are in the child process
         char *progname = strdup(this->program_name.toLocal8Bit().data());
 
         // arguments
@@ -275,7 +281,7 @@ bool LinuxProcessRunner::start(uint64_t *pid)
         //chdir(working_dir.toLocal8Bit().data());
 
         ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-//        raise(SIGSTOP);
+        kill(getpid(), SIGSTOP);
         execve(progname, argv, env);
 
         _DBG_OUT("ERROR: %d\n", errno);
@@ -285,10 +291,12 @@ bool LinuxProcessRunner::start(uint64_t *pid)
     }
 
     if (childPid == -1) {
+        // fork error
         *pid = 0;
         return false;
     }
     else {
+        // parent process
         *pid = childPid;
         return true;
     }

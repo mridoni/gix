@@ -330,10 +330,11 @@ std::string lpad(const std::string &s, int len)
 std::string rpad(const std::string &s, int len)
 {
 	std::string s1 = s;
+	int ll = len - s1.size();
 	if (s1.size() >= len)
 		return s1;
 
-	for (int i = 0; i < len - s1.size(); i++)
+	for (int i = 0; i < ll; i++)
 		s1 = s1 + ' ';
 
 	return s1;
