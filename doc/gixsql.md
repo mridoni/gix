@@ -152,6 +152,12 @@ Driver options are passed in the connection string, e.g.:
 
 For "binary" options you can use either on/off or 1/0 to enable or disable them.
 
+
+### Logging
+
+In case of errors or to log what is happening you may want to enable logging using the environment variables `GIXSQL_DEBUG_LOG-ON=1` (which defaults to 0=OFF) and `GIXSQL_DEBUG_LOG` (defaults to "gixsql.log" in your temp directory).
+
+
 ### Examples
 
 You can find a sample project collection for GixSQL (TEST001.gix) in the folder `%USERPROFILE%\Documents\Gix\Examples` (`$HOME/Documents/gix/examples` on GNU/Linux) that should have been created when you installed Gix-IDE.  
