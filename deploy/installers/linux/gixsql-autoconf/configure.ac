@@ -23,12 +23,6 @@ AC_PROG_LEX
 LT_INIT
 AC_SUBST([LIBTOOL_DEPS])
 
-# Checks for libraries.
-PKG_PROG_PKG_CONFIG
-PKG_CHECK_MODULES([MYSQLCLIENT], [mysqlclient])
-PKG_CHECK_MODULES([ODBC], [odbc])
-PKG_CHECK_MODULES([LIBPQ], [libpq])
-
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h malloc.h stdint.h stdlib.h string.h unistd.h])
 
@@ -46,6 +40,9 @@ AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
+# Checks for libraries.
+PKG_PROG_PKG_CONFIG
+
 AC_ARG_ENABLE([mysql],
   [AS_HELP_STRING([--disable-mysql], [Enable MySQL support @<:@yes@:>@])],
   [:],
@@ -62,7 +59,7 @@ AC_ARG_ENABLE([pgsql],
   [enable_pgsql=yes])
 
 AS_IF([test "$enable_mysql" != "no"],
-  [PKG_CHECK_MODULES([mysqlclient],
+  [PKG_CHECK_MODULES([MYQLCLIENT],
     [mysqlclient],
     [enable_mysql=yes],
     [AS_IF([test "$enable_mysql" = "yes"],
@@ -70,7 +67,7 @@ AS_IF([test "$enable_mysql" != "no"],
       [enable_mysql=no])])])
 
 AS_IF([test "$enable_odbc" != "no"],
-  [PKG_CHECK_MODULES([odbc],
+  [PKG_CHECK_MODULES([ODBC],
     [odbc],
     [enable_odbc=yes],
     [AS_IF([test "$enable_odbc" = "yes"],
@@ -78,7 +75,7 @@ AS_IF([test "$enable_odbc" != "no"],
       [enable_odbc=no])])])
 
 AS_IF([test "$enable_pgsql" != "no"],
-  [PKG_CHECK_MODULES([libpq],
+  [PKG_CHECK_MODULES([LIBPQ],
     [libpq],
     [enable_pgsql=yes],
     [AS_IF([test "$enable_pgsql" = "yes"],

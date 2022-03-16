@@ -554,6 +554,8 @@ bool TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 
 	if (terminate_with_period) {
 		lines.back() = lines.back() + ".";
+	} else {
+		lines.back() = lines.back() + " END-CALL";
 	}
 
 	for (auto ln : lines) {
