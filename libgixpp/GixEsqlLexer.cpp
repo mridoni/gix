@@ -139,7 +139,7 @@ void GixEsqlLexer::pushNewFile(const std::string file_name, gix_esql_driver *dri
 
 	if (resolve_as_copy) {
 		if (!driver->pp_inst->getCopyResolver()->resolveCopyFile(file_name, file_full_name)) {
-			driver->error("Cannot resolve copy file " + file_name);
+			driver->error("Cannot resolve copy file " + file_name, ERR_MISSING_COPYFILE);
 			return;
 		}
 	}

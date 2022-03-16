@@ -1,3 +1,14 @@
+=== v1.0.10 ======================================================
+- Gix-IDE: added "Save before building" option in settings
+- GixSQL: extended the ESQL VAR statement (added FLOAT, DECIMAL, etc.)
+- GixSQL: added support for prepared statements
+- GixSQL: added support for EXECUTE IMMEDIATE
+- GixSQL: fixed handling of BEGIN/END DECLARE SECTION
+- GixSQL: fixed autoconf package
+- GixSQL: fixed command line options in gixpp
+- GixSQL: fixed display of error messages in gixpp/libgixpp
+- GixSQL: added ocesql-style wrapper for gixpp
+
 === v1.0.9 =======================================================
 - Fixed a bug in the Linux debugger (watched variables are now displayed correctly)
 - Added "screen resolution" option in "Settings"

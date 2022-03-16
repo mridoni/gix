@@ -78,9 +78,48 @@ public:
     std::string cur_line_content;
 
 
+
+
 private:
     bool isParagraph(const std::string &text);
 
     std::vector<std::string> reserved_words_list;
 
+#if defined (_DEBUG) && defined (VERBOSE)
+
+    #define __YY_START (((yy_start) - 1) / 2)
+
+    const char *yy_state_desc(int i)
+    {
+        if (i >= 0 && i < NUM_YY_STATES) {
+            return yy_state_descs[i];
+        }
+
+        return "(UNKNOWN_STATE)";
+    }
+
+    void __yy_push_state(int newstate)
+    {
+        int oldstate = __YY_START;
+        yy_push_state(newstate);
+        fprintf(stderr, "%04d =============>>> PUSHING STATE %s -> %s\n", yylineno, yy_state_desc(oldstate), yy_state_desc(newstate));
+    }
+
+    void __yy_pop_state()
+    {
+        //int oldstate = (!yy_start_stack) ? 0 : yy_top_state();
+        int oldstate = __YY_START;
+        yy_pop_state();
+        //int newstate = (!yy_start_stack) ? 0 : yy_top_state();
+        int newstate = __YY_START;
+        fprintf(stderr, "%04d =============<<< POPPING STATE: %s -> %s\n", yylineno, yy_state_desc(oldstate), yy_state_desc(newstate));
+    }
+
+    static const int NUM_YY_STATES = 15;
+    static const char *yy_state_descs[NUM_YY_STATES];
+    
+#else
+#define __yy_push_state(s) yy_push_state(s)
+#define __yy_pop_state() yy_pop_state()
+#endif
 };

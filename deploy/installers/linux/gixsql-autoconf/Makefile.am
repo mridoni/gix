@@ -16,5 +16,9 @@ if ENABLE_PGSQL
 SUBDIRS += libgixsql-pgsql
 endif
 
-pkgconfigdir = $(prefix)/lib/copy
+pkgconfigdir = $(prefix)/share/gix/copy
 pkgconfig_DATA = copy/SQLCA.cpy
+
+install-exec-hook:
+	cp misc/gixsql-wrapper $(prefix)/bin/gixsql && \
+		chmod 755 $(prefix)/bin/gixsql

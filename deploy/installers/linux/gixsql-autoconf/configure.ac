@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([gixsql], [1.0.8], [m.ridoni@gmail.com])
+AC_INIT([gixsql], [1.0.10], [m.ridoni@gmail.com])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9.6 -Wall -Werror dist-bzip2])
@@ -23,12 +23,6 @@ AC_PROG_LEX
 LT_INIT
 AC_SUBST([LIBTOOL_DEPS])
 
-# Checks for libraries.
-PKG_PROG_PKG_CONFIG
-PKG_CHECK_MODULES([MYSQLCLIENT], [mysqlclient])
-PKG_CHECK_MODULES([ODBC], [odbc])
-PKG_CHECK_MODULES([LIBPQ], [libpq])
-
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h malloc.h stdint.h stdlib.h string.h unistd.h])
 
@@ -46,23 +40,20 @@ AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
 
+# Checks for libraries.
+PKG_PROG_PKG_CONFIG
+
 AC_ARG_ENABLE([mysql],
-  [AS_HELP_STRING([--disable-mysql], [Enable MySQL support @<:@yes@:>@])],
-  [:],
-  [enable_mysql=yes])
+  [AS_HELP_STRING([--disable-mysql], [Enable MySQL support @<:@yes@:>@])])
 
 AC_ARG_ENABLE([odbc],
-  [AS_HELP_STRING([--disable-odbc], [Enable ODBC support @<:@yes@:>@])],
-  [:],
-  [enable_odbc=yes])
+  [AS_HELP_STRING([--disable-odbc], [Enable ODBC support @<:@yes@:>@])])
 
 AC_ARG_ENABLE([pgsql],
-  [AS_HELP_STRING([--disable-pgsql], [Enable PostgreSQL support @<:@yes@:>@])],
-  [:],
-  [enable_pgsql=yes])
+  [AS_HELP_STRING([--disable-pgsql], [Enable PostgreSQL support @<:@yes@:>@])])
 
 AS_IF([test "$enable_mysql" != "no"],
-  [PKG_CHECK_MODULES([mysqlclient],
+  [PKG_CHECK_MODULES([MYSQL],
     [mysqlclient],
     [enable_mysql=yes],
     [AS_IF([test "$enable_mysql" = "yes"],
@@ -70,7 +61,7 @@ AS_IF([test "$enable_mysql" != "no"],
       [enable_mysql=no])])])
 
 AS_IF([test "$enable_odbc" != "no"],
-  [PKG_CHECK_MODULES([odbc],
+  [PKG_CHECK_MODULES([ODBC],
     [odbc],
     [enable_odbc=yes],
     [AS_IF([test "$enable_odbc" = "yes"],
@@ -78,7 +69,7 @@ AS_IF([test "$enable_odbc" != "no"],
       [enable_odbc=no])])])
 
 AS_IF([test "$enable_pgsql" != "no"],
-  [PKG_CHECK_MODULES([libpq],
+  [PKG_CHECK_MODULES([LIBPQ],
     [libpq],
     [enable_pgsql=yes],
     [AS_IF([test "$enable_pgsql" = "yes"],

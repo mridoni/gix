@@ -583,9 +583,25 @@ bool split_in_args(std::vector<std::string> &qargs, std::string command)
 		}
 		qargs.push_back(command.substr(start, arglen));
 	}
-	for (int i = 0; i < qargs.size(); i++) {
-		std::cout << qargs[i] << std::endl;
-	}
-	std::cout << qargs.size();
+	//for (int i = 0; i < qargs.size(); i++) {
+	//	std::cout << qargs[i] << std::endl;
+	//}
+	//std::cout << qargs.size();
 	return (qot == sqot);
+}
+
+
+std::string unquote(const std::string &s)
+{
+	std::string res = trim_copy(s);
+	if (res.size() < 2)
+		return res;
+
+	if (res[0] == '"' || res[0] == '\'')
+		res = res.substr(1);
+
+	if (res.back() == '"' || res.back() == '\'')
+		res = res.substr(0, res.size() - 1);
+
+	return res;
 }

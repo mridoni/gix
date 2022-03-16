@@ -84,6 +84,8 @@ public:
 	void debugContinue();
 	void debugError();
 
+	bool saveAll();
+
 	bool loadProjectCollection(QString filename);
 	bool closeCurrentProjectCollection();
 	void loadProjectCollectionState(ProjectCollection *ppj);

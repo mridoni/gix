@@ -71,6 +71,8 @@ public:
 	virtual int get_error_code() override;
 	virtual void set_owner(IConnection *) override;
 	virtual IConnection* get_owner() override;
+	virtual int prepare(std::string stmt_name, std::string sql) override;
+	virtual int exec_prepared(std::string stmt_name, std::vector<std::string> &paramValues, std::vector<int> paramLengths, std::vector<int> paramFormats) override;
 
 	virtual bool getSchemas(vector<SchemaInfo*>& res) override;
 	virtual bool getTables(string table, vector<TableInfo*>& res) override;

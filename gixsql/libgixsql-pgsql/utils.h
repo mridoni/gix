@@ -21,6 +21,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #define SIGN_LENGTH 1
 #define TERMINAL_LENGTH 1
@@ -64,4 +65,4 @@ bool caseInsensitiveStringCompare(const std::string& str1, const std::string& st
 std::string to_lower(const std::string s);
 std::string to_upper(const std::string s);
 
-
+bool split_in_args(std::vector<std::string> &qargs, std::string command, bool remove_empty);

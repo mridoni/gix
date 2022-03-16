@@ -399,10 +399,7 @@ namespace gix_ide_tests
                     args = module_src.Substring(0, module_src.IndexOf("."));
                 }
 
-                // Test specific
-                //env["DATASRC"] = get_datasource(data_source_type, data_source_index);
-                //env["DATASRC_USR"] = get_datasource_user(data_source_type, data_source_index);
-                //env["DATASRC_PWD"] = get_datasource_pwd(data_source_type, data_source_index);
+                set_db_client_path(platform, env);
 
                 Console.WriteLine($"Running {exe} {args}");
 
@@ -465,6 +462,25 @@ namespace gix_ide_tests
             {
                 Environment.CurrentDirectory = cwd;
             }
+        }
+
+        private void set_db_client_path(string platform, Dictionary<string, string> env)
+        {
+            List<string> paths = new List<string>();
+            
+            foreach (var ds in data_sources.Select(a => a.Item1).Distinct()) {
+                string v_id = $"{ds.ToUpper()}_CLIENT_PATH_{platform.ToUpper()}";
+                string v_val = Environment.GetEnvironmentVariable(v_id);
+                if (!String.IsNullOrWhiteSpace(v_val))
+                    paths.Add(v_val);    
+            }
+
+            if (paths.Count > 0) {
+                string path = env.ContainsKey("PATH") ? env["PATH"] : String.Empty;
+                path += (";" + String.Join(";", paths));
+                env["PATH"] = path;
+            }
+            
         }
 
         public static string CreateMD5(byte[] inputBytes)

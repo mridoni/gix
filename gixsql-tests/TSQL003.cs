@@ -41,7 +41,15 @@ namespace gixsql_tests
                     "T2   : 0900",
                     "TOTAL: 0909",
                     "SQLSTATE FAIL1 (OK IF <> 00000): 42617",
-                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617"
+                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617",
+                    "CRSR01 rec #0001 : [0001]",
+                    "CRSR01 rec #0002 : [0003]",
+                    "CRSR01 rec #0003 : [0005]",
+                    "CRSR02 rec #0001 : [0100]",
+                    "CRSR02 rec #0002 : [0300]",
+                    "CRSR02 rec #0003 : [0500]",
+                    "TOT CRSR01 :0009",
+                    "TOT CRSR02 :0900"
             });
         }
 
@@ -65,7 +73,15 @@ namespace gixsql_tests
                     "T2   : 0900",
                     "TOTAL: 0909",
                     "SQLSTATE FAIL1 (OK IF <> 00000): 42617",
-                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617"
+                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617",
+                    "CRSR01 rec #0001 : [0001]",
+                    "CRSR01 rec #0002 : [0003]",
+                    "CRSR01 rec #0003 : [0005]",
+                    "CRSR02 rec #0001 : [0100]",
+                    "CRSR02 rec #0002 : [0300]",
+                    "CRSR02 rec #0003 : [0500]",
+                    "TOT CRSR01 :0009",
+                    "TOT CRSR02 :0900"
             });
         }
 
@@ -89,7 +105,15 @@ namespace gixsql_tests
                     "T2   : 0900",
                     "TOTAL: 0909",
                     "SQLSTATE FAIL1 (OK IF <> 00000): 42617",
-                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617"
+                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617",
+                    "CRSR01 rec #0001 : [0001]",
+                    "CRSR01 rec #0002 : [0003]",
+                    "CRSR01 rec #0003 : [0005]",
+                    "CRSR02 rec #0001 : [0100]",
+                    "CRSR02 rec #0002 : [0300]",
+                    "CRSR02 rec #0003 : [0500]",
+                    "TOT CRSR01 :0009",
+                    "TOT CRSR02 :0900"
             });
         }
 
@@ -114,7 +138,15 @@ namespace gixsql_tests
                     "T2   : 0900",
                     "TOTAL: 0909",
                     "SQLSTATE FAIL1 (OK IF <> 00000): 42617",
-                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617"
+                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617",
+                    "CRSR01 rec #0001 : [0001]",
+                    "CRSR01 rec #0002 : [0003]",
+                    "CRSR01 rec #0003 : [0005]",
+                    "CRSR02 rec #0001 : [0100]",
+                    "CRSR02 rec #0002 : [0300]",
+                    "CRSR02 rec #0003 : [0500]",
+                    "TOT CRSR01 :0009",
+                    "TOT CRSR02 :0900"
             });
         }
 
@@ -138,7 +170,15 @@ namespace gixsql_tests
                     "T2   : 0900",
                     "TOTAL: 0909",
                     "SQLSTATE FAIL1 (OK IF <> 00000): 42617",
-                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617"
+                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617",
+                    "CRSR01 rec #0001 : [0001]",
+                    "CRSR01 rec #0002 : [0003]",
+                    "CRSR01 rec #0003 : [0005]",
+                    "CRSR02 rec #0001 : [0100]",
+                    "CRSR02 rec #0002 : [0300]",
+                    "CRSR02 rec #0003 : [0500]",
+                    "TOT CRSR01 :0009",
+                    "TOT CRSR02 :0900"
             });
         }
 
@@ -162,7 +202,15 @@ namespace gixsql_tests
                     "T2   : 0900",
                     "TOTAL: 0909",
                     "SQLSTATE FAIL1 (OK IF <> 00000): 42617",
-                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617"
+                    "SQLSTATE FAIL2 (OK IF <> 00000): 42617",
+                    "CRSR01 rec #0001 : [0001]",
+                    "CRSR01 rec #0002 : [0003]",
+                    "CRSR01 rec #0003 : [0005]",
+                    "CRSR02 rec #0001 : [0100]",
+                    "CRSR02 rec #0002 : [0300]",
+                    "CRSR02 rec #0003 : [0500]",
+                    "TOT CRSR01 :0009",
+                    "TOT CRSR02 :0900"
             });
         }
 

@@ -284,6 +284,20 @@ IConnection* DbInterfaceODBC::get_owner()
 	return owner;
 }
 
+int DbInterfaceODBC::prepare(std::string stmt_name, std::string sql)
+{
+	last_rc = DBERR_NOT_IMPL;
+	odbc_errors.push_back("NOTIMPL");
+	return DBERR_PREPARE_FAILED;
+}
+
+int DbInterfaceODBC::exec_prepared(std::string stmt_name, std::vector<std::string> &paramValues, std::vector<int> paramLengths, std::vector<int> paramFormats)
+{
+	last_rc = DBERR_NOT_IMPL;
+	odbc_errors.push_back("NOTIMPL");
+	return DBERR_SQL_ERROR;
+}
+
 
 int DbInterfaceODBC::exec(string _query)
 {

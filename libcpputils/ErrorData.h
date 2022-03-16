@@ -7,4 +7,5 @@ struct ErrorData
 {
 	int err_code;
 	std::vector<std::string> err_messages;
+	std::vector<std::string> warnings;
 };

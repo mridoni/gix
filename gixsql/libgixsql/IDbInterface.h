@@ -58,9 +58,12 @@ USA.
 #define DBERR_FIELD_COUNT_MISMATCH	-121
 #define DBERR_NO_DATA				-122
 #define DBERR_TOO_MUCH_DATA			-123
+#define DBERR_PREPARE_FAILED		-124
 
 #define DBERR_CONN_INIT_ERROR		-201
 #define DBERR_CONN_INVALID_DBTYPE	-202
+
+#define DBERR_NOT_IMPL				-990099
 
 #define FETCH_NEXT_ROW	1
 #define FETCH_PREV_ROW	2
@@ -95,6 +98,8 @@ public:
 	virtual int get_error_code() = 0;
 	virtual void set_owner(IConnection *) = 0;
 	virtual IConnection* get_owner() = 0;
+	virtual int prepare(std::string stmt_name, std::string sql) = 0;
+	virtual int exec_prepared(std::string stmt_name, std::vector<std::string> &paramValues, std::vector<int> paramLengths, std::vector<int> paramFormats) = 0;
 
 	IDbManagerInterface* manager()
 	{

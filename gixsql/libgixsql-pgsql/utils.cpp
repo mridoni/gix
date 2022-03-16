@@ -29,6 +29,7 @@
 #include <algorithm> 
 #include <cctype>
 #include <locale>
+#include <vector>
 
 #include "utils.h"
 
@@ -232,4 +233,49 @@ std::string to_upper(const std::string s)
 	std::string s1 = s;
 	std::transform(s1.begin(), s1.end(), s1.begin(), ::toupper);
 	return s1;
+}
+
+bool split_in_args(std::vector<std::string> &qargs, std::string command, bool remove_empty)
+{
+	int len = command.length();
+	bool qot = false, sqot = false;
+	int arglen;
+	for (int i = 0; i < len; i++) {
+		int start = i;
+		if (command[i] == '\"') {
+			qot = true;
+		}
+		else if (command[i] == '\'') sqot = true;
+
+		if (qot) {
+			i++;
+			start++;
+			while (i < len && command[i] != '\"')
+				i++;
+			if (i < len)
+				qot = false;
+			arglen = i - start;
+			i++;
+		}
+		else if (sqot) {
+			i++;
+			while (i < len && command[i] != '\'')
+				i++;
+			if (i < len)
+				sqot = false;
+			arglen = i - start;
+			i++;
+		}
+		else {
+			while (i < len && command[i] != ' ')
+				i++;
+			arglen = i - start;
+		}
+
+		std::string a = command.substr(start, arglen);
+		if (!remove_empty || !a.empty())
+			qargs.push_back(a);
+	}
+
+	return (qot == sqot);
 }

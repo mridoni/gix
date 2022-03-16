@@ -165,6 +165,8 @@ void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWin
 
 void IdeTaskManager::buildAll(QString configuration, QString platform)
 {
+	QSettings settings;
+
 	if (current_project_collection == nullptr || !current_project_collection->HasChildren())
 		return;
 
@@ -182,6 +184,10 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 		emit buildFinished(build_res);
 		return;
 	}
+
+	bool ide_save_before_build = settings.value("ide_save_before_build", true).toBool();
+	if (ide_save_before_build)
+		saveAll();	// TODO: check return code?
 
 	QVariantMap props;
 	props.insert("sys.objext", SysUtils::isWindows() && compiler_cfg->isVsBased ? ".obj" : ".o");
@@ -268,12 +274,34 @@ void IdeTaskManager::buildStop()
 	emit stopBuildInvoked();
 }
 
+bool IdeTaskManager::saveAll()
+{
+	bool res = true;
+
+	bool all_closed = true;
+	QList<QMdiSubWindow *> windows = main_window->mdiArea->subWindowList();
+	for (QMdiSubWindow *win : windows) {
+		MdiChild *child = qobject_cast<MdiChild *>(win->widget());
+		if (child->isWindowModified()) {
+			res &= child->save();
+		}
+	}
+
+	ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
+	if (ppj != nullptr)
+		res &= ppj->save(nullptr, ppj->GetFileFullPath());
+
+	return res;
+}
+
 void IdeTaskManager::debugProject(Project *prj, QString configuration, QString platform)
 {
+	QSettings settings;
+
 	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 
-	if (!compiler_cfg->isVersionGreaterThanOrEqualTo(3, 1, 0)) {
-		UiUtils::ErrorDialog(tr("Debugging is only supported when using GnuCOBOL 3.1.0 or greater"));
+	if (!compiler_cfg->isVersionGreaterThanOrEqualTo(3, 1, 2)) {
+		UiUtils::ErrorDialog(tr("Debugging is only supported when using GnuCOBOL 3.1.2 or greater"));
 		return;
 	}
 
@@ -285,6 +313,10 @@ void IdeTaskManager::debugProject(Project *prj, QString configuration, QString p
 	build_env.insert("sys.exeext", SysUtils::isWindows() ? ".exe" : "");
 	build_env.insert("prj.build_dir", "${prj.basedir}/bin/${configuration}/${platform}");
 	build_env.insert("module_name", PathUtils::toModuleName(prj->GetFilename()));
+
+	bool ide_save_before_build = settings.value("ide_save_before_build", true).toBool();
+	if (ide_save_before_build)
+		saveAll();	// TODO: check return code?
 
 	current_debug_target = prj->getBuildTarget(build_env, nullptr);
 	if (!current_debug_target->isUpToDate()) {
@@ -318,6 +350,8 @@ void IdeTaskManager::debugProject(Project *prj, QString configuration, QString p
 
 void IdeTaskManager::runProject(Project *prj, QString configuration, QString platform, bool run_detached)
 {
+	QSettings settings;
+
 	if (debug_manager != nullptr) {
 		debug_manager->deleteLater();
 	}
@@ -333,6 +367,10 @@ void IdeTaskManager::runProject(Project *prj, QString configuration, QString pla
 	build_env.insert("sys.exeext", SysUtils::isWindows() ? ".exe" : "");
 	build_env.insert("prj.build_dir", "${prj.basedir}/bin/${configuration}/${platform}");
 	build_env.insert("module_name", PathUtils::toModuleName(prj->GetFilename()));
+
+	bool ide_save_before_build = settings.value("ide_save_before_build", true).toBool();
+	if (ide_save_before_build)
+		saveAll();	// TODO: check return code?
 
 	current_debug_target = prj->getBuildTarget(build_env, nullptr);
 	if (!current_debug_target->isUpToDate()) {

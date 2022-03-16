@@ -26,6 +26,22 @@ if [ "$?" != "0" ] ; then echo "Cannot create package directory for test files" 
 cp -fravp $WORKSPACE/deploy/installers/linux/gixsql-test/* ./test
 if [ "$?" != "0" ] ; then echo "Cannot copy test files" ; exit 1 ; fi
 
+# Pre-build gix_esql_parser.cc gix_esql_parser.hh gix_esql_scanner.cc location.hh
+pushd $BUILD_DIR/libgixpp > /dev/null
+
+bison -Wno-yacc -Wall -o gix_esql_parser.cc --defines=gix_esql_parser.hh gix_esql_parser.yy
+if [ "$?" != "0" ] ; then echo "Cannot build parser" ; exit 1 ; fi
+
+flex -c++ -v --debug -o "gix_esql_scanner.cc" gix_esql_scanner.ll
+if [ "$?" != "0" ] ; then echo "Cannot build scanner" ; exit 1 ; fi
+
+if [ ! -f "gix_esql_parser.cc" ] ; then echo "File not found: gix_esql_parser.cc" ; exit 1 ; fi
+if [ ! -f "gix_esql_parser.hh" ] ; then echo "File not found: gix_esql_parser.hh" ; exit 1 ; fi
+if [ ! -f "gix_esql_scanner.cc" ] ; then echo "File not found: gix_esql_scanner.cc" ; exit 1 ; fi
+if [ ! -f "location.hh" ] ; then echo "File not found: location.hh" ; exit 1 ; fi
+
+popd > /dev/null
+
 rm -fr $(find . -name ".svn")
 rm -fr $(find . -name "x64")
 rm -fr $(find . -name "x86")

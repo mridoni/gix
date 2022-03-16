@@ -556,20 +556,7 @@ void MainWindow::breakpoint_toggle()
 
 void MainWindow::saveAll()
 {
-	bool all_closed = true;
-	QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
-	for (QMdiSubWindow *win : windows) {
-		MdiChild *child = qobject_cast<MdiChild *>(win->widget());
-		if (child->isWindowModified()) {
-			child->save();
-		}
-	}
-
-	ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
-	if (ppj == nullptr)
-		return;
-
-	bool rc = ppj->save(nullptr, ppj->GetFileFullPath());
+	bool rc = Ide::TaskManager()->saveAll();
 }
 
 void MainWindow::saveAs()

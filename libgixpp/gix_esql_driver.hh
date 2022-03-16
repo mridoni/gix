@@ -40,6 +40,25 @@ USA.
 #define PIC_NATIONAL		0x04
 #define PIC_ALPHANUMERIC	(PIC_ALPHABETIC | PIC_NUMERIC)
 
+#define DD_SECTION_INITIAL  0   // INITIAL
+#define DD_SECTION_FS       1   // FILE SECTION
+#define DD_SECTION_WS       2   // WORKING-STORAGE SECTION
+#define DD_SECTION_LL       3   // LOCAL-STORAGE SECTION
+#define DD_SECTION_LS       4   // LINKAGE SECTION
+
+#define ERR_SYNTAX_ERROR        19000
+#define ERR_MISSING_HOSTVAR     19100
+#define ERR_MISSING_COPYFILE    19101
+#define ERR_CRSR_GEN            19102
+#define ERR_INVALID_LEVEL       19103
+#define ERR_INCOMPATIBLE_TYPES  19104
+#define ERR_MISSING_LENGTH      19105
+#define ERR_INVALID_TYPE        19106
+#define ERR_FILE_NOT_FOUND      19107
+
+// This is used to keep the error code from nested function
+#define ERR_ALREADY_SET         -9999
+
 // Conducting the whole scanning and parsing of Calc++.
 class gix_esql_driver
 {
@@ -80,8 +99,10 @@ public:
     bool trace_parsing;
 
     // Error handling.
-    void error (const yy::location& l, const std::string& m, int err_code = 1);
-    void error (const std::string& m, int err_code = 1);
+    void error (const yy::location& l, const std::string& m, int err_code);
+    void error (const std::string& m, int err_code);
+    void warning(const yy::location &l, const std::string &m);
+    void warning(const std::string &m);
 
 #pragma endregion
 
@@ -123,6 +144,9 @@ public:
     std::string incfilename;
 
     hostref_or_literal_t *connectionid = nullptr;
+    
+    std::string statement_name;
+    hostref_or_literal_t *statement_source = nullptr;
 
     int orig_state = 0;
 
@@ -131,6 +155,9 @@ public:
     std::vector<cb_res_hostreference_ptr> *res_host_reference_list;
     std::vector<cb_sql_token_t> *sql_list;
     std::vector<cb_exec_sql_stmt_ptr> *exec_list;
+    std::vector<hostref_or_literal_t *> *hostref_or_literal_list;
+
+    std::vector<std::string> declared_statements;
 
     cb_field_ptr current_field;
     cb_field_ptr description_field;
@@ -140,9 +167,7 @@ public:
     bool has_esql_in_cbl_copybooks;
     bool procedure_division_started = false;
 
-    bool in_ws_section = false;
-    bool in_linkage_section = false;
-    bool in_file_section = false;
+    int data_division_section = DD_SECTION_INITIAL;
 
 #pragma endregion
 
@@ -150,11 +175,13 @@ public:
     GixPreProcessor *pp_inst;
     
     std::map<std::string, cb_field_ptr> field_map;
-    std::map<std::string, std::tuple<uint64_t, int, int>> field_sql_type_info;
+    std::map<std::string, std::tuple<uint64_t, int, int, std::string>> field_sql_type_info;
 
     std::map<std::string, srcLocation> paragraphs;
 
     std::string program_id;
+
+    bool field_exists(const std::string &f);
 
 #pragma endregion
 

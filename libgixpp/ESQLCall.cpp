@@ -48,7 +48,8 @@ void ESQLCall::addParameter(gix_esql_driver *driver, hostref_or_literal_t *p)
 	}
 
 	if (p->is_literal) {
-		addParameter("\"" + p->name + "\" & x\"00\"", BY_REFERENCE);
+		std::string n = unquote(p->name);
+		addParameter("\"" + n + "\" & x\"00\"", BY_REFERENCE);
 		addParameter(0, BY_VALUE);
 	}
 	else {

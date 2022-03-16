@@ -226,6 +226,7 @@ bool SettingsDialog::GeneralCfgTab_SaveSettings()
 
 	bool changed = settingsSetValue("Ide_DebugOutput", cbDebugOutput->isChecked());
 	changed |= settingsSetValue("cobc_default_source_format", cbDefaultSourceFormat->currentData().toString());
+	changed = settingsSetValue("ide_save_before_build", cbSaveBeforeBuild->isChecked());
 	return changed;
 }
 
@@ -237,6 +238,7 @@ void SettingsDialog::GeneralCfgTab_LoadSettings()
 	cbDebugOutput->setChecked(settings.value("Ide_DebugOutput", false).toBool());
 	idx = cbDefaultSourceFormat->findData(settings.value("cobc_default_source_format", "fixed"));
 	cbDefaultSourceFormat->setCurrentIndex((idx >= 0) ? idx : 0);
+	cbSaveBeforeBuild->setChecked(settings.value("ide_save_before_build", true).toBool());
 }
 
 bool SettingsDialog::GeneralCfgTab_CheckSettings()

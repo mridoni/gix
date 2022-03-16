@@ -60,7 +60,8 @@
                     DNUM3
                  FROM EMPTABLE
                ORDER BY LNAME
-           END-EXEC              
+           END-EXEC.
+           
        PROCEDURE DIVISION. 
  
        000-CONNECT.
@@ -91,8 +92,8 @@
 
            EXEC SQL
               START TRANSACTION
-	       END-EXEC.                                                    
-       
+	       END-EXEC.                
+
       *  open cursor
            EXEC SQL
                OPEN EMPTBL

@@ -189,6 +189,119 @@ IConnection *DbInterfacePGSQL::get_owner()
 	return owner;
 }
 
+std::string vector_join(const std::vector<std::string> &v, char sep)
+{
+	std::string s;
+
+	for (std::vector< std::string>::const_iterator p = v.begin();
+		p != v.end(); ++p) {
+		s += *p;
+		if (p != v.end() - 1)
+			s += sep;
+	}
+	return s;
+}
+
+std::string pgsql_prepare(const std::string &sql)
+{
+	int n = 1;
+	std::vector<std::string> items;
+	std::vector<std::string> out_items;
+	split_in_args(items, sql, true);
+	for (auto item : items) {
+		if (starts_with(item, "\"") || item.back() == '\'') {
+			out_items.push_back(item);
+			continue;
+		}
+
+		int pos = item.find('?');
+		if (pos == std::string::npos) {
+			out_items.push_back(item);
+			continue;
+		}
+
+		std::string s;
+		for (auto c : item) {
+			if (c == '?')
+				s += ("$" + std::to_string(n++));
+			else
+				s += c;
+		}
+		out_items.push_back(s);
+	}
+
+	return vector_join(out_items, ' ');
+}
+
+int DbInterfacePGSQL::prepare(std::string stmt_name, std::string sql)
+{
+	LOG_DEBUG(__FILE__, __func__, "PGSQL::prepare - SQL: %s\n", sql.c_str());
+	if (prepared_stmts.find(stmt_name) != prepared_stmts.end()) {
+		
+		return DBERR_PREPARE_FAILED;
+	}
+
+	std::string prepared_sql = pgsql_prepare(sql);
+
+	LOG_DEBUG(__FILE__, __func__, "PGSQL::prepare - SQL(P): %s\n", prepared_sql.c_str());
+
+	PGresult *res = PQprepare(connaddr, stmt_name.c_str(), prepared_sql.c_str(), 0, nullptr);
+	last_rc = PQresultStatus(res);
+	last_error = PQresultErrorMessage(res);
+
+	LOG_DEBUG(__FILE__, __func__, "PGSQL::prepare - res: (%d) %s\n", last_rc, last_error.c_str());
+
+	if (last_rc != PGRES_COMMAND_OK) {
+		return DBERR_PREPARE_FAILED;
+	}
+
+	//std::tuple<std::vector<std::string>, void *> t(params, nullptr);
+	//prepared_stmts[stmt_name] = t;
+	return DBERR_NO_ERROR;
+}
+
+int DbInterfacePGSQL::exec_prepared(std::string stmt_name, std::vector<std::string> &paramValues, std::vector<int> paramLengths, std::vector<int> paramFormats)
+{
+
+	LOG_DEBUG(__FILE__, __func__, "statement: %s\n", stmt_name.c_str());
+
+	int nParams = paramValues.size();
+	char **pvals = nullptr;
+
+	if (paramValues.size() > 0) {
+		pvals = new char *[nParams];
+		for (int i = 0; i < nParams; i++) {
+			pvals[i] = (char *)paramValues.at(i).c_str();
+		}
+	}
+
+	if (resaddr)
+		PQclear(resaddr);
+
+	resaddr = PQexecPrepared(connaddr, stmt_name.c_str(), nParams, pvals, NULL, NULL, 0);
+
+	last_rc = PQresultStatus(resaddr);
+	last_error = PQresultErrorMessage(resaddr);
+
+	//if (last_rc == PGRES_COMMAND_OK) {
+	//	q = trim_copy(q);
+	//	if (starts_with(q, "delete ") || starts_with(q, "DELETE ") || starts_with(q, "update ") || starts_with(q, "UPDATE ")) {
+	//		int nrows = get_num_rows();
+	//		if (nrows <= 0) {
+	//			last_rc = 100;
+	//			return DBERR_SQL_ERROR;
+	//		}
+	//	}
+	//}
+
+	if (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK)
+		return DBERR_NO_ERROR;
+	else {
+		last_rc = -(10000 + last_rc);
+		return DBERR_SQL_ERROR;
+	}
+}
+
 int DbInterfacePGSQL::exec(string query)
 {
 	string q = query;
@@ -214,13 +327,13 @@ int DbInterfacePGSQL::exec(string query)
 		}
 	}
 
-	//return (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK) ? DBERR_NO_ERROR : DBERR_SQL_ERROR;
 	if (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK)
 		return DBERR_NO_ERROR;
 	else {
 		last_rc = -(10000 + last_rc);
 		return DBERR_SQL_ERROR;
 	}
+
 }
 
 
@@ -257,7 +370,6 @@ int DbInterfacePGSQL::exec_params(string query, int nParams, int *paramTypes, ve
 		}
 	}
 
-	//return (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK) ? DBERR_NO_ERROR : DBERR_SQL_ERROR;
 	if (last_rc == PGRES_COMMAND_OK || last_rc == PGRES_TUPLES_OK)
 		return DBERR_NO_ERROR;
 	else {
@@ -290,44 +402,6 @@ int DbInterfacePGSQL::close_cursor(ICursor *cursor)
 
 int DbInterfacePGSQL::cursor_declare(ICursor *cursor, bool with_hold, int res_type)
 {
-	//const char *query_part_with_hold_on[] = { "DECLARE ", " CURSOR WITH HOLD FOR " };
-	//const char *query_part[] = { "DECLARE ", " CURSOR FOR " };
-	//char *true_query;
-
-	//string sname = cursor->getName();
-	//string squery = cursor->getQuery();
-	//char *cname = (char *)sname.c_str();
-	//char *query = (char *)squery.c_str();
-
-	//if (with_hold) {
-	//	true_query = (char *)malloc((strlen(query_part_with_hold_on[0]) +
-	//		strlen(cname) +
-	//		strlen(query_part_with_hold_on[1]) +
-	//		strlen(query) + 1) * sizeof(char));
-	//	if (true_query == NULL) {
-	//		return DBERR_OUT_OF_MEMORY;
-	//	}
-
-	//	// execute query
-	//	sprintf(true_query, "%s%s%s%s", query_part_with_hold_on[0], cname,
-	//		query_part_with_hold_on[1], query);
-	//}
-	//else {
-	//	true_query = (char *)malloc((strlen(query_part[0]) +
-	//		strlen(cname) +
-	//		strlen(query_part[1]) +
-	//		strlen(query) + 1) * sizeof(char));
-	//	if (true_query == NULL) {
-	//		return DBERR_OUT_OF_MEMORY;
-	//	}
-
-	//	// execute query
-	//	sprintf(true_query, "%s%s%s%s", query_part[0], cname, query_part[1], query);
-	//}
-
-	//int rc = exec(string(true_query));
-	//return (rc == DBERR_NO_ERROR) ? DBERR_NO_ERROR : DBERR_DECLARE_CURSOR_FAILED;
-
 	if (!cursor)
 		return DBERR_DECLARE_CURSOR_FAILED;
 
@@ -335,8 +409,6 @@ int DbInterfacePGSQL::cursor_declare(ICursor *cursor, bool with_hold, int res_ty
 	if (it == _declared_cursors.end()) {
 		_declared_cursors[cursor->getName()] = cursor;
 	}
-
-	return DBERR_NO_ERROR;
 
 	return DBERR_NO_ERROR;
 }
@@ -352,8 +424,6 @@ int DbInterfacePGSQL::cursor_declare_with_params(ICursor *cursor, char **param_v
 	}
 
 	return DBERR_NO_ERROR;
-
-
 }
 
 int DbInterfacePGSQL::cursor_open(ICursor *cursor)
@@ -396,7 +466,7 @@ int DbInterfacePGSQL::cursor_open(ICursor *cursor)
 		sprintf(true_query, "%s%s%s%s", query_part[0], cname, query_part[1], query);
 	}
 
-    auto pvalues = cursor->getParameterValues();
+	auto pvalues = cursor->getParameterValues();
 	int rc = exec_params(string(true_query), cursor->getNumParams(), NULL, pvalues, NULL, NULL);
 
 	cursor->setOpened(rc == DBERR_NO_ERROR);
@@ -477,7 +547,7 @@ bool DbInterfacePGSQL::get_resultset_value(ICursor *c, int row, int col, char *b
 		}
 		else {
 
-			unsigned char *tmp_bfr = PQunescapeBytea((const unsigned char *) res, &to_length);
+			unsigned char *tmp_bfr = PQunescapeBytea((const unsigned char *)res, &to_length);
 			if (!tmp_bfr)
 				return false;
 

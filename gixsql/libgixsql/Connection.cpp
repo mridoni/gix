@@ -75,6 +75,16 @@ void Connection::setEncoding(std::string enc)
 	encoding = enc;
 }
 
+//
+//bool Connection::getPreparedStatementData(std::string stmt_name, std::tuple<std::vector<std::string>, void *> &t)
+//{
+//	if (prepared_stmts.find(stmt_name) == prepared_stmts.end())
+//		return false;
+//
+//	t = prepared_stmts[stmt_name];
+//	return true;
+//}
+
 void Connection::setDbInterface(IDbInterface *_dbi)
 {
 	dbi = _dbi;

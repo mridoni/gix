@@ -168,3 +168,5 @@ std::vector<TK> map_get_keys(const std::map<TK ,TV> &vmap)
 
 std::string vector_join(const std::vector<std::string> &v, char sep);
 std::string vector_join(const std::vector<std::string> &v, std::string sep);
+
+std::string unquote(const std::string &s);

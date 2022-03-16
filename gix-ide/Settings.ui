@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -69,6 +69,13 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="cbSaveBeforeBuild">
+        <property name="text">
+         <string>Save before building</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

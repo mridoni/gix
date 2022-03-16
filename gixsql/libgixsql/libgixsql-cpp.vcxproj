@@ -268,7 +268,7 @@
       <AdditionalIncludeDirectories>%PGSQL_HOME%\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%PGSQL_HOME%\lib</AdditionalLibraryDirectories>

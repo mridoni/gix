@@ -91,6 +91,7 @@ struct cb_exec_sql_stmt_t
 	std::vector<cb_hostreference_ptr> *host_list;
 	std::vector<cb_res_hostreference_ptr> *res_host_list;
 	std::vector<cb_sql_token_t> *sql_list;
+	std::vector<hostref_or_literal_t *> *hostref_or_literal_list;
 
 	esql_connection_info_t *conninfo = nullptr;
 
@@ -101,6 +102,8 @@ struct cb_exec_sql_stmt_t
 	bool command_putother;
 	std::string  sqlName;
 	std::string  incfileName;
+	std::string  statementName;
+	hostref_or_literal_t *statementSource = nullptr;
 	bool startup_item;
 	bool cursor_hold;
 
@@ -120,6 +123,7 @@ struct cb_exec_sql_stmt_t
 		host_list = new std::vector<cb_hostreference_ptr>;
 		res_host_list = new std::vector<cb_res_hostreference_ptr>;
 		sql_list = new std::vector<cb_sql_token_t>;
+		hostref_or_literal_list = new std::vector<hostref_or_literal_t *>;
 
 		command_putother = false;
 		conn_use_other_db = false;
@@ -132,6 +136,7 @@ struct cb_exec_sql_stmt_t
 		delete host_list;
 		delete res_host_list;
 		delete sql_list;
+		delete hostref_or_literal_list;
 	}
 };
 
@@ -145,6 +150,7 @@ enum class DataSectionType
 {
 	Unknown = 0,
 	WorkingStorage,
+	LocalStorage,
 	LinkageSection,
 	FileSection
 };
@@ -154,9 +160,9 @@ struct cb_field_t
 	std::string sname;
 	std::string path;
 	DataSectionType data_section = DataSectionType::Unknown;
-	int		level;
+	int		level = 0;
 	Usage	usage;
-	int		occurs;
+	int		occurs = 0;
 
 	bool is_varlen = false;
 

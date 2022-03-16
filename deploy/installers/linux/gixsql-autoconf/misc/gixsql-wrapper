@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if test "x$2" == "x"; then
+   gixpp $*
+else
+   input=$1; shift   
+   output=$1; shift
+   gixpp -e -I $(dirname $(readlink -f "$0"))/../share/gix/copy -i $input -o $output $*
+fi

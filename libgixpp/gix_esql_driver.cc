@@ -26,7 +26,11 @@ USA.
 #include "libcpputils.h"
 
 #if _DEBUG
+#if defined (VERBOSE)
+#define DEBUG_PARSER true
+#else
 #define DEBUG_PARSER false
+#endif
 #else
 #define DEBUG_PARSER false
 #endif
@@ -69,6 +73,7 @@ gix_esql_driver::gix_esql_driver ()
 	res_host_reference_list = new std::vector<cb_res_hostreference_ptr>();
 	sql_list = new std::vector<cb_sql_token_t>();
 	exec_list = new std::vector<cb_exec_sql_stmt_ptr>();
+	hostref_or_literal_list = new std::vector<hostref_or_literal_t *>();
 
 }
 
@@ -78,6 +83,7 @@ gix_esql_driver::~gix_esql_driver ()
 	delete res_host_reference_list;
 	delete sql_list;
 	delete exec_list;
+	delete hostref_or_literal_list;
 }
 
 int gix_esql_driver::parse (GixPreProcessor *gpp, const std::string &f)
@@ -98,25 +104,40 @@ int gix_esql_driver::parse (GixPreProcessor *gpp, const std::string &f)
 
     scan_end ();
 
-    return res;
+	if (!res && !pp_inst->err_data.err_code)
+		return 0;
+	else {
+		return -1;
+	}
 }
 
+// The location from Bison is not actually used. The specific error code (for now) is not actually used elsewhere.
+
 void gix_esql_driver::error (const yy::location& l, const std::string& m, int err_code)
-{   //std::cerr << l << ": " << m << std::endl;
-	std::string msg = string_format("ESQL parse error at line %d of file %s: %s", lexer.getLineNo(), this->lexer.src_location_stack.top().filename, m);
+{   
+	std::string msg = string_format("%s:%d: error: %s", this->lexer.src_location_stack.top().filename, lexer.getLineNo(), m);
 	this->pp_inst->err_data.err_messages.push_back(msg);
-	this->pp_inst->err_data.err_code = err_code;
+	if (!this->pp_inst->err_data.err_code || err_code != ERR_ALREADY_SET)
+		this->pp_inst->err_data.err_code = err_code;
 }
 
 void gix_esql_driver::error (const std::string& m, int err_code)
 {
-    //std::cerr << m << std::endl;
-	std::string msg = string_format("ESQL parse error (no location data available): %s", m);
-	this->pp_inst->err_data.err_messages.push_back(msg);
-	this->pp_inst->err_data.err_code = err_code;
+	yy::location loc;
+	error(loc, m, err_code);
 }
 
-// CHANGE: functions moved from the bottom of `gix_esql_scanner.ll`
+void gix_esql_driver::warning(const yy::location &l, const std::string &m)
+{
+	std::string msg = string_format("%s:%d: warning: %s", this->lexer.src_location_stack.top().filename, lexer.getLineNo(), m);
+	this->pp_inst->err_data.warnings.push_back(msg);
+}
+
+void gix_esql_driver::warning(const std::string & m)
+{
+	yy::location loc;
+	warning(loc, m);
+}
 
 void gix_esql_driver::scan_begin()
 {
@@ -130,7 +151,8 @@ void gix_esql_driver::scan_begin()
     } else if( file == "-" ) { 
         lexer.switch_streams(&std::cin, 0);
     } else {
-        error ("Cannot open file '" + file + "'.");
+		yy::location loc;	// FIXME
+        error (loc, "Cannot open file '" + file + "'.", ERR_FILE_NOT_FOUND);
         exit (EXIT_FAILURE);
     }
 }
@@ -256,11 +278,14 @@ void gix_esql_driver::put_exec_list()
 	l->host_list = host_reference_list;
 	l->res_host_list = res_host_reference_list;
 	l->sql_list = sql_list;
+	l->hostref_or_literal_list = hostref_or_literal_list;
 	l->cursorName = cursorname;
 	l->commandName = commandname;
 	l->command_putother = command_putother;
 	l->sqlName = sqlname;
 	l->incfileName = incfilename;
+	l->statementName = statement_name;
+	l->statementSource = statement_source;
 	l->cursor_hold = cursor_hold;
 	l->src_file = filename_clean_path(lexer.src_location_stack.top().filename);
 
@@ -273,10 +298,16 @@ void gix_esql_driver::put_exec_list()
 	host_reference_list = new std::vector<cb_hostreference_ptr>();
 	res_host_reference_list = new std::vector<cb_res_hostreference_ptr>();
 	sql_list = new std::vector<cb_sql_token_t>();
+	hostref_or_literal_list = new std::vector<hostref_or_literal_t *>();
 	conninfo = new esql_connection_info_t();
 
 	exec_list->push_back(l);
 
+}
+
+bool gix_esql_driver::field_exists(const std::string &f)
+{
+	return (field_map.find(f) != field_map.end());
 }
 
 int cb_get_level(int val)
@@ -402,21 +433,29 @@ cb_field_ptr gix_esql_driver::cb_build_field_tree(int level, std::string name, c
 			p = p->parent;
 		}
 
-		if (in_ws_section) {
-			f->path = "WS:" + path;
-			f->data_section = DataSectionType::WorkingStorage;
-		}
-		else 
-			if (in_linkage_section) {
+		switch (this->data_division_section) {
+			case DD_SECTION_WS:
+				f->path = "WS:" + path;
+				f->data_section = DataSectionType::WorkingStorage;
+				break;
+
+			case DD_SECTION_LS:
 				f->path = "LS:" + path;
 				f->data_section = DataSectionType::LinkageSection;
-			}
-			else
-				if (in_file_section) {
-					f->path = "FS:" + path;
-					f->data_section = DataSectionType::FileSection;
-				}
+				break;
 
+			case DD_SECTION_LL:
+				f->path = "LL:" + path;
+				f->data_section = DataSectionType::LocalStorage;
+				break;
+
+
+			case DD_SECTION_FS:
+				f->path = "FS:" + path;
+				f->data_section = DataSectionType::FileSection;
+				break;
+
+		}
 		field_map[f->sname] = f;
 	}
 

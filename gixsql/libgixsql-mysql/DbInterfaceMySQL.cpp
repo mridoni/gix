@@ -158,6 +158,20 @@ IConnection *DbInterfaceMySQL::get_owner()
 	return owner;
 }
 
+int DbInterfaceMySQL::prepare(std::string stmt_name, std::string sql)
+{
+	last_rc = DBERR_NOT_IMPL;
+	last_error = "NOTIMPL";
+	return DBERR_PREPARE_FAILED;
+}
+
+int DbInterfaceMySQL::exec_prepared(std::string stmt_name, std::vector<std::string> &paramValues, std::vector<int> paramLengths, std::vector<int> paramFormats)
+{
+	last_rc = DBERR_NOT_IMPL;
+	last_error = "NOTIMPL";
+	return DBERR_SQL_ERROR;
+}
+
 int DbInterfaceMySQL::_mysql_exec_params(ICursor *crsr, string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats)
 {
 	string q = query;
