@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2021 Marco Ridoni
+* Copyright (C) 2021,2022 Marco Ridoni
 * Copyright (C) 2013 Tokyo System House Co.,Ltd.
 *
 * This library is free software; you can redistribute it and/or
@@ -169,6 +169,8 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 
 %type <uint64_t> opt_sql_type_def sql_type
 
+%nonassoc error
+
 // No %destructors are needed, since memory will be reclaimed by the
 // regular destructors.
 %printer { yyoutput << to_std_string($$); } <*>;
@@ -197,6 +199,7 @@ sqlstate:
 | resetsql
 | othersql
 | declaresql
+| badsql
 ;
 
 execsql_with_opt_at: EXECSQL opt_at {
@@ -452,6 +455,12 @@ expr				{      $$ = driver.cb_text_list_add (NULL, $1);}
 | token_list host_reference   {
 	$$ = driver.cb_text_list_add ($1, driver.cb_host_list_add (driver.host_reference_list, $2));
 }
+
+badsql:
+execsql_with_opt_at error END_EXEC
+{
+	yyerrok;
+};
 
 host_reference:
 HOSTTOKEN { $$ = $1; }
