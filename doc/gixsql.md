@@ -3,7 +3,7 @@
 
 GixSQL is an ESQL preprocessor and a series of runtime libraries to enable GnuCOBOL to access ODBC, MySQL and PostgreSQL databases.
 
-It originated as a (private) fork of OceSQL but has been almost completely rewritten: while the semantics related to the GnuCOBOL interface are similar and several support functions have been kept, the parser, scanner and library frameworks have been developed in C++ and have a different organization, with dynamically loadable modules as "database drivers".
+It originated as a (private) fork of [ocesql](https://github.com/GitMensch/Open-COBOL-ESQL) but has been almost completely rewritten: while the semantics related to the GnuCOBOL interface are similar and several support functions have been kept, the parser, scanner and library frameworks have been developed in C++ and have a different organization, with dynamically loadable modules as "database drivers".
 
 The core of GixSQL has been incorporated in a more generic "preprocessing library" (libgixpp) that is used in Gix-IDE to parse COBOL files and derive some metadata used for navigation and debugging.
 
@@ -19,7 +19,7 @@ GixSQL comprises a preprocessor (a standalone executable or a library) and a set
 When you create a project in Gix-IDE, you are asked whether you want to enable it for ESQL preprocessing. This is not an absolute requirement. At any point you can set the project property "Preprocess for ESQL" (under "General") to "Yes". There are several properties you can configure here that affed code generation by the preprocessor:
 
 - **Preprocess COPY files**: if set to "Yes" all copy files (not only those in EXEC SQL INCLUDE sections) will be parsed by the ESQL preprocessor. This is useful when you have copy files containing code that includes EXEC SQL statements.
-- **Use anonymous parameters**: if set to "Yes", parameters in SQL statments will be represented as "?", otherwise a numeric indicator (i.e "$1") will be used.
+- **Use anonymous parameters**: if set to "Yes", parameters in SQL statments will be represented as `?`, otherwise a numeric indicator (i.e `$1`) will be used.
 - **Emit static calls**: if set to "Yes", the calls to the gixsql library functions will be emitted as static. This should be normally set to "Yes".
 
 ### Connecting to a database from COBOL
@@ -28,15 +28,17 @@ When you create a project in Gix-IDE, you are asked whether you want to enable i
 
 There is no "bind" procedure in GixSQL, you will have to manually open a connection to a database. This can be done in different ways: this is an example of a syntax that is quite similar to the one used in Micro Focus COBOL:
 
+```cobol
     ACCEPT DATASRC FROM ENVIRONMENT-VALUE.                        
     ACCEPT DBAUTH FROM ENVIRONMENT-VALUE.                      
     EXEC SQL
       CONNECT TO :DATASRC USER :DBAUTH
     END-EXEC. 
+```
 
-In this case the two values are retrieved from the environment variables DBNAME and DBAUTH and passed to the CONNECT function.
+In this case the two values are retrieved from the environment variables `DBNAME` and `DBAUTH` and passed to the CONNECT function.
 
-DATASRC is a "connection string"-style alphanumeric field, whose format is basically
+`DATASRC` is a "connection string"-style alphanumeric field, whose format is basically
 
     <dbtype>://<host>[:port][/dbname][?[opt1=val1]&...]
 
@@ -44,7 +46,7 @@ e.g. (if using PostgreSQL)
 
     pgsql://localhost:5432/testdb?default_schema=myschema
 
-In this case the username and password are provided in the second parameter (DBAUTH in this case) and follow the format (yes, that's a dot):
+In this case the username and password are provided in the second parameter (`DBAUTH` in this case) and follow the format (yes, that's a dot):
 
     username.password
 
@@ -54,7 +56,7 @@ You can also use other formats for your connection statements, like
 
 or
 
-	CONNECT :USERNAME IDENTIFIED_BY :PASSWORD USING :DATASOURCE
+	CONNECT :USERNAME IDENTIFIED BY :PASSWORD USING :DATASOURCE
 
 All the identifiers for data sources, usernames and passwords can be either COBOL variables (prefixed by a semi-colon) or string literals.
 
@@ -92,7 +94,7 @@ Then you can use this identifier in your SQL statements, e.g.:
 
 ### Declaring SQL host variables
 
-For the time being the `BEGIN DECLARE SECTION`/`END DECLARE SECTIONS` statements are processed but ignored. You can use any COBOL field in SQL statements, e.g.:
+You can use any COBOL field in SQL statements, e.g.:
 
 	      WORKING-STORAGE SECTION. 
 
@@ -135,41 +137,6 @@ As it is standard practice in COBOL, "level 49" fields are used to store a VARCH
 
 3) manually define "level 49" fields as in case 1, this is the case with some legacy code.
 
-You can also use form the `EXEC SQL VAR` syntax to declare other SQL-typed fileds, e.g:
-
-       EXEC SQL VAR NUM3 IS FLOAT END-EXEC .
-        
-       EXEC SQL VAR NUM4 IS FLOAT(6,2) END-EXEC.
-
-As of v1.0.10 the supporteed SQL types are `FLOAT`, `REAL`, `INTEGER`, `DECIMAL`. `VARCHAR2` is supported at a syntactic level but for now is treated as a standard `VARCHAR`.
-
-### Prepared statements
-Starting from v1.0.10 GixSQL supports prepared statements:
-
-       WORKING-STORAGE SECTION. 
-           ...
-
-           01  DYNSTMT1   SQL TYPE IS VARCHAR(100).
-
-       PROCEDURE DIVISION. 
-
-           ...
-		   
-           MOVE 'INSERT INTO TAB1(F1, F2) VALUES(?, ?)' TO DYNSTMT1.
-           
-           EXEC SQL 
-               PREPARE SQLSTMT1 FROM :DYNSTMT1
-           END-EXEC.
-
-           MOVE 1 TO T1.
-           MOVE 2 TO T2.
-           EXEC SQL EXECUTE SQLSTMT1 USING :T1, :T2 END-EXEC.
-
-`EXECUTE IMMEDIATE` is also supported (as is the case above, you can use literals or host references):
-
-           EXEC SQL EXECUTE IMMEDIATE 
-                'UPDATE TAB1 SET FLD1=FLD1+100, FLD2=FLD2+300'
-           END-EXEC.
 
 ### Driver options and notes
 
@@ -185,39 +152,45 @@ Driver options are passed in the connection string, e.g.:
 
 For "binary" options you can use either on/off or 1/0 to enable or disable them.
 
+
+### Logging
+
+In case of errors or to log what is happening you may want to enable logging using the environment variables `GIXSQL_DEBUG_LOG-ON=1` (which defaults to 0=OFF) and `GIXSQL_DEBUG_LOG` (defaults to "gixsql.log" in your temp directory).
+
+
 ### Examples
 
-You can find a sample project collection for GixSQL (TEST001.gix) in the folder %USERPROFILE%\Documents\Gix\Examples ($HOME/Documents/gix/examples on Linux) that should have been created when you installed Gix-IDE. Under the project directory (%USERPROFILE%\Documents\Gix\Examples\TEST001 or $HOME/Documents/gix/examples/TEST001 on Linux) there is a SQL file with a DDL query and some data you can use to run the sample project.
+You can find a sample project collection for GixSQL (TEST001.gix) in the folder `%USERPROFILE%\Documents\Gix\Examples` (`$HOME/Documents/gix/examples` on GNU/Linux) that should have been created when you installed Gix-IDE.  
+Under the project directory (`%USERPROFILE%\Documents\Gix\Examples\TEST001` or `$HOME/Documents/gix/examples/TEST001` on GNU/Linux) there is a SQL file with a DDL query and some data you can use to run the sample project.
 
 ### Using GixSQL outside Gix-IDE
 
 If you want to manually precompile COBOL programs for ESQL, you can use the preprocessor binary (**gixpp** or **gixpp.exe**) you will find in the **bin** folder in Gix-IDE's install directory. When you run it from the console, ensure you have the same **bin** directory in your PATH/LD_LIBRARY_PATH since it contains some libraries that are needed by **gixpp**. These are the command line options available, that correspond to those described earlier:
 
-    gixpp - the ESQL preprocessor for Gix-IDE/GixSQL
-    Version: 1.0.10
-    libgixpp version: 1.0.10
-    
-    Options:
-      -h, --help                  displays help on commandline options
-      -V, --version               displays version information
-      -I, --copypath arg          COPY file path list
-      -i, --infile arg            input file
-      -o, --outfile arg           output file
-      -s, --symfile arg           output symbol file
-      -e, --esql                  preprocess for ESQL
-      -p, --esql-preprocess-copy  ESQL: preprocess all included COPY files
-      -E, --esql-copy-exts arg    ESQL: copy files extension list (comma-separated)
-      -a, --esql-anon-params      ESQL: use anonymous (not numbered) parameters
-      -S, --esql-static-calls     ESQL: emit static calls
-      -g, --debug-info            generate debug info
-      -c, --consolidate           consolidate source to single-file
-      -k, --keep                  keep temporary files
-      -v, --verbose               verbose
-      -d, --verbose-debug         verbose (debug)
-      -m, --map                   emit map file
-    
+```text
+	gixpp - the ESQL preprocessor for Gix-IDE/GixSQL
+	Version: 1.0.8
+	libgixpp version: 1.0.8
+	
+	Options:
+	  -h, --help                  displays help on commandline options
+	  -I, --copypath arg          COPY file path list
+	  -i, --infile arg            input file
+	  -o, --outfile arg           output file
+	  -s, --symfile arg           output symbol file
+	  -e, --esql                  preprocess for ESQL
+	  -p, --esql-preprocess-copy  ESQL: preprocess all included COPY files
+	  -E, --esql-copy-exts arg    ESQL: copy files extension list (comma-separated)
+	  -a, --esql-anon-params      ESQL: use anonymous (not numbered) parameters
+	  -S, --esql-static-calls     ESQL: emit static calls
+	  -g, --debug-info            generate debug info
+	  -c, --consolidate           consolidate source to single-file
+	  -k, --keep                  keep temporary files
+	  -v, --verbose               verbose
+	  -d, --verbose-debug         verbose (debug)
+```	  
 
-When you want to build and link from the console, remember also to add the `<gix-install-dir>/share/gix/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.
+When you want to build and link from the console, remember also to add the `<gix-install-dir>/lib/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.
 
 
 ### Basic command line example
@@ -234,9 +207,9 @@ On Linux (this may vary according to your distribution) it should be
 
 Create an empty database or a schema, ensure you can access it with a given username and password, then use the DDL file `test001.sql` to create the test table we are going to use (named `emptable`). 
 
-Make sure that the preprocessor (gixpp) is in your path, then preprocess the COBOL source file (we are using GIXSQL_COPY_DIR as a placeholder for the directory where SQLCA resides):
+Make sure that the preprocessor (gixpp) is in your path, then preprocess the COBOL source file:
 
-	gixpp -e -S -I. -I <GIXSQL_COPY_DIR> -ext ".,*.cpy,*.CPY" -i TEST001.cbl -o TEST001.cbsql
+	gixpp -e -S -I. -ext ".,*.cpy,*.CPY" -i TEST001.cbl -o TEST001.cbsql
 
 where:
 
@@ -361,4 +334,4 @@ It should compile all the libraries, then the preprocessing library and the prep
 	sudo make install
 	
 ### Windows (MinGW)
-Currently there are no specific Makefiles/autoconf scripts for MinGW x86/x64, they will be provided ina future release, but you can try to use the configure script.
+Currently there are no specific Makefiles/autoconf scripts for MinGW x86/x64, they will be provided in a future release, but you can try to use the configure script.
