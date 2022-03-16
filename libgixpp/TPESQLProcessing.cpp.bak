@@ -572,11 +572,10 @@ bool TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 
 	auto lines = c.format();
 
-	// The END-CALL statement was added by the format method, we just need (in case) to add the period
 	if (terminate_with_period) {
 		lines.back() = lines.back() + ".";
-	} 
-	
+	}
+
 	for (auto ln : lines) {
 		put_output_line(ln);
 	}
@@ -935,19 +934,22 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 		case ESQL_Command::DeclareVar:
 			{		
 				if (stmt->host_list->size() != 1) {
+					//owner->err_data.err_messages.push_back("Cannot find host variable");
 					main_module_driver.error("Cannot find host variable (invalid declaration)", ERR_MISSING_HOSTVAR);
 					return false;
 				}
 
 				std::string var_name = stmt->host_list->at(0)->hostreference; 
 				if (!main_module_driver.field_exists(var_name)) {
+					//owner->err_data.err_messages.push_back("Cannot find host variable: " + var_name);
 					main_module_driver.error("Cannot find host variable: " + var_name, ERR_MISSING_HOSTVAR);
 					return false;
 				}
 
 				cb_field_ptr var = main_module_driver.field_map[var_name];
 				if (var->level != 1) {
-					main_module_driver.error(string_format("Invalid level for SQL variable, it is %02d, should be 01", var->level), ERR_INVALID_LEVEL, var->defined_at_source_file, var->defined_at_source_line);
+					//owner->err_data.err_messages.push_back(string_format("Invalid level for SQL variable, it is %02d, should be 01", var->level));
+					main_module_driver.error(string_format("Invalid level for SQL variable, it is %02d, should be 01", var->level), ERR_INVALID_LEVEL);
 					return false;
 				}
 
@@ -977,7 +979,8 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 							if (cbl_int_part_len <= 0) {
 								if (precision == 0) {
-									main_module_driver.error(string_format("Missing length for field %s", var_name), ERR_MISSING_LENGTH, var->defined_at_source_file, var->defined_at_source_line);
+									//owner->err_data.err_messages.push_back(string_format("Missing length for field %s", var_name));
+									main_module_driver.error(string_format("Missing length for field %s", var_name), ERR_MISSING_LENGTH);
 									return false;
 								}
 								else {
@@ -1040,7 +1043,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 							if (cbl_int_part_len <= 0) {
 								if (precision == 0) {
 									//owner->err_data.err_messages.push_back(string_format("Missing length for field %s", var_name));
-									main_module_driver.error(string_format("Missing length for field %s", var_name), ERR_MISSING_LENGTH, var->defined_at_source_file, var->defined_at_source_line);
+									main_module_driver.error(string_format("Missing length for field %s", var_name), ERR_MISSING_LENGTH);
 									return false;
 								}
 								else {
@@ -1069,7 +1072,8 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 						break;
 
 					default:
-						main_module_driver.error(string_format("Unsupported SQL type (%d)", sql_type), ERR_INVALID_TYPE, var->defined_at_source_file, var->defined_at_source_line);
+						//owner->err_data.err_messages.push_back(string_format("Unsupported SQL type (%d)", sql_type));
+						main_module_driver.error(string_format("Unsupported SQL type (%d)", sql_type), ERR_INVALID_TYPE);
 						return false;
 				}
 			}
@@ -1402,9 +1406,8 @@ bool TPESQLProcessing::fixup_declared_vars()
 			return false;
 		}
 
-		var->sql_type = type_info;
-		var->is_varlen = IS_VARLEN(sql_type);
-		var->usage = IS_BINARY(sql_type) ? Usage::Binary : Usage::None;
+		var->is_varlen = IS_VARLEN(sql_type >> 32);
+		var->usage = IS_BINARY(sql_type >> 32) ? Usage::Binary : Usage::None;
 		var->picnsize = precision;
 		var->scale = scale;
 

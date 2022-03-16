@@ -99,8 +99,8 @@ public:
     bool trace_parsing;
 
     // Error handling.
-    void error (const yy::location& l, const std::string& m, int err_code);
-    void error (const std::string& m, int err_code);
+    void error (const yy::location& l, const std::string& m, int err_code, std::string filename = std::string(), int line = -1);
+    void error (const std::string& m, int err_code, std::string filename = std::string(), int line = -1);
     void warning(const yy::location &l, const std::string &m);
     void warning(const std::string &m);
 

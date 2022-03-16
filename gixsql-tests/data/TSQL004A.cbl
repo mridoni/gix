@@ -21,6 +21,10 @@
        EXEC SQL 
         INCLUDE EMPREC 
        END-EXEC. 
+
+        EXEC SQL VAR
+              VARD IS VARCHAR(120)
+        END-EXEC.       
        
            01 DATASRC PIC X(64).
            01 DBUSR  PIC X(64).
@@ -34,8 +38,15 @@
            01 ANSS          PIC X. 
            01 COM-NULL-IND  PIC S9(4) COMP. 
            
-           01 VARC PIC X(20).
-           01 VARD PIC X(20).
+           01 VARC SQL TYPE IS VARCHAR(20).
+      
+           01 VARD PIC X(32).
+           01 VARE PIC X(32).
+
+        EXEC SQL VAR
+              VARE IS VARCHAR(120)
+        END-EXEC.                 
+                  
        
        EXEC SQL 
             INCLUDE SQLCA 

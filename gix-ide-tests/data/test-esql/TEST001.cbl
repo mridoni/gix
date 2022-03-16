@@ -55,7 +55,7 @@
                     MISCDATA
                  FROM EMPTABLE
                ORDER BY LNAME
-           END-EXEC              
+           END-EXEC.              
        PROCEDURE DIVISION. 
  
        000-CONNECT.

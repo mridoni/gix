@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "ESQLDefinitions.h"
+#include "libcpputils.h"
 
 #define SIGN_LEADING 1
 #define SIGN_SEPARATE 1
@@ -74,10 +75,11 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %define api.token.prefix {TOK_}
 
 // Use variant-based semantic values: %type and %token expect genuine types
-%token
+/* %token
   PERIOD "."
 ;
-
+*/
+%token PERIOD
 %token<std::string> SELECT
 %token<std::string> SELECTFROM
 %token<std::string> TOKEN
@@ -95,15 +97,21 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %token<long> NUMERIC
 %token END_EXEC
 %token EXECSQL
-%token EXECSQL_INCLUDE
+%token INCLUDE
 %token FROM
+%token IMMEDIATE
 %token DECLARE
 %token CURSOR
 %token FOR
+%token COMMA
+%token STATEMENT
 %token WORKINGBEGIN
 %token WORKINGEND
 %token LINKAGEBEGIN
 %token LINKAGEEND
+%token LOCALSTORAGEBEGIN
+%token LOCALSTORAGEEND
+%token FD
 %token FILEBEGIN
 %token FILEEND
 %token PROCEDURE_DIVISION
@@ -115,6 +123,7 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %token IDENTIFIED_BY
 %token COMMIT_WORK
 %token ROLLBACK_WORK
+%token SAVEPOINT
 %token CONNECT
 %token TO
 %token AS
@@ -152,21 +161,24 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %token CONST
 %token USER
 %token TABLE
-%token BEGIN_DECLARE_SPECIAL
 %token COPY
 %token COPY_FILE
 %token<int> WITH_HOLD
 %token WHERE_CURRENT_OF
+%token PREPARE
 
 %type <std::vector<std::string> *> token_list declaresql includesql incfile 
-%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql declare_cursor
-%type <std::string> declare_special declare_table
-%type <std::vector<std::string> *> update deletesql delete disconnect disconnectsql othersql
+//%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql declare_cursor
+//%type <std::string> declare_table
+%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql cursor_declaration 
+//%type <std::vector<std::string> *> statement_declaration
+//%type <std::string> table_declaration
+%type <std::vector<std::string> *> update deletesql delete disconnect disconnectsql othersql executesql
 %type <std::string> host_reference expr
 //%type <uint32_t> opt_size
 
 %type <hostref_or_literal_t *> strliteral_or_hostref dbid opt_connect_as opt_at opt_using opt_dbid
-
+%type <int> opt_with_hold
 %type <uint64_t> opt_sql_type_def sql_type
 
 %nonassoc error
@@ -182,8 +194,7 @@ sqlstate_list:
 | sqlstate_list sqlstate;
 
 sqlstate: 
-/*%empty
-| */ sqlvariantstates
+sqlvariantstates
 | incfile
 | connectsql
 | opensql
@@ -199,6 +210,8 @@ sqlstate:
 | resetsql
 | othersql
 | declaresql
+| preparesql
+| executesql
 | badsql
 ;
 
@@ -263,6 +276,11 @@ rollbacksql:
 execsql_with_opt_at ROLLBACK_WORK END_EXEC {
 	driver.put_exec_list();
 }
+| execsql_with_opt_at ROLLBACK_WORK TO SAVEPOINT TOKEN END_EXEC {
+	driver.commandname = "ROLLBACK_TO_SAVEPOINT";
+	driver.cb_text_list_add (NULL, $5);
+	driver.put_exec_list();
+}
 
 commitsql:
 execsql_with_opt_at COMMIT_WORK END_EXEC {
@@ -271,11 +289,16 @@ execsql_with_opt_at COMMIT_WORK END_EXEC {
 
 
 fetchsql:
-EXECSQL fetch INTO res_host_references END_EXEC {
+EXECSQL unexpected_at fetch INTO res_host_references END_EXEC {
 	driver.put_exec_list();
 }
+;
+
 fetch:
-FETCH expr { driver.cb_set_cursorname($2);}
+FETCH expr { 
+	driver.cb_set_cursorname($2);
+}
+;
 
 host_references:
 host_reference {driver.cb_host_list_add (driver.host_reference_list, $1);}
@@ -288,18 +311,18 @@ host_reference {driver.cb_res_host_list_add (driver.res_host_reference_list, $1)
 | res_host_references host_reference {driver.cb_res_host_list_add (driver.res_host_reference_list, $2);}
 
 closesql:
-EXECSQL CLOSE expr END_EXEC {
-	driver.cb_set_cursorname($3);
+EXECSQL unexpected_at CLOSE expr END_EXEC {
+	driver.cb_set_cursorname($4);
 	driver.put_exec_list();
 }
 
 opensql:
-EXECSQL OPEN expr END_EXEC {
-	driver.cb_set_cursorname($3);
+EXECSQL unexpected_at OPEN  expr END_EXEC {
+	driver.cb_set_cursorname($4);
 	driver.put_exec_list();
 }
-| EXECSQL OPEN expr USING host_references END_EXEC {
-	driver.cb_set_cursorname($3);
+| EXECSQL unexpected_at OPEN expr USING host_references END_EXEC {
+	driver.cb_set_cursorname($4);
 	driver.put_exec_list();
 }
 
@@ -330,27 +353,30 @@ DECLARE_VAR TOKEN IS sql_type END_EXEC {
 	cb_field_ptr x;
 
 	std::string var_name = $2;
-	uint64_t t = $4;
+	uint64_t type_info = $4;
 
-	uint32_t length = t & 0xffffffff;
+	uint32_t length = type_info & 0xffffffff;
 	uint16_t precision = (length >> 16);
 	uint16_t scale = (length & 0xffff);
-	int type = t >> 32;
+	int sql_type = (type_info >> 32);
 
 	if (driver.field_map.find(var_name) == driver.field_map.end()) {
-		std::tuple<uint64_t, int, int> d = std::make_tuple(t, driver.startlineno, driver.endlineno);
+		std::string src_file = driver.lexer.src_location_stack.top().filename;
+		std::tuple<uint64_t, int, int, std::string> d = std::make_tuple(type_info, driver.startlineno, driver.endlineno, src_file);
 		driver.field_sql_type_info[var_name] = d;
 	}
 	else {
 		x = driver.field_map[var_name];
-		x->sql_type = t;
+		x->sql_type = type_info;
 
-		x->is_varlen = IS_VARLEN(type);
-		x->usage = IS_BINARY(type) ? Usage::Binary : Usage::None;
+		x->is_varlen = IS_VARLEN(sql_type);
+		x->usage = IS_BINARY(sql_type) ? Usage::Binary : Usage::None;
 
 		x->pictype = -1;	// Preprocessor will build the correct PIC
-		x->picnsize = precision;
-		x->scale = scale;
+		
+		// We do not want to overwrite precision and scale as defined in the COBOL source
+		// x->picnsize = precision;
+		// x->scale = scale;
 
 		driver.cb_set_commandname("DECLARE_VAR");
 		driver.cb_host_list_add (driver.host_reference_list, x->sname);
@@ -385,12 +411,19 @@ AT dbid { $$ = $2; }
 | %empty { $$ = new hostref_or_literal_t(); }
 ;
 
+unexpected_at:
+AT dbid {  
+	driver.warning(@$, "AT DB-NAME is not allowed for CURSOR access, always used from CURSOR DECLARE"); 
+}
+| %empty { /* everything fine */ }
+;
+
 opt_dbid:
 %empty { $$ = new hostref_or_literal_t(); }
 | dbid { $$ = $1; }
 ;
 
-strliteral_or_hostref : 
+strliteral_or_hostref: 
 TOKEN { $$ = new hostref_or_literal_t($1, true); }
 | host_reference { $$ = new hostref_or_literal_t($1, false); }
 ;
@@ -410,7 +443,7 @@ execsql_with_opt_at OTHERFUNC token_list END_EXEC {
 ;
 
 incfile:
-EXECSQL_INCLUDE INCLUDE_FILE END_EXEC{
+EXECSQL INCLUDE INCLUDE_FILE END_EXEC{
 	driver.put_exec_list();
 	driver.lexer.pushNewFile(driver.incfilename, &driver, true, true);
 }
@@ -421,7 +454,7 @@ EXECSQL_INCLUDE INCLUDE_FILE END_EXEC{
 }
 
 includesql:
-EXECSQL_INCLUDE INCLUDE_SQLCA END_EXEC{
+EXECSQL INCLUDE INCLUDE_SQLCA END_EXEC{
 	driver.put_exec_list();
 	driver.lexer.pushNewFile("SQLCA", &driver, true, true);
 }
@@ -438,16 +471,113 @@ execsql_with_opt_at SELECT token_list INTO res_host_references SELECTFROM token_
 	driver.put_exec_list();
 }
 
+badsql:
+execsql_with_opt_at error END_EXEC
+{
+	yyerrok;
+};
 
 declaresql:
-execsql_with_opt_at declare_for select END_EXEC { driver.put_exec_list(); }
+execsql_with_opt_at DECLARE sql_declaration END_EXEC {
+	//driver.put_exec_list();
+}
+;
 
+sql_declaration:
+  TOKEN statement_declaration	{ driver.declared_statements.push_back($1); }
+| TOKEN cursor_declaration		{ 
+	driver.cb_set_cursorname($1); 
+	if (!driver.procedure_division_started)
+ 		driver.put_startup_exec_list(); 
+	else
+		driver.put_exec_list();	
+}
+| TOKEN table_declaration		{ }
+;
+
+statement_declaration:
+STATEMENT {
+	
+}
+;
+
+cursor_declaration:
+CURSOR opt_with_hold FOR select { driver.cb_set_cursor_hold($2); }
+;
+
+table_declaration:
+TABLE token_list {
+ 	driver.cb_set_commandname("DECLARE_TABLE");
+ 	driver.put_exec_list(); 
+}
+;
+
+opt_with_hold:
+%empty		{ $$ = 0; }
+| WITH_HOLD { $$ = 1; }
+;
+
+preparesql:
+execsql_with_opt_at PREPARE TOKEN FROM strliteral_or_hostref END_EXEC {
+
+	driver.cb_set_commandname("PREPARE_STATEMENT");
+	driver.statement_name = $3;
+
+	if ($5->is_literal) {
+		driver.sql_list->push_back(unquote($5->name));
+		driver.sqlnum++;
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
+		driver.statement_source = nullptr;
+	}
+	else {
+		driver.statement_source = $5;
+		driver.sql_list->clear();
+	}
+
+	driver.put_exec_list();
+}
+;
+
+executesql:
+execsql_with_opt_at EXECUTE IMMEDIATE strliteral_or_hostref END_EXEC {
+	driver.commandname = "EXECUTE_IMMEDIATE";
+
+	if ($4->is_literal) {
+		driver.sql_list->push_back(unquote($4->name));
+		driver.sqlnum++;
+		driver.sqlname = string_format("SQ%04d", driver.sqlnum);
+		driver.statement_source = nullptr;
+	}
+	else {
+		driver.statement_source = $4;
+		driver.sql_list->clear();
+	}
+	driver.put_exec_list();
+}
+| execsql_with_opt_at EXECUTE TOKEN opt_using_hostref_list END_EXEC {
+
+	driver.commandname = "EXECUTE_PREPARED";
+	driver.statement_name = $3;
+	driver.put_exec_list();
+}
+;
+
+
+opt_using_hostref_list:
+%empty
+| USING host_references { }
+;
+
+// For now we only allow hosta variables as parameters, no literals
+/*
+strliteral_or_hostref_list:
+strliteral_or_hostref_list COMMA strliteral_or_hostref { driver.hostref_or_literal_list->push_back($3); }
+| strliteral_or_hostref { driver.hostref_or_literal_list->push_back($1); }
+;
+*/
 select:
 SELECT token_list{ $$ = driver.cb_concat_text_list (driver.cb_text_list_add (NULL, $1), $2);}
-
-declare_for:
-DECLARE expr CURSOR FOR { driver.cb_set_cursorname($2); driver.cb_set_cursor_hold(0); }
-| DECLARE expr CURSOR WITH_HOLD FOR { driver.cb_set_cursorname($2); driver.cb_set_cursor_hold(1); }
+;
 
 token_list:
 expr				{      $$ = driver.cb_text_list_add (NULL, $1);}
@@ -455,12 +585,6 @@ expr				{      $$ = driver.cb_text_list_add (NULL, $1);}
 | token_list host_reference   {
 	$$ = driver.cb_text_list_add ($1, driver.cb_host_list_add (driver.host_reference_list, $2));
 }
-
-badsql:
-execsql_with_opt_at error END_EXEC
-{
-	yyerrok;
-};
 
 host_reference:
 HOSTTOKEN { $$ = $1; }
@@ -491,7 +615,7 @@ LINKAGEEND {
 	// check host_variable
 	driver.put_exec_list();
 }
-|FILEBEGIN {
+|FILEBEGIN  {
 	driver.current_field = NULL;
 	driver.description_field = NULL;
 	driver.put_exec_list();
@@ -506,43 +630,23 @@ FILEEND {
 }
 ;
 
+fd_def:
+FD token_list PERIOD  {}
+;
+
 
 sqlvariantstate_list:
 %empty
+|sqlvariantstate_list fd_def
 |sqlvariantstate_list incfile
 |sqlvariantstate_list includesql
-|sqlvariantstate_list declare_cursor
-|sqlvariantstate_list declare_table
+|sqlvariantstate_list declaresql
 |sqlvariantstate_list sqlvariantstate PERIOD
 |sqlvariantstate_list HOSTVARIANTBEGIN { driver.put_exec_list(); }
 |sqlvariantstate_list HOSTVARIANTEND { driver.put_exec_list(); }
 |sqlvariantstate_list declaresqlvar
 ;
 
-declare_cursor:
-	 declare_special CURSOR FOR select END_EXEC { 
-		$$ = $4;
-		driver.cb_set_cursorname($1); 
-		driver.cb_set_cursor_hold(0); 
-		driver.put_startup_exec_list(); 
-} | declare_special CURSOR WITH_HOLD FOR select END_EXEC { 
-		$$ = $5;
-		driver.cb_set_cursorname($1); 
-		driver.cb_set_cursor_hold(1); 
-		driver.put_startup_exec_list(); 
-}
-;
-
-declare_table:
-	declare_special TABLE token_list END_EXEC { 
-	driver.cb_set_commandname("DECLARE_TABLE");
-	driver.put_exec_list(); 
-}
-;
-
-declare_special:
-	BEGIN_DECLARE_SPECIAL expr { $$ = $2; }
-	
 sqlvariantstate:
 NUMERIC WORD opt_sql_type_def {
 	cb_field_ptr x;
@@ -554,19 +658,22 @@ NUMERIC WORD opt_sql_type_def {
 			driver.current_field = x;
 
 		if ($3 != 0) {
-			uint64_t t = $3;
-			uint32_t length = t & 0xffffffff;
+			uint64_t type_info = $3;
+			uint32_t length = type_info & 0xffffffff;
 			uint16_t precision = (length >> 16);
 			uint16_t scale = (length & 0xffff);
-			int type = t >> 32;
+			int sql_type = type_info >> 32;
 
-			x->sql_type = type;
-			x->is_varlen = IS_VARLEN(type);
-			x->usage = IS_BINARY(type) ? Usage::Binary : Usage::None;
+			x->sql_type = type_info;
+			x->is_varlen = IS_VARLEN(sql_type);
+			x->usage = IS_BINARY(sql_type) ? Usage::Binary : Usage::None;
 
 			x->pictype = -1;	// Preprocessor will build the correct PIC for "SQL TYPE IS" defs
-			x->picnsize = precision;
-			x->scale = scale;
+
+			// We do not want to overwrite precision and scale as defined in the COBOL source
+			// x->picnsize = precision;
+			// x->scale = scale;
+			
 			driver.cb_set_commandname("DECLARE_VAR");
 			driver.cb_host_list_add (driver.host_reference_list, x->sname);
 			driver.put_exec_list(); 
@@ -691,5 +798,5 @@ _times:		%empty | TIMES;
 // Register errors to the driver:
 void yy::gix_esql_parser::error (const location_type& l, const std::string& m)
 {
-    driver.error(l, m);
+    driver.error(l, m, ERR_SYNTAX_ERROR);
 }

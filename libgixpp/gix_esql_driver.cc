@@ -113,18 +113,24 @@ int gix_esql_driver::parse (GixPreProcessor *gpp, const std::string &f)
 
 // The location from Bison is not actually used. The specific error code (for now) is not actually used elsewhere.
 
-void gix_esql_driver::error (const yy::location& l, const std::string& m, int err_code)
+void gix_esql_driver::error (const yy::location& l, const std::string& m, int err_code, std::string filename, int line)
 {   
-	std::string msg = string_format("%s:%d: error: %s", this->lexer.src_location_stack.top().filename, lexer.getLineNo(), m);
+	if (filename.empty())
+		filename = this->lexer.src_location_stack.top().filename;
+
+	if (line == -1)
+		line = lexer.getLineNo();
+
+	std::string msg = string_format("%s:%d: error: %s", filename, line, m);
 	this->pp_inst->err_data.err_messages.push_back(msg);
 	if (!this->pp_inst->err_data.err_code || err_code != ERR_ALREADY_SET)
 		this->pp_inst->err_data.err_code = err_code;
 }
 
-void gix_esql_driver::error (const std::string& m, int err_code)
+void gix_esql_driver::error (const std::string& m, int err_code, std::string filename, int line)
 {
 	yy::location loc;
-	error(loc, m, err_code);
+	error(loc, m, err_code, filename, line);
 }
 
 void gix_esql_driver::warning(const yy::location &l, const std::string &m)
