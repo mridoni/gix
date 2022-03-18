@@ -54,7 +54,7 @@ private:
 #else
 
 #define LOG_DEBUG(file, func, format, ...)
-#define LOG_ERROR(format, ...) 
+#define LOG_ERROR(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
 
 #define DECLARE_LOGGER(_l) 
 #define DECLARE_LOGGER_STATIC(_l)
