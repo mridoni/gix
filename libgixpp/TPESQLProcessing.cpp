@@ -804,6 +804,9 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				select_call.addParameter(stmt->cursor_hold, BY_VALUE);
 				select_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 				
+				if (call_id.compare("GIXSQLCursorDeclareParams") == 0) // HACK
+					select_call.addParameter(stmt->host_list->size(), BY_VALUE);
+				
 				if (!put_call(select_call, stmt->period))
 					return false;
 			}
