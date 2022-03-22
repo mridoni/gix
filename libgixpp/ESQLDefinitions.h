@@ -99,6 +99,7 @@ struct cb_exec_sql_stmt_t
 
 	std::string  cursorName;
 	std::string  commandName;
+	std::string  textContent;
 	bool command_putother;
 	std::string  sqlName;
 	std::string  incfileName;

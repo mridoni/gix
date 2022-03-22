@@ -7,8 +7,8 @@ namespace gixsql_tests
 {
     [TestClass]
     [HostPlatform("x64")]
-    [TestCategory("SQL syntax error handling")]
-    public class TSQL009 : GixSqlTestBase
+    [TestCategory("FD parse error (#65)")]
+    public class TSQL013 : GixSqlTestBase
     {
         [TestInitialize]
         public new void Begin()
@@ -22,9 +22,9 @@ namespace gixsql_tests
 
 
         [TestMethod]
-        [CobolSource("TSQL009A.cbl", "EMPREC.cpy")]
+        [CobolSource("TSQL013A.cbl", "EMPREC.cpy")]
         [GixSqlDataSource("pgsql", 1)]
-        public void TSQL009A_MSVC_pgsql_x64_exe()
+        public void TSQL013A_MSVC_pgsql_x64_exe()
         {
             compile(CompilerType.MSVC, "release", "x64", "exe");
 

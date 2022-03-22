@@ -92,6 +92,7 @@ Then you can use this identifier in your SQL statements, e.g.:
            
 
 
+
 ### Declaring SQL host variables
 
 For the time being the `BEGIN DECLARE SECTION`/`END DECLARE SECTIONS` statements are processed but ignored. You can use any COBOL field in SQL statements, e.g.:
@@ -187,6 +188,29 @@ Driver options are passed in the connection string, e.g.:
 
 For "binary" options you can use either on/off or 1/0 to enable or disable them.
 
+### Setting client encoding and autocommit
+
+You can set client encoding and autocommit options for a given connection in two different ways.
+
+- using a parameter in the datasource, like indicated above e.g.
+
+      pgsql://localhost:5432/testdb?default_schema=myschema&client_encoding=LATIN1
+
+- using  an environment variable, e.g.
+	
+	  export GIXSQL_CLIENT_ENCODING=UTF8
+	  export GIXSQL_AUTOCOMMIT=on
+
+Notes:
+
+- A setting specified in the datasource definition (the first method) takes precedence over a setting specified in an environment variable
+- Defaults are:
+	-	client encoding: UTF8
+	-	autocommit: off  
+- Client encoding identifiers are driver-specific, i.e. you should use:  
+	+	`export GIXSQL_CLIENT_ENCODING=utf8mb4` for MySQL
+	+	`export GIXSQL_CLIENT_ENCODING=UTF8` for PostgreSQL
+	
 ### Logging
 
 In case of errors or to log what is happening you may want to enable logging using the environment variables `GIXSQL_DEBUG_LOG-ON=1` (which defaults to 0=OFF) and `GIXSQL_DEBUG_LOG` (defaults to "gixsql.log" in your temp directory). While the logging mechanism will be extended in the future, for now this only works for debug builds of GixSQL.
@@ -202,8 +226,8 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
 
 ```text
     gixpp - the ESQL preprocessor for Gix-IDE/GixSQL
-    Version: 1.0.10
-    libgixpp version: 1.0.10
+    Version: 1.0.11
+    libgixpp version: 1.0.11
     
     Options:
       -h, --help                  displays help on commandline options

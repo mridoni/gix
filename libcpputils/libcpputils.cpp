@@ -365,6 +365,12 @@ std::string string_replace(std::string subject, const std::string &search, const
 	return subject;
 }
 
+std::string string_replace_regex(std::string subject, const std::string &search_rx, const std::string &replace_rx)
+{
+	std::regex reg(search_rx);
+	return regex_replace(subject, reg, replace_rx);
+}
+
 std::vector<std::string> file_read_all_lines(const std::string &filename)
 {
 	std::vector<std::string> res;

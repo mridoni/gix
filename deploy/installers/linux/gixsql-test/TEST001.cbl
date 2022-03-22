@@ -1,4 +1,4 @@
-       IDENTIFICATION DIVISION.
+﻿       IDENTIFICATION DIVISION.
        
        PROGRAM-ID. TEST001. 
        
@@ -24,7 +24,7 @@
        
            01 DBNAME PIC X(64).
            01 DBAUTH PIC X(64).
-           
+           01 T1     PIC 9(3) VALUE 0.  
            01 DISP-RATE PIC 9(15). 
            01 DISP-COM PIC 9(3).  
            01 DISP-CODE PIC 9(8). 
@@ -41,7 +41,18 @@
       *  declare cursor for select 
            EXEC SQL
                DECLARE EMPTBL CURSOR FOR
-               SELECT * 
+               SELECT                     
+                    ENO,
+                    LNAME,
+                    FNAME,
+                    STREET,
+                    CITY,
+                    ST,
+                    ZIP,
+                    DEPT,
+                    PAYRATE,
+                    COM,
+                    MISCDATA
                  FROM EMPTABLE
                ORDER BY LNAME
            END-EXEC              
@@ -52,10 +63,11 @@
          ACCEPT DBNAME FROM ENVIRONMENT-VALUE.
          DISPLAY "DBAUTH" UPON ENVIRONMENT-NAME.
          ACCEPT DBAUTH FROM ENVIRONMENT-VALUE.
-
-         DISPLAY " DB  : " DBNAME.
-         DISPLAY " USER: " DBAUTH.
-         DISPLAY '***************************************'.
+         
+      *   DISPLAY '***************************************'.
+      *   DISPLAY " DB  : " DBNAME.
+      *   DISPLAY " USER: " DBAUTH.
+      *   DISPLAY '***************************************'.
 
            EXEC SQL
               CONNECT TO :DBNAME USER :DBAUTH
@@ -85,7 +97,7 @@
                FETCH EMPTBL INTO 
                  :ENO,:LNAME,:FNAME,:STREET,:CITY, 
                  :ST,:ZIP,:DEPT,:PAYRATE, 
-                 :COM :COM-NULL-IND 
+                 :COM,:MISCDATA
            END-EXEC. 
        
        100-test. 
@@ -98,33 +110,40 @@
       *  display the record
            MOVE PAYRATE TO DISP-RATE
            MOVE COM TO DISP-COM
-           DISPLAY 'department: [' DEPT ']'
+           DISPLAY 'employee #: [' ENO ']'
+           
            DISPLAY 'last name : [' LNAME ']'
            DISPLAY 'first name: [' FNAME ']'
            DISPLAY 'street    : [' STREET ']'
            DISPLAY 'city      : [' CITY ']'
            DISPLAY 'state     : [' ST ']'
            DISPLAY 'zip code  : [' ZIP ']'
-           DISPLAY 'payrate   : [' DISP-RATE ']'
+           DISPLAY 'department: [' DEPT ']'
+           DISPLAY 'payrate   : [' PAYRATE ']'
+           DISPLAY 'commission: [' COM ']'
+           DISPLAY 'misc      : [' MISCDATA-TEXT ']'
+           DISPLAY 'misc (len): [' MISCDATA-LEN ']'
+           
            IF COM-NULL-IND < 0 
                DISPLAY 'commission is null' 
            ELSE 
                DISPLAY 'commission ' DISP-COM 
            END-IF 
-           DISPLAY 'Do you want to see the next record? (y/n)' 
-           ACCEPT ANSS 
-           IF ANSS = 'Y' OR 'y' 
+      *     DISPLAY 'Do you want to see the next record? (y/n)' 
+      *     ACCEPT ANSS 
+      *     IF ANSS = 'Y' OR 'y' 
                EXEC SQL 
                  FETCH EMPTBL INTO 
                    :ENO,:LNAME,:FNAME,:STREET,:CITY, 
                    :ST,:ZIP,:DEPT,:PAYRATE, 
-                   :COM :COM-NULL-IND 
+                   :COM,:MISCDATA
                END-EXEC 
-           ELSE 
-               GO TO CLOSE-LOOP 
-           END-IF 
+      *     ELSE 
+      *         GO TO CLOSE-LOOP 
+      *     END-IF 
            MOVE SQLCODE TO DISP-CODE 
            DISPLAY 'fetch ' DISP-CODE 
+           DISPLAY 'fetch ' SQLCODE 
            END-PERFORM  
        
            DISPLAY 'All records in this table have been selected'. 

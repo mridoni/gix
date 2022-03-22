@@ -287,6 +287,7 @@ void gix_esql_driver::put_exec_list()
 	l->hostref_or_literal_list = hostref_or_literal_list;
 	l->cursorName = cursorname;
 	l->commandName = commandname;
+	l->textContent = text_content;
 	l->command_putother = command_putother;
 	l->sqlName = sqlname;
 	l->incfileName = incfilename;

@@ -27,6 +27,18 @@
            01 T1     PIC 9(4) VALUE 0.  
            01 T2     PIC 9(4) VALUE 0.  
            01 TOT    PIC 9(4) VALUE 0.  
+           
+           01 CURREC PIC 9(4).  
+
+       EXEC SQL AT CONN1
+            DECLARE CRSR01 CURSOR FOR
+                SELECT FLD1 FROM TAB1 ORDER BY FLD1
+       END-EXEC. 
+
+       EXEC SQL AT CONN2
+            DECLARE CRSR02 CURSOR FOR
+                SELECT FLD2 FROM TAB2 ORDER BY FLD2
+       END-EXEC. 
        
        EXEC SQL 
             INCLUDE SQLCA 
@@ -69,6 +81,15 @@
            IF SQLCODE <> 0 THEN
               GO TO 100-EXIT
            END-IF.
+
+           EXEC SQL AT CONN1
+              START TRANSACTION
+	       END-EXEC.         
+
+           EXEC SQL AT CONN2
+              START TRANSACTION
+	       END-EXEC.                 
+           
 
        100-MAIN.       
 
@@ -115,6 +136,9 @@
            DISPLAY 'T1   : ' T1.
            DISPLAY 'T2   : ' T2.
            DISPLAY 'TOTAL: ' TOT.
+
+           EXEC SQL AT CONN1 SAVEPOINT SP1 END-EXEC.
+           EXEC SQL AT CONN2 SAVEPOINT SP2 END-EXEC.
            
       *    THIS SHOULD FAIL
            EXEC SQL AT CONN2
@@ -127,6 +151,84 @@
                SELECT SUM(FLD2) INTO :T2 FROM TAB2
            END-EXEC. 
            DISPLAY 'SQLSTATE FAIL2 (OK IF <> 00000): ' SQLSTATE.  
+
+           EXEC SQL AT CONN1 ROLLBACK TO SAVEPOINT SP1 END-EXEC.
+           EXEC SQL AT CONN2 ROLLBACK TO SAVEPOINT SP2 END-EXEC.
+           
+       100-CURSOR1-TEST.            
+      *  open cursor
+           EXEC SQL 
+               OPEN CRSR01
+           END-EXEC.
+           DISPLAY 'SQLCODE OPEN CRSR01 : ' SQLCODE.
+           DISPLAY 'SQLERRMCOPEN CRSR01 : ' SQLERRMC.
+
+           MOVE 1 TO CURREC.
+           MOVE 0 TO TOT.
+
+           PERFORM UNTIL SQLCODE < 0 OR SQLCODE = 100
+
+           EXEC SQL
+               FETCH CRSR01 INTO :T1
+           END-EXEC
+
+           DISPLAY 'SQLCODE : ' SQLCODE
+           DISPLAY 'SQLERRMC: ' SQLERRMC
+                  
+           IF SQLCODE <> 100 THEN
+      *         display the record
+                DISPLAY 'CRSR01 rec #' CURREC ' : [' T1 ']'
+                ADD 1 TO CURREC
+                ADD T1 TO TOT
+           END-IF
+           END-PERFORM.  
+
+           DISPLAY 'TOT CRSR01 :' TOT.
+
+       100-CURSOR2-TEST.            
+      *  open cursor
+           EXEC SQL 
+               OPEN CRSR02
+           END-EXEC.
+           DISPLAY 'SQLCODE OPEN CRSR02 : ' SQLCODE.
+           DISPLAY 'SQLERRMCOPEN CRSR02 : ' SQLERRMC.
+
+           MOVE 1 TO CURREC.
+           MOVE 0 TO TOT.
+
+           PERFORM UNTIL SQLCODE < 0 OR SQLCODE = 100
+
+           EXEC SQL
+               FETCH CRSR02 INTO :T2
+           END-EXEC
+
+           DISPLAY 'SQLCODE : ' SQLCODE
+           DISPLAY 'SQLERRMC: ' SQLERRMC
+                  
+           IF SQLCODE <> 100 THEN
+      *         display the record
+                DISPLAY 'CRSR02 rec #' CURREC ' : [' T2 ']'
+                ADD 1 TO CURREC
+                ADD T2 TO TOT
+           END-IF
+           END-PERFORM.  
+
+           DISPLAY 'TOT CRSR02 :' TOT.
+
+
+       CLOSE-CRSRS.
+
+      *    close the cursors
+
+
+           EXEC SQL CLOSE CRSR01 END-EXEC.     
+
+           EXEC SQL CLOSE CRSR02 END-EXEC.     
+
+      *    we test both types of disconnections
+
+           EXEC SQL CONNECT RESET CONN1 END-EXEC.
+           EXEC SQL DISCONNECT CONN2 END-EXEC.
 
        100-EXIT. 
              STOP RUN.

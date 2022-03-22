@@ -129,6 +129,7 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %token AS
 %token AT
 %token IS
+%token IGNORE
 %token DECLARE_VAR
 %token USING
 %token OPEN
@@ -167,15 +168,10 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %token WHERE_CURRENT_OF
 %token PREPARE
 
-%type <std::vector<std::string> *> token_list declaresql includesql incfile 
-//%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql declare_cursor
-//%type <std::string> declare_table
-%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql cursor_declaration 
-//%type <std::vector<std::string> *> statement_declaration
-//%type <std::string> table_declaration
-%type <std::vector<std::string> *> update deletesql delete disconnect disconnectsql othersql executesql
-%type <std::string> host_reference expr
-//%type <uint32_t> opt_size
+%type <std::vector<std::string> *> token_list declaresql includesql incfile opt_othersql_tokens
+%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql cursor_declaration
+%type <std::vector<std::string> *> update deletesql delete disconnect disconnectsql othersql executesql ignoresql
+%type <std::string> host_reference expr othersql_token
 
 %type <hostref_or_literal_t *> strliteral_or_hostref dbid opt_connect_as opt_at opt_using opt_dbid
 %type <int> opt_with_hold
@@ -212,6 +208,7 @@ sqlvariantstates
 | declaresql
 | preparesql
 | executesql
+| ignoresql
 | badsql
 ;
 
@@ -239,9 +236,10 @@ UPDATE {$$ = driver.cb_text_list_add (NULL, $1);}
 
 
 disconnectsql:
-EXECSQL disconnect token_list END_EXEC
+EXECSQL disconnect opt_dbid END_EXEC
 {
-	$$ = driver.cb_concat_text_list ($2, $3);
+	//$$ = driver.cb_concat_text_list ($2, $3);
+	driver.connectionid = $3;
 	driver.put_exec_list();
 }
 
@@ -277,8 +275,16 @@ execsql_with_opt_at ROLLBACK_WORK END_EXEC {
 	driver.put_exec_list();
 }
 | execsql_with_opt_at ROLLBACK_WORK TO SAVEPOINT TOKEN END_EXEC {
-	driver.commandname = "ROLLBACK_TO_SAVEPOINT";
-	driver.cb_text_list_add (NULL, $5);
+	// We intercept the ROLLBACK TO SAVEPOINT and pass it back as an SQL statement
+	// of type "other" (unknown).
+
+	driver.commandname = "PASSTHRU";
+	driver.sqlnum++;
+	driver.sqlname = string_format("SQ%04d", driver.sqlnum);
+	driver.sql_list->push_back("ROLLBACK");
+	driver.sql_list->push_back("TO");
+	driver.sql_list->push_back("SAVEPOINT");
+	driver.sql_list->push_back($5);
 	driver.put_exec_list();
 }
 
@@ -436,10 +442,28 @@ EXECSQL CONNECT_RESET opt_dbid END_EXEC {
 ;
 
 othersql:
-execsql_with_opt_at OTHERFUNC token_list END_EXEC {
-	$$ = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, $2), $3);
+execsql_with_opt_at OTHERFUNC opt_othersql_tokens END_EXEC {
+	driver.commandname = "PASSTHRU";
+	$$ = driver.cb_text_list_add (NULL, $2);
+	if ($3) {
+		$$ = driver.cb_concat_text_list ($$, $3);
+	}
 	driver.put_exec_list();
 }
+;
+
+opt_othersql_tokens:
+%empty { $$ = nullptr; }
+| othersql_token opt_othersql_tokens {
+	$$ = driver.cb_text_list_add (NULL, $1);
+	if ($2)
+		$$ = driver.cb_concat_text_list ($$, $2);
+}
+;
+
+othersql_token:
+host_reference  { $$ = driver.cb_host_list_add (driver.host_reference_list, $1); }
+|TOKEN			{ $$ = $1; }
 ;
 
 incfile:
@@ -562,19 +586,19 @@ execsql_with_opt_at EXECUTE IMMEDIATE strliteral_or_hostref END_EXEC {
 }
 ;
 
+ignoresql:
+EXECSQL IGNORE token_list END_EXEC
+{
+	driver.put_exec_list();
+}
+;
+
 
 opt_using_hostref_list:
 %empty
 | USING host_references { }
 ;
 
-// For now we only allow hosta variables as parameters, no literals
-/*
-strliteral_or_hostref_list:
-strliteral_or_hostref_list COMMA strliteral_or_hostref { driver.hostref_or_literal_list->push_back($3); }
-| strliteral_or_hostref { driver.hostref_or_literal_list->push_back($1); }
-;
-*/
 select:
 SELECT token_list{ $$ = driver.cb_concat_text_list (driver.cb_text_list_add (NULL, $1), $2);}
 ;
@@ -644,6 +668,7 @@ sqlvariantstate_list:
 |sqlvariantstate_list sqlvariantstate PERIOD
 |sqlvariantstate_list HOSTVARIANTBEGIN { driver.put_exec_list(); }
 |sqlvariantstate_list HOSTVARIANTEND { driver.put_exec_list(); }
+|sqlvariantstate_list ignoresql
 |sqlvariantstate_list declaresqlvar
 ;
 

@@ -28,8 +28,6 @@
 #include "utils.h"
 #include "Logger.h"
 
-#define SIGN_LENGTH ((int)1)
-#define TERMINAL_LENGTH ((int)1)
 #define DECIMAL_LENGTH 1
 
 #if defined(unix) || defined(__unix__) || defined(__unix) || defined(__linux__)

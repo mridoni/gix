@@ -24,6 +24,7 @@ USA.
 #include "IdeTaskManager.h"
 
 #include <QToolBar>
+#include <QFile>
 
 OutputWindow::OutputWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
 {

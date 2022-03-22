@@ -70,51 +70,7 @@
 
        100-MAIN.
 
-      *     EXEC SQL
-      *        SELECT BFLD, VBFLD, CFLD, VCFLD, NUM1 
-      *          INTO :BFLD, :VBFLD, :CFLD, :VCFLD, :NUM1 FROM BINTEST
-      *     END-EXEC.
-      *     
-      *     IF SQLCODE <> 0 THEN
-      *        DISPLAY 'SELECT SQLCODE. ' SQLCODE
-      *        DISPLAY 'SELECT SQLERRMC. ' SQLERRMC
-      *        GO TO 100-EXIT
-      *     END-IF.
-      *     
-      *     MOVE LOW-VALUES TO SDIGIT01.
-      *     MOVE LOW-VALUES TO SDIGIT02.
-      * 
-      *     MOVE VBFLD-DATA(1:1) TO SDIGIT02.
-      *     DISPLAY 'DIGIT1 : ' NDIGIT.
-      * 
-      *     MOVE VBFLD-DATA(2:1) TO SDIGIT02.
-      *     DISPLAY 'DIGIT2 : ' NDIGIT.
-      * 
-      *     MOVE VBFLD-DATA(83:1) TO SDIGIT02.
-      *     DISPLAY 'DIGIT83: ' NDIGIT.
-      * 
-      *     DISPLAY 'BFLD        : [' BFLD ']'.
-      *     DISPLAY 'BFLD LENGTH: ' LENGTH OF BFLD.
-      * 
-      *     DISPLAY 'VBFLD-DATA  : [' VBFLD-DATA(1:VBFLD-LENGTH) ']'.
-      *     DISPLAY 'VBFLD-DATA  : [' VBFLD-DATA(1:88) ']'.
-      *     DISPLAY 'VBFLD-LENGTH: ' VBFLD-LENGTH.
-      * 
-      *     DISPLAY 'CFLD        : [' CFLD ']'.
-      *     DISPLAY 'CFLD LENGTH: ' LENGTH OF CFLD.
-      * 
-      *     DISPLAY 'VCFLD-DATA  : [' VCFLD-DATA(1:VCFLD-LENGTH) ']'.
-      *     DISPLAY 'VCFLD-LENGTH: ' VCFLD-LENGTH.
-      * 
-      *     EXEC SQL
-      *        CONNECT RESET
-      *     END-EXEC.      
-      *     
-      *     IF SQLCODE <> 0 THEN
-      *        DISPLAY 'DISCONNECT SQLCODE. ' SQLCODE
-      *        DISPLAY 'DISCONNECT SQLERRM. ' SQLERRM
-      *        GO TO 100-EXIT
-      *     END-IF.
-      * 
+          EXEC SQL CONNECT RESET END-EXEC.
+
         100-EXIT. 
              STOP RUN.

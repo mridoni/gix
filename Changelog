@@ -1,3 +1,15 @@
+=== v1.0.11 ======================================================
+- Implemented "EXEC SQL IGNORE" (GitHub issue #73)
+- Fixed "DISCONNECT is broken" (#78)
+- Fixed a "ROLLBACK TO SAVEPOINT" issue
+- Fixed connection string parameter issue (see #39)
+- Improvements to "passthru" SQL statements (see #68)
+- Fixed a "ROLLBACK TO SAVEPOINT" regression (triggered by #67)
+- improves/fixes #73 (EXEC SQL IGNORE), adding support for GnuCOBOL preprocessor directives
+- Fixed "scanner checks for FD (including in literals)" (GitHub isue #65)
+- Fixed "unexpected SELECTFROM - statements with sub-selects cannot be parsed" (GitHub issue #66)
+- Fixed "CONNECT...IDENTIFIED BY" (GitHub issue #43)
+
 === v1.0.10 ======================================================
 - Gix-IDE: added "Save before building" option in settings
 - GixSQL: extended the ESQL VAR statement (added FLOAT, DECIMAL, etc.)

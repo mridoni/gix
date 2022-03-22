@@ -142,6 +142,7 @@ public:
     std::string cursorname;
     std::string sqlname;
     std::string incfilename;
+    std::string text_content;
 
     hostref_or_literal_t *connectionid = nullptr;
     
@@ -166,6 +167,7 @@ public:
 
     bool has_esql_in_cbl_copybooks;
     bool procedure_division_started = false;
+    bool in_ignore_string = false;
 
     int data_division_section = DD_SECTION_INITIAL;
 

@@ -6,7 +6,7 @@
       <GIX_BASE_PATH_X86>D:\gix-ide-x86</GIX_BASE_PATH_X86>
 
       <KEEP_TEMPS>1</KEEP_TEMPS>
-      <TEST_TEMP_DIR>C:\Users\marchetto\source\repos\gix-ide-gixsql-post-1.0.7\tmp_test</TEST_TEMP_DIR>
+      <TEST_TEMP_DIR>C:\Users\marchetto\source\repos\gix-ide\tmp_test</TEST_TEMP_DIR>
 
       <VC_COMPILER_ID>comp_32616</VC_COMPILER_ID>
       <MINGW_COMPILER_X86_ID>gnucobol-3.1.2-std-gcc-x86</MINGW_COMPILER_X86_ID>

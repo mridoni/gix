@@ -64,7 +64,7 @@ int GixEsqlLexer::LexerInput(char *buff, int max_size)
 #else
 		strcat(buff, "\n");
 #endif
-		
+
 		if (strlen(buff) > 7) {
 			bp = buff + 7;
 
@@ -103,6 +103,11 @@ int GixEsqlLexer::LexerInput(char *buff, int max_size)
 
 				case '$':
 					/* comment line */
+					strcpy(buff, "\n");
+					return strlen(buff);
+
+				case '>':
+					/* preprocessor line, treat as comment */
 					strcpy(buff, "\n");
 					return strlen(buff);
 

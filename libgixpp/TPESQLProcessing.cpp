@@ -32,6 +32,7 @@ USA.
 
 #define ESQL_CONNECT					"CONNECT"
 #define ESQL_CONNECT_RESET				"CONNECT_RESET"
+#define ESQL_DISCONNECT					"DISCONNECT"
 #define ESQL_CLOSE						"CLOSE"
 #define ESQL_COMMIT						"COMMIT"
 #define ESQL_FETCH						"FETCH"
@@ -52,9 +53,11 @@ USA.
 #define ESQL_DECLARE_TABLE				"DECLARE_TABLE"
 #define ESQL_DECLARE_VAR				"DECLARE_VAR"
 #define ESQL_COMMENT					"COMMENT"
+#define ESQL_IGNORE						"IGNORE"
 #define ESQL_PREPARE					"PREPARE_STATEMENT"
 #define ESQL_EXEC_PREPARED				"EXECUTE_PREPARED"
 #define ESQL_EXEC_IMMEDIATE				"EXECUTE_IMMEDIATE"
+#define ESQL_PASSTHRU					"PASSTHRU"
 
 #define BEGIN_DECLARE_SECTION			"HOST_BEGIN"
 #define END_DECLARE_SECTION				"HOST_END"
@@ -116,6 +119,7 @@ enum class ESQL_Command
 {
 	Connect,
 	ConnectReset,
+	Disconnect,
 	Close,
 	Commit,
 	Fetch,
@@ -148,15 +152,22 @@ enum class ESQL_Command
 	// Fields declaration
 	DeclareVar,
 
-	// Comment code ranges
+	// Comment code ranges (also comment everything between EXEC SQL IGNORE and END-EXEC)
 	Comment,
+
+	// Comment code ranges (leave anything between EXEC SQL IGNORE and END-EXEC uncommented)
+	Ignore,
+
+	// ESQL is passed directly to the database driver (unknow statements, DBMS-specific syntax, etc.)
+	PassThru,
 
 	Unknown
 };
 
 static bool check_sql_type_compatibility(uint64_t type_info, cb_field_ptr var);
 
-static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_RESET, ESQL_Command::ConnectReset }, { ESQL_CLOSE, ESQL_Command::Close },
+static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_RESET, ESQL_Command::ConnectReset }, 
+												 { ESQL_DISCONNECT, ESQL_Command::Disconnect }, { ESQL_CLOSE, ESQL_Command::Close },
 												 { ESQL_COMMIT, ESQL_Command::Commit }, { ESQL_FETCH, ESQL_Command::Fetch },{ ESQL_DELETE, ESQL_Command::Delete },
 												 { ESQL_INCFILE, ESQL_Command::Incfile }, { ESQL_INCSQLCA, ESQL_Command::IncSQLCA }, { ESQL_INSERT, ESQL_Command::Insert },
 												 { ESQL_OPEN, ESQL_Command::Open }, { ESQL_SELECT, ESQL_Command::Select }, { ESQL_UPDATE, ESQL_Command::Update },
@@ -167,7 +178,7 @@ static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Co
 												 { ESQL_PREPARE, ESQL_Command::PrepareStatement }, { ESQL_EXEC_PREPARED, ESQL_Command::ExecPrepared },
 												 { ESQL_EXEC_IMMEDIATE, ESQL_Command::ExecImmediate}, { ESQL_DECLARE_VAR, ESQL_Command::DeclareVar }, 
 												 { BEGIN_DECLARE_SECTION, ESQL_Command::BeginDeclareSection}, { END_DECLARE_SECTION, ESQL_Command::EndDeclareSection },
-												 { ESQL_COMMENT, ESQL_Command::Comment }};
+												 { ESQL_COMMENT, ESQL_Command::Comment } , { ESQL_IGNORE, ESQL_Command::Ignore }, { ESQL_PASSTHRU, ESQL_Command::PassThru } };
 
 #define CALL_PREFIX	"GIXSQL"
 #define TAG_PREFIX	"GIXSQL"
@@ -350,10 +361,10 @@ bool TPESQLProcessing::processNextFile()
 	for (int input_line = 1; input_line <= input_lines.size(); input_line++) {
 		current_input_line = input_line;
 
-#if defined(_WIN32) && defined(_DEBUG)
-		//char bfr[256];
-		//sprintf(bfr, "Processing line %d of file %s\n", input_line, the_file.toUtf8().constData());
-		//OutputDebugStringA(bfr);
+#if defined(_WIN32) && defined(_DEBUG) && defined(VERBOSE)
+		char bfr[512];
+		sprintf(bfr, "Processing line %d of file %s\n", input_line, the_file.c_str());
+		OutputDebugStringA(bfr);
 #endif
 		std::string cur_line = input_lines.at(input_line - 1);
 
@@ -378,10 +389,6 @@ bool TPESQLProcessing::processNextFile()
 				put_output_line(input_lines.at(exec_sql_stmt->startLine - 1));
 				break;
 
-				//case ESQL_Command::WorkingEnd:
-				//	put_query_defs();
-				//	break;
-
 			case ESQL_Command::ProcedureDivision:	// PROCEDURE DIVISION can be string_split across several lines if a USING clause is added
 				for (int iline = exec_sql_stmt->startLine; iline <= exec_sql_stmt->endLine; iline++) {
 					put_output_line(input_lines.at(iline - 1));
@@ -390,6 +397,28 @@ bool TPESQLProcessing::processNextFile()
 				if (!put_cursor_declarations()) {
 					main_module_driver.error("An error occurred while generating ESQL cursor declarations", ERR_ALREADY_SET);
 					return false;
+				}
+				break;
+
+			case ESQL_Command::Ignore:
+				{
+					std::vector<std::string> tmp_outlines;
+					for (int iline = exec_sql_stmt->startLine; iline <= exec_sql_stmt->endLine; iline++) {
+						tmp_outlines.push_back(input_lines.at(iline - 1));
+					}
+					if (!tmp_outlines.size())
+						break;
+
+					std::string txt = vector_join(tmp_outlines, "\n");
+					txt = string_replace_regex(txt, "EXEC[\\ \\r\\n]+SQL[\\ \\r\\n]+IGNORE([\\ \\r\\n]+)?", "");
+					txt = string_replace_regex(txt, "[\\ \\r\\n]+END-EXEC([\\ ]*\\.)", "");
+					tmp_outlines = string_split(txt, "[\\n]");
+
+					put_output_line(code_tag + "*   ESQL IGNORE");
+					for (auto tl : tmp_outlines) {
+						put_output_line(tl);
+					}
+					put_output_line(code_tag + "*   ESQL END IGNORE");
 				}
 				break;
 
@@ -703,6 +732,17 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 		break;
 
 		case ESQL_Command::ConnectReset:
+		{
+			ESQLCall connect_call(get_call_id("ConnectReset"), emit_static);
+			connect_call.addParameter("SQLCA", BY_REFERENCE);
+			connect_call.addParameter(&main_module_driver, stmt->connectionId);
+
+			if (!put_call(connect_call, stmt->period))
+				return false;
+		}
+		break;
+
+		case ESQL_Command::Disconnect:
 		{
 			ESQLCall connect_call(get_call_id("ConnectReset"), emit_static);
 			connect_call.addParameter("SQLCA", BY_REFERENCE);
@@ -1158,7 +1198,50 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			/* Do nothing (for now) */
 			break;
 
-		default:
+		case ESQL_Command::PassThru:
+			{
+				put_start_exec_sql(stmt->period);
+
+				for (cb_hostreference_ptr p : *stmt->host_list) {
+					ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
+					if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
+						//owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
+						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+						return false;
+					}
+
+					cb_field_ptr hr = main_module_driver.field_map[p->hostreference.substr(1)];
+					bool is_varlen = get_actual_field_data(hr, &f_type, &f_size, &f_scale);
+
+					int flags = is_varlen ? CBL_FIELD_FLAG_VARLEN : CBL_FIELD_FLAG_NONE;
+					flags |= (hr->usage == Usage::Binary) ? CBL_FIELD_FLAG_BINARY : CBL_FIELD_FLAG_NONE;
+
+					p_call.addParameter(f_type, BY_VALUE);
+					p_call.addParameter(f_size, BY_VALUE);
+					p_call.addParameter(f_scale, BY_VALUE);
+					p_call.addParameter(flags, BY_VALUE);
+					p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
+
+					if (!put_call(p_call, stmt->period))
+						return false;
+				}
+
+				ESQLCall dml_call(get_call_id(stmt->host_list->size() == 0 ? "Exec" : "ExecParams"), emit_static);
+				dml_call.addParameter("SQLCA", BY_REFERENCE);
+				dml_call.addParameter(&main_module_driver, stmt->connectionId);
+				dml_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
+				dml_call.addParameter(stmt->host_list->size(), BY_VALUE);
+
+				if (!put_call(dml_call, stmt->period))
+					return false;
+
+				put_end_exec_sql(stmt->period);
+			}
+			break;
+
+		// If we have intercepted all the cases this should never happen
+		// In case it does, should we instead raise an error?
+		default:	
 		{
 			//owner->err_messages << "Invalid statement: " + stmt->commandName;
 			//return false;

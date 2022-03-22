@@ -1,6 +1,6 @@
 ﻿       IDENTIFICATION DIVISION.
        
-       PROGRAM-ID. TSQL003A. 
+       PROGRAM-ID. TSQL003B. 
        
        
        ENVIRONMENT DIVISION. 
@@ -19,7 +19,9 @@
        WORKING-STORAGE SECTION. 
        
            01 DATASRC-1 PIC X(64).
+           01 DBID-1    PIC X(64).
            01 DBUSR-1   PIC X(64).           
+           01 DBPWD-1   PIC X(64).           
            
            01 DATASRC-2 PIC X(64).
            01 DBUSR-2   PIC X(64).
@@ -49,8 +51,15 @@
        000-CONNECT.
          DISPLAY "DATASRC1" UPON ENVIRONMENT-NAME.
          ACCEPT DATASRC-1 FROM ENVIRONMENT-VALUE.
+         
+         DISPLAY "DBID1" UPON ENVIRONMENT-NAME.
+         ACCEPT DBID-1 FROM ENVIRONMENT-VALUE.
+         
          DISPLAY "DATASRC_USR1" UPON ENVIRONMENT-NAME.
          ACCEPT DBUSR-1 FROM ENVIRONMENT-VALUE.
+
+         DISPLAY "DATASRC_PWD1" UPON ENVIRONMENT-NAME.
+         ACCEPT DBPWD-1 FROM ENVIRONMENT-VALUE.
          
          DISPLAY "DATASRC2" UPON ENVIRONMENT-NAME.
          ACCEPT DATASRC-2 FROM ENVIRONMENT-VALUE.
@@ -59,14 +68,23 @@
 
          DISPLAY '***************************************'.
          DISPLAY " DATASRC1  : " DATASRC-1.
+         DISPLAY " DBID1     : " DBID-1.
          DISPLAY " USER1     : " DBUSR-1.
+         DISPLAY " PWD1      : " DBPWD-1.
          DISPLAY " DATASRC2  : " DATASRC-2.
          DISPLAY " USER2     : " DBUSR-2.         
          DISPLAY '***************************************'.
 
+      *    EXEC SQL
+      *       CONNECT TO :DATASRC-1 AS CONN1 USER :DBUSR-1
+      *    END-EXEC.  
+           
            EXEC SQL
-              CONNECT TO :DATASRC-1 AS CONN1 USER :DBUSR-1
-           END-EXEC.    
+             CONNECT :DBUSR-1
+                     IDENTIFIED BY :DBPWD-1
+                     AT            :DBID-1
+                     USING         :DATASRC-1
+           END-EXEC.
            
            DISPLAY 'CONNECT SQLCODE(1): ' SQLCODE
            IF SQLCODE <> 0 THEN
@@ -219,7 +237,6 @@
        CLOSE-CRSRS.
 
       *    close the cursors
-
 
            EXEC SQL CLOSE CRSR01 END-EXEC.     
 

@@ -96,6 +96,7 @@ std::string rpad(const std::string& s, int len);
 std::string string_chop(const std::string &s, int len);
 bool string_contains(const std::string &s1, const std::string &s2);
 std::string string_replace(std::string subject, const std::string &search, const std::string &replace);
+std::string string_replace_regex(std::string subject, const std::string &search_rx, const std::string &replace_rx);
 
 bool caseInsensitiveStringCompare(const std::string& str1, const std::string& str2);
 

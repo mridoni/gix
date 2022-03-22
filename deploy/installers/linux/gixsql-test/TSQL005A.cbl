@@ -83,13 +83,13 @@
            MOVE LOW-VALUES TO SDIGIT02.
 
            MOVE VBFLD-DATA(1:1) TO SDIGIT02.
-           DISPLAY 'DIGIT: ' NDIGIT.
+           DISPLAY 'DIGIT1 : ' NDIGIT.
 
            MOVE VBFLD-DATA(2:1) TO SDIGIT02.
-           DISPLAY 'DIGIT: ' NDIGIT.
+           DISPLAY 'DIGIT2 : ' NDIGIT.
 
            MOVE VBFLD-DATA(83:1) TO SDIGIT02.
-           DISPLAY 'DIGIT: ' NDIGIT.
+           DISPLAY 'DIGIT83: ' NDIGIT.
 
            DISPLAY 'BFLD        : [' BFLD ']'.
            DISPLAY 'BFLD LENGTH: ' LENGTH OF BFLD.
@@ -113,6 +113,7 @@
               DISPLAY 'DISCONNECT SQLERRM. ' SQLERRM
               GO TO 100-EXIT
            END-IF.
+
        
        100-EXIT. 
              STOP RUN.

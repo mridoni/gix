@@ -60,7 +60,7 @@ int DataSourceInfo::init(const std::string &data_source, const std::string &user
 	(?:((?:gixsql|mysql|pgsql|odbc)\:))(\/\/(?:(([^:]+)\.([^:]+)@)?)[A-Za-z0-9\-_]+)(:[0-9]+)?(\/[A-Za-z0-9\-_]+)?
 	*/
 
-	std::string connstring_rx_text = R"((?:((?:gixsql|mysql|pgsql|odbc)\:))(\/\/(?:(([^:]+)##GIXSQL_USRPWD_SEP##([^:]+)@)?)[A-Za-z0-9\-_\.]+)(:[0-9]+)?(\/[A-Za-z0-9\-_]+)?)";
+	std::string connstring_rx_text = R"(^(?:((?:gixsql|mysql|pgsql|odbc)\:))(\/\/(?:(([^:]+)##GIXSQL_USRPWD_SEP##([^:]+)@)?)[A-Za-z0-9\-_\.]+)(:[0-9]+)?(\/[A-Za-z0-9\-_]+)?)";
 	std::string gixsql_usrpwd_sep = getenv("GIXSQL_USRPWD_SEP") ? getenv("GIXSQL_USRPWD_SEP") : "";
 	if (gixsql_usrpwd_sep.empty() || gixsql_usrpwd_sep.size() != 1) {
 		gixsql_usrpwd_sep = ".";
@@ -71,7 +71,7 @@ int DataSourceInfo::init(const std::string &data_source, const std::string &user
 
 	std::regex rxConnString(connstring_rx_text);
 	std::smatch cm;
-	if (!regex_match(data_source, cm, rxConnString, std::regex_constants::match_default))
+	if (!regex_search(data_source, cm, rxConnString, std::regex_constants::match_default))
 		return 1;
 
 	this->conn_string = data_source;
@@ -230,6 +230,8 @@ std::string DataSourceInfo::dump(bool with_password)
 	}
 
 	return s;
+#else
+	return "";
 #endif
 }
 

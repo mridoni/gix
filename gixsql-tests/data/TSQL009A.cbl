@@ -137,9 +137,10 @@
        CLOSE-CRSRS.
 
       *    close the cursors
-           EXEC SQL CLOSE EMPTBL END-EXEC.         
 
            EXEC SQL CLOSE CRSR01 END-EXEC.       
+
+           EXEC SQL CONNECT RESET END-EXEC.
 
        100-EXIT. 
              STOP RUN.

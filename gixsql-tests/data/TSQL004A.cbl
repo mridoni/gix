@@ -178,5 +178,7 @@
                CLOSE EMPTBL 
            END-EXEC. 
        
+       EXEC SQL CONNECT RESET END-EXEC.
+
        100-EXIT. 
              STOP RUN.

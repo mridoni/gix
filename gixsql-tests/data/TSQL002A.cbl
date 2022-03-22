@@ -76,5 +76,7 @@
 
            DISPLAY 'RES: ' T1.           
 
+           EXEC SQL CONNECT RESET END-EXEC.
+
        100-EXIT. 
              STOP RUN.

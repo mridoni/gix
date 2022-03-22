@@ -115,7 +115,7 @@ private:
         fprintf(stderr, "%04d =============<<< POPPING STATE: %s -> %s\n", yylineno, yy_state_desc(oldstate), yy_state_desc(newstate));
     }
 
-    static const int NUM_YY_STATES = 15;
+    static const int NUM_YY_STATES = 16;
     static const char *yy_state_descs[NUM_YY_STATES];
     
 #else

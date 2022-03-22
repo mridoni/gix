@@ -29,7 +29,30 @@ namespace gixsql_tests
         {
             compile(CompilerType.MSVC, "release", "x64", "exe");
 
-            Environment.SetEnvironmentVariable("DATASRC", build_data_source_string(true, true, true));
+            string ds = build_data_source_string(true, true, true);
+            Environment.SetEnvironmentVariable("DATASRC", ds);
+            Environment.SetEnvironmentVariable("DATASRC_USR", get_datasource_usr());
+            Environment.SetEnvironmentVariable("DATASRC_PWD", get_datasource_pwd());
+
+            run(CompilerType.MSVC, "release", "x64", "exe", "", false, new string[] {
+                    "CONNECT SQLCODE: +0000000000",
+                    "SELECT SQLCODE: +000000000",
+                    "RES: 003"
+            });
+        }
+
+        [TestMethod]
+        [CobolSource("TSQL001A.cbl", "EMPREC.cpy")]
+        [GixSqlDataSource("pgsql", 1)]
+        //[TestCategory("Using MSVC compilers"), TestCategory("Target DB: PGSQL"), TestCategory("Target arch: x64"), TestCategory("Build type: exe")]
+        public void TSQL001A_MSVC_pgsql_x64_exe_with_encoding()
+        {
+            compile(CompilerType.MSVC, "release", "x64", "exe");
+
+            string ds = build_data_source_string(true, true, true);
+            ds += "?client_encoding=LATIN9";
+
+            Environment.SetEnvironmentVariable("DATASRC", ds);
             Environment.SetEnvironmentVariable("DATASRC_USR", get_datasource_usr());
             Environment.SetEnvironmentVariable("DATASRC_PWD", get_datasource_pwd());
 
