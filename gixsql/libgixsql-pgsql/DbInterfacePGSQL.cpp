@@ -1,6 +1,6 @@
 /*
 This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
-Copyright (C) 2021 Marco Ridoni
+Copyright (C) 2022 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -530,41 +530,44 @@ int DbInterfacePGSQL::fetch_one(ICursor *cursor, int fetchmode)
 
 bool DbInterfacePGSQL::get_resultset_value(ICursor *c, int row, int col, char *bfr, int bfrlen, int *value_len)
 {
-	*value_len = 0;
 	size_t to_length = 0;
+	*value_len = 0;
 
-	auto type = PQftype(resaddr, col);
 	const char *res = PQgetvalue(resaddr, row, col);
-	if (res) {
-		if (type != OID_TYPEA || !this->decode_binary) {
-			to_length = strlen(res);
-			if (to_length > bfrlen) {
-				return false;
-			}
-
-			strcpy(bfr, res);
-			*value_len = strlen(bfr);
-		}
-		else {
-
-			unsigned char *tmp_bfr = PQunescapeBytea((const unsigned char *)res, &to_length);
-			if (!tmp_bfr)
-				return false;
-
-			if (to_length > bfrlen) {
-				PQfreemem(tmp_bfr);
-				return false;
-			}
-
-			memset(bfr, 0, bfrlen);
-			memcpy(bfr, tmp_bfr, to_length);
-			PQfreemem(tmp_bfr);
-			*value_len = to_length;
-		}
-		return true;
+	if (!res) {
+		return false;
 	}
 
-	return false;
+	auto type = PQftype(resaddr, col);
+	if (type != OID_TYPEA || !this->decode_binary) {
+		to_length = strlen(res);
+		if (to_length > bfrlen) {
+			return false;
+		}
+
+		*value_len = to_length;
+		memcpy(bfr, res, to_length + 1);	// copy with trailing null
+		// CHECKME: Is the data right-padded with appropriate space value later?
+		//          When yes it may be null-padded for binary (see below) there, too.
+	}
+	else {
+		unsigned char *tmp_bfr = PQunescapeBytea((const unsigned char *)res, &to_length);
+		if (!tmp_bfr)
+			return false;
+
+		if (to_length > bfrlen) {
+			PQfreemem(tmp_bfr);
+			return false;
+		}
+
+		*value_len = to_length;
+		memcpy(bfr, tmp_bfr, to_length);
+		if (to_length < bfrlen) {
+			memset(bfr + to_length, 0, bfrlen - to_lenght);
+		}
+		PQfreemem(tmp_bfr);
+	}
+	return true;
 }
 
 int DbInterfacePGSQL::move_to_first_record()
