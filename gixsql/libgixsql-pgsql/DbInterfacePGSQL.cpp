@@ -381,22 +381,9 @@ int DbInterfacePGSQL::exec_params(string query, int nParams, int *paramTypes, ve
 
 int DbInterfacePGSQL::close_cursor(ICursor *cursor)
 {
-	const char *query_part[] = { "CLOSE " };
-	char *true_query;
-
-	string sname = cursor->getName();
-	const char *cname = sname.c_str();
-
-	true_query = (char *)malloc((strlen(query_part[0]) +
-		strlen(cname) + 1) * sizeof(char));
-	if (true_query == NULL) {
-		return DBERR_OUT_OF_MEMORY;
-	}
-
+	string query = "CLOSE " + cursor->getName();
 	// execute query
-	sprintf(true_query, "%s%s", query_part[0], cname);
-
-	int rc = exec(string(true_query));
+	int rc = exec(query);
 	return (rc == DBERR_NO_ERROR) ? DBERR_NO_ERROR : DBERR_CLOSE_CURSOR_FAILED;
 }
 
@@ -431,43 +418,20 @@ int DbInterfacePGSQL::cursor_open(ICursor *cursor)
 	if (!cursor)
 		return DBERR_OPEN_CURSOR_FAILED;
 
-	const char *query_part_with_hold_on[] = { "DECLARE ", " CURSOR WITH HOLD FOR " };
-	const char *query_part[] = { "DECLARE ", " CURSOR FOR " };
-	char *true_query;
-
 	string sname = cursor->getName();
 	string squery = cursor->getQuery();
-	char *cname = (char *)sname.c_str();
-	char *query = (char *)squery.c_str();
+	string full_query;
 
 	if (cursor->isWithHold()) {
-		true_query = (char *)malloc((strlen(query_part_with_hold_on[0]) +
-			strlen(cname) +
-			strlen(query_part_with_hold_on[1]) +
-			strlen(query) + 1) * sizeof(char));
-		if (true_query == NULL) {
-			return DBERR_OUT_OF_MEMORY;
-		}
-
-		// execute query
-		sprintf(true_query, "%s%s%s%s", query_part_with_hold_on[0], cname,
-			query_part_with_hold_on[1], query);
+		full_query = "DECLARE " + sname + " CURSOR WITH HOLD FOR " + squery;
 	}
 	else {
-		true_query = (char *)malloc((strlen(query_part[0]) +
-			strlen(cname) +
-			strlen(query_part[1]) +
-			strlen(query) + 1) * sizeof(char));
-		if (true_query == NULL) {
-			return DBERR_OUT_OF_MEMORY;
-		}
-
-		// execute query
-		sprintf(true_query, "%s%s%s%s", query_part[0], cname, query_part[1], query);
+		full_query = "DECLARE " + sname + " CURSOR FOR " + squery;
 	}
 
+	// execute query
 	auto pvalues = cursor->getParameterValues();
-	int rc = exec_params(string(true_query), cursor->getNumParams(), NULL, pvalues, NULL, NULL);
+	int rc = exec_params(full_query, cursor->getNumParams(), NULL, pvalues, NULL, NULL);
 
 	cursor->setOpened(rc == DBERR_NO_ERROR);
 	return (rc == DBERR_NO_ERROR) ? DBERR_NO_ERROR : DBERR_DECLARE_CURSOR_FAILED;
@@ -475,12 +439,6 @@ int DbInterfacePGSQL::cursor_open(ICursor *cursor)
 
 int DbInterfacePGSQL::fetch_one(ICursor *cursor, int fetchmode)
 {
-	const char *query_part[] = { "FETCH ", " RELATIVE ", " FROM " };
-	const char next[] = "1";
-	const char current[] = "0";
-	const char previous[] = "-1";
-	char *true_query;
-
 	if (owner == NULL) {
 		return DBERR_CONN_NOT_FOUND;
 	}
@@ -488,30 +446,20 @@ int DbInterfacePGSQL::fetch_one(ICursor *cursor, int fetchmode)
 	LOG_DEBUG(__FILE__, __func__, "addr:%d, cname:%s, mode:%d\n", owner->getId(), cursor->getName().c_str(), FETCH_NEXT_ROW);
 
 	string sname = cursor->getName();
-	const char *cname = sname.c_str();
-
-	true_query = (char *)malloc((strlen(query_part[0]) + strlen(query_part[1]) + 1 +
-		strlen(query_part[2]) + strlen(cname) + 1) * sizeof(char));
-
-	if (true_query == NULL) {
-		return DBERR_OUT_OF_MEMORY;
-	}
+	string query;
 
 	// execute query
 	if (fetchmode == FETCH_CUR_ROW) {
-		sprintf(true_query, "%s%s%s%s%s",
-			query_part[0], query_part[1], current, query_part[2], cname);
+		query = "FETCH RELATIVE 0 FROM " + sname;
 	}
 	else if (fetchmode == FETCH_PREV_ROW) {
-		sprintf(true_query, "%s%s%s%s%s",
-			query_part[0], query_part[1], previous, query_part[2], cname);
+		query = "FETCH RELATIVE -1 FROM " + sname;
 	}
 	else { // NEXT
-		sprintf(true_query, "%s%s%s%s%s",
-			query_part[0], query_part[1], next, query_part[2], cname);
+		query = "FETCH RELATIVE 1 FROM " + sname;
 	}
 
-	last_rc = exec(string(true_query));
+	last_rc = exec(query);
 	if (last_rc != DBERR_NO_ERROR)
 		return DBERR_SQL_ERROR;
 
