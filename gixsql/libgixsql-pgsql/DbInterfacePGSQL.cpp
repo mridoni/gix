@@ -563,7 +563,7 @@ bool DbInterfacePGSQL::get_resultset_value(ICursor *c, int row, int col, char *b
 		*value_len = to_length;
 		memcpy(bfr, tmp_bfr, to_length);
 		if (to_length < bfrlen) {
-			memset(bfr + to_length, 0, bfrlen - to_lenght);
+			memset(bfr + to_length, 0, bfrlen - to_length);
 		}
 		PQfreemem(tmp_bfr);
 	}
