@@ -157,6 +157,7 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %token VALUE
 %token ALL
 %token OCCURS
+%token UNBOUNDED
 %token EXTERNAL
 %token TIMES
 %token CONST
@@ -805,6 +806,9 @@ occurs_clause:
 OCCURS NUMERIC _times
 {
 	driver.current_field->occurs = (int)$2;
+}
+| OCCURS UNBOUNDED {
+	driver.current_field->occurs = -1;
 }
 ;
 

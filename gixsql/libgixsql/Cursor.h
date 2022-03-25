@@ -68,6 +68,8 @@ public:
 	uint64_t getRowNum() override;
 	void increaseRowNum() override;
 
+	void setConnectionReference(void *d, int l);
+	std::string getConnectionNameFromReference();
 
 private:
 
@@ -85,5 +87,8 @@ private:
 	void *dbi_data;
 
 	uint64_t rownum;
+
+	void *connref_data = nullptr;
+	int connref_datalen = 0;
 };
 

@@ -83,7 +83,7 @@ SqlVar* SqlVar::copy()
 	v->is_variable_length = is_variable_length;
 	v->is_binary = is_binary;
 	if (realdata) {
-		v->realdata = (char *)calloc(realdata_len, sizeof(char));
+		v->realdata = (char *)calloc(realdata_len + TERMINAL_LENGTH, sizeof(char));
 		v->realdata_len = realdata_len;
 	}
 	else {
@@ -108,6 +108,8 @@ void SqlVar::createRealData()
 	int length = this->length;
 	int power = this->power;
 	void* addr = this->addr;
+
+	memset(realdata, 0, realdata_len + TERMINAL_LENGTH);
 
 	switch (type) {
 		case COBOL_TYPE_UNSIGNED_NUMBER:

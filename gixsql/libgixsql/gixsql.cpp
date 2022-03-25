@@ -466,7 +466,18 @@ GIXSQLCursorDeclareParams(struct sqlca_t *st, void *d_connection_id, int connect
 		return RESULT_FAILED;
 	}
 
-	return _gixsqlCursorDeclare(st, conn, connection_id, cursor_name, with_hold, _query, nParams);
+	int rc = _gixsqlCursorDeclare(st, conn, connection_id, cursor_name, with_hold, _query, nParams);
+
+	if (!rc && !conn && d_connection_id && connection_id_tl) {
+		// This means we can try to resolve it later (possibly on open), so we save the COBOL field reference
+		Cursor *c = cursor_manager.get(cursor_name);
+		if (c) {
+			c->setConnectionReference(d_connection_id, connection_id_tl);
+		}
+
+	}
+
+	return rc;
 }
 
 
@@ -492,7 +503,17 @@ GIXSQLCursorDeclare(struct sqlca_t *st, void *d_connection_id, int connection_id
 
 	sqlca_initialize(st);
 
-	return _gixsqlCursorDeclare(st, conn, connection_id, cursor_name, with_hold, _query, 0);
+	int rc = _gixsqlCursorDeclare(st, conn, connection_id, cursor_name, with_hold, _query, 0);
+
+	if (!rc && !conn && d_connection_id && connection_id_tl) {
+		// This means we can try to resolve it later (possibly on open), so we save the COBOL field reference
+		Cursor *c = cursor_manager.get(cursor_name);
+		if (c) {
+			c->setConnectionReference(d_connection_id, connection_id_tl);
+		}
+
+	}
+	return rc;
 }
 
 static int  _gixsqlCursorDeclare(struct sqlca_t *st, Connection *conn, std::string connection_name, std::string cursor_name, int with_hold, char *query, int nParams)
@@ -563,7 +584,17 @@ GIXSQLCursorOpen(struct sqlca_t *st, char *cname)
 	// This was not properly declared, we have to set it up
 	if (!cursor->getConnection()) {
 		std::string connection_id = cursor->getConnectionName();
-		cursor->setConnection((IConnection *)connection_manager.get(connection_id));
+		IConnection *cc = (IConnection *)connection_manager.get(connection_id);
+		if (cc)
+			cursor->setConnection(cc);
+		else {
+			// try to resolve the connection id through a reference to a COBOL variable
+			connection_id = cursor->getConnectionNameFromReference();
+			cc = (IConnection *)connection_manager.get(connection_id);
+			if (cc)
+				cursor->setConnection(cc);
+		}
+
 		if (cursor->getConnection()) {
 			IDbInterface* cdbi = cursor->getConnection()->getDbInterface();
 			if (!cdbi || cdbi->cursor_declare(cursor, cursor->isWithHold(), cursor->getNumParams())) {

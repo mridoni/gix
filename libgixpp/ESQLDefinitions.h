@@ -113,6 +113,7 @@ struct cb_exec_sql_stmt_t
 	hostref_or_literal_t *connectionId = nullptr;
 
 	std::string src_file;
+	std::string src_abs_path;
 
 	cb_exec_sql_stmt_t()
 	{

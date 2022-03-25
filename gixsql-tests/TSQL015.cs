@@ -7,8 +7,8 @@ namespace gixsql_tests
 {
     [TestClass]
     [HostPlatform("x64")]
-    [TestCategory("LOB related syntax issues (#68)")]
-    public class TSQL014 : GixSqlTestBase
+    [TestCategory("Add OCCURS UNBOUNDED (#80)")]
+    public class TSQL015 : GixSqlTestBase
     {
         [TestInitialize]
         public new void Begin()
@@ -22,27 +22,15 @@ namespace gixsql_tests
 
 
         [TestMethod]
-        [CobolSource("TSQL014A.cbl")]
+        [CobolSource("TSQL015A.cbl", "EMPREC.cpy")]
         [GixSqlDataSource("pgsql", 1)]
-        public void TSQL014A_MSVC_pgsql_x64_exe()
+        public void TSQL015A_MSVC_pgsql_x64_exe()
         {
             compile(CompilerType.MSVC, "release", "x64", "exe");
 
             Console.WriteLine("Performed syntax check only: OK");
         }
 
-        [TestMethod]
-        [CobolSource("TSQL014B.cbl")]
-        [TestCategory("LOB related syntax issues (#68)")]
-        [GixSqlDataSource("pgsql", 1)]
-        public void TSQL014B_MSVC_pgsql_x64_exe()
-        {
-            compile(CompilerType.MSVC, "release", "x64", "exe");
-
-            Console.WriteLine("Performed syntax check only: OK");
-        }
-
-
-
+ 
     }
 }

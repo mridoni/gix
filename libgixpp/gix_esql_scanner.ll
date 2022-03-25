@@ -289,9 +289,20 @@ LOW_VALUE "LOW\-VALUE"
 		return yy::gix_esql_parser::make_USING(loc);
 	}
 
+	"END-EXEC"[ \r\n]*"." {
+		flag_insqlstring = 0;
+		flag_selectcommand = 0;
+		driver.period = 1;
+		driver.endlineno = yylineno;
+		__yy_pop_state();	// Not an error, we pop twice
+		__yy_pop_state();
+		return yy::gix_esql_parser::make_END_EXEC(loc);
+	}
+
 	"END-EXEC" {
 		flag_insqlstring = 0;
 		flag_selectcommand = 0;
+		driver.period = 0;
 		driver.endlineno = yylineno;
 		__yy_pop_state();	// Not an error, we pop twice
 		__yy_pop_state();
@@ -1192,6 +1203,10 @@ LOW_VALUE "LOW\-VALUE"
 
     "OCCURS"  {
 		return yy::gix_esql_parser::make_OCCURS(loc);
+	}
+
+    "UNBOUNDED"  {
+		return yy::gix_esql_parser::make_UNBOUNDED(loc);
 	}
 
 	([0-9]+)|([0-9]+\.[0-9]+) {

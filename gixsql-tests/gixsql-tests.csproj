@@ -142,6 +142,9 @@
     <Compile Include="CobolSourceAttribute.cs" />
     <Compile Include="HostPlatformAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TSQL017.cs" />
+    <Compile Include="TSQL016.cs" />
+    <Compile Include="TSQL015.cs" />
     <Compile Include="TSQL014.cs" />
     <Compile Include="TSQL013.cs" />
     <Compile Include="TSQL012.cs" />
@@ -178,6 +181,12 @@
     <EmbeddedResource Include="data\TSQL012A.cbl" />
     <EmbeddedResource Include="data\TSQL013A.cbl" />
     <EmbeddedResource Include="data\TSQL014A.cbl" />
+    <EmbeddedResource Include="data\TSQL015A.cbl" />
+    <EmbeddedResource Include="data\TSQL016A.cbl" />
+    <EmbeddedResource Include="data\TSQL003C.cbl" />
+    <EmbeddedResource Include="data\TSQL017A.cbl" />
+    <EmbeddedResource Include="data\TSQL017B.cbl" />
+    <EmbeddedResource Include="data\TSQL014B.cbl" />
     <None Include="gixsql.local.runsettings" />
     <None Include="packages.config" />
   </ItemGroup>

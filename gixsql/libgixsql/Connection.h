@@ -68,9 +68,6 @@ public:
 	std::string getEncoding() override;
 	void setEncoding(std::string) override;
 
-	//bool addPreparedStatementData(std::string stmt_name, std::vector<std::string> params, void *private_data);
-	//bool getPreparedStatementData(std::string stmt_name, std::tuple<std::vector<std::string>, void *>&);
-
 private:
 
 	int id;

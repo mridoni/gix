@@ -1,6 +1,6 @@
 /*
 This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
-Copyright (C) 2021 Marco Ridoni
+Copyright (C) 2021,2022 Marco Ridoni
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -166,7 +166,7 @@ enum class ESQL_Command
 
 static bool check_sql_type_compatibility(uint64_t type_info, cb_field_ptr var);
 
-static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_RESET, ESQL_Command::ConnectReset }, 
+static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_RESET, ESQL_Command::ConnectReset },
 												 { ESQL_DISCONNECT, ESQL_Command::Disconnect }, { ESQL_CLOSE, ESQL_Command::Close },
 												 { ESQL_COMMIT, ESQL_Command::Commit }, { ESQL_FETCH, ESQL_Command::Fetch },{ ESQL_DELETE, ESQL_Command::Delete },
 												 { ESQL_INCFILE, ESQL_Command::Incfile }, { ESQL_INCSQLCA, ESQL_Command::IncSQLCA }, { ESQL_INSERT, ESQL_Command::Insert },
@@ -176,7 +176,7 @@ static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Co
 												 { ESQL_FILE_BEGIN, ESQL_Command::FileBegin }, { ESQL_FILE_END, ESQL_Command::FileEnd } ,
 												 { ESQL_PROCEDURE_DIVISION, ESQL_Command::ProcedureDivision }, { ESQL_DECLARE_TABLE, ESQL_Command::DeclareTable },
 												 { ESQL_PREPARE, ESQL_Command::PrepareStatement }, { ESQL_EXEC_PREPARED, ESQL_Command::ExecPrepared },
-												 { ESQL_EXEC_IMMEDIATE, ESQL_Command::ExecImmediate}, { ESQL_DECLARE_VAR, ESQL_Command::DeclareVar }, 
+												 { ESQL_EXEC_IMMEDIATE, ESQL_Command::ExecImmediate}, { ESQL_DECLARE_VAR, ESQL_Command::DeclareVar },
 												 { BEGIN_DECLARE_SECTION, ESQL_Command::BeginDeclareSection}, { END_DECLARE_SECTION, ESQL_Command::EndDeclareSection },
 												 { ESQL_COMMENT, ESQL_Command::Comment } , { ESQL_IGNORE, ESQL_Command::Ignore }, { ESQL_PASSTHRU, ESQL_Command::PassThru } };
 
@@ -358,6 +358,7 @@ bool TPESQLProcessing::processNextFile()
 		return true;
 	}
 
+	std::string f1 = filename_absolute_path(the_file);
 	for (int input_line = 1; input_line <= input_lines.size(); input_line++) {
 		current_input_line = input_line;
 
@@ -370,7 +371,7 @@ bool TPESQLProcessing::processNextFile()
 
 		bool in_ws = (input_line >= working_begin_line) && (input_line <= working_end_line);
 
-		cb_exec_sql_stmt_ptr exec_sql_stmt = find_exec_sql_stmt(the_file, input_line);
+		cb_exec_sql_stmt_ptr exec_sql_stmt = find_exec_sql_stmt(f1, input_line);
 		if (!exec_sql_stmt) {
 			put_output_line(cur_line);
 			continue;
@@ -537,7 +538,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 		bool has_params = stmt->host_list->size() > 0;
 
 		if (has_params) {
-			put_start_exec_sql(stmt->period);
+			put_start_exec_sql(false);
 
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
@@ -558,7 +559,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-				if (!put_call(p_call, stmt->period))
+				if (!put_call(p_call, false))
 					return false;
 			}
 
@@ -570,7 +571,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 			cd_call.addParameter(stmt->sqlName, BY_REFERENCE); //& x\"00\"
 			cd_call.addParameter(std::to_string(stmt->host_list->size()), BY_VALUE);
 
-			if (!put_call(cd_call, stmt->period))
+			if (!put_call(cd_call, false))
 				return false;
 
 			put_end_exec_sql(stmt->period);
@@ -604,8 +605,8 @@ bool TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 	// The END-CALL statement was added by the format method, we just need (in case) to add the period
 	if (terminate_with_period) {
 		lines.back() = lines.back() + ".";
-	} 
-	
+	}
+
 	for (auto ln : lines) {
 		put_output_line(ln);
 	}
@@ -613,12 +614,11 @@ bool TPESQLProcessing::put_call(const ESQLCall &c, bool terminate_with_period)
 	return true;
 }
 
-cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const std::string filename, int i)
+cb_exec_sql_stmt_ptr TPESQLProcessing::find_exec_sql_stmt(const std::string f1, int i)
 {
 	std::vector<cb_exec_sql_stmt_ptr> *p = main_module_driver.exec_list;
 	for (auto e : *p) {
-		std::string f1 = filename_absolute_path(filename);
-		std::string f2 = filename_absolute_path(e->src_file);
+		std::string f2 = e->src_abs_path;
 		if (f1 == f2 && (e->startLine <= i && e->endLine >= i))
 			return e;
 	}
@@ -725,7 +725,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			connect_call.addParameter(&main_module_driver, stmt->conninfo->id);
 			connect_call.addParameter(&main_module_driver, stmt->conninfo->username);
 			connect_call.addParameter(&main_module_driver, stmt->conninfo->password);
-			
+
 			if (!put_call(connect_call, stmt->period))
 				return false;
 		}
@@ -763,13 +763,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				>0 RESULT parameters  -> SelectInto
 			*/
 
-			put_start_exec_sql(stmt->period);
+			put_start_exec_sql(false);
 			for (cb_res_hostreference_ptr rp : *stmt->res_host_list) {
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
 
 				if (!main_module_driver.field_exists(rp->hostreference.substr(1))) {
-					//owner->err_data.err_messages.push_back("Cannot find host variable: " + rp->hostreference.substr(1));
-					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
 					return false;
 				}
 
@@ -786,7 +785,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				rp_call.addParameter(flags, BY_VALUE);
 				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
-				if (!put_call(rp_call, stmt->period))
+				if (!put_call(rp_call, false))
 					return false;
 			}
 
@@ -794,7 +793,6 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 
 				if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-					//owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
 					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR);
 					return false;
 				}
@@ -812,7 +810,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-				if (!put_call(p_call, stmt->period))
+				if (!put_call(p_call, false))
 					return false;
 			}
 
@@ -833,7 +831,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				select_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 				select_call.addParameter(stmt->host_list->size(), BY_VALUE);
 				select_call.addParameter(stmt->res_host_list->size(), BY_VALUE);
-				if (!put_call(select_call, stmt->period))
+				if (!put_call(select_call, false))
 					return false;
 			}
 			else {
@@ -843,8 +841,10 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				select_call.addParameter("\"" + stmt->cursorName + "\" & x\"00\"", BY_REFERENCE);
 				select_call.addParameter(stmt->cursor_hold, BY_VALUE);
 				select_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
+				if (stmt->host_list->size())
+					select_call.addParameter(stmt->host_list->size(), BY_VALUE);
 				
-				if (!put_call(select_call, stmt->period))
+				if (!put_call(select_call, false))
 					return false;
 			}
 			put_end_exec_sql(stmt->period);
@@ -857,7 +857,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			ESQLCall open_call(get_call_id("CursorOpen"), emit_static);
 			open_call.addParameter("SQLCA", BY_REFERENCE);
 			open_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
-			
+
 			if (!put_call(open_call, stmt->period))
 				return false;
 		}
@@ -869,7 +869,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			ESQLCall close_call(get_call_id("CursorClose"), emit_static);
 			close_call.addParameter("SQLCA", BY_REFERENCE);
 			close_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
-			
+
 			if (!put_call(close_call, stmt->period))
 				return false;
 		}
@@ -877,12 +877,11 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		case ESQL_Command::Fetch:
 		{
-			put_start_exec_sql(stmt->period);
+			put_start_exec_sql(false);
 			for (cb_res_hostreference_ptr rp : *stmt->res_host_list) {
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
 				if (!main_module_driver.field_exists(rp->hostreference.substr(1))) {
-					//owner->err_data.err_messages.push_back("Cannot find host variable: " + rp->hostreference.substr(1));
-					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
 					return false;
 				}
 
@@ -898,7 +897,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				rp_call.addParameter(flags, BY_VALUE);
 				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
-				if (!put_call(rp_call, stmt->period))
+				if (!put_call(rp_call, false))
 					return false;
 			}
 
@@ -906,25 +905,25 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			ESQLCall fetch_call(get_call_id("CursorFetchOne"), emit_static);
 			fetch_call.addParameter("SQLCA", BY_REFERENCE);
 			fetch_call.addParameter("\"" + cursor_id + "\" & x\"00\"", BY_REFERENCE);
-			
-			if (!put_call(fetch_call, stmt->period))
+
+			if (!put_call(fetch_call, false))
 				return false;
-			
+
 			put_end_exec_sql(stmt->period);
 		}
 		break;
 
 		case ESQL_Command::Commit:
 		{
-			put_start_exec_sql(stmt->period);
+			put_start_exec_sql(false);
 			ESQLCall fetch_call(get_call_id("Exec"), emit_static);
 			fetch_call.addParameter("SQLCA", BY_REFERENCE);
 			fetch_call.addParameter(&main_module_driver, stmt->connectionId);
 			fetch_call.addParameter("\"COMMIT\" & x\"00\"", BY_REFERENCE);
-			
-			if (!put_call(fetch_call, stmt->period))
+
+			if (!put_call(fetch_call, false))
 				return false;
-			
+
 			put_end_exec_sql(stmt->period);
 		}
 		break;
@@ -933,13 +932,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 		case ESQL_Command::Delete:
 		case ESQL_Command::Insert:
 		{
-			put_start_exec_sql(stmt->period);
+			put_start_exec_sql(false);
 
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 				if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-					//owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
-					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
 					return false;
 				}
 
@@ -955,7 +953,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-				if (!put_call(p_call, stmt->period))
+				if (!put_call(p_call, false))
 					return false;
 			}
 
@@ -964,24 +962,24 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			dml_call.addParameter(&main_module_driver, stmt->connectionId);
 			dml_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 			dml_call.addParameter(stmt->host_list->size(), BY_VALUE);
-			
-			if  (!put_call(dml_call, stmt->period))
+
+			if  (!put_call(dml_call, false))
 				return false;
-			
+
 			put_end_exec_sql(stmt->period);
 		}
 		break;
 
 		case ESQL_Command::DeclareVar:
-			{		
+			{
 				if (stmt->host_list->size() != 1) {
-					main_module_driver.error("Cannot find host variable (invalid declaration)", ERR_MISSING_HOSTVAR);
+					main_module_driver.error("Cannot find host variable (invalid declaration)", ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
 					return false;
 				}
 
-				std::string var_name = stmt->host_list->at(0)->hostreference; 
+				std::string var_name = stmt->host_list->at(0)->hostreference;
 				if (!main_module_driver.field_exists(var_name)) {
-					main_module_driver.error("Cannot find host variable: " + var_name, ERR_MISSING_HOSTVAR);
+					main_module_driver.error("Cannot find host variable: " + var_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
 					return false;
 				}
 
@@ -1125,8 +1123,17 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ps_call.addParameter("SQLCA", BY_REFERENCE);
 				ps_call.addParameter(&main_module_driver, stmt->connectionId);
 				ps_call.addParameter("\"" + stmt->statementName + "\" & x\"00\"", BY_REFERENCE);
-				if (stmt->statementSource)
+				if (stmt->statementSource) {	// statement source is a variable, we must check its type
+					auto sv_name = stmt->statementSource->name.substr(1);
+					if (!main_module_driver.field_exists(sv_name)) {
+						main_module_driver.error("Cannot find host variable: " + sv_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+						return false;
+					}
+					cb_field_ptr sv = main_module_driver.field_map[sv_name];
+					bool is_varlen = get_actual_field_data(sv, &f_type, &f_size, &f_scale);
+
 					ps_call.addParameter(&main_module_driver, stmt->statementSource);
+				}
 				else {
 					ps_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 					ps_call.addParameter(0, BY_VALUE);
@@ -1138,13 +1145,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		case ESQL_Command::ExecPrepared:
 			{
-				put_start_exec_sql(stmt->period);
+				put_start_exec_sql(false);
 
 				for (cb_hostreference_ptr p : *stmt->host_list) {
 					ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 					if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-						//owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
-						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
 						return false;
 					}
 
@@ -1160,7 +1166,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 					p_call.addParameter(flags, BY_VALUE);
 					p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-					if (!put_call(p_call, stmt->period))
+					if (!put_call(p_call, false))
 						return false;
 				}
 
@@ -1170,7 +1176,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ep_call.addParameter("\"" + stmt->statementName + "\" & x\"00\"", BY_REFERENCE);
 				ep_call.addParameter(stmt->host_list->size(), BY_VALUE);
 
-				if (!put_call(ep_call, stmt->period))
+				if (!put_call(ep_call, false))
 					return false;
 
 				put_end_exec_sql(stmt->period);
@@ -1200,13 +1206,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		case ESQL_Command::PassThru:
 			{
-				put_start_exec_sql(stmt->period);
+				put_start_exec_sql(false);
 
 				for (cb_hostreference_ptr p : *stmt->host_list) {
 					ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 					if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-						//owner->err_data.err_messages.push_back("Cannot find host variable: " + p->hostreference.substr(1));
-						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
 						return false;
 					}
 
@@ -1222,7 +1227,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 					p_call.addParameter(flags, BY_VALUE);
 					p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
-					if (!put_call(p_call, stmt->period))
+					if (!put_call(p_call, false))
 						return false;
 				}
 
@@ -1232,7 +1237,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				dml_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 				dml_call.addParameter(stmt->host_list->size(), BY_VALUE);
 
-				if (!put_call(dml_call, stmt->period))
+				if (!put_call(dml_call, false))
 					return false;
 
 				put_end_exec_sql(stmt->period);
@@ -1241,7 +1246,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		// If we have intercepted all the cases this should never happen
 		// In case it does, should we instead raise an error?
-		default:	
+		default:
 		{
 			//owner->err_messages << "Invalid statement: " + stmt->commandName;
 			//return false;
@@ -1249,7 +1254,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			exec_call.addParameter("SQLCA", BY_REFERENCE);
 			exec_call.addParameter(&main_module_driver, stmt->connectionId);
 			exec_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
-			
+
 			if (!put_call(exec_call, stmt->period))
 				return false;
 		}
@@ -1460,8 +1465,7 @@ bool TPESQLProcessing::fixup_declared_vars()
 
 		if (!main_module_driver.field_exists(var_name)) {
 			if (precision == 0) {
-				//owner->err_data.err_messages.push_back("Cannot find host variable: " + var_name);
-				main_module_driver.error("Cannot find host variable: " + var_name, ERR_MISSING_HOSTVAR);
+				main_module_driver.error("Cannot find host variable: " + var_name, ERR_MISSING_HOSTVAR, "(unknown)", 0);
 				return false;
 			}
 			else {
@@ -1472,7 +1476,7 @@ bool TPESQLProcessing::fixup_declared_vars()
 				var->sql_type = type_info;
 				var->pictype = -1;
 				var->defined_at_source_line = orig_start_line;
-				var->defined_at_source_file = orig_src_file;	
+				var->defined_at_source_file = orig_src_file;
 				main_module_driver.field_map[var_name] = var;
 			}
 		}

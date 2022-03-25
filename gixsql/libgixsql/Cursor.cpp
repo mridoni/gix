@@ -21,6 +21,7 @@
 #include "Cursor.h"
 #include "SqlVar.h"
 #include "SqlVarList.h"
+#include "utils.h"
 
 
 Cursor::Cursor()
@@ -171,4 +172,22 @@ void * Cursor::getPrivateData()
 void Cursor::setPrivateData(void *d)
 {
 	dbi_data = d;
+}
+
+void Cursor::setConnectionReference(void *d, int l)
+{
+	connref_data = d;
+	connref_datalen = l;
+}
+
+std::string Cursor::getConnectionNameFromReference()
+{
+	if (!connref_data)
+		return std::string();
+
+	if (!connref_datalen)
+		return std::string((char *)connref_data);
+
+	std::string s = std::string((char *)connref_data, connref_datalen);
+	return trim_copy(s);
 }
