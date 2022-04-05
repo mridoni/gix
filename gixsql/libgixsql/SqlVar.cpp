@@ -135,7 +135,7 @@ void SqlVar::createRealData()
 			}
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_len, power);
+				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -146,7 +146,7 @@ void SqlVar::createRealData()
 			memcpy(realdata, addr, realdata_len);
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_len, power);
+				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -243,7 +243,7 @@ void SqlVar::createRealData()
 			}
 
 			if (power < 0) {
-				insert_decimal_point(realdata, realdata_len, power);
+				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
 			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
@@ -375,7 +375,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 		case COBOL_TYPE_UNSIGNED_NUMBER:
 		{
 			char* ptr;
-			int fillzero;
+			int int_fillzero;
 
 			// before decimal point
 			int beforedp = 0;
@@ -388,13 +388,12 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 				}
 			}
 
-			fillzero = length - beforedp + power;
-			if (fillzero < 0)
-				fillzero = 0;
+			int_fillzero = length - beforedp + power;
+			if (int_fillzero < 0)
+				int_fillzero = 0;
 
-			memset(addr, ASCII_ZERO, fillzero);
-
-			memcpy((uint8_t *)addr + fillzero, retstr, beforedp);
+			memset(addr, ASCII_ZERO, int_fillzero);
+			memcpy((uint8_t *)addr + int_fillzero, retstr, beforedp);
 
 			if (power < 0) {
 				int afterdp = 0;
@@ -408,13 +407,13 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 					}
 
 					// fill zero
-					memcpy((uint8_t*)addr + fillzero + beforedp,
+					memcpy((uint8_t*)addr + int_fillzero + beforedp,
 						retstr + beforedp + DECIMAL_LENGTH, afterdp);
 				}
 
-				fillzero = -power - afterdp;
-				uint8_t* ptr = ((uint8_t*)addr + fillzero + beforedp) + afterdp;
-				memset(ptr, ASCII_ZERO, fillzero);
+				int dec_fillzero = -power - afterdp;
+				uint8_t* ptr = ((uint8_t*)addr + int_fillzero + beforedp) + afterdp;
+				memset(ptr, ASCII_ZERO, dec_fillzero);
 			}
 			break;
 		}
@@ -424,7 +423,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 			char* ptr;
 			int is_negative = false;
 
-			int fillzero;
+			int int_fillzero;
 			int final_length;
 
 			if (retstr[0] == '-') {
@@ -446,12 +445,12 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 				}
 			}
 
-			fillzero = length - beforedp + power;
-			if (fillzero < 0)
-				fillzero = 0;
+			int_fillzero = length - beforedp + power;
+			if (int_fillzero < 0)
+				int_fillzero = 0;
 
-			memset(addr, ASCII_ZERO, fillzero);
-			memcpy((uint8_t *)addr + fillzero, value, beforedp);
+			memset(addr, ASCII_ZERO, int_fillzero);
+			memcpy((uint8_t *)addr + int_fillzero, value, beforedp);
 
 			if (power < 0) {
 				int afterdp = 0;
@@ -463,14 +462,14 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 					for (; *ptr != '\0'; ptr++) {
 						afterdp++;
 					}
-					memcpy((uint8_t*)addr + fillzero + beforedp, value +
+					memcpy((uint8_t*)addr + int_fillzero + beforedp, value +
 						beforedp + DECIMAL_LENGTH, afterdp);
 				}
 
 				// fill zero
-				fillzero = -power - afterdp;
-				uint8_t* ptr = ((uint8_t*)addr + fillzero + beforedp) + afterdp;
-				memset(ptr, ASCII_ZERO, fillzero);
+				int dec_fillzero = -power - afterdp;
+				uint8_t* ptr = ((uint8_t*)addr + int_fillzero + beforedp) + afterdp;
+				memset(ptr, ASCII_ZERO, dec_fillzero);
 
 			}
 
@@ -487,7 +486,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 			unsigned char* value;
 			unsigned char* ptr;
 
-			int fillzero;
+			int int_fillzero;
 
 			if (retstr[0] == '-') {
 				((uint8_t *)addr)[0] = '-';
@@ -509,10 +508,10 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 				}
 			}
 
-			fillzero = length - beforedp + power;
-			memset(addr, ASCII_ZERO, fillzero);
+			int_fillzero = length - beforedp + power;
+			memset(addr, ASCII_ZERO, int_fillzero);
 
-			memcpy((uint8_t *)addr + SIGN_LENGTH + fillzero, value, beforedp);
+			memcpy((uint8_t *)addr + SIGN_LENGTH + int_fillzero, value, beforedp);
 
 			if (power < 0) {
 				int afterdp = 0;
@@ -526,13 +525,13 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 					}
 
 					// fill zero
-					memcpy((uint8_t*)addr + SIGN_LENGTH + fillzero + beforedp,
+					memcpy((uint8_t*)addr + SIGN_LENGTH + int_fillzero + beforedp,
 						value + beforedp + DECIMAL_LENGTH, afterdp);
 				}
 
-				fillzero = -power - afterdp;
-				ptr = ((uint8_t*)addr + SIGN_LENGTH + fillzero + beforedp) + afterdp;
-				memset(ptr, ASCII_ZERO, fillzero);
+				int dec_fillzero = -power - afterdp;
+				ptr = ((uint8_t*)addr + SIGN_LENGTH + int_fillzero + beforedp) + afterdp;
+				memset(ptr, ASCII_ZERO, dec_fillzero);
 			}
 			break;
 		} 
@@ -712,15 +711,20 @@ void SqlVar::display_to_comp3(const char *data, bool has_sign) // , int total_le
 		}
 	}
 
-	unsigned int disp_intpart_len = this->length - this->power;
+	unsigned int abs_power = abs(this->power);
+	unsigned int disp_intpart_len = this->length - abs_power;
+	unsigned int disp_decpart_len = abs_power;
 
 	data_has_sign = (has_sign && (*data == '-') || (*data == '+'));
 	if (has_sign && *data == '-') {
 		is_negative = true;
 	}
 
+	// check for truncation (integer part)
 	memcpy(tmp + (disp_intpart_len - data_intpart_len), data + (data_has_sign ? 1 : 0), data_intpart_len);
-	memcpy(tmp + disp_intpart_len, data + data_intpart_len + DECIMAL_LENGTH + (data_has_sign ? 1 : 0), data_decpart_len);
+
+	// check for truncation (decimal part)
+	memcpy(tmp + disp_intpart_len, data + data_intpart_len + DECIMAL_LENGTH + (data_has_sign ? 1 : 0), disp_decpart_len);
 
 	// convert
 	int i; // string index

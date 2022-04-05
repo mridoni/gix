@@ -29,6 +29,10 @@
            
            01 T1          PIC 9(3) VALUE 0.  
            01 TABROWID    PIC 9(8) VALUE 0.  
+           01 DESCRIPTOR  PIC 9(8) VALUE 0.  
+           01 OID         PIC 9(8) VALUE 0.  
+           01 LEN         PIC 9(8) VALUE 0.  
+           01 RES         PIC 9(8) VALUE 0.  
        
        EXEC SQL 
             INCLUDE SQLCA 
@@ -69,6 +73,16 @@
                 HISTID = (SELECT MAX(HISTID) FROM TAB_A WHERE
                            REFNR         = :T1)
            END-EXEC.
+
+      *     EXEC SQL
+      *        SELECT LEN INTO :LEN FROM TAB WHERE OID=:OID
+      *     END-EXEC.
+      * 
+      *     EXEC SQL
+      *         SELECT lo_close (:DESCRIPTOR) INTO :RES
+      *             FROM TAB
+      *                WHERE OID=:OID
+      *     END-EXEC.
 
 
            DISPLAY 'SELECT SQLCODE: ' SQLCODE.

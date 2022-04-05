@@ -37,7 +37,7 @@ USA.
 #define PATH_LIST_SEP ":"
 #endif
 
-#define GIXPP_VER "1.0.11a"
+#define GIXPP_VER "1.0.11b"
 
 using namespace popl;
 
@@ -75,6 +75,7 @@ int main(int argc, char **argv)
 	auto opt_verbose = options.add<Switch>("v", "verbose", "verbose");
 	auto opt_verbose_debug = options.add<Switch>("d", "verbose-debug", "verbose (debug)");
 	auto opt_emit_map_file = options.add<Switch>("m", "map", "emit map file");
+	auto opt_emit_cobol85 = options.add<Switch>("C", "cobol85", "emit COBOL85-compliant code");
 
 	options.parse(argc, argv);
 
@@ -123,6 +124,7 @@ int main(int argc, char **argv)
 				gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy->is_set());
 				gp.setOpt("consolidated_map", true);
 				gp.setOpt("emit_map_file", opt_emit_map_file->is_set());
+				gp.setOpt("emit_cobol85", opt_emit_cobol85->is_set());
 				gp.addStep(new TPESQLProcessing(&gp));
 				if (opt_esql_copy_exts->is_set())
 					copy_resolver.setExtensions(string_split(opt_esql_copy_exts->value(), ","));

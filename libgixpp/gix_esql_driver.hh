@@ -55,6 +55,7 @@ USA.
 #define ERR_MISSING_LENGTH      19105
 #define ERR_INVALID_TYPE        19106
 #define ERR_FILE_NOT_FOUND      19107
+#define ERR_QUERY_TOO_LONG     19108
 
 // This is used to keep the error code from nested function
 #define ERR_ALREADY_SET         -9999

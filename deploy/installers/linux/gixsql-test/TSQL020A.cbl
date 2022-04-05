@@ -1,6 +1,6 @@
 ﻿       IDENTIFICATION DIVISION.
        
-       PROGRAM-ID. TSQL015A. 
+       PROGRAM-ID. TSQL020A. 
        
        
        ENVIRONMENT DIVISION. 
@@ -18,42 +18,26 @@
       
        WORKING-STORAGE SECTION. 
        
+       EXEC SQL 
+        INCLUDE EMPREC 
+       END-EXEC. 
+       
            01 DATASRC     PIC X(64).
            01 DBS         PIC X(64).
            01 DBUSR       PIC X(64).
            01 DBPWD       PIC X(64).
+           01 BLOB1       PIC X(64).
+           
+           01 LEN         PIC 9(8) COMP-3.
+           01 OFFSET      PIC 9(8) COMP-3.
+           01 REC1        PIC X(1000000).
 
-           01 Z-MY-ELEMENTS PIC 9(8).
+           01 VAR1        PIC 9(3) VALUE 0.  
+           01 VAR2        PIC 9(3) VALUE 0.  
        
-           78 MY-CONSTANT   VALUE 16.
-
        EXEC SQL 
             INCLUDE SQLCA 
        END-EXEC. 
-
-       LINKAGE SECTION.
-
-           01 L-DYNBUFFER-LEN PIC 9(4).
-
-           01 DYNBUFFER.
-              05 FILLER     OCCURS UNBOUNDED
-                            DEPENDING ON L-DYNBUFFER-LEN
-                            PIC X.       
-      
-           01 L-DYNBUFFER.
-              05 FILLER     OCCURS 0 TO MY-CONSTANT TIMES
-                            DEPENDING ON L-DYNBUFFER-LEN
-                            PIC X.
-
-           01 MY-TAB.
-              05 MY-NO         PIC  9(009) COMP-5 VALUE ZERO.
-              05 MY-TAB-CACHE  OCCURS 100
-                 DEPENDING ON Z-MY-ELEMENTS
-                 ASCENDING KEY IS MY-ID
-                 INDEXED BY I-TAB.
-                07 MY-ELEMENT.
-                  10 MY-ID         PIC  9(009) COMP-5 VALUE ZERO.
-                  10 MY-DATA       PIC  X(02189)      VALUE SPACE.
        
        PROCEDURE DIVISION. 
  
@@ -76,6 +60,13 @@
          END-IF.
 
        100-MAIN.
+
+         EXEC SQL AT :DBS
+                SELECT VAR1::numeric 
+                    INTO :VAR1
+                    FROM TAB 
+                        WHERE :VAR2::numeric = 10
+         END-EXEC.
 
          EXEC SQL CONNECT RESET END-EXEC.
 

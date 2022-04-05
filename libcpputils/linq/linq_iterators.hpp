@@ -162,7 +162,7 @@ namespace cpplinq {
         
     private:
         bool empty() const {
-            !cur || cur->empty();
+            return !cur || cur->empty();
         }
 
         util::maybe<Cursor> cur;

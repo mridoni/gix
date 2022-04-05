@@ -18,15 +18,15 @@
       
        WORKING-STORAGE SECTION. 
        
-       EXEC SQL 
-        INCLUDE EMPREC 
-       END-EXEC. 
-       
            01 DATASRC     PIC X(64).
            01 DBS         PIC X(64).
            01 DBUSR       PIC X(64).
            01 DBPWD       PIC X(64).
+
+           01 Z-MY-ELEMENTS PIC 9(8).
        
+           78 MY-CONSTANT   VALUE 16.
+
        EXEC SQL 
             INCLUDE SQLCA 
        END-EXEC. 
@@ -39,7 +39,22 @@
               05 FILLER     OCCURS UNBOUNDED
                             DEPENDING ON L-DYNBUFFER-LEN
                             PIC X.       
+      
+           01 L-DYNBUFFER.
+              05 FILLER     OCCURS 0 TO MY-CONSTANT TIMES
+                            DEPENDING ON L-DYNBUFFER-LEN
+                            PIC X.
 
+           01 MY-TAB.
+              05 MY-NO         PIC  9(009) COMP-5 VALUE ZERO.
+              05 MY-TAB-CACHE  OCCURS 100
+                 DEPENDING ON Z-MY-ELEMENTS
+                 ASCENDING KEY IS MY-ID
+                 INDEXED BY I-TAB.
+                07 MY-ELEMENT.
+                  10 MY-ID         PIC  9(009) COMP-5 VALUE ZERO.
+                  10 MY-DATA       PIC  X(02189)      VALUE SPACE.
+       
        PROCEDURE DIVISION. 
  
        000-CONNECT.

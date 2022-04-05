@@ -27,7 +27,7 @@ USA.
 #include "TPESQLProcessing.h"
 
 
-#define SET_ERR(I,S) err_data.err_code = I; err_data.err_messages.push_back(S)
+#define SET_PP_ERR(I,S) err_data.err_code = I; err_data.err_messages.push_back(S)
 
 GixPreProcessor::GixPreProcessor()
 {
@@ -96,17 +96,17 @@ static std::string variant_to_string(const variant &input)
 bool GixPreProcessor::process()
 {
     if (input_file.empty()) {
-        SET_ERR(1, "Bad input file");
+		SET_PP_ERR(1, "Bad input file");
         return false;
     }
 
     if (!std::get<bool>(getOpt("no_output")) && output_file.empty()) {
-        SET_ERR(2, "Bad output file");
+		SET_PP_ERR(2, "Bad output file");
         return false;
     }
 
     if (!file_exists(input_file)) {
-        SET_ERR(4, "Input file does not exist");
+		SET_PP_ERR(4, "Input file does not exist");
         return false;
     }
 

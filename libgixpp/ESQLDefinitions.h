@@ -79,8 +79,10 @@ struct esql_connection_info_t
 	hostref_or_literal_t *data_source = nullptr;
 	hostref_or_literal_t *username = nullptr;
 	hostref_or_literal_t *password = nullptr;
+	
+	// for compatibility
+	hostref_or_literal_t *dbname = nullptr;
 };
-
 
 struct cb_exec_sql_stmt_t
 {
@@ -186,4 +188,13 @@ struct cb_field_t
 };
 
 
-//}
+
+
+// Parser helper
+struct connect_to_info_t
+{
+	int type = 0;
+	hostref_or_literal_t *t1 = nullptr;
+	hostref_or_literal_t *t2 = nullptr;
+};
+

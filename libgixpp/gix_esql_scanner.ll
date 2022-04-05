@@ -83,10 +83,14 @@ const char *GixEsqlLexer::yy_state_descs[NUM_YY_STATES] = { "INITIAL", "PICTURE_
 %option yylineno
 %option stack
 
+/* This works around a win-flex + MSVC bug (unnecessary warnings about macro redefinitions) */
+%top{
+#include <stdint.h>
+}
 
 /* Regex abbreviations: */
 
-%s PICTURE_STATE  DATA_DIVISION_STATE
+%s PICTURE_STATE DATA_DIVISION_STATE
 
 %x ESQL_FUNC_STATE ESQL_INCLUDE_STATE ESQL_SELECT_STATE ESQL_STATE INCLUDE_STATE FD_STATE ESQL_DBNAME_STATE VAR_DECLARE_STATE ESQL_PREPARE_STATE ESQL_DECLARE_STATE ESQL_EXECUTE_STATE ESQL_CONNECT_STATE ESQL_IGNORE_STATE
 
@@ -103,6 +107,7 @@ OP_CHARS [\~\!\@\#\^\&\|\`\?\+\-\*\/\%\<\>\=]
 OPERATOR {OP_CHARS}+
 COMPARISON "="|"<>"|"<"|">"|"<="|">="
 COMMA ","
+PG_CASTOP "::"
 HOSTWORD ":"([A-Za-z\-0-9_]*([\xA0-\xDF]|([\x81-\x9F\xE0-\xFC][\x40-\x7E\x80-\xFC]))*[A-Za-z\-0-9_]*)
 INT_CONSTANT {digit}+
 LOW_VALUE "LOW\-VALUE"
@@ -139,7 +144,7 @@ LOW_VALUE "LOW\-VALUE"
 	__yy_push_state(DATA_DIVISION_STATE);
 }
 
-"WORKING-STORAGE"[ ]+"SECTION"[ ]*"." |
+"WORKING-STORAGE"[ ]+"SECTION"[ ]*"." | 
 "LOCAL-STORAGE"[ ]+"SECTION"[ ]*"." |
 "LINKAGE"[ ]+"SECTION"[ ]*"." |
 "FILE"[ ]+"SECTION"[ ]*"." {
@@ -744,6 +749,10 @@ LOW_VALUE "LOW\-VALUE"
 			return yy::gix_esql_parser::make_TOKEN(yytext, loc);
 	}	
 
+	{PG_CASTOP} {
+		return yy::gix_esql_parser::make_TOKEN(yytext, loc);
+	}
+	
 	/*
 	{FILENAME} {
 			driver.hostlineno = yylineno;   
@@ -1165,8 +1174,6 @@ LOW_VALUE "LOW\-VALUE"
     ("66"|"77"|"78"|"88")[^\.]*"." {}
 
     "OBJECT-STORAGE"[ ]+"SECTION"[ ]*"." |
-    /*"LOCAL-STORAGE"[ ]+"SECTION"[ ]*"." |
-     "FILE"[ ]+"SECTION"[ ]*"." | */
     "COMMUNICATION"[ ]+"SECTION"[ ]*"." |
     "REPORT"[ ]+"SECTION"[ ]*"." |
     "SCREEN"[ ]+"SECTION"[ ]*"." {
@@ -1209,6 +1216,22 @@ LOW_VALUE "LOW\-VALUE"
 		return yy::gix_esql_parser::make_UNBOUNDED(loc);
 	}
 
+    "TO"  {
+		return yy::gix_esql_parser::make_TO(loc);
+	}
+
+	"DEPENDING"[ \r\n]+"ON" {
+		return yy::gix_esql_parser::make_DEPENDING_ON(loc);
+	}	
+	
+	"ASCENDING"[ \r\n]+"KEY"[ \r\n]+"IS" {
+		return yy::gix_esql_parser::make_ASCENDING_KEY_IS(loc);
+	}
+
+	"INDEXED"[ \r\n]+"BY" {
+		return yy::gix_esql_parser::make_INDEXED_BY(loc);
+	}
+	
 	([0-9]+)|([0-9]+\.[0-9]+) {
 		return yy::gix_esql_parser::make_NUMERIC(atoi(yytext), loc);
 	}

@@ -198,6 +198,7 @@ TPESQLProcessing::TPESQLProcessing(GixPreProcessor *gpp) : ITransformationStep(g
 	opt_consolidated_map = std::get<bool>(gpp->getOpt("consolidated_map", false));
 	opt_no_output = std::get<bool>(gpp->getOpt("no_output", false));
 	opt_emit_map_file = std::get<bool>(gpp->getOpt("emit_map_file", false));
+	opt_emit_cobol85 = std::get<bool>(gpp->getOpt("emit_cobol85", false));
 
 	output_line = 0;
 	working_begin_line = 0;
@@ -432,7 +433,6 @@ bool TPESQLProcessing::processNextFile()
 
 				// Add ESQL calls
 				if (!handle_esql_stmt(cmd, exec_sql_stmt, in_ws)) {
-					//owner->err_data.err_messages.push_back(string_format("Error in ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
 					main_module_driver.error("Error in ESQL statement", ERR_ALREADY_SET);
 					return false;
 				}
@@ -441,7 +441,6 @@ bool TPESQLProcessing::processNextFile()
 		// Special case
 		if (exec_sql_stmt->endLine == working_end_line) {
 			if (!handle_esql_stmt(ESQL_Command::WorkingEnd, find_esql_cmd(ESQL_WORKING_END, 0), 0)) {
-				//owner->err_data.err_messages.push_back(string_format("Error in ESQL statement at line %d of file %s: %s", input_line, input_file, cur_line));
 				main_module_driver.error("Error in ESQL statement", ERR_ALREADY_SET);
 				return false;
 			}
@@ -485,38 +484,77 @@ std::string take_max(std::string &s, int n)
 	return res;
 }
 
-void TPESQLProcessing::put_query_defs()
+bool TPESQLProcessing::put_query_defs()
 {
 	if (emitted_query_defs)
-		return;
+		return true;
+
 
 	for (int i = 1; i <= ws_query_list.size(); i++) {
 		std::string qry = ws_query_list.at(i - 1);
 		int qry_len = qry.length();
 		qry = string_replace(qry, "\"", "\"\"");
+
 		put_output_line(code_tag + string_format(" 01  SQ%04d.", i));
 
-		int pos = 0;
-		int max_sec_len = 30;
+		if (!opt_emit_cobol85) {
 
-		std::string s;
+			if (qry.size() >= 8192) {
+				auto stmt = main_module_driver.exec_list->at(i - 1);
+				std::string msg = string_format("Query too long (%d bytes > 8191)", qry.size());
+				main_module_driver.error(msg, ERR_QUERY_TOO_LONG, stmt->src_abs_path, stmt->startLine);
+				return false;
+			}
 
-		s = take_max(qry, 30);
-		put_output_line(code_tag + string_format("     02  FILLER PIC X(%d) VALUE \"%s\"", qry_len, s));
+			int pos = 0;
+			int max_sec_len = 30;
 
-		while (true) {
-			s = take_max(qry, 58);
-			if (s.empty())
-				break;
+			std::string s;
 
-			put_output_line(code_tag + string_format("  &  \"%s\"", s));
+			s = take_max(qry, 30);
+			put_output_line(code_tag + string_format("     02  FILLER PIC X(%d) VALUE \"%s\"", qry_len, s));
+
+			while (true) {
+				s = take_max(qry, 58);
+				if (s.empty())
+					break;
+
+				put_output_line(code_tag + string_format("  &  \"%s\"", s));
+			}
+			output_lines.back() += ".";
+
+			put_output_line(code_tag + std::string("     02  FILLER PIC X(1) VALUE X\"00\"."));
 		}
-		output_lines.back() += ".";
+		else {
+			int pos = 0;
+			int max_sec_len = 30;
 
-		put_output_line(code_tag + std::string("     02  FILLER PIC X(1) VALUE X\"00\"."));
+			std::string s;
+
+			while (true) {
+				std::string sub_block = take_max(qry, 256);
+				int sb_size = sub_block.size();
+				if (sub_block.empty())
+					break;
+
+				s = take_max(sub_block, 34);
+				put_output_line(code_tag + string_format("  02  FILLER PIC X(%d) VALUE \"%s", sb_size, s));
+
+				while (true) {
+					s = take_max(sub_block, 59);
+					if (s.empty())
+						break;
+
+					put_output_line(code_tag + string_format("-    \"%s", s));
+				}
+
+				output_lines.back() += "\".";
+			}
+		}
 	}
 
 	emitted_query_defs = true;
+	return true;
 }
 
 void TPESQLProcessing::put_working_storage()
@@ -526,7 +564,7 @@ void TPESQLProcessing::put_working_storage()
 
 bool TPESQLProcessing::put_cursor_declarations()
 {
-	int f_type, f_size, f_scale, f_flags;
+	int f_type, f_size, f_scale;
 	bool emit_static = opt_emit_static_calls;
 
 	if (!startup_items.size())
@@ -555,7 +593,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 
 				p_call.addParameter(f_type, BY_VALUE);
 				p_call.addParameter(f_size, BY_VALUE);
-				p_call.addParameter(f_scale, BY_VALUE);
+				p_call.addParameter(f_scale > 0 ? -f_scale : 0, BY_VALUE);
 				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
@@ -659,7 +697,7 @@ void TPESQLProcessing::put_output_line(const std::string &line)
 
 bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sql_stmt_ptr stmt, bool in_ws)
 {
-	int f_type, f_size, f_scale, f_flags;
+	int f_type, f_size, f_scale;
 	bool emit_static = opt_emit_static_calls;
 
 	if (stmt->startup_item)
@@ -676,7 +714,9 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			break;
 
 		case ESQL_Command::WorkingEnd:
-			put_query_defs();
+			if (!put_query_defs())
+				return false;
+
 			break;
 
 		case ESQL_Command::Incfile:
@@ -781,7 +821,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 				rp_call.addParameter(f_type, BY_VALUE);
 				rp_call.addParameter(f_size, BY_VALUE);
-				rp_call.addParameter(f_scale, BY_VALUE);
+				rp_call.addParameter(f_scale > 0 ? -f_scale : 0, BY_VALUE);
 				rp_call.addParameter(flags, BY_VALUE);
 				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
@@ -806,7 +846,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 				p_call.addParameter(f_type, BY_VALUE);
 				p_call.addParameter(f_size, BY_VALUE);
-				p_call.addParameter(f_scale, BY_VALUE);
+				p_call.addParameter(f_scale > 0 ? -f_scale : 0, BY_VALUE);
 				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
@@ -893,7 +933,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 				rp_call.addParameter(f_type, BY_VALUE);
 				rp_call.addParameter(f_size, BY_VALUE);
-				rp_call.addParameter(f_scale, BY_VALUE);
+				rp_call.addParameter(f_scale > 0 ? -f_scale : 0, BY_VALUE);
 				rp_call.addParameter(flags, BY_VALUE);
 				rp_call.addParameter(rp->hostreference.substr(1), BY_REFERENCE);
 
@@ -949,7 +989,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 				p_call.addParameter(f_type, BY_VALUE);
 				p_call.addParameter(f_size, BY_VALUE);
-				p_call.addParameter(f_scale, BY_VALUE);
+				p_call.addParameter(f_scale > 0 ? -f_scale : 0, BY_VALUE);
 				p_call.addParameter(flags, BY_VALUE);
 				p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
@@ -1126,11 +1166,19 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				if (stmt->statementSource) {	// statement source is a variable, we must check its type
 					auto sv_name = stmt->statementSource->name.substr(1);
 					if (!main_module_driver.field_exists(sv_name)) {
-						main_module_driver.error("Cannot find host variable: " + sv_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+						main_module_driver.error("Cannot find host variable: " + sv_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, stmt->startLine);
 						return false;
 					}
 					cb_field_ptr sv = main_module_driver.field_map[sv_name];
 					bool is_varlen = get_actual_field_data(sv, &f_type, &f_size, &f_scale);
+					// If is_varlen is true, we are pointing to a "variable length group", which is fine.
+					// We pass the group and the runtime library will handle the "actual" data.
+					if (!is_varlen) { 
+						if (sv->pictype != PIC_ALPHANUMERIC) {
+							main_module_driver.error("Unsupported type for host variable: " + sv_name, ERR_INVALID_TYPE, stmt->src_abs_path, stmt->startLine);
+							return false;
+						}
+					}
 
 					ps_call.addParameter(&main_module_driver, stmt->statementSource);
 				}
@@ -1150,7 +1198,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				for (cb_hostreference_ptr p : *stmt->host_list) {
 					ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 					if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, stmt->startLine);
 						return false;
 					}
 
@@ -1162,7 +1210,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 					p_call.addParameter(f_type, BY_VALUE);
 					p_call.addParameter(f_size, BY_VALUE);
-					p_call.addParameter(f_scale, BY_VALUE);
+					p_call.addParameter(f_scale > 0 ? -f_scale : 0, BY_VALUE);
 					p_call.addParameter(flags, BY_VALUE);
 					p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
@@ -1188,8 +1236,25 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ESQLCall ei_call(get_call_id("ExecImmediate"), emit_static);
 				ei_call.addParameter("SQLCA", BY_REFERENCE);
 				ei_call.addParameter(&main_module_driver, stmt->connectionId);
-				if (stmt->statementSource)
+				if (stmt->statementSource) {	// statement source is a variable, we must check its type
+					auto sv_name = stmt->statementSource->name.substr(1);
+					if (!main_module_driver.field_exists(sv_name)) {
+						main_module_driver.error("Cannot find host variable: " + sv_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+						return false;
+					}
+					cb_field_ptr sv = main_module_driver.field_map[sv_name];
+					bool is_varlen = get_actual_field_data(sv, &f_type, &f_size, &f_scale);
+					// If is_varlen is true, we are pointing to a "variable length group", which is fine.
+					// We pass the group and the runtime library will handle the "actual" data.
+					if (!is_varlen) {
+						if (sv->pictype != PIC_ALPHANUMERIC) {
+							main_module_driver.error("Unsupported type for host variable: " + sv_name, ERR_INVALID_TYPE, stmt->src_abs_path, current_input_line);
+							return false;
+						}
+					}
+
 					ei_call.addParameter(&main_module_driver, stmt->statementSource);
+				}
 				else {
 					ei_call.addParameter(string_format("SQ%04d", stmt->sql_query_list_id), BY_REFERENCE);
 					ei_call.addParameter(0, BY_VALUE);
@@ -1223,7 +1288,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 					p_call.addParameter(f_type, BY_VALUE);
 					p_call.addParameter(f_size, BY_VALUE);
-					p_call.addParameter(f_scale, BY_VALUE);
+					p_call.addParameter(f_scale > 0 ? -f_scale : 0, BY_VALUE);
 					p_call.addParameter(flags, BY_VALUE);
 					p_call.addParameter(p->hostreference.substr(1), BY_REFERENCE);
 
@@ -1498,6 +1563,7 @@ bool TPESQLProcessing::fixup_declared_vars()
 		cb_exec_sql_stmt_ptr stmt = new cb_exec_sql_stmt_t();
 		stmt->commandName = ESQL_DECLARE_VAR;
 		stmt->src_file = filename_clean_path(var->defined_at_source_file);
+		stmt->src_abs_path = filename_absolute_path(var->defined_at_source_file);
 		stmt->startLine = var->defined_at_source_line;
 		stmt->endLine = var->defined_at_source_line;
 
@@ -1511,6 +1577,7 @@ bool TPESQLProcessing::fixup_declared_vars()
 		stmt = new cb_exec_sql_stmt_t();
 		stmt->commandName = ESQL_COMMENT;
 		stmt->src_file = filename_clean_path(var->defined_at_source_file);
+		stmt->src_abs_path = filename_absolute_path(var->defined_at_source_file);
 		stmt->startLine = orig_start_line;
 		stmt->endLine = orig_end_line;
 

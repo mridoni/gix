@@ -70,6 +70,7 @@ private:
 	bool opt_consolidated_map;
 	bool opt_no_output;
 	bool opt_emit_map_file;
+	bool opt_emit_cobol85;
 
 	gix_esql_driver main_module_driver;
 
@@ -99,7 +100,7 @@ private:
 
 	void put_start_exec_sql(bool with_period);
 	void put_end_exec_sql(bool with_period);
-	void put_query_defs();
+	bool put_query_defs();
 	void put_working_storage();
 	bool put_cursor_declarations();
 	bool put_call(const ESQLCall &call, bool terminate_with_period);

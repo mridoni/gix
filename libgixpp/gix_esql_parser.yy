@@ -68,6 +68,7 @@ static std::string to_std_string(const std::string s) { return s; }
 static std::string to_std_string(const std::vector<std::string> *slp) { if (!slp) return "(NULL-LIST)"; int n = slp->size() > 3 ? 3 : slp->size(); std::string res; for (int i = 0; i < n; i++) res += slp->at(i); return (res + " ..."); }
 static std::string to_std_string(const int i) { char buffer [33]; sprintf(buffer, "%d", i); char *res = (char*) malloc(strlen(buffer) + 1); strcpy (res, buffer); return res; }
 static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
+static std::string to_std_string(connect_to_info_t *i) { char buffer [33]; sprintf(buffer, "%d", i->type); char *res = (char*) malloc(strlen(buffer) + 1); strcpy (res, buffer); return res; }
 
 }
 
@@ -158,6 +159,9 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %token ALL
 %token OCCURS
 %token UNBOUNDED
+%token DEPENDING_ON
+%token ASCENDING_KEY_IS
+%token INDEXED_BY
 %token EXTERNAL
 %token TIMES
 %token CONST
@@ -177,6 +181,8 @@ static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
 %type <hostref_or_literal_t *> strliteral_or_hostref dbid opt_connect_as opt_at opt_using opt_dbid
 %type <int> opt_with_hold
 %type <uint64_t> opt_sql_type_def sql_type
+
+%type <connect_to_info_t *> opt_auth_info opt_identified_by
 
 %nonassoc error
 
@@ -334,23 +340,84 @@ EXECSQL unexpected_at OPEN  expr END_EXEC {
 }
 
 connectsql:
+// mode 1/2-6 : 
 // EXEC SQL CONNECT TO :db_data_source [ AS :db_conn_id ] USER :username.:opt_password [ USING password ];
-EXECSQL CONNECT TO strliteral_or_hostref opt_connect_as USER strliteral_or_hostref opt_using END_EXEC {
+// EXEC SQL CONNECT TO :dbname         [ AS :db_conn_id ] USER :username                 USING :db_data_source IDENTIFIED BY :password
+EXECSQL CONNECT TO strliteral_or_hostref opt_connect_as USER strliteral_or_hostref opt_auth_info END_EXEC {
 	driver.conninfo = new esql_connection_info_t();
-	driver.conninfo->id = $5;
-	driver.conninfo->data_source = $4;
-	driver.conninfo->username = $7;
-	driver.conninfo->password = $8;
+
+	switch ($8->type) {
+		case 0:	// [ USING :password ] omitted
+			driver.conninfo->id = $5;
+			driver.conninfo->data_source = $4;
+			driver.conninfo->username = $7;
+			driver.conninfo->password = new hostref_or_literal_t();
+			driver.conninfo->dbname = new hostref_or_literal_t();			
+			break;
+
+		case 1:	// USING :password (no IDENTIFIED BY... follows)
+			driver.conninfo->id = $5;
+			driver.conninfo->data_source = $4;
+			driver.conninfo->username = $7;
+			driver.conninfo->password = $8->t1;
+			driver.conninfo->dbname = new hostref_or_literal_t();			
+			break;
+
+		case 2:	// USING :db_data_source IDENTIFIED BY :password
+			driver.conninfo->id = $5;
+			driver.conninfo->data_source = $8->t1;
+			driver.conninfo->username = $7;
+			driver.conninfo->password = $8->t2;
+			driver.conninfo->dbname = $4;			
+			break;
+
+	}
+
 	driver.put_exec_list();
 }
-// EXEC SQL CONNECT :username IDENTIFIED BY :password [ AT :db_conn_id ] USING :db_data_source
-| EXECSQL CONNECT strliteral_or_hostref IDENTIFIED_BY strliteral_or_hostref opt_at USING strliteral_or_hostref END_EXEC {
+// mode 3/4: EXEC SQL CONNECT :username IDENTIFIED BY :password [ AT :db_conn_id ] [ USING :db_data_source] (mode 4 is unsupported)
+| EXECSQL CONNECT strliteral_or_hostref IDENTIFIED_BY strliteral_or_hostref opt_at opt_using END_EXEC {
+	if (!$7->is_set) {
+		driver.warning(@$, "Unsupported connection mode, data source information not provided. Connection will fail."); 
+	}
+	
 	driver.conninfo = new esql_connection_info_t();
 	driver.conninfo->id = $6;
-	driver.conninfo->data_source = $8;
+	driver.conninfo->data_source = $7;
 	driver.conninfo->username = $3;
 	driver.conninfo->password = $5;
 	driver.put_exec_list();
+
+}
+// mode 5: EXEC SQL CONNECT USING :db_data_source (credentials must be embedded to be able to connect)
+| EXECSQL CONNECT USING strliteral_or_hostref END_EXEC {
+	driver.conninfo = new esql_connection_info_t();
+	driver.conninfo->data_source = $4;
+	driver.put_exec_list();
+}
+;
+
+opt_auth_info:
+%empty { $$ = new connect_to_info_t(); $$->type = 0; }
+| USING strliteral_or_hostref opt_identified_by {
+	if ($3 == nullptr) {
+		$$ = new connect_to_info_t(); 
+		$$->type = 1;
+		$$->t1 = $2;
+	}
+	else {
+		$$ = $3;
+		$$->t1 = $2;
+	}
+}
+;
+
+opt_identified_by:
+%empty { $$ = nullptr; }
+| IDENTIFIED_BY strliteral_or_hostref {
+	$$ = new connect_to_info_t(); 
+	$$->type = 2;
+	$$->t2 = $2;
 }
 ;
 
@@ -803,13 +870,46 @@ flag_separate:
 ;
 
 occurs_clause:
-OCCURS NUMERIC _times
-{
-	driver.current_field->occurs = (int)$2;
-}
-| OCCURS UNBOUNDED {
-	driver.current_field->occurs = -1;
-}
+OCCURS NUMERIC occurs_numeric_data occurs_sort_opts
+| OCCURS UNBOUNDED occurs_unbounded_data occurs_sort_opts
+;
+
+occurs_numeric_data:
+TO numeric_or_word TIMES DEPENDING_ON WORD
+| DEPENDING_ON WORD
+| TIMES opt_depending_on
+| %empty
+;
+
+opt_depending_on:
+%empty
+| DEPENDING_ON WORD
+;
+
+occurs_unbounded_data:
+%empty
+| NUMERIC TIMES DEPENDING_ON TOKEN
+| DEPENDING_ON WORD
+;
+
+occurs_sort_opts:
+opt_ascending_key_is opt_indexed_by
+;
+
+opt_ascending_key_is:
+%empty
+| ASCENDING_KEY_IS WORD
+;
+
+opt_indexed_by:
+%empty
+| INDEXED_BY WORD
+;
+
+
+numeric_or_word:
+NUMERIC
+| WORD
 ;
 
 external_clause:
@@ -819,7 +919,6 @@ _is EXTERNAL {}
 _is:		%empty | IS;
 _is_are:    %empty | IS | ARE;
 _all:       %empty | ALL;
-_times:		%empty | TIMES;
 
 
 %%

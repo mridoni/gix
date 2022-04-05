@@ -47,5 +47,26 @@ namespace gixsql_tests
             });
         }
 
+        [TestMethod]
+        [CobolSource("TSQL006B.cbl")]
+        [GixSqlDataSource("pgsql", 1)]
+        [Description("Traps invalid variable for prepared statements")]
+        public void TSQL006B_MSVC_pgsql_x64_exe()
+        {
+            compile(CompilerType.MSVC, "release", "x64", "exe", true);
+
+        }
+
+        [TestMethod]
+        [CobolSource("TSQL006C.cbl")]
+        [GixSqlDataSource("pgsql", 1)]
+        [Description("Traps invalid variable for prepared statements (correct format, should succeed)")]
+        public void TSQL006C_MSVC_pgsql_x64_exe()
+        {
+            compile(CompilerType.MSVC, "release", "x64", "exe", false, false);
+
+        }
+
+
     }
 }

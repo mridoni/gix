@@ -283,7 +283,9 @@ namespace gix_ide_tests
                 Directory.Delete(TestTempDir, true);
         }
 
-        protected void compile(CompilerType ctype, string configuration, string platform, string build_type)
+        protected void compile(CompilerType ctype, string configuration, string platform, string build_type, 
+                                bool expected_to_fail_pp = false, bool expected_to_fail_cobc = false, 
+                                string additional_pp_params = "", string additional_cobc_params = "")
         {
             string cwd = ".";
             string compiler_init_cmd = "break"; // break does nothing
@@ -301,13 +303,16 @@ namespace gix_ide_tests
                 CompilerConfig cc = CompilerConfig.init(ctype, configuration, platform, build_type);
 
                 // Preprocess
-                string args = $"-e -v -S -I. -I{cc.gix_copy_path} -i {msrc} -o {pp_file}";
-                Console.WriteLine($"[gixpp]: {cc.gixpp_exe} {args}");
+                string gixpp_args = $"-e -v -S -I. -I{cc.gix_copy_path} -i {msrc} -o {pp_file}";
+                if (additional_pp_params != "")
+                    gixpp_args += (" " + additional_pp_params);
+
+                Console.WriteLine($"[gixpp]: {cc.gixpp_exe} {gixpp_args}");
 
                 var r1 = Task.Run(async () =>
                 {
                     return await Cli.Wrap(cc.gixpp_exe)
-                         .WithArguments(args)
+                         .WithArguments(gixpp_args)
                          //.WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer, System.Text.Encoding.ASCII))
                          //.WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer, System.Text.Encoding.ASCII))
                          //.WithEnvironmentVariables(env)
@@ -320,9 +325,17 @@ namespace gix_ide_tests
                 Console.WriteLine(r1.Result.StandardError);
                 Console.Out.Flush();
 
-                Assert.IsTrue(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
-                Assert.IsTrue(File.Exists(pp_file));
-                Assert.IsTrue((new FileInfo(pp_file)).Length > 0);
+                if (!expected_to_fail_pp)
+                {
+                    Assert.IsTrue(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
+                    Assert.IsTrue(File.Exists(pp_file));
+                    Assert.IsTrue((new FileInfo(pp_file)).Length > 0);
+                }
+                else {
+                     Assert.IsFalse(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
+                     Console.WriteLine("Preprocessing failed (it was expected)");
+                     return;
+                }
 
                 // Compile
 
@@ -340,8 +353,12 @@ namespace gix_ide_tests
 
                 var r2 = Task.Run(async () =>
                 {
+                    string cobc_args = $"/C \"{compiler_init_cmd} && {cc.cobc_exe} {opt_exe} -I. -I{cc.gix_copy_path} {pp_file} -l{cc.link_lib_lname} -L{cc.link_lib_dir_path}";
+                    if (additional_cobc_params != "")
+                        cobc_args += (" " + additional_cobc_params);
+
                     return await Cli.Wrap("cmd.exe")
-                       .WithArguments($"/C \"{compiler_init_cmd} && {cc.cobc_exe} {opt_exe} -I. -I{cc.gix_copy_path} {pp_file} -l{cc.link_lib_lname} -L{cc.link_lib_dir_path}")
+                       .WithArguments(cobc_args)
                        //.WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer))
                        //.WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer))
                        .WithEnvironmentVariables(new Dictionary<string, string>
@@ -356,12 +373,19 @@ namespace gix_ide_tests
                 Console.WriteLine(r2.Result.StandardOutput);
                 Console.WriteLine(r2.Result.StandardError);
 
-                Assert.IsTrue(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
-                Assert.IsTrue(File.Exists(outfile));
-                FileInfo fi = new FileInfo(outfile);
-                Assert.IsTrue(fi.Length > 0);
-
-                Console.WriteLine($"Output: {fi.FullName} ({fi.Length} bytes)");
+                if (!expected_to_fail_cobc)
+                {
+                    Assert.IsTrue(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
+                    Assert.IsTrue(File.Exists(outfile));
+                    FileInfo fi = new FileInfo(outfile);
+                    Assert.IsTrue(fi.Length > 0);
+                    Console.WriteLine($"Output: {fi.FullName} ({fi.Length} bytes)");
+                }
+                else
+                {
+                    Assert.IsFalse(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
+                    Console.WriteLine("COBOL compilation failed (it was expected)");
+                } 
             }
             finally
             {
@@ -564,6 +588,11 @@ namespace gix_ide_tests
         protected string get_datasource_pwd(int ds_index = 0)
         {
             return get_ds_val("pwd", ds_index);
+        }
+
+        protected string get_datasource_dbname(int ds_index = 0)
+        {
+            return get_ds_val("dbname", ds_index);
         }
     }
 }
