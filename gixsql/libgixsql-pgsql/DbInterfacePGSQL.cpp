@@ -25,14 +25,6 @@ USA.
 #include "Logger.h"
 #include "utils.h"
 
-#ifdef _DEBUG
-#define LOG_DEBUG(file, func, format, ...)	logger->log_debug(file, func, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...)	logger->log_error(format, ##__VA_ARGS__)
-#else
-#define LOG_DEBUG(file, func, format, ...)	
-#define LOG_ERROR(format, ...)
-#endif
-
 #define OID_TYPEA	17
 
 DbInterfacePGSQL::DbInterfacePGSQL()

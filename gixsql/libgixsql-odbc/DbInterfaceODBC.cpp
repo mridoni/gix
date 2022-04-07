@@ -21,7 +21,7 @@
 #include "DbInterfaceODBC.h"
 #include "SqlVar.h"
 #include "IConnection.h"
-#include "ILogger.h"
+#include "Logger.h"
 #include "utils.h"
 
 #include <cstring>
@@ -29,14 +29,6 @@
 #define ERR_SRC_ENV		1
 #define ERR_SRC_CONN	2
 #define ERR_SRC_STMT	3
-
-#ifdef _DEBUG
-#define LOG_DEBUG(file, func, format, ...)	logger->log_debug(file, func, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...)	logger->log_error(format, ##__VA_ARGS__)
-#else
-#define LOG_DEBUG(file, func, format, ...)
-#define LOG_ERROR(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
-#endif
 
 DbInterfaceODBC::DbInterfaceODBC()
 {

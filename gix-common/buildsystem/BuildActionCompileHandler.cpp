@@ -204,6 +204,10 @@ bool BuildActionCompileHandler::startBuild()
 	p.setTextModeEnabled(false);
 
 	p.setProgram(cobc);
+    
+    if (environment["cobc_c_comp_opts"].isValid() && !environment["cobc_c_comp_opts"].toString().isEmpty()) {
+		cobc_opts.append(environment["cobc_c_comp_opts"].toString());
+	} 
 
 	p.setArguments(cobc_opts);
 	p.setProcessEnvironment(env);

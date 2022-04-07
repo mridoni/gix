@@ -1,3 +1,22 @@
+=== v1.0.12 ======================================================
+- Gix-IDE: fixed additional compiler/linker parameters in project properties
+- Gix-IDE: fixed working directory for running/debugged project (Linux)
+- GixSQL: Fixed "More formats for connect" (#43)
+- GixSQL: Fixed "length/power issues with COMP-3 (#92)" (and zoned TC/LS)
+- GixSQL: Fixed "pass postgres cast operator as token (#93)"
+- GixSQL: Fixed "Long queries break COBOL compiler" (#89)
+- GixSQL: Fixed (partially) "GixSQL 1.0.9 compiler warnings" (#53)
+- GixSQL: Fixed a couple of regressions for "support EXEC SQL VAR" (#47)
+- GixSQL: Fixed "add OCCURS UNBOUNDED (#80)
+- GixSQL: Fixed several parser problems
+- GixSQL: Fixed error reporting bugs (wrong/invalid location of the error)
+- GixSQL: Fixed "prevent excessive filename conversions to absolute path" (merged PR45)
+- GixSQL: Fixed "DbInterfacePGSQL::get_resultset_value C string handling" (merged PR85)
+- GixSQL: Fixed "DbInterfacePGSQL cstring -> std::string" (merged PR86)
+- GixSQL: Fixed a problem with cursors in "add support for multiple connections" (#44)
+- GixSQL: Fixed "outputs too many periods - breaks code flow" (#82)
+- GixSQL: Fixed allocation of "realdata" buffer"
+
 === v1.0.11 ======================================================
 - Implemented "EXEC SQL IGNORE" (GitHub issue #73)
 - Fixed "DISCONNECT is broken" (#78)

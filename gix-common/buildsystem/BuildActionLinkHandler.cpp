@@ -148,6 +148,12 @@ bool BuildActionLinkHandler::startBuild()
 			cobc_opts.append("-O0");
 		}
 	}
+    
+    if (environment["cobc_c_link_opts"].isValid() && !environment["cobc_c_link_opts"].toString().isEmpty()) {
+        QStringList l_opts = environment["cobc_c_link_opts"].toString().split(" ", QString::SplitBehavior::SkipEmptyParts);
+        for (QString l_opt : l_opts)
+            cobc_opts.append(l_opt);
+	}    
 
 	cobc_opts.append("-o");
 	cobc_opts.append(target_final_path);

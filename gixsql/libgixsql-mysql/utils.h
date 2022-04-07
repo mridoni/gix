@@ -27,7 +27,7 @@
 #define TERMINAL_LENGTH 1
 #define DECIMAL_LENGTH 1
 
-#if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
+#if (defined(_WIN32)) && !defined(__MINGW32__) && !defined(MEM_FREE)
 #define MEM_FREE(x) {free(x); x=NULL;}
 #endif
 

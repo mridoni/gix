@@ -278,7 +278,7 @@ bool LinuxProcessRunner::start(uint64_t *pid)
             // Nothing, this should never happen
         }
 
-        //chdir(working_dir.toLocal8Bit().data());
+        chdir(working_dir.toLocal8Bit().data());
 
         ptrace(PTRACE_TRACEME, 0, NULL, NULL);
         kill(getpid(), SIGSTOP);

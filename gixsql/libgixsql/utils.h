@@ -28,10 +28,6 @@
 #define TERMINAL_LENGTH 1
 #define DECIMAL_LENGTH 1
 
-#if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
-#define MEM_FREE(x) {free(x); x=NULL;}
-#endif
-
 #define BUFFSIZE 256
 
 extern char type_tc_negative_final_number[];

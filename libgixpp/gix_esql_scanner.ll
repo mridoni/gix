@@ -107,7 +107,7 @@ OP_CHARS [\~\!\@\#\^\&\|\`\?\+\-\*\/\%\<\>\=]
 OPERATOR {OP_CHARS}+
 COMPARISON "="|"<>"|"<"|">"|"<="|">="
 COMMA ","
-PG_CASTOP "::"
+PGSQL_CAST_OP "::"
 HOSTWORD ":"([A-Za-z\-0-9_]*([\xA0-\xDF]|([\x81-\x9F\xE0-\xFC][\x40-\x7E\x80-\xFC]))*[A-Za-z\-0-9_]*)
 INT_CONSTANT {digit}+
 LOW_VALUE "LOW\-VALUE"
@@ -749,7 +749,7 @@ LOW_VALUE "LOW\-VALUE"
 			return yy::gix_esql_parser::make_TOKEN(yytext, loc);
 	}	
 
-	{PG_CASTOP} {
+	{PGSQL_CAST_OP} {
 		return yy::gix_esql_parser::make_TOKEN(yytext, loc);
 	}
 	
@@ -1008,6 +1008,10 @@ LOW_VALUE "LOW\-VALUE"
 		driver.hostlineno = yylineno;
 		return yy::gix_esql_parser::make_HOSTTOKEN(yytext, loc);
 	}
+
+	{PGSQL_CAST_OP} {
+		return yy::gix_esql_parser::make_TOKEN(yytext, loc);
+	}
 	
 	"END-EXEC"[ \r\n]*"." {
 		flag_insqlstring = 0;
@@ -1220,15 +1224,15 @@ LOW_VALUE "LOW\-VALUE"
 		return yy::gix_esql_parser::make_TO(loc);
 	}
 
-	"DEPENDING"[ \r\n]+"ON" {
+	"DEPENDING"([ \r\n]+"ON")? {
 		return yy::gix_esql_parser::make_DEPENDING_ON(loc);
 	}	
 	
-	"ASCENDING"[ \r\n]+"KEY"[ \r\n]+"IS" {
+	"ASCENDING"([ \r\n]+"KEY"([ \r\n]+"IS")?)? {
 		return yy::gix_esql_parser::make_ASCENDING_KEY_IS(loc);
 	}
 
-	"INDEXED"[ \r\n]+"BY" {
+	"INDEXED"([ \r\n]+"BY")? {
 		return yy::gix_esql_parser::make_INDEXED_BY(loc);
 	}
 	

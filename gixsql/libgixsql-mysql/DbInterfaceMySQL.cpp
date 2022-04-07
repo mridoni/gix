@@ -25,14 +25,6 @@
 #include "Logger.h"
 #include "utils.h"
 
-#ifdef _DEBUG
-#define LOG_DEBUG(file, func, format, ...)	logger->log_debug(file, func, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...)	logger->log_error(format, ##__VA_ARGS__)
-#else
-#define LOG_DEBUG(file, func, format, ...)	
-#define LOG_ERROR(format, ...)fprintf(stderr, format, ##__VA_ARGS__)
-#endif
-
 // TODO: fix this
 #define CLIENT_SIDE_CURSOR
 
@@ -375,8 +367,7 @@ const char *DbInterfaceMySQL::retrieve_mysql_error_message(MYSQL_STMT *stmt)
 		if (connaddr != NULL)
 			err = mysql_error(connaddr);
 
-	if (!err)
-			return "Unknown error";
+	return (!err) ? "Unknown error" : err;
 }
 
 int DbInterfaceMySQL::retrieve_mysql_error_code(MYSQL_STMT *stmt)

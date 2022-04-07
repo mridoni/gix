@@ -34,10 +34,43 @@
 
            01 VAR1        PIC 9(3) VALUE 0.  
            01 VAR2        PIC 9(3) VALUE 0.  
+
+           01 VARA        PIC X(64).  
+           01 VARB        PIC X(64).  
+           01 VAR3        PIC X(64).  
        
        EXEC SQL 
             INCLUDE SQLCA 
        END-EXEC. 
+
+       EXEC SQL
+          DECLARE CK08 CURSOR FOR
+             SELECT VAR1 FROM TAB
+             WHERE
+                KVAR08 >= (
+                    :VARA
+                 || :VARB
+                 || CASE WHEN :VAR2::numeric < 0 THEN
+                       'A' || TO_CHAR(999999.9999999 +
+                                      :VAR2::numeric,
+                                      'FM000000D0000000')
+                    ELSE
+                       'B' || TO_CHAR(0 +
+                                      :VAR2::numeric,
+                                      'FM000000D0000000')
+                    END
+                 || CASE WHEN :VAR3::numeric < 0 THEN
+                       'A' || TO_CHAR(999999.9999999 +
+                                      :VAR3::numeric,
+                                      'FM000000D0000000')
+                    ELSE
+                       'B' || TO_CHAR(0 +
+                                      :VAR3::numeric,
+                                      'FM000000D0000000')
+                    END
+                         )
+             ORDER BY KVAR08 ASC
+       END-EXEC.
        
        PROCEDURE DIVISION. 
  

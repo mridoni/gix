@@ -581,7 +581,7 @@ bool TPESQLProcessing::put_cursor_declarations()
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 				if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-					main_module_driver.error("Cannot find host variable " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, p->lineno);
 					return false;
 				}
 
@@ -808,7 +808,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
 
 				if (!main_module_driver.field_exists(rp->hostreference.substr(1))) {
-					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, rp->lineno);
 					return false;
 				}
 
@@ -833,7 +833,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 
 				if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR);
+					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, p->lineno);
 					return false;
 				}
 
@@ -921,7 +921,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			for (cb_res_hostreference_ptr rp : *stmt->res_host_list) {
 				ESQLCall rp_call(get_call_id("SetResultParams"), emit_static);
 				if (!main_module_driver.field_exists(rp->hostreference.substr(1))) {
-					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+					main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, rp->lineno);
 					return false;
 				}
 
@@ -977,7 +977,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			for (cb_hostreference_ptr p : *stmt->host_list) {
 				ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 				if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+					main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, p->lineno);
 					return false;
 				}
 
@@ -1013,13 +1013,13 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 		case ESQL_Command::DeclareVar:
 			{
 				if (stmt->host_list->size() != 1) {
-					main_module_driver.error("Cannot find host variable (invalid declaration)", ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+					main_module_driver.error("Cannot find host variable (invalid declaration)", ERR_MISSING_HOSTVAR, stmt->src_abs_path, stmt->startLine);
 					return false;
 				}
 
 				std::string var_name = stmt->host_list->at(0)->hostreference;
 				if (!main_module_driver.field_exists(var_name)) {
-					main_module_driver.error("Cannot find host variable: " + var_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+					main_module_driver.error("Cannot find host variable: " + var_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, stmt->startLine);
 					return false;
 				}
 
@@ -1198,7 +1198,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				for (cb_hostreference_ptr p : *stmt->host_list) {
 					ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 					if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, stmt->startLine);
+						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, p->lineno);
 						return false;
 					}
 
@@ -1239,7 +1239,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				if (stmt->statementSource) {	// statement source is a variable, we must check its type
 					auto sv_name = stmt->statementSource->name.substr(1);
 					if (!main_module_driver.field_exists(sv_name)) {
-						main_module_driver.error("Cannot find host variable: " + sv_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+						main_module_driver.error("Cannot find host variable: " + sv_name, ERR_MISSING_HOSTVAR, stmt->src_abs_path, stmt->startLine);
 						return false;
 					}
 					cb_field_ptr sv = main_module_driver.field_map[sv_name];
@@ -1248,7 +1248,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 					// We pass the group and the runtime library will handle the "actual" data.
 					if (!is_varlen) {
 						if (sv->pictype != PIC_ALPHANUMERIC) {
-							main_module_driver.error("Unsupported type for host variable: " + sv_name, ERR_INVALID_TYPE, stmt->src_abs_path, current_input_line);
+							main_module_driver.error("Unsupported type for host variable: " + sv_name, ERR_INVALID_TYPE, stmt->src_abs_path, stmt->startLine);
 							return false;
 						}
 					}
@@ -1276,7 +1276,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				for (cb_hostreference_ptr p : *stmt->host_list) {
 					ESQLCall p_call(get_call_id("SetSQLParams"), emit_static);
 					if (!main_module_driver.field_exists(p->hostreference.substr(1))) {
-						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, current_input_line);
+						main_module_driver.error("Cannot find host variable: " + p->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, p->lineno);
 						return false;
 					}
 

@@ -37,7 +37,7 @@ USA.
 #define PATH_LIST_SEP ":"
 #endif
 
-#define GIXPP_VER "1.0.11b"
+#define GIXPP_VER "1.0.12"
 
 using namespace popl;
 
@@ -87,6 +87,7 @@ int main(int argc, char **argv)
 		if (opt_version->is_set()) {
 			sprintf(vbfr, "gixpp - the ESQL preprocessor for Gix-IDE/GixSQL\nVersion: %s\nlibgixpp version: %s\n", GIXPP_VER, LIBGIXPP_VER);
 			std::cout << vbfr << std::endl;
+			rc = 0;
 		}
 		else {
 
