@@ -8,7 +8,7 @@ QT += core xml network gui xmlpatterns concurrent
 CONFIG += c++17
 INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build ./http ./templateengine ./logging ../build-tools/grammar-tools \
 				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata \
-				 ../libgixutils ../libgixpp ../libcpputils
+				 ../libgixutils ../gixsql/libgixpp ../gixsql/libcpputils
 
 linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"					 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic

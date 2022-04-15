@@ -643,7 +643,6 @@
     </None>
     <None Include="gix-ide.pro" />
     <None Include="gix-ide.pri" />
-    <None Include="packages.config" />
     <None Include="templates\COPY.cpy">
       <Filter>Resource Files\templates</Filter>
     </None>
@@ -655,6 +654,7 @@
     <None Include="templates\COPY_WSVC.cpy">
       <Filter>Resource Files\templates</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gix-ide.rc" />

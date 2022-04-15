@@ -278,8 +278,10 @@ bool LinuxProcessRunner::start(uint64_t *pid)
             // Nothing, this should never happen
         }
 
-        chdir(working_dir.toLocal8Bit().data());
-
+        if (!working_dir.isEmpty() && QDir(working_dir).exists()) {
+            chdir(working_dir.toLocal8Bit().data());
+        }
+        
         ptrace(PTRACE_TRACEME, 0, NULL, NULL);
         kill(getpid(), SIGSTOP);
         execve(progname, argv, env);

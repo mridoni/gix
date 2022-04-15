@@ -1,7 +1,7 @@
 QT += widgets network xml xmlpatterns
 TEMPLATE = lib
 TARGET = gix-common
-INCLUDEPATH += . ./buildsystem ./projectsystem ./metadata ../libgixutils ../libgixpp ../libcpputils
+INCLUDEPATH += . ./buildsystem ./projectsystem ./metadata ../libgixutils ../gixsql/libgixpp ../gixsql/libcpputils
 
 CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
 CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
@@ -18,11 +18,10 @@ linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
 
 win32:QMAKE_LFLAGS_RELEASE+= -Wl,--whole-archive -lgixutils -lgixpp -Wl,--no-whole-archive
 win32:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas  -I ../build-tools/grammar-tools
-win32:QMAKE_LIBS = -lgixutils -lgixpp -lcpputils
 win32:DEFINES -= UNICODE _UNICODE
 
 DEFINES += GIXCOMMON_LIB
-LIBS += -L$(DESTDIR) 
+LIBS += -L$(DESTDIR) -L ../gixsql/Release
 DEPENDPATH += .
 
 MOC_DIR += GeneratedFiles

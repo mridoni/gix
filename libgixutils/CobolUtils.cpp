@@ -37,10 +37,10 @@ QString CobolUtils::extractProgramId(const QString &filename)
 	if (filename.isEmpty() || !QFile::exists(filename))
 		return QString();
 
-	QList<QString> lines = SysUtils::FileReadLines(filename, 20);
+	QList<QString> lines = SysUtils::FileReadLines(filename, 250);
 	for (QString ln : lines) {
-		if (ln.contains("PROGRAM-ID")) {
-			QString pid = ln.replace("PROGRAM-ID", "");
+		if (ln.contains("PROGRAM-ID", Qt::CaseSensitivity::CaseInsensitive)) {
+			QString pid = ln.replace("PROGRAM-ID", "", Qt::CaseSensitivity::CaseInsensitive);
 			pid = pid.replace(".", "").trimmed();
 			return pid;
 		}

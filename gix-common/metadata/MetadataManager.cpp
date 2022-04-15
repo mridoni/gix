@@ -67,23 +67,6 @@ CobolModuleMetadata *MetadataManager::getModuleMetadata(QString module_name)
 	if (by_module_map.contains(module_name))
 		return by_module_map.value(module_name);
 
-	//if (!build_if_not_exists)
-	//	return nullptr;
-
-	//if (!module_srcs.contains(module_name)) {
-	//	get_module_sources();
-	//	if (!module_srcs.contains(module_name))
-	//		return nullptr;
-	//}
-
-	//QScopedPointer<MetadataWorker> worker(new MetadataWorker());
-
-	//CobolModuleMetadata *cmm = worker->scanCobolModuleInternal(module_srcs.value(module_name));
-	//if (cmm) {
-	//	addModuleMetadata(cmm);
-	//	emit GixGlobals::getMetadataManager()->updatedModuleMetadata(cmm);
-	//}
-
 	return nullptr;
 }
 

@@ -1,0 +1,72 @@
+=== v1.0.13 ======================================================
+- Reorganized the source tree. GixSQL has been moved to a separate repository
+
+=== v1.0.12 ======================================================
+- Fixed "More formats for connect" (#43)
+- Fixed "length/power issues with COMP-3 (#92)" (and zoned TC/LS)
+- Fixed "pass postgres cast operator as token (#93)"
+- Fixed "Long queries break COBOL compiler" (#89)
+- Fixed (partially) "GixSQL 1.0.9 compiler warnings" (#53)
+- Fixed a couple of regressions for "support EXEC SQL VAR" (#47)
+- Fixed "add OCCURS UNBOUNDED (#80)
+- Fixed several parser problems
+- Fixed error reporting bugs (wrong/invalid location of the error)
+- Fixed "prevent excessive filename conversions to absolute path" (merged PR45)
+- Fixed "DbInterfacePGSQL::get_resultset_value C string handling" (merged PR85)
+- Fixed "DbInterfacePGSQL cstring -> std::string" (merged PR86)
+- Fixed a problem with cursors in "add support for multiple connections" (#44)
+- Fixed "outputs too many periods - breaks code flow" (#82)
+- Fixed allocation of "realdata" buffer"
+
+=== v1.0.11 ======================================================
+- Implemented "EXEC SQL IGNORE" (GitHub issue #73)
+- Fixed "DISCONNECT is broken" (#78)
+- Fixed a "ROLLBACK TO SAVEPOINT" issue
+- Fixed connection string parameter issue (see #39)
+- Improvements to "passthru" SQL statements (see #68)
+- Fixed a "ROLLBACK TO SAVEPOINT" regression (triggered by #67)
+- Improves/fixes #73 (EXEC SQL IGNORE), adding support for GnuCOBOL preprocessor directives
+- Fixed "scanner checks for FD (including in literals)" (GitHub isue #65)
+- Fixed "unexpected SELECTFROM - statements with sub-selects cannot be parsed" (GitHub issue #66)
+- Fixed "CONNECT...IDENTIFIED BY" (GitHub issue #43)
+
+=== v1.0.10 ======================================================
+- Extended the ESQL VAR statement (added FLOAT, DECIMAL, etc.)
+- Added support for prepared statements
+- Added support for EXECUTE IMMEDIATE
+- Fixed handling of BEGIN/END DECLARE SECTION
+- Fixed autoconf package
+- Fixed command line options in gixpp
+- Fixed display of error messages in gixpp/libgixpp
+- Added ocesql-style wrapper for gixpp
+
+=== v1.0.9 =======================================================
+- Fixed a bug in the Linux debugger (watched variables are now displayed correctly)
+- Added "screen resolution" option in "Settings"
+
+=== v1.0.8 =======================================================
+- changed the connection string format
+- added support for multiple connections
+- added support for explicit declaration of variable length fields 
+- added support for driver options 
+- fixed bugs and improved error handling in the runtime libraries 
+- fixed bugs and improved error handling in the preprocessor 
+- added a Linux/autoconf build package
+
+=== v1.0.7 =======================================================
+- Added separate build scripts/solution files for GixSQL
+- Improved GixSQL documentation, with a command line example
+
+=== v1.0.6 =======================================================
+- Fixed one more regression when creating a new project
+- Added code (Windows-only) to generate a minudump file in %TEMP% in case of a crash
+
+=== v1.0.5 =======================================================
+
+=== v1.0.4 =======================================================
+
+=== v1.0.3 =======================================================
+
+- GixSQL debug and error logs are now configurable from the IDE
+- Fixed a (fatal) bug in GIXSQLExec/GIXSQLExecParams
+- Fixed a bug in the ESQL parser

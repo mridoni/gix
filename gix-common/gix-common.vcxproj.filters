@@ -349,9 +349,6 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <QtRcc Include="general.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
@@ -360,5 +357,8 @@
     <Xml Include="gix-targets.xml">
       <Filter>Resource Files</Filter>
     </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

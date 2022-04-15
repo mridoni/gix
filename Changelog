@@ -1,3 +1,6 @@
+=== v1.0.13 ======================================================
+- Reorganized the source tree. GixSQL has been moved to a separate repository
+
 === v1.0.12 ======================================================
 - Gix-IDE: fixed additional compiler/linker parameters in project properties
 - Gix-IDE: fixed working directory for running/debugged project (Linux)

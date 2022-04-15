@@ -8,7 +8,7 @@ QT += core xml network gui xmlpatterns uitools widgets
 CONFIG += c++17
 INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build \
 				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata \
-				 ../libgixutils ../libgixpp ../libcpputils ../gixsql/libgixsql ../libs/scintilla/include 
+				 ../libgixutils ../gixsql/libgixpp ../gixsql/libcpputils ../gixsql/runtime/libgixsql ../libs/scintilla/include 
 
 linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"				 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic
@@ -19,7 +19,7 @@ linux:DEFINES += QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLP
 linux:DEFINES_DEBUG += _GCDEBUGGER_NET_DEBUG _DEBUG
 linux:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEditBase ../libs/scintilla/qt/ScintillaEdit ../gixsql/libgixsql /usr/include/libdwarf /usr/include/libelfin
 linux:LIBPATH += ../libs/scintilla/src/scintilla/bin $(DESTDIR) 
-linux:LIBS += -lScintillaEdit -L$(DESTDIR) -lgix-common -lgixsql -ldwarf -ldwarf++ -lelf++ -lqtermwidget5
+linux:LIBS += -lScintillaEdit -L$(DESTDIR) -L ../gixsql/Release -lgix-common -lgixsql -ldwarf -ldwarf++ -lelf++ -lqtermwidget5
 
 win32:DEFINES += QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _HAS_STD_BYTE=0
 win32:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEditBase ../libs/scintilla/qt/ScintillaEdit ../gixsql/libgixsql  ../build-tools/grammar-tools  ../libs/libdwarf/libdwarf

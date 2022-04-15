@@ -1,2 +1,0 @@
-^C:\USERS\MARCHETTO\SOURCE\REPOS\GIX-IDE\LIBS\SCINTILLA\QT\SCINTILLAEDIT\DEBUG\MOC_PREDEFS.H.CBT
-cl -Bxc:\Qt\5.14.2\msvc2017\bin\qmake.exe -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E C:\Qt\5.14.2\msvc2017\mkspecs\features\data\dummy.cpp 2>NUL >debug\moc_predefs.h

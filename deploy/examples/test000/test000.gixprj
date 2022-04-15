@@ -21,7 +21,7 @@
   </file>
  </items>
  <settings>
-  <build_type>dll</build_type>
+  <build_type>exe</build_type>
   <cobc_c_comp_opts></cobc_c_comp_opts>
   <cobc_c_link_opts></cobc_c_link_opts>
   <cobc_generate_listing></cobc_generate_listing>

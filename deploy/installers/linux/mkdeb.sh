@@ -37,13 +37,13 @@ if [ "$?" -ne "0" ] ; then
     exit 1
 fi  
 
-cp -frv $(find x64/Release -type f -name "libgixsql*") $PKGDEBDIR/opt/gix-ide/lib/x64/gcc
+cp -frv $(find gixsql/Release -type f -name "libgixsql*") $PKGDEBDIR/opt/gix-ide/lib/x64/gcc
 if [ "$?" -ne "0" ] ; then
 	echo "Error while packaging GixSQL libraries (files)"
     exit 1
 fi  
 
-cp -frv $(find x64/Release -type l -name "libgixsql*") $PKGDEBDIR/opt/gix-ide/lib/x64/gcc
+cp -frv $(find gixsql/Release -type l -name "libgixsql*") $PKGDEBDIR/opt/gix-ide/lib/x64/gcc
 if [ "$?" -ne "0" ] ; then
 	echo "Error while packaging GixSQL libraries (links)"
     exit 1

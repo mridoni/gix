@@ -41,3 +41,5 @@ Gix-IDE is GPL 3 licensed, with some exceptions:
  - [Tutorial](doc/tutorial.md)
  - [GixSQL](doc/gixsql.md)
  - [Web modules](doc/web_modules.md)
+
+ 

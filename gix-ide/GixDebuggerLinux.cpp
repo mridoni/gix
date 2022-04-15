@@ -19,7 +19,6 @@ USA.
 */
 
 #include "GixDebuggerLinux.h"
-#include "utils.h"
 #include "LinuxProcessRunner.h"
 #include "DwarfSymbolProvider.h"
 #include "PathUtils.h"
@@ -47,6 +46,8 @@ USA.
 #include <fcntl.h>
 #include <sys/prctl.h>
 #include <sys/uio.h>
+
+#include <filesystem>
 
 #undef GIX_DBGR_USES_DOUBLEFORK
 #define LOG_DEBUG(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
@@ -762,7 +763,12 @@ void GixDebuggerLinux::update_libraries()
         auto name = read_string(name_addr);
 
         // If the name is empty, it's probably the exe or vdso. Just ignore it.
-        if (name != "") {
+        if (name != "" && name != "linux-vdso.so.1" && name != "linux-gate.so.1") {
+            // the l_name member in link_map does not always return an absolute path
+            if (!starts_with(name, "/") && !working_dir.isEmpty() && QDir(working_dir).exists()) {
+                QString wd = working_dir.endsWith("/") ? working_dir.left(working_dir.size() - 1) : working_dir;
+                name = filename_absolute_path(wd.toStdString() + "/" + name);
+            }
             new_libs.emplace(name, map.l_addr);
         }
         link_map_addr = map.l_next;

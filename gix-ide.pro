@@ -21,16 +21,16 @@ win32:SUBDIRS += libs/libdwarf/libdwarf
 			
 SUBDIRS += gix-ide				
 
-libgixpp.subdir = libgixpp			
+libgixpp.subdir = gixsql/libgixpp			
+libcpputils.subdir = gixsql/libcpputils	
 libgixutils.subdir = libgixutils	
-libcpputils.subdir = libcpputils	
-libgixsql.subdir  = gixsql/libgixsql
-libgixsql-odbc.subdir  = gixsql/libgixsql-odbc			
-libgixsql-mysql.subdir  = gixsql/libgixsql-mysql			
-libgixsql-pgsql.subdir  = gixsql/libgixsql-pgsql			
+libgixsql.subdir  = gixsql/runtime/libgixsql
+libgixsql-odbc.subdir  = gixsql/runtime/libgixsql-odbc			
+libgixsql-mysql.subdir  = gixsql/runtime/libgixsql-mysql			
+libgixsql-pgsql.subdir  = gixsql/runtime/libgixsql-pgsql			
 
 gix-common.subdir  = gix-common			
-gix-common.depends = libcpputils libgixutils
+gix-common.depends = libcpputils libgixutils libgixpp
 
 libgixpp.depends = libcpputils
 
@@ -46,7 +46,7 @@ libgixsql-odbc.depends = libgixsql
 libgixsql-mysql.depends = libgixsql
 libgixsql-pgsql.depends = libgixsql
 
-gixpp.subdir = gixpp
+gixpp.subdir = gixsql/gixpp
 gixpp.depends = libgixpp
 
 unix:GIX_INSTALL_DIR = /opt/gix-ide
