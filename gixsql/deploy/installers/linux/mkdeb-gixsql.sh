@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "************ Packaging GixSQL $GIXIDEMAJ.$GIXIDEMIN.$GIXIDEREL-$GIX_REVISION"
+echo "************ Packaging GixSQL $GIXSQLMAJ.$GIXSQLMIN.$GIXSQLREL-$GIX_REVISION"
 
 # No leading "/"
 export INSTALL_PREFIX=opt/gixsql
@@ -10,7 +10,7 @@ cd $WORKSPACE_LINUX
 export WORKSPACE=$WORKSPACE_LINUX
 
 export PKGDEBDIR=$WORKSPACE/pkg
-export PKGNAME=gixsql-linux-x64-$GIXIDEMAJ.$GIXIDEMIN.$GIXIDEREL-$GIX_REVISION
+export PKGNAME=gixsql-linux-x64-$GIXSQLMAJ.$GIXSQLMIN.$GIXSQLREL-$GIX_REVISION
 export PKGFILE=$PKGNAME.deb
 
 mkdir -p $PKGDEBDIR/${INSTALL_PREFIX}/share/gixsql/examples && \
@@ -20,7 +20,7 @@ if [ "$?" != "0" ] ; then echo "Cannot create package directory" ; exit 1 ; fi
 
 # ********************************
 
-BUILD_NAME=gixsql-$GIXIDEMAJ.$GIXIDEMIN.$GIXIDEREL-$GIX_REVISION
+BUILD_NAME=gixsql-$GIXSQLMAJ.$GIXSQLMIN.$GIXSQLREL-$GIX_REVISION
 BUILD_DIR=$WORKSPACE/$BUILD_NAME
 
 #mkdir $BUILD_DIR
@@ -84,9 +84,9 @@ echo "2.0" > $PKGDEBDIR/DEBIAN/debian-binary
 
 # control.tar.gz
 cat $WORKSPACE/deploy/installers/linux/control-gixsql.tpl | \
-	sed "s/#GIXIDEMAJ#/$GIXIDEMAJ/g" | \
-	sed "s/#GIXIDEMIN#/$GIXIDEMIN/g" | \
-	sed "s/#GIXIDEREL#/$GIXIDEREL/g" | \
+	sed "s/#GIXSQLMAJ#/$GIXSQLMAJ/g" | \
+	sed "s/#GIXSQLMIN#/$GIXSQLMIN/g" | \
+	sed "s/#GIXSQLREL#/$GIXSQLREL/g" | \
 	sed "s/#GIX_REVISION#/$GIX_REVISION/g" > $PKGDEBDIR/DEBIAN/control
 	
 cat <<EOF > $PKGDEBDIR/DEBIAN/postinst

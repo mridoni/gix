@@ -1,3 +1,7 @@
+=== v1.0.14 ======================================================
+- GixSQL: the parser now handles lowercase PROGRAM-IDs and module names
+- Fixed installer/build scripts
+
 === v1.0.13 ======================================================
 - Reorganized the source tree. GixSQL has been moved to a separate repository
 

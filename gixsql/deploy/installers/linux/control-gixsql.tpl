@@ -1,6 +1,6 @@
 Package: gixsql
 Section: devel
-Version: #GIXIDEMAJ#.#GIXIDEMIN#.#GIXIDEREL#~#GIX_REVISION#-1
+Version: #GIXSQLMAJ#.#GIXSQLMIN#.#GIXSQLREL#~#GIX_REVISION#-1
 Priority: optional
 Architecture: amd64
 Depends: libmysqlclient21, libpq5, unixodbc

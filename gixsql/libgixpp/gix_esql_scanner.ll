@@ -1407,8 +1407,8 @@ LOW_VALUE "LOW\-VALUE"
  
 . {
 	if (strlen(yytext) == 1 && yytext[0] == '.') {
-		if (!driver.procedure_division_started && string_contains(cur_line_content, "PROGRAM-ID")) {
-			std::string pid = string_replace(cur_line_content, "PROGRAM-ID", "");
+		if (!driver.procedure_division_started && string_contains(cur_line_content, "PROGRAM-ID", true)) {
+            std::string pid = string_replace_regex(cur_line_content, "PROGRAM-ID", "", true);
 			pid = trim_copy(string_replace(pid, ".", ""));
 			driver.program_id = pid;
 		}

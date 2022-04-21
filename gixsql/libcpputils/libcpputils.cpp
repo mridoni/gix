@@ -44,18 +44,6 @@ char type_tc_negative_final_number[] =
 static int type_tc_negative_final_number_len =
 sizeof(type_tc_negative_final_number) / sizeof(type_tc_negative_final_number[0]);
 
-/*
-* <Function name>
-*   insert_decimal_point
-*
-* <Outline>
-*   powerで指定した位置に小数点を挿入する
-*
-* <Input>
-*   @data: 挿入対象
-*   @data_size: dataに割り当てられたサイズ(バイト単位)
-*   @power: 小数点以下の桁数(負の値)
-*/
 void insert_decimal_point(char *data, int data_size, int power) {
 	int before_length, after_length;
 	before_length = strlen(data);
@@ -76,23 +64,6 @@ void insert_decimal_point(char *data, int data_size, int power) {
 	data[before_length - n_decimal_places] = '.';
 }
 
-/*
-* <Function name>
-*   type_tc_is_positive
-*
-* <Outline>
-*   OCDB_TYPE_SIGNED_NUMBER_TCのデータが正負であるかを判別し、
-*   負の値の場合は符号を取り除いた数値で引数を上書きする
-*   もし該当する数値が存在しない場合は、0をセットした上でtrueを返す
-*
-* <Input>
-*   @lastchar: 判別対象の文字
-*
-* <Output>
-*   判別対象が正 : true
-*   判別対象が負 : false
-*
-*/
 int type_tc_is_positive(char *lastchar) {
 	int i;
 
@@ -112,21 +83,6 @@ int type_tc_is_positive(char *lastchar) {
 	return true;
 }
 
-/*
-* <Function name>
-*   ocdb_getenv
-*
-* <Outline>
-*   環境変数から値を取得する。ない場合はエラーログを残した上でNULLを返す
-*
-* <Input>
-*   @param: パラメータ名
-*   @def  : default value
-*
-* <Output>
-*   success: パラメータの値
-*   failure: default value
-*/
 char *ocdb_getenv(char *param, char *def) {
 	char *env;
 	if (param == NULL) {
@@ -144,20 +100,6 @@ char *ocdb_getenv(char *param, char *def) {
 }
 
 
-/*
-* <Function name>
-*   uint_to_str
-*
-* <Outline>
-*   引数として与えられた数値から文字列を生成して返す
-*
-* <Input>
-*   @i: 数値
-*
-* <Output>
-*   success: 変換された文字列
-*   failure: NULL
-*/
 char *
 uint_to_str(int i) {
 	int tmp = i;
@@ -177,21 +119,6 @@ uint_to_str(int i) {
 	return ret;
 }
 
-/*
-* <Function name>
-*   oc_strndup
-*
-* <Outline>
-*   引数の文字列から指定文字数分を複製して返す
-*
-* <Input>
-*   @src: 入力文字列
-*   @n: 文字数
-*
-* <Output>
-*   success: 複製された文字列
-*   failure: NULL
-*/
 char *
 oc_strndup(char *src, int n) {
 	char *ret;
@@ -210,20 +137,6 @@ oc_strndup(char *src, int n) {
 	return ret;
 }
 
-/*
-* <Function name>
-*   trim_end
-*
-* <Outline>
-*   引数の文字列の後方にある空白をTRIMする
-*
-* <Input>
-*   @target: 入力文字列
-*
-* <Output>
-*   success: 変換された文字列
-*   failure: NULL
-*/
 char *
 trim_end(char *target) {
 	char *pos;
@@ -350,9 +263,18 @@ std::string string_chop(const std::string &s, int len)
 	return s1.substr(0, new_len);
 }
 
-bool string_contains(const std::string &s1, const std::string &s2)
+bool string_contains(const std::string &s1, const std::string &s2, bool case_insensitive)
 {
-	return s1.find(s2) != std::string::npos;
+    if (!case_insensitive)
+        return s1.find(s2) != std::string::npos;
+    else {
+        auto it = std::search(
+          s1.begin(), s1.end(),
+          s2.begin(),   s2.end(),
+          [](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }
+        );
+        return (it != s1.end() );        
+    }
 }
 
 std::string string_replace(std::string subject, const std::string &search, const std::string &replace)
@@ -365,9 +287,14 @@ std::string string_replace(std::string subject, const std::string &search, const
 	return subject;
 }
 
-std::string string_replace_regex(std::string subject, const std::string &search_rx, const std::string &replace_rx)
+std::string string_replace_regex(std::string subject, const std::string &search_rx, const std::string &replace_rx, bool case_insensitive)
 {
-	std::regex reg(search_rx);
+    std::regex::flag_type f = std::regex_constants::ECMAScript;
+    if (case_insensitive) {
+        f |=std::regex_constants::icase;
+    }
+    
+	std::regex reg(search_rx, f);
 	return regex_replace(subject, reg, replace_rx);
 }
 
