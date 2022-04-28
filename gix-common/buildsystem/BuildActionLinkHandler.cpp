@@ -132,6 +132,8 @@ bool BuildActionLinkHandler::startBuild()
 		cobc_opts.append("-g");
 		cobc_opts.append("-debug");
 		cobc_opts.append("-Og");
+		cobc_opts.append("-A");
+		cobc_opts.append("-gdwarf-4");
 
 		if (compiler_cfg->isVsBased) {
 			cobc_opts.append("-A");

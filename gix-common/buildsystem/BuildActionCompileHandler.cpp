@@ -126,9 +126,7 @@ bool BuildActionCompileHandler::startBuild()
 		}
 		else {
 			cobc_opts.append("-A");
-			cobc_opts.append("-O0");
-			//cobc_opts.append("-A");
-			//cobc_opts.append("-gdwarf");
+			cobc_opts.append("-O0 -gdwarf-4");
 		}
 	}
 
