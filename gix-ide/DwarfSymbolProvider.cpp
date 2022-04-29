@@ -68,6 +68,8 @@ USA.
 #endif
 #endif
 
+#define QTARGPTR(_PPTR) arg((quintptr)_PPTR, QT_POINTER_SIZE * 2, 16, QChar('0'))
+
 static bool get_module_base_offset(Dwarf_Debug dbg, DWARF_ADDR_T *offset);
 static bool list_funcs_in_file(Dwarf_Debug dbg, QMap<QString, void *> &funcinfo);
 static bool locate_cobol_modules(module_dwarf_private_data *md, QMap<QString, void *> &funcinfo);
@@ -97,9 +99,13 @@ static bool get_cu_line_info(Dwarf_Debug dbg, QList<lineinfo_entry> &linenums);
 
 void *DwarfSymbolProvider::loadSymbols(GixDebugger *gd, void *hproc, void *hmod, const QString &mod_path, void *userdata, int *_err)
 {
+	_dbgMessageTrace(gd, "Trying to load symbols for module " + mod_path);
+
 	QString cp = QDir::cleanPath(mod_path);
-	if (!cp.startsWith(gd->getModuleDirectory()))
+	if (!cp.startsWith(gd->getModuleDirectory())) {
+		_dbgMessageTrace(gd, QString("ERROR: inconsistent path for module: [%1]/[%2]").arg(cp).arg(gd->getModuleDirectory()));
 		return nullptr;
+	}
 
 	Dwarf_Debug dbg = 0;
 	int res = DW_DLV_ERROR;
@@ -110,19 +116,21 @@ void *DwarfSymbolProvider::loadSymbols(GixDebugger *gd, void *hproc, void *hmod,
 	int fd = open(mod_path.toLocal8Bit().constData(), O_RDONLY | O_BINARY);
 
 	if (fd < 0) {
+		_dbgMessageTrace(gd, QString("ERROR: cannot open module %1").arg(mod_path));
 		return nullptr;
 	}
 
+
 	res = dwarf_init(fd, DW_DLC_READ, errhand, errarg, &dbg, &error);
 	if (res != DW_DLV_OK) {
-		fprintf(stderr, "ERROR: %s\n", dwarf_errmsg(error));
+		_dbgMessageTrace(gd, QString("ERROR from DWARF library: %1").arg(dwarf_errmsg(error)));
 		return nullptr;
 	}
 
 	DWARF_ADDR_T offset;
 	if (!get_module_base_offset(dbg, &offset)) {
 		if (dwarf_finish(dbg, &error) != DW_DLV_OK) {
-			fprintf(stderr, "Failed DWARF finalization\n");
+			_dbgMessageTrace(gd, QString("ERROR: failed DWARF initialization"));
 		}
 		close(fd);
 		return nullptr;
@@ -136,6 +144,8 @@ void *DwarfSymbolProvider::loadSymbols(GixDebugger *gd, void *hproc, void *hmod,
 	md->base_offset = offset;
 
 	module_data[mod_path] = md;
+
+	_dbgMessageTrace(gd, QString("Symbols loaded: %1").arg(md != nullptr ? "OK" : "KO"));
 
 	return (void *)md;
 }
@@ -176,9 +186,13 @@ DWARF_ADDR_T hex2int64(const char *hex)
 
 SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err)
 {
+	_dbgMessageTrace(gd, QString("Extracting module debug info for %1").arg(mod_path));
+
 	module_dwarf_private_data *md = nullptr;
-	if (!module_data.contains(mod_path))
+	if (!module_data.contains(mod_path)) {
+		_dbgMessageTrace(gd, "ERROR: module not found in module data repository");
 		return nullptr;
+	}
 
 	md = module_data[mod_path];
 
@@ -245,7 +259,11 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 			bkp->source_file = li->source_file;
 
 			shared_module->owner->breakPointAdd(bkp);
-            bkp->install();
+		        bkp->install();
+
+
+			QString mmsg = QString("Found potential breakpoint at %1:%2 (%3)").arg(bkp->source_file).arg(bkp->line).QTARGPTR(bkp->address);
+			_dbgMessageTrace(gd, mmsg);
 		}
 	}
 
@@ -256,7 +274,8 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 		for (auto m : funcinfo.keys()) {
 			DWARF_ADDR_T dwarf_addr = (DWARF_ADDR_T)funcinfo[m];
 
-            fprintf(stderr, "Trying to register COBOL module %s from %s\n", m.toLocal8Bit().data(), shared_module->dll_path.toLocal8Bit().data());
+			QString lmsg = QString("Trying to register COBOL module %1 from %1").arg(m).arg(shared_module->dll_path);
+			_dbgMessageTrace(gd, lmsg);
 
 			CobolModuleInfo *cmi = new CobolModuleInfo();
 			cmi->name = m;
@@ -269,7 +288,7 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 			cmi->entry_point = (void *)dwarf_addr;
 #endif
 #elif defined(__linux__)
-            cmi->entry_point = (void *)((DWARF_ADDR_T)shared_module->dll_base + dwarf_addr);
+		        cmi->entry_point = (void *)((DWARF_ADDR_T)shared_module->dll_base + dwarf_addr);
 #endif
 
 			cmi->entry_breakpoint = UserBreakpoint::createInstance();
@@ -278,13 +297,16 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 			cmi->entry_breakpoint->key = QString(m) + ":0";
 			cmi->entry_breakpoint->orig_instr = 0x00;
 			cmi->entry_breakpoint->owner = shared_module;
-			
+
 			cmi->entry_breakpoint->source_file = "";
 			cmi->entry_breakpoint->line = 0;
 
 			shared_module->cbl_modules[m] = cmi;
+			_dbgMessageTrace(gd, "Initializing module local info");
 
-			initCobolModuleLocalInfo(gd, hproc, cmi);
+			if (!initCobolModuleLocalInfo(gd, hproc, cmi)) {
+				_dbgMessageTrace(gd, QString("ERROR: cannot initialize module local info"));
+			}
 		}
 	}
 
@@ -434,6 +456,9 @@ bool DwarfSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hproc,
 
 	uint8_t *__GIX_SYM_MOD_E = readSymbolValueInBuffer(gd, cmi, dbg, hproc, "__GIX_SYM_" + cmi->name + "_E", __GIX_SYM_MOD_ES);
 	uint8_t *__GIX_SYM_MOD_M = readSymbolValueInBuffer(gd, cmi, dbg, hproc, "__GIX_SYM_" + cmi->name + "_M", __GIX_SYM_MOD_MS);
+
+	_dbgMessageTrace(gd, QString("Module local info: %1 symbols found").arg(__GIX_SYM_MOD_EC));
+	_dbgMessageTrace(gd, QString("Module local info: %1 symbol mapping records found").arg(__GIX_SYM_MOD_MC));
 
 	SymbolBufferReader sr(__GIX_SYM_MOD_E, __GIX_SYM_MOD_ES);
 	for (int i = 0; i < __GIX_SYM_MOD_EC; i++) {

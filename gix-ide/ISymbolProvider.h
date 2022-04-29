@@ -38,5 +38,11 @@ public:
 	virtual QString dumpStackFrame(GixDebugger *gd, void *hproc, void *hthread) = 0;
 
 	virtual void *resolveLocalVariableAddress(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi, uint64_t frame_ptr, VariableResolverData *rootvar, VariableResolverData *vvar) = 0;
+
+protected:
+
+	void _dbgMessageTrace(GixDebugger *gd, QString msg) {
+		gd->getInterfaceBlock()->debuggerMessage(gd, msg, 0);
+	}
 };
 
