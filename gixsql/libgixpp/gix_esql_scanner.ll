@@ -643,7 +643,7 @@ LOW_VALUE "LOW\-VALUE"
 
 
 	[;]?(\r\n|\n)		{ 
-				ECHO; 
+				return yy::gix_esql_parser::make_TOKEN(yytext, loc);
 	} 
 
 	"SELECT" {

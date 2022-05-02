@@ -112,7 +112,7 @@ int GixEsqlLexer::LexerInput(char *buff, int max_size)
 					return strlen(buff);
 
 				default:
-					printf("EOF:%s\n", buff);
+					driver->error("Wrong file format or unexpected end of file", ERR_SYNTAX_ERROR, driver->file, yylineno + 1);
 					return YY_NULL;
 			}
 			if (strlen(buff) > 72) {
