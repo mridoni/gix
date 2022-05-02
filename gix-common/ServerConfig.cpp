@@ -69,7 +69,7 @@ ServerConfig* ServerConfig::read(QString path)
 		QJsonDocument jr = QJsonDocument::fromJson(content, &error);
 		if (jr.isNull()) {
 			QString msg = QString("Parse error at %1: %2").arg(error.offset).arg(error.errorString());
-			qWarning(msg.toUtf8().constData());
+			qWarning("%s", msg.toLatin1().constData());
 			return nullptr;
 		}
 

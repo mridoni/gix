@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 	if (argc < 2) {
 		configFile = searchConfigFile();
 		if (configFile.isEmpty()) {
-			fprintf(stderr, QString("Cannot find config file").toUtf8().constData());
+			fprintf(stderr, "%s", QString("Cannot find config file").toLatin1().constData());
 			return 1;
 		}
 	}
@@ -117,13 +117,13 @@ int main(int argc, char* argv[])
 	auto dtFormat = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss.zzz");
 	auto logLevel = QLogger::QLoggerManager::levelToText(QLogger::LogLevel::Info);
 	auto text = QString("[%1] [%2] {%3} %4").arg(dtFormat).arg(logLevel).arg(SERVER_LOG).arg(QString("Starting from file %1").arg(configFile));
-	fprintf(stdout, qPrintable(text));
+	fprintf(stdout, "%s", qPrintable(text));
 
 	if (!is_valid_log_file(config->getLog())) {
 		dtFormat = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss.zzz");
 		logLevel = QLogger::QLoggerManager::levelToText(QLogger::LogLevel::Error);
 		text = QString("[%1] [%2] {%3} %4").arg(dtFormat).arg(logLevel).arg(SERVER_LOG).arg(QString("Cannot write server log %1, server will not be started").arg(config->getLog()));
-		fprintf(stderr, qPrintable(text));
+		fprintf(stderr, "%s", qPrintable(text));
 		return 1;
 	}
 
