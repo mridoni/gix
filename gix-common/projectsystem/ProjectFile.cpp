@@ -244,7 +244,7 @@ QString ProjectFile::extractModuleName()
 		QString src = SysUtils::FileReadAllText(src_file);
 		QRegularExpressionMatch m = rxProgramId.match(src);
 		if (m.hasMatch()) {
-			QString module_name = m.captured(1).toUpper().trimmed();
+		        QString module_name = m.captured(1).trimmed();
 			return module_name;
 		}
 	}

@@ -64,7 +64,14 @@ void MetadataManager::get_module_sources()
 
 CobolModuleMetadata *MetadataManager::getModuleMetadata(QString module_name)
 {
-	if (by_module_map.contains(module_name))
+#ifdef _DEBUG
+    QStringList mmap_list;
+    for (auto mm : by_module_map.keys()) {
+        mmap_list.append("[" + mm + "] -> [" + by_module_map.value(mm)->getModuleName() + "]");
+    }
+    GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "MetadataManager: looking for " + module_name + ", module list is: " + mmap_list.join(", "), QLogger::LogLevel::Trace);
+#endif
+    if (by_module_map.contains(module_name))
 		return by_module_map.value(module_name);
 
 	return nullptr;

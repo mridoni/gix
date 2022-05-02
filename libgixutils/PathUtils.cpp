@@ -83,7 +83,7 @@ bool PathUtils::isValidFileName(QString s)
 QString PathUtils::toModuleName(QString s)
 {
 	QFileInfo f(s);
-	return f.baseName().toUpper();
+	return f.baseName();
 }
 
 QString PathUtils::quote(QString s)
