@@ -1,0 +1,6 @@
+packages
+**/*.bak
+gixsql/libgixpp/gix_esql_parser.cc
+gixsql/libgixpp/gix_esql_parser.hh
+gixsql/libgixpp/gix_esql_scanner.cc
+gixsql/libgixpp/location.hh
