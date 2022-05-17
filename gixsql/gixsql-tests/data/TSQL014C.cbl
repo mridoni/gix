@@ -1,6 +1,6 @@
 ﻿       IDENTIFICATION DIVISION.
        
-       PROGRAM-ID. TSQL014B. 
+       PROGRAM-ID. TSQL014C. 
        
        
        ENVIRONMENT DIVISION. 
@@ -55,27 +55,25 @@
 
        100-MAIN.
 
-         EXEC SQL AT :DBS
-             SELECT lo_open(BLOBFLD,393216) INTO :DESCRIPTOR
-                    FROM TAB WHERE TABKEY = :TABKEY
-         END-EXEC.
+           EXEC SQL AT :DBS
+               SELECT lo_open(BLOBFLD,393216) INTO :DESCRIPTOR
+                      FROM TAB WHERE TABKEY = :TABKEY
+           END-EXEC.
 
-         EXEC SQL AT :DBS
-             SELECT lo_lseek (:DESCRIPTOR, :OFFSET,0) INTO :RESINT
-                    FROM TAB WHERE TABKEY = :TABKEY
-         END-EXEC.
+           EXEC SQL AT :DBS
+               SELECT lo_lseek (:DESCRIPTOR, :OFFSET,0) INTO :RESINT
+                      FROM TAB WHERE TABKEY = :TABKEY
+           END-EXEC.
 
-         EXEC SQL AT :DBS
-             SELECT LENGTH INTO :LEN FROM TAB
-                    WHERE TABKEY= :TABKEY
-         END-EXEC.
+           EXEC SQL AT :DBS
+               SELECT LENGTH INTO :LEN FROM TAB
+                      WHERE TABKEY= :TABKEY
+           END-EXEC.
 
-         EXEC SQL AT :DBS
-             SELECT lo_close (:DESCRIPTOR) INTO :RESINT
-                    FROM TAB WHERE TABKEY = :TABKEY
-         END-EXEC.
-
-         EXEC SQL CONNECT RESET END-EXEC.
+           EXEC SQL AT :DBS
+               SELECT lo_close (:DESCRIPTOR) INTO :RESINT
+                      FROM TAB WHERE TABKEY = :TABKEY
+           END-EXEC.
 
        100-EXIT. 
              STOP RUN.

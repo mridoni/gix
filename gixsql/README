@@ -217,8 +217,8 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
 
 ```text
     gixpp - the ESQL preprocessor for Gix-IDE/GixSQL
-    Version: 1.0.11
-    libgixpp version: 1.0.11
+    Version: 1.0.15
+    libgixpp version: 1.0.15
     
     Options:
       -h, --help                  displays help on commandline options
@@ -237,6 +237,9 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
       -k, --keep                  keep temporary files
       -v, --verbose               verbose
       -d, --verbose-debug         verbose (debug)
+      -m, --map                   emit map file
+      -C, --cobol85               emit COBOL85-compliant code
+      -Y, --varying arg           length/data suffixes for varlen fields (=LEN,ARR)
 ```	  
 
 When you want to build and link from the console, remember also to add the `<gix-install-dir>/share/gix/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.
@@ -385,7 +388,6 @@ It should compile all the libraries, then the preprocessing library and the prep
 ### Windows (MinGW)
 Currently there are no specific Makefiles/autoconf scripts for MinGW x86/x64, they will be provided in a future release, but you can try to use the configure script.
 
-
 ### Using GixSQL from Gix-IDE
 When you create a project in Gix-IDE, you are asked whether you want to enable it for ESQL preprocessing. This is not an absolute requirement. At any point you can set the project property "Preprocess for ESQL" (under "General") to "Yes". There are several properties you can configure here that affed code generation by the preprocessor:
 
@@ -396,3 +398,4 @@ When you create a project in Gix-IDE, you are asked whether you want to enable i
 When you run your code from the IDE, the path for the runtime libraries needed for the DBMS you chose are automatically added to your PATH. Obviously, when you are running outside the IDE, you will have to do this manually: the runtime libraries and their dependencies reside in `{gix-install-dir}\lib\{platform}\{architecture}` (**platform** can be either x64 or x86, **architecture** can either be msvc or gcc, depending on the compiler type you are using).
 
 At the moment  Gix-IDE always uses its embedded version of GixSQL. In the future this will be extended to allow for other preprocessors.
+

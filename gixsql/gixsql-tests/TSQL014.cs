@@ -7,7 +7,7 @@ namespace gixsql_tests
 {
     [TestClass]
     [HostPlatform("x64")]
-    [TestCategory("LOB related syntax issues (#68)")]
+    [TestCategory("LOB related syntax issues (#3)")]
     public class TSQL014 : GixSqlTestBase
     {
         [TestInitialize]
@@ -33,7 +33,6 @@ namespace gixsql_tests
 
         [TestMethod]
         [CobolSource("TSQL014B.cbl")]
-        [TestCategory("LOB related syntax issues (#68)")]
         [GixSqlDataSource("pgsql", 1)]
         public void TSQL014B_MSVC_pgsql_x64_exe()
         {
@@ -43,6 +42,15 @@ namespace gixsql_tests
         }
 
 
+        [TestMethod]
+        [CobolSource("TSQL014C.cbl")]
+        [GixSqlDataSource("pgsql", 1)]
+        public void TSQL014C_MSVC_pgsql_x64_exe()
+        {
+            compile(CompilerType.MSVC, "release", "x64", "exe");
+
+            Console.WriteLine("Performed syntax check only: OK");
+        }
 
     }
 }

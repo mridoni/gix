@@ -1,5 +1,20 @@
+=== v1.0.15 ======================================================
+- Fixed "long queries break COBOL compiler" (#8)
+- Fixed a couple of possible parser crashes
+- Fixed a regression in the solution for #7
+- Fixed "Set (more) correct error code for 'SQLSTATE FFFFF'" (#17)
+- Fixed "possibly not correct setup of SQLSTATE" (#7), for now PostgreSQL only
+- Fixed "Add support for VARYING groups" (#38)
+- Moved variable length filed storage to COMP-5 instead of binary
+- Fixed "translation defect in 1.0.12" (#1)
+- Fixed "scanner eating SECTIONs" (#36)
+- Removed unnecessary build files
+- Fixed autoconf scripts, "make distcheck" now works
+- Fixed installer script (Windows)
+- Formatting fixes
+
 === v1.0.14 ======================================================
-- GixSQL: the parser now handles lowercase PROGRAM-IDs and module names
+- The parser now handles lowercase PROGRAM-IDs and module names
 - Fixed installer/build scripts
 
 === v1.0.13 ======================================================

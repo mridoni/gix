@@ -965,107 +965,112 @@ static int setStatus(struct sqlca_t * st, IDbInterface *dbi, int err)
 	sqlca_initialize(st);
 
 	switch (err) {
-	case DBERR_NO_ERROR:
-		return RESULT_SUCCESS;
+		case DBERR_NO_ERROR:
+			memcpy(st->sqlstate, "     ", 5);
+			st->sqlcode = 0;
+			memset(st->sqlerrm.sqlerrmc, ' ', 69);
+			st->sqlerrm.sqlerrmc[69] = 0;
+			st->sqlerrm.sqlerrml = 69;
+			return RESULT_SUCCESS;
 
-	case DBERR_CONNECTION_FAILED:
-		strcpy(st->sqlstate, "08001");
-		break;
+		case DBERR_CONNECTION_FAILED:
+			memcpy(st->sqlstate, "08001", 5);
+			break;
 
-	case DBERR_BEGIN_TX_FAILED:
-		strcpy(st->sqlstate, "3B001");
-		break;
+		case DBERR_BEGIN_TX_FAILED:
+			memcpy(st->sqlstate, "3B001", 5);
+			break;
 
-	case DBERR_END_TX_FAILED:
-		strcpy(st->sqlstate, "2D521");
-		break;
+		case DBERR_END_TX_FAILED:
+			memcpy(st->sqlstate, "2D521", 5);
+			break;
 
-	case DBERR_CONN_NOT_FOUND:
-		strcpy(st->sqlstate, "08003");
-		break;
+		case DBERR_CONN_NOT_FOUND:
+			memcpy(st->sqlstate, "08003", 5);
+			break;
 
-	case DBERR_CONN_RESET_FAILED:
-		strcpy(st->sqlstate, "08005");
-		break;
+		case DBERR_CONN_RESET_FAILED:
+			memcpy(st->sqlstate, "08005", 5);
+			break;
 
-	case DBERR_EMPTY_QUERY:
-		strcpy(st->sqlstate, "42617");
-		break;
+		case DBERR_EMPTY_QUERY:
+			memcpy(st->sqlstate, "42617", 5);
+			break;
 
-	case DBERR_SQL_ERROR:
-		strcpy(st->sqlstate, "42617");
-		break;
+		case DBERR_SQL_ERROR:
+			memcpy(st->sqlstate, "42617", 5);
+			break;
 
-	case DBERR_TOO_MANY_ARGUMENTS:
-		strcpy(st->sqlstate, "07001");
-		break;
+		case DBERR_TOO_MANY_ARGUMENTS:
+			memcpy(st->sqlstate, "07001", 5);
+			break;
 
-	case DBERR_TOO_FEW_ARGUMENTS:
-		strcpy(st->sqlstate, "07001");
-		break;
+		case DBERR_TOO_FEW_ARGUMENTS:
+			memcpy(st->sqlstate, "07001", 5);
+			break;
 
-	case DBERR_NO_PARAMETERS:
-		strcpy(st->sqlstate, "07002");
-		break;
+		case DBERR_NO_PARAMETERS:
+			memcpy(st->sqlstate, "07002", 5);
+			break;
 
-	case DBERR_CURSOR_EXISTS:
-		strcpy(st->sqlstate, "24502");
-		break;
+		case DBERR_CURSOR_EXISTS:
+			memcpy(st->sqlstate, "24502", 5);
+			break;
 
-	case DBERR_NO_SUCH_CURSOR:
-		strcpy(st->sqlstate, "24518");
-		break;
+		case DBERR_NO_SUCH_CURSOR:
+			memcpy(st->sqlstate, "24518", 5);
+			break;
 
-	case DBERR_CLOSE_CURSOR_FAILED:
-		strcpy(st->sqlstate, "42887");
-		break;
+		case DBERR_CLOSE_CURSOR_FAILED:
+			memcpy(st->sqlstate, "42887", 5);
+			break;
 
-	case DBERR_DISCONNECT_FAILED:
-		strcpy(st->sqlstate, "08006");
-		break;
+		case DBERR_DISCONNECT_FAILED:
+			memcpy(st->sqlstate, "08006", 5);
+			break;
 
-	case DBERR_OUT_OF_MEMORY:
-		strcpy(st->sqlstate, "58900");
-		break;
+		case DBERR_OUT_OF_MEMORY:
+			memcpy(st->sqlstate, "58900", 5);
+			break;
 
-	case DBERR_DECLARE_CURSOR_FAILED:
-		strcpy(st->sqlstate, "34001");
-		break;
+		case DBERR_DECLARE_CURSOR_FAILED:
+			memcpy(st->sqlstate, "34001", 5);
+			break;
 
-	case DBERR_OPEN_CURSOR_FAILED:
-		strcpy(st->sqlstate, "245F0");
-		break;
+		case DBERR_OPEN_CURSOR_FAILED:
+			memcpy(st->sqlstate, "245F0", 5);
+			break;
 
-	case DBERR_FETCH_ROW_FAILED:
-		strcpy(st->sqlstate, "24591");
-		break;
+		case DBERR_FETCH_ROW_FAILED:
+			memcpy(st->sqlstate, "24591", 5);
+			break;
 
-	case DBERR_INVALID_COLUMN_DATA:
-		strcpy(st->sqlstate, "225FF");
-		break;
+		case DBERR_INVALID_COLUMN_DATA:
+			memcpy(st->sqlstate, "225FF", 5);
+			break;
 
-	case DBERR_CURSOR_CLOSED:
-		strcpy(st->sqlstate, "24501");
-		break;
+		case DBERR_CURSOR_CLOSED:
+			memcpy(st->sqlstate, "24501", 5);
+			break;
 
-	case DBERR_MOVE_TO_FIRST_FAILED:
-		strcpy(st->sqlstate, "020F0");
-		break;
+		case DBERR_MOVE_TO_FIRST_FAILED:
+			memcpy(st->sqlstate, "020F0", 5);
+			break;
 
-	case DBERR_FIELD_COUNT_MISMATCH:
-		strcpy(st->sqlstate, "42886");
-		break;
+		case DBERR_FIELD_COUNT_MISMATCH:
+			memcpy(st->sqlstate, "42886", 5);
+			break;
 
-	case DBERR_NO_DATA:
-		strcpy(st->sqlstate, "02000");
-		break;
+		case DBERR_NO_DATA:
+			memcpy(st->sqlstate, "02000", 5);
+			break;
 
-	case DBERR_TOO_MUCH_DATA:
-		strcpy(st->sqlstate, "22537");
-		break;
+		case DBERR_TOO_MUCH_DATA:
+			memcpy(st->sqlstate, "22537", 5);
+			break;
 
-	default:
-		strcpy(st->sqlstate, "FFFFF");
+		default:
+			memcpy(st->sqlstate, "HV000", 5);
 	}
 
 	if (dbi) {
@@ -1083,6 +1088,16 @@ static int setStatus(struct sqlca_t * st, IDbInterface *dbi, int err)
 		st->sqlcode = dbi->get_error_code();
 		if (st->sqlcode == 0)
 			st->sqlcode = err;
+
+		// if the driver provides an sqlstate we use it instead of the generic one above
+		std::string sqlstate = dbi->get_state();
+		if (!sqlstate.empty()) {
+			if (sqlstate.size() > 5)
+				sqlstate = sqlstate.substr(0, 5);
+
+			memset(st->sqlstate, ' ', 5);
+			memcpy(st->sqlstate, sqlstate.c_str(), sqlstate.size());
+		}
 	}
 	else {
 		st->sqlcode = err;

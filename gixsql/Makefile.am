@@ -1,7 +1,7 @@
 ## Process this file with automake to generate Makefile.in
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = libcpputils libgixpp gixpp runtime/libgixsql
-EXTRA_DIST =
+EXTRA_DIST = copy/SQLCA.cpy misc/gixsql-wrapper
 CLEANFILES = *~
 
 if ENABLE_MYSQL
@@ -19,6 +19,3 @@ endif
 pkgconfigdir = $(prefix)/share/gix/copy
 pkgconfig_DATA = copy/SQLCA.cpy
 
-install-exec-hook:
-	cp misc/gixsql-wrapper $(prefix)/bin/gixsql && \
-		chmod 755 $(prefix)/bin/gixsql

@@ -54,6 +54,9 @@ BUILD_DIR=$WORKSPACE/$BUILD_NAME
 #rm -fr $(find . -name "*.pro")
 #rm -fr $(find . -name "*.pri")
 
+autoreconf --install --force
+if [ "$?" != "0" ] ; then echo "Cannot preconfigure the build environment" ; exit 1 ; fi
+
 ./configure --prefix=$PKGDEBDIR/${INSTALL_PREFIX}
 if [ "$?" != "0" ] ; then echo "Cannot configure the build environment" ; exit 1 ; fi
 

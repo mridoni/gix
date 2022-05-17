@@ -72,6 +72,9 @@ private:
 	bool opt_emit_map_file;
 	bool opt_emit_cobol85;
 
+	std::string opt_varlen_suffix_len;
+	std::string opt_varlen_suffix_data;
+
 	gix_esql_driver main_module_driver;
 
 	 std::vector<std::string> output_lines;

@@ -140,6 +140,11 @@ int DbInterfaceMySQL::get_error_code()
 	return last_rc;
 }
 
+std::string DbInterfaceMySQL::get_state()
+{
+	return last_state;
+}
+
 void DbInterfaceMySQL::set_owner(IConnection *conn)
 {
 	owner = conn;

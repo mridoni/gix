@@ -27,6 +27,16 @@ USA.
 
 #define OID_TYPEA	17
 
+std::string pg_get_sqlstate(PGresult* r)
+{
+	char* c = PQresultErrorField(r, PG_DIAG_SQLSTATE);
+	if (c)
+		return std::string(c);
+	else
+		return "";
+
+}
+
 DbInterfacePGSQL::DbInterfacePGSQL()
 {}
 
@@ -40,6 +50,7 @@ int DbInterfacePGSQL::init(ILogger *_logger)
 	connaddr = NULL;
 	resaddr = NULL;
 	last_rc = 0;
+	last_state = "";
 #if _DEBUG
 	logger = _logger;
 #endif
@@ -53,6 +64,10 @@ int DbInterfacePGSQL::connect(IDataSourceInfo *conn_info, int autocommit, string
 
 	connaddr = NULL;
 	resaddr = NULL;
+
+	last_rc = 0;
+	last_error = "";
+	last_state = "";
 
 	connstr = (conn_info->getDbName().empty() ? "" : "dbname=" + conn_info->getDbName() + " ") +
 		(conn_info->getHost().empty() ? "" : "host=" + conn_info->getHost() + " ") +
@@ -92,6 +107,7 @@ int DbInterfacePGSQL::connect(IDataSourceInfo *conn_info, int autocommit, string
 			if (rc != PGRES_COMMAND_OK) {
 				last_rc = rc;
 				last_error = PQresultErrorMessage(r);
+				last_state = pg_get_sqlstate(r);
 				LOG_ERROR("%s\n", last_error);
 				PQfinish(conn);
 				return DBERR_CONNECTION_FAILED;
@@ -171,6 +187,11 @@ int DbInterfacePGSQL::get_error_code()
 	return last_rc;
 }
 
+std::string DbInterfacePGSQL::get_state()
+{
+	return last_state;
+}
+
 void DbInterfacePGSQL::set_owner(IConnection *conn)
 {
 	owner = conn;
@@ -240,6 +261,7 @@ int DbInterfacePGSQL::prepare(std::string stmt_name, std::string sql)
 	PGresult *res = PQprepare(connaddr, stmt_name.c_str(), prepared_sql.c_str(), 0, nullptr);
 	last_rc = PQresultStatus(res);
 	last_error = PQresultErrorMessage(res);
+	last_state = pg_get_sqlstate(res);
 
 	LOG_DEBUG(__FILE__, __func__, "PGSQL::prepare - res: (%d) %s\n", last_rc, last_error.c_str());
 
@@ -274,6 +296,7 @@ int DbInterfacePGSQL::exec_prepared(std::string stmt_name, std::vector<std::stri
 
 	last_rc = PQresultStatus(resaddr);
 	last_error = PQresultErrorMessage(resaddr);
+	last_state = pg_get_sqlstate(resaddr);
 
 	//if (last_rc == PGRES_COMMAND_OK) {
 	//	q = trim_copy(q);
@@ -307,6 +330,7 @@ int DbInterfacePGSQL::exec(string query)
 
 	last_rc = PQresultStatus(resaddr);
 	last_error = PQresultErrorMessage(resaddr);
+	last_state = pg_get_sqlstate(resaddr);
 
 	if (last_rc == PGRES_COMMAND_OK) {
 		q = trim_copy(q);
@@ -350,6 +374,7 @@ int DbInterfacePGSQL::exec_params(string query, int nParams, int *paramTypes, ve
 
 	last_rc = PQresultStatus(resaddr);
 	last_error = PQresultErrorMessage(resaddr);
+	last_state = pg_get_sqlstate(resaddr);
 
 	if (last_rc == PGRES_COMMAND_OK) {
 		q = trim_copy(q);

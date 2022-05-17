@@ -39,7 +39,7 @@ namespace gix_ide_tests
         public string cobc_bin_dir_path { get; private set; }
         public string cobc_lib_dir_path { get; private set; }
         public string cobc_config_dir_path { get; private set; }
-        
+
         public string link_lib_dir_path { get; private set; }
         public string link_lib_name { get; private set; }
         public string link_lib_lname { get; private set; }
@@ -138,8 +138,20 @@ namespace gix_ide_tests
         protected string module_src;
         protected List<string> dependencies = new List<string>();
 
-        //protected string data_source_type;
-        //protected int data_source_index;
+        protected string LastPreprocessedFile { get { return last_preprocessed_file; } }
+        protected string LastCompiledFile { get { return last_compiled_file; } }
+        
+        protected string LastOutputText { get { return last_output_text; } }
+        protected string LastErrorText { get { return last_error_text; } }
+
+
+        private string last_preprocessed_file;
+        private string last_compiled_file;        
+        
+        private string last_error_text;
+        private string last_output_text;
+
+
 
         private List<Tuple<string, int>> data_sources = new List<Tuple<string, int>>();
 
@@ -195,7 +207,8 @@ namespace gix_ide_tests
             //if (attrs.Length != 1)
             //    Assert.Fail("Invalid test attributes (CobolSource)");
 
-            for (int i = 0; i < attrs.Length; i++){
+            for (int i = 0; i < attrs.Length; i++)
+            {
                 var ga = (GixSqlDataSourceAttribute)attrs[i];
                 data_sources.Add(new Tuple<string, int>(ga.type, ga.index));
                 Assert.IsTrue(data_source_init(data_sources.Count - 1));
@@ -283,8 +296,8 @@ namespace gix_ide_tests
                 Directory.Delete(TestTempDir, true);
         }
 
-        protected void compile(CompilerType ctype, string configuration, string platform, string build_type, 
-                                bool expected_to_fail_pp = false, bool expected_to_fail_cobc = false, 
+        protected void compile(CompilerType ctype, string configuration, string platform, string build_type,
+                                bool expected_to_fail_pp = false, bool expected_to_fail_cobc = false,
                                 string additional_pp_params = "", string additional_cobc_params = "")
         {
             string cwd = ".";
@@ -331,11 +344,14 @@ namespace gix_ide_tests
                     Assert.IsTrue(File.Exists(pp_file));
                     Assert.IsTrue((new FileInfo(pp_file)).Length > 0);
                 }
-                else {
-                     Assert.IsFalse(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
-                     Console.WriteLine("Preprocessing failed (it was expected)");
-                     return;
+                else
+                {
+                    Assert.IsFalse(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
+                    Console.WriteLine("Preprocessing failed (it was expected)");
+                    return;
                 }
+
+                last_preprocessed_file = Path.Combine(Path.GetDirectoryName(module_src), pp_file);
 
                 // Compile
 
@@ -385,7 +401,9 @@ namespace gix_ide_tests
                 {
                     Assert.IsFalse(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
                     Console.WriteLine("COBOL compilation failed (it was expected)");
-                } 
+                }
+
+                last_compiled_file = outfile;
             }
             finally
             {
@@ -412,7 +430,8 @@ namespace gix_ide_tests
 
                 Dictionary<string, string> env = new Dictionary<string, string>();
                 string args = String.Empty;
-                if (build_type == "exe") {
+                if (build_type == "exe")
+                {
                     exe = outfile;
                     env["PATH"] = Environment.GetEnvironmentVariable("PATH") + $";{cc.cobc_bin_dir_path};{cc.link_lib_dir_path}";
                 }
@@ -438,9 +457,12 @@ namespace gix_ide_tests
                         .ExecuteBufferedAsync();
 
                 });
-                
+
                 Console.WriteLine(res.Result.StandardOutput);
                 Console.WriteLine(res.Result.StandardError);
+
+                last_error_text = res.Result.StandardError;
+                last_output_text = res.Result.StandardOutput;
 
                 Assert.IsTrue(res.Result.ExitCode == 0, $"Exit code : {res.Result.ExitCode}");
 
@@ -457,15 +479,17 @@ namespace gix_ide_tests
 
                 if (check_output_contains != null && check_output_contains.Length > 0)
                 {
-                    foreach (string t in check_output_contains)
+                    for (int i = 0; i < check_output_contains.Length; i++)
                     {
+                        string t = check_output_contains[i];
                         if (useregex)
                         {
                             Regex rx = new Regex(t);
                             Assert.IsTrue(rx.IsMatch(res.Result.StandardOutput), "Output mismatch");
                         }
-                        else {
-                            Assert.IsTrue(res.Result.StandardOutput.Contains(t), "Output mismatch");
+                        else
+                        {
+                            Assert.IsTrue(res.Result.StandardOutput.Contains(t), $"Output mismatch (index: {i}, expected: {t}");
                         }
                         b2 = true;
                     }
@@ -474,7 +498,7 @@ namespace gix_ide_tests
                 if (b1 || b2)
                     Console.WriteLine("Output: OK");
                 else
-                    Assert.Inconclusive("Output not checked");
+                    Console.WriteLine("WARNING: output not checked");
 
                 if (__after_run != null)
                 {
@@ -488,23 +512,45 @@ namespace gix_ide_tests
             }
         }
 
+        public void check_file_contains(string filename, string[] check_output_contains, bool useregex = false)
+        {
+            Assert.IsTrue(File.Exists(filename));
+            Assert.IsTrue((new FileInfo(filename)).Length > 0);
+
+            string content = File.ReadAllText(filename);
+            foreach (string t in check_output_contains)
+            {
+                if (useregex)
+                {
+                    Regex rx = new Regex(t);
+                    Assert.IsTrue(rx.IsMatch(content), "Output mismatch");
+                }
+                else
+                {
+                    Assert.IsTrue(content.Contains(t), $"Output mismatch: missing \"{t}\"");
+                }
+            }
+        }
+
         private void set_db_client_path(string platform, Dictionary<string, string> env)
         {
             List<string> paths = new List<string>();
-            
-            foreach (var ds in data_sources.Select(a => a.Item1).Distinct()) {
+
+            foreach (var ds in data_sources.Select(a => a.Item1).Distinct())
+            {
                 string v_id = $"{ds.ToUpper()}_CLIENT_PATH_{platform.ToUpper()}";
                 string v_val = Environment.GetEnvironmentVariable(v_id);
                 if (!String.IsNullOrWhiteSpace(v_val))
-                    paths.Add(v_val);    
+                    paths.Add(v_val);
             }
 
-            if (paths.Count > 0) {
+            if (paths.Count > 0)
+            {
                 string path = env.ContainsKey("PATH") ? env["PATH"] : String.Empty;
                 path += (";" + String.Join(";", paths));
                 env["PATH"] = path;
             }
-            
+
         }
 
         public static string CreateMD5(byte[] inputBytes)
@@ -539,7 +585,8 @@ namespace gix_ide_tests
 
                 s += get_ds_val("host", ds_index) + "/";
             }
-            else {
+            else
+            {
                 if (embed_auth)
                     s += $"{get_ds_val("usr", ds_index)}.{get_ds_val("pwd", ds_index)}@";
 
@@ -561,7 +608,7 @@ namespace gix_ide_tests
                 if (!String.IsNullOrWhiteSpace(o))
                     s += ("?" + o);
             }
-            
+
             return s;
         }
 

@@ -100,7 +100,7 @@ bool GixPreProcessor::process()
         return false;
     }
 
-    if (!std::get<bool>(getOpt("no_output")) && output_file.empty()) {
+    if (!std::get<bool>(getOpt("no_output", false)) && output_file.empty()) {
 		SET_PP_ERR(2, "Bad output file");
         return false;
     }
@@ -179,6 +179,11 @@ bool GixPreProcessor::setOutputFile(std::string outfile)
 variant GixPreProcessor::getOpt(std::string id, bool b)
 {	
 	return map_contains<std::string, variant>(opts, id) ? opts[id] : variant(b);
+}
+
+variant GixPreProcessor::getOpt(std::string id, std::string s)
+{
+	return map_contains<std::string, variant>(opts, id) ? opts[id] : variant(s);
 }
 
 variant_map& GixPreProcessor::getOpts() const

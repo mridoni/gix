@@ -96,6 +96,7 @@ public:
 	virtual int get_num_fields() = 0;
 	virtual char *get_error_message() = 0;
 	virtual int get_error_code() = 0;
+	virtual std::string get_state() = 0;
 	virtual void set_owner(IConnection *) = 0;
 	virtual IConnection* get_owner() = 0;
 	virtual int prepare(std::string stmt_name, std::string sql) = 0;

@@ -34,10 +34,7 @@ USA.
 #include <map>
 #include <string>
 
-// We need this for the yy::calcxx_parser::symbol_type:
 #include "gix_esql_parser.hh"
-
-#define BUFFSIZE    512
 
 struct srcLocation
 {

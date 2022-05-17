@@ -266,6 +266,11 @@ int DbInterfaceODBC::get_error_code()
 	return last_rc;
 }
 
+std::string DbInterfaceODBC::get_state()
+{
+	return last_state;
+}
+
 void DbInterfaceODBC::set_owner(IConnection* conn)
 {
 	owner = conn;

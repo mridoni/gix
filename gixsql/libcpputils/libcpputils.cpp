@@ -188,7 +188,7 @@ char *safe_strdup(char * s)
 // trim from start (in place)
 void ltrim(std::string &s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-		return !std::isspace(ch);
+		return !std::isspace((unsigned char)ch);
 	}));
 }
 

@@ -23,13 +23,21 @@ USA.
 #include <string>
 #include <vector>
 
-#define TYPE_SQL_CHAR		 1ULL << 0
-#define TYPE_SQL_VARCHAR	 1ULL << 1
-#define TYPE_SQL_INT		 1ULL << 2
-#define TYPE_SQL_FLOAT		 1ULL << 3
-#define TYPE_SQL_DECIMAL	 1ULL << 4
-#define TYPE_SQL_BINARY		 1ULL << 5
-#define TYPE_SQL_VARBINARY	 1ULL << 6
+/*
+	SQL TYPE INFO is a 64 bit unsigned int:
+	bits 00-15: scale (16 bit unsigned int)
+	bits 16-47: precision (32 bit unsigned int)
+	bits 48-59: unused/reserved
+	bits 60-63: type (encoded with the TYPE_SQL_* consts)
+*/
+
+#define TYPE_SQL_CHAR		 1ULL
+#define TYPE_SQL_VARCHAR	 2ULL
+#define TYPE_SQL_INT		 3ULL
+#define TYPE_SQL_FLOAT		 4ULL
+#define TYPE_SQL_DECIMAL	 5ULL
+#define TYPE_SQL_BINARY		 6ULL
+#define TYPE_SQL_VARBINARY	 7ULL
 
 #define IS_VARLEN(T) (T == TYPE_SQL_VARCHAR || T == TYPE_SQL_VARBINARY)
 #define IS_BINARY(T) (T == TYPE_SQL_BINARY || T == TYPE_SQL_VARBINARY)
@@ -109,6 +117,7 @@ struct cb_exec_sql_stmt_t
 	hostref_or_literal_t *statementSource = nullptr;
 	bool startup_item;
 	bool cursor_hold;
+	bool transaction_release;
 
 	int sql_query_list_id;
 
@@ -133,6 +142,7 @@ struct cb_exec_sql_stmt_t
 		conn_use_other_db = false;
 		startup_item = false;
 		cursor_hold = false;
+		transaction_release = false;
 	}
 
 	~cb_exec_sql_stmt_t()
@@ -181,7 +191,14 @@ struct cb_field_t
 	bool sign_leading = false;
 	bool separate = false;
 
-	uint64_t sql_type = 0;	// 64 bits: 32-63 : type (TYPE_SQL_* constants) ; 16-31: precision ; 0-15 : scale
+	/*
+		SQL TYPE INFO is a 64 bit unsigned int:
+		bits 00-15: scale (16 bit unsigned int)
+		bits 16-47: precision (32 bit unsigned int)
+		bits 48-59: unused/reserved
+		bits 60-63: type (encoded with the TYPE_SQL_* consts)
+	*/
+	uint64_t sql_type = 0;
 
 	std::string defined_at_source_file;
 	int defined_at_source_line;

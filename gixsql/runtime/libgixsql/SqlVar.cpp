@@ -262,7 +262,8 @@ void SqlVar::createRealData()
 			else {
 				void* actual_addr = (char*)addr + VARLEN_LENGTH_SZ;
 				VARLEN_LENGTH_T *len_addr = (VARLEN_LENGTH_T *)addr;
-				int actual_len = VARLEN_BSWAP(*len_addr);
+				//int actual_len = VARLEN_BSWAP(*len_addr);
+				int actual_len = (*len_addr);
 				memcpy(realdata, (char*)actual_addr, actual_len);
 				LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
 			}
@@ -572,7 +573,8 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 					memcpy(actual_addr, retstr, datalen);
 				}
 				VARLEN_LENGTH_T* fld_len_addr = (VARLEN_LENGTH_T *)addr;
-				*fld_len_addr = VARLEN_BSWAP((VARLEN_LENGTH_T) datalen);
+				//*fld_len_addr = VARLEN_BSWAP((VARLEN_LENGTH_T) datalen);
+				*fld_len_addr = ((VARLEN_LENGTH_T) datalen);
 			}
 			break;
 

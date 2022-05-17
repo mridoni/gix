@@ -1,9 +1,9 @@
 #define QTDIR GetEnv('QTDIR')
 #define WORKSPACE GetEnv('WORKSPACE')
 #define GIX_REVISION GetEnv('GIX_REVISION')
-#define VER_GIXIDEMAJ GetEnv('GIXIDEMAJ')
-#define VER_GIXIDEMIN GetEnv('GIXIDEMIN')
-#define VER_GIXIDEREL GetEnv('GIXIDEREL')
+#define VER_GIXSQLMAJ GetEnv('GIXSQLMAJ')
+#define VER_GIXSQLMIN GetEnv('GIXSQLMIN')
+#define VER_GIXSQLREL GetEnv('GIXSQLREL')
 
 #define REDIST_DIR GetEnv('REDIST_DIR')
 
@@ -24,12 +24,12 @@
 #endif
 
 [Setup]
-AppName=Gix-Ide
-AppVersion={#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}
+AppName=GixSQL
+AppVersion={#VER_GIXSQLMAJ}.{#VER_GIXSQLMIN}.{#VER_GIXSQLREL}-{#GIX_REVISION}
 AppCopyright=Marco Ridoni
 DefaultDirName={pf}\GixSQL
 OutputDir={#WORKSPACE}\deploy\installers\gixsql-{#HOST_PLATFORM}
-OutputBaseFilename=gixsql-{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}-installer
+OutputBaseFilename=gixsql-{#VER_GIXSQLMAJ}.{#VER_GIXSQLMIN}.{#VER_GIXSQLREL}-{#GIX_REVISION}-installer
 ArchitecturesInstallIn64BitMode=x64
 DefaultGroupName=GixSQL
 LicenseFile={#WORKSPACE}\LICENSE
@@ -45,8 +45,16 @@ Source: "{#DIST_DIR}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion createal
 Source: "{#WORKSPACE}\copy\SQLCA.cpy"; DestDir: "{app}\lib\copy"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 ; examples and docs
-;Source: "{#WORKSPACE}\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs onlyifdoesntexist
-;Source: "{#WORKSPACE}\doc\*"; DestDir: "{userdocs}\Gix\Documentation"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\gixsql-tests\data\*.cbl"; DestDir: "{userdocs}\GixSQL\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs onlyifdoesntexist
+Source: "{#WORKSPACE}\gixsql-tests\data\*.cpy"; DestDir: "{userdocs}\GixSQL\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs onlyifdoesntexist
+Source: "{#WORKSPACE}\README"; DestDir: "{userdocs}\GixSQL\Documentation"; Flags: ignoreversion
+
+; MS runtimes
+;Source: "{#REDIST_DIR}\ms\common\*"; DestDir: "{tmp}\redist\ms\common"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#REDIST_DIR}\ms\x86\*"; DestDir: "{tmp}\redist\ms\x86"; Flags: ignoreversion createallsubdirs recursesubdirs
+#if "x64" == HOST_PLATFORM
+Source: "{#REDIST_DIR}\ms\x64\*"; DestDir: "{tmp}\redist\ms\x64"; Flags: ignoreversion createallsubdirs recursesubdirs
+#endif
 
 ; dependencies for DB runtime libraries
 #if "x64" == HOST_PLATFORM
@@ -74,21 +82,20 @@ Filename: "{tmp}\redist\ms\x86\vcredist_x86_vs2013.exe"; Parameters: "/install /
 #endif
 
 [Registry]
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{localappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
-Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
+Root: "HKLM"; Subkey: "Software\MediumGray\gixsql"; ValueType: string; ValueName: "version"; ValueData: "{#VER_GIXSQLMAJ}.{#VER_GIXSQLMIN}.{#VER_GIXSQLREL}-{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKLM"; Subkey: "Software\MediumGray\gixsql"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gixsql"; ValueType: string; ValueName: "DataDir"; ValueData: "{localappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKLM"; Subkey: "Software\MediumGray\gixsql"; Flags: uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gixsql"; Flags: uninsdeletekey
 
 [Dirs]
 Name: "{app}\bin"
-Name: "{app}\lib"
+Name: "{app}\lib\copy"
 Name: "{app}\lib\{#HOST_PLATFORM}\msvc"
 Name: "{app}\lib\{#HOST_PLATFORM}\gcc"
-Name: "{app}\copy"
-; Name: "{userdocs}\Gix"
-; Name: "{userdocs}\Gix\Documentation"
-; Name: "{userdocs}\Gix\Examples"
+Name: "{userdocs}\GixSQL"
+Name: "{userdocs}\GixSQL\Documentation"
+Name: "{userdocs}\GixSQL\Examples"
 
 [Components]
 Name: "gix_sql"; Description: "GixSQL"; Types: compact custom full; Flags: fixed

@@ -118,7 +118,6 @@ void PropertyWindow::setContent(ProjectItem* pi)
 		if (pd->Group != curr_group) {
 			QTableWidgetItem* th = new QTableWidgetItem();
 			th->setText(prop_defs.getPropertyGroupName(pd->Group));
-			//QFont f = th->font();
 			QFont f = getGridFont();
 			f.setBold(true);
 			th->setFont(f);
@@ -145,6 +144,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 					ProtectedLineEdit* qle = new ProtectedLineEdit(propertyTable);
 					connect(qle, &ProtectedLineEdit::textChanged, [this, qle, pd, pi] { propertyValueChanged(pd, qle->text(), pi);  });
 					qle->setText(pd->serialize(cur_property_value));
+					qle->setToolTip(pd->serialize(cur_property_value));
 					qle->setFont(gridFont);
 					qle->setStyleSheet("ProtectedLineEdit { padding-left: 3px }");
 					qw = qle;
@@ -152,6 +152,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				else {
 					QLabel* qle = new QLabel(propertyTable);
 					qle->setText(pd->serialize(cur_property_value));
+					qle->setToolTip(pd->serialize(cur_property_value));
 					qle->setFont(gridFont);
 					qle->setStyleSheet("QLabel { padding-left: 3px }");
 					qw = qle;
@@ -200,6 +201,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				layout->setAlignment(Qt::AlignJustify);
 				QLabel* qle = new QLabel(propertyTable);
 				qle->setText(pd->serialize(cur_property_value));
+				qle->setToolTip(pd->serialize(cur_property_value));
 				qle->setFont(gridFont);
 				qle->setStyleSheet("QLabel { padding-left: 3px }");
 				QPushButton* qpb = new QPushButton("...", propertyTable);
@@ -211,9 +213,9 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				qpb->setFixedSize(QSize(18, 18));
 				qpb->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 				qle->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-				qle->setMaximumWidth(120);
-				layout->addWidget(qle, 90);
-				layout->addWidget(qpb, 10);
+				//qle->setMaximumWidth(120);
+				layout->addWidget(qle, 90, Qt::AlignLeft);
+				layout->addWidget(qpb, 10, Qt::AlignRight);
 				QWidget* qqw = new QWidget(propertyTable);
 				qqw->setLayout(layout);
 				qw = qqw;
@@ -227,6 +229,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				layout->setAlignment(Qt::AlignJustify);
 				QLabel* qle = new QLabel(propertyTable);
 				qle->setText(pd->serialize(cur_property_value));
+				qle->setToolTip(pd->serialize(cur_property_value));
 				qle->setFont(gridFont);
 				qle->setStyleSheet("QLabel { padding-left: 3px }");
 				QPushButton* qpb = new QPushButton("...", propertyTable);
@@ -238,9 +241,9 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				qpb->setFixedSize(QSize(18, 18));
 				qpb->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 				qle->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-				qle->setMaximumWidth(120);
-				layout->addWidget(qle, 90);
-				layout->addWidget(qpb, 10);
+				//qle->setMaximumWidth(120);
+				layout->addWidget(qle, 90, Qt::AlignLeft);
+				layout->addWidget(qpb, 10, Qt::AlignRight);
 				QWidget* qqw = new QWidget(propertyTable);
 				qqw->setLayout(layout);
 				qw = qqw;
@@ -254,6 +257,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				layout->setAlignment(Qt::AlignJustify);
 				QLabel* qle = new QLabel(propertyTable);
 				qle->setText(pd->serialize(cur_property_value));
+				qle->setToolTip(pd->serialize(cur_property_value));
 				qle->setFont(gridFont);
 				qle->setStyleSheet("QLabel { padding-left: 3px }");
 				QPushButton* qpb = new QPushButton("...", propertyTable);
@@ -265,9 +269,9 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				qpb->setFixedSize(QSize(18, 18));
 				qpb->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 				qle->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-				qle->setMaximumWidth(120);
-				layout->addWidget(qle, 90);
-				layout->addWidget(qpb, 10);
+				//qle->setMaximumWidth(120);
+				layout->addWidget(qle, 90, Qt::AlignLeft);
+				layout->addWidget(qpb, 10, Qt::AlignRight);
 				QWidget* qqw = new QWidget(propertyTable);
 				qqw->setLayout(layout);
 				qw = qqw;
@@ -281,6 +285,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				layout->setAlignment(Qt::AlignJustify);
 				QLabel* qle = new QLabel(propertyTable);
 				qle->setText(pd->serialize(cur_property_value));
+				qle->setToolTip(pd->serialize(cur_property_value));
 				qle->setFont(gridFont);
 				qle->setStyleSheet("QLabel { padding-left: 3px }");
 				QPushButton* qpb = new QPushButton("...", propertyTable);
@@ -292,9 +297,9 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				qpb->setFixedSize(QSize(18, 18));
 				qpb->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 				qle->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-				qle->setMaximumWidth(120);
-				layout->addWidget(qle, 90);
-				layout->addWidget(qpb, 10);
+				//qle->setMaximumWidth(120);
+				layout->addWidget(qle, 90, Qt::AlignLeft);
+				layout->addWidget(qpb, 10, Qt::AlignRight);
 				QWidget* qqw = new QWidget(propertyTable);
 				qqw->setLayout(layout);
 				qw = qqw;
@@ -314,7 +319,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				cb->addItem(tr("Yes"), true);
 				cb->addItem(tr("No"), false);
 				cb->setCurrentIndex(cb->findData(sub_props->value("enabled").toBool()));
-				cb->setMaximumWidth(145);
+				//cb->setMaximumWidth(145);
 				cb->setEnabled(!pd->ReadOnly);
 				cb->setFont(gridFont);
 				cb->setStyleSheet("QComboBox { padding-left: 3px }");
@@ -343,8 +348,8 @@ void PropertyWindow::setContent(ProjectItem* pi)
 				qpb->setFixedSize(QSize(18, 18));
 				qpb->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 				qpb->setEnabled(sub_props->value("enabled").toBool());
-				layout->addWidget(cb, 90);
-				layout->addWidget(qpb, 10);
+				layout->addWidget(cb, 90, Qt::AlignLeft);
+				layout->addWidget(qpb, 10, Qt::AlignRight);
 				QWidget* qqw = new QWidget(propertyTable);
 				qqw->setLayout(layout);
 				qw = qqw;
@@ -373,6 +378,7 @@ void PropertyWindow::envVarsListEditButtonClicked(PropertyDefinition* pd, QVaria
 		QLabel* lbl = dynamic_cast<QLabel*>(prop_visual);
 		if (lbl != nullptr) {
 			lbl->setText(pd->serialize(out_value));
+			lbl->setToolTip(pd->serialize(out_value));
 		}
 	}
 }
@@ -389,6 +395,7 @@ void PropertyWindow::dirPathListEditButtonClicked(PropertyDefinition* pd, QVaria
 		QLabel* lbl = dynamic_cast<QLabel*>(prop_visual);
 		if (lbl != nullptr) {
 			lbl->setText(pd->serialize(out_value));
+			lbl->setToolTip(pd->serialize(out_value));
 		}
 	}
 }
@@ -404,6 +411,7 @@ void PropertyWindow::dirPathEditButtonClicked(PropertyDefinition* pd, QVariant v
 		QLabel* lbl = dynamic_cast<QLabel*>(prop_visual);
 		if (lbl != nullptr) {
 			lbl->setText(pd->serialize(directory));
+			lbl->setToolTip(pd->serialize(directory));
 		}
 	}
 }
@@ -419,6 +427,7 @@ void PropertyWindow::filePathEditButtonClicked(PropertyDefinition *pd, QVariant 
 		QLabel *lbl = dynamic_cast<QLabel *>(prop_visual);
 		if (lbl != nullptr) {
 			lbl->setText(pd->serialize(file));
+			lbl->setToolTip(pd->serialize(file));
 		}
 	}
 }

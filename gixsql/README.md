@@ -217,8 +217,8 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
 
 ```text
     gixpp - the ESQL preprocessor for Gix-IDE/GixSQL
-    Version: 1.0.11
-    libgixpp version: 1.0.11
+    Version: 1.0.15
+    libgixpp version: 1.0.15
     
     Options:
       -h, --help                  displays help on commandline options
@@ -237,6 +237,9 @@ If you want to manually precompile COBOL programs for ESQL, you can use the prep
       -k, --keep                  keep temporary files
       -v, --verbose               verbose
       -d, --verbose-debug         verbose (debug)
+      -m, --map                   emit map file
+      -C, --cobol85               emit COBOL85-compliant code
+      -Y, --varying arg           length/data suffixes for varlen fields (=LEN,ARR)
 ```	  
 
 When you want to build and link from the console, remember also to add the `<gix-install-dir>/share/gix/copy` directory to the COPY path list (it contains SQLCA) and to include **libgixsql** (and the appropriate path, depending on your architecture) to the compiler's command line.

@@ -58,6 +58,7 @@ gix_esql_driver::gix_esql_driver ()
 	cursorname = "";
 	sqlname = "";
 	incfilename = "";
+	transaction_release = false;
 	hostreferenceCount = 0;
 	host_reference_list = NULL;
 	res_host_reference_list = NULL;
@@ -183,7 +184,9 @@ std::vector<cb_sql_token_t> *gix_esql_driver::cb_text_list_add(std::vector<cb_sq
 
 std::vector<cb_sql_token_t> *gix_esql_driver::cb_concat_text_list(std::vector<cb_sql_token_t> *list, std::vector<cb_sql_token_t> *targetlist)
 {
-	list->insert(list->end(), targetlist->begin(), targetlist->end());
+	if (targetlist) {
+		list->insert(list->end(), targetlist->begin(), targetlist->end());
+	}
 	sql_list = list;
 	return list;
 }
@@ -289,6 +292,7 @@ void gix_esql_driver::put_exec_list()
 	l->commandName = commandname;
 	l->textContent = text_content;
 	l->command_putother = command_putother;
+	l->transaction_release = transaction_release;
 	l->sqlName = sqlname;
 	l->incfileName = incfilename;
 	l->statementName = statement_name;

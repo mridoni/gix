@@ -69,6 +69,7 @@ public:
 	virtual int get_num_fields() override;
 	virtual char *get_error_message() override;
 	virtual int get_error_code() override;
+	virtual std::string get_state() override;
 	virtual void set_owner(IConnection *) override;
 	virtual IConnection* get_owner() override;
 	virtual int prepare(std::string stmt_name, std::string sql) override;
@@ -98,6 +99,7 @@ private:
 
 	IConnection *owner;
 	int last_rc;
+	std::string last_state;
 
 	int driver_has_num_rows_support;
 	bool dynamic_cursor_emulation;

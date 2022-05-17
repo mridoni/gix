@@ -65,6 +65,7 @@ public:
 	virtual int get_num_fields() override;
 	virtual char *get_error_message() override;
 	virtual int get_error_code() override;
+	virtual std::string get_state() override;
 	virtual void set_owner(IConnection *) override;
 	virtual IConnection* get_owner() override;
 	virtual int prepare(std::string stmt_name, std::string sql) override;
@@ -81,6 +82,7 @@ private:
 
 	int last_rc;
 	string last_error;
+	string last_state;
 
 	map<string, ICursor*> _declared_cursors;
 	std::map<std::string, std::tuple<std::vector<std::string>, void *>> prepared_stmts;

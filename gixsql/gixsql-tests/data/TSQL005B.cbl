@@ -1,6 +1,6 @@
 ﻿       IDENTIFICATION DIVISION.
        
-       PROGRAM-ID. TSQL005A. 
+       PROGRAM-ID. TSQL005B. 
        
        
        ENVIRONMENT DIVISION. 
@@ -25,7 +25,8 @@
            01 VBFLD SQL TYPE IS VARBINARY(100).
            
            01 CFLD SQL TYPE IS CHAR(100).
-           01 VCFLD SQL TYPE IS VARCHAR(100).      
+
+           01 VCFLD PIC X(100) VARYING.      
 
            01 NUM1          PIC 99V99.
 

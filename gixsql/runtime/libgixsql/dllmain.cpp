@@ -18,21 +18,17 @@
 * Boston, MA 02110-1301 USA
 */
 
-// dllmain.cpp : Defines the entry point for the DLL application.
+#include <stdlib.h>
 
-//BOOL APIENTRY DllMain( HMODULE hModule,
-//                       DWORD  ul_reason_for_call,
-//                       LPVOID lpReserved
-//                     )
-//{
-//    switch (ul_reason_for_call)
-//    {
-//    case DLL_PROCESS_ATTACH:
-//    case DLL_THREAD_ATTACH:
-//    case DLL_THREAD_DETACH:
-//    case DLL_PROCESS_DETACH:
-//        break;
-//    }
-//    return TRUE;
-//}
-//
+class lib_load_handler
+{
+public:
+    lib_load_handler()
+    {
+
+    }
+    ~lib_load_handler()
+    {
+
+    }
+} lib_load_handler_hook;

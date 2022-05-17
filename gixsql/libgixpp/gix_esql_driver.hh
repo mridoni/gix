@@ -137,13 +137,14 @@ public:
     int sqlnum;
     int command_putother;
     std::string filenameID;
-    int currenthostno;
-    int cursor_hold;
+    int currenthostno = 0;
+    int cursor_hold = 0;
     std::string commandname;
     std::string cursorname;
     std::string sqlname;
     std::string incfilename;
     std::string text_content;
+    bool transaction_release;
 
     hostref_or_literal_t *connectionid = nullptr;
     

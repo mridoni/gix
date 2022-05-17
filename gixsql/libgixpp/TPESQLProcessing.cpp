@@ -23,7 +23,7 @@ USA.
 #include "gix_esql_driver.hh"
 #include "MapFileWriter.h"
 #include "libcpputils.h"
-
+#include "limits.h"
 #include "linq/linq.hpp"
 
 #if defined(_WIN32) && defined(_DEBUG)
@@ -35,6 +35,7 @@ USA.
 #define ESQL_DISCONNECT					"DISCONNECT"
 #define ESQL_CLOSE						"CLOSE"
 #define ESQL_COMMIT						"COMMIT"
+#define ESQL_ROLLBACK					"ROLLBACK"
 #define ESQL_FETCH						"FETCH"
 #define ESQL_INCFILE					"INCFILE"
 #define ESQL_INCSQLCA					"INCSQLCA"
@@ -98,17 +99,20 @@ USA.
 
 #define ERR_NOTDEF_CONVERSION -1
 
+#define DEFAULT_VARLEN_SUFFIX_DATA		"ARR"
+#define DEFAULT_VARLEN_SUFFIX_LENGTH	"LEN"
+
+#define SQL_QUERY_BLOCK_SIZE	8191
+
 // These must be in sync with the ones in SqlVar.h
-#define VARLEN_SUFFIX_DATA		"DATA"
-#define VARLEN_SUFFIX_LENGTH	"LENGTH"
 #ifdef USE_VARLEN_32
-#define VARLEN_LENGTH_PIC		"9(05) BINARY"
-#define VARLEN_PIC_SZ			5
+#define VARLEN_LENGTH_PIC		"9(8) COMP-5"
+#define VARLEN_PIC_SZ			9
 #define VARLEN_LENGTH_SZ		4
 #define VARLEN_LENGTH_T			uint32_t
 #define VARLEN_BSWAP			COB_BSWAP_32
 #else
-#define VARLEN_LENGTH_PIC		"9(4) BINARY"
+#define VARLEN_LENGTH_PIC		"9(4) COMP-5"
 #define VARLEN_PIC_SZ			4
 #define VARLEN_LENGTH_SZ		2
 #define VARLEN_LENGTH_T			uint16_t
@@ -122,6 +126,7 @@ enum class ESQL_Command
 	Disconnect,
 	Close,
 	Commit,
+	Rollback,
 	Fetch,
 	Incfile,
 	IncSQLCA,
@@ -168,7 +173,8 @@ static bool check_sql_type_compatibility(uint64_t type_info, cb_field_ptr var);
 
 static std::map<std::string, ESQL_Command> ESQL_cmd_map{ { ESQL_CONNECT, ESQL_Command::Connect }, { ESQL_CONNECT_RESET, ESQL_Command::ConnectReset },
 												 { ESQL_DISCONNECT, ESQL_Command::Disconnect }, { ESQL_CLOSE, ESQL_Command::Close },
-												 { ESQL_COMMIT, ESQL_Command::Commit }, { ESQL_FETCH, ESQL_Command::Fetch },{ ESQL_DELETE, ESQL_Command::Delete },
+												 { ESQL_COMMIT, ESQL_Command::Commit }, { ESQL_ROLLBACK, ESQL_Command::Rollback }, 
+												 { ESQL_FETCH, ESQL_Command::Fetch }, { ESQL_DELETE, ESQL_Command::Delete },
 												 { ESQL_INCFILE, ESQL_Command::Incfile }, { ESQL_INCSQLCA, ESQL_Command::IncSQLCA }, { ESQL_INSERT, ESQL_Command::Insert },
 												 { ESQL_OPEN, ESQL_Command::Open }, { ESQL_SELECT, ESQL_Command::Select }, { ESQL_UPDATE, ESQL_Command::Update },
 												 { ESQL_WORKING_BEGIN, ESQL_Command::WorkingBegin }, { ESQL_WORKING_END, ESQL_Command::WorkingEnd } ,
@@ -199,6 +205,17 @@ TPESQLProcessing::TPESQLProcessing(GixPreProcessor *gpp) : ITransformationStep(g
 	opt_no_output = std::get<bool>(gpp->getOpt("no_output", false));
 	opt_emit_map_file = std::get<bool>(gpp->getOpt("emit_map_file", false));
 	opt_emit_cobol85 = std::get<bool>(gpp->getOpt("emit_cobol85", false));
+
+	auto vsfxs = std::get<std::string>(gpp->getOpt("varlen_suffixes", std::string()));
+	if (vsfxs.empty()) {
+		opt_varlen_suffix_len = DEFAULT_VARLEN_SUFFIX_LENGTH;
+		opt_varlen_suffix_data = DEFAULT_VARLEN_SUFFIX_DATA;
+	}
+	else {
+		int p = vsfxs.find(",");
+		opt_varlen_suffix_len = vsfxs.substr(0, p);
+		opt_varlen_suffix_data = vsfxs.substr(p + 1);
+	}
 
 	output_line = 0;
 	working_begin_line = 0;
@@ -433,7 +450,7 @@ bool TPESQLProcessing::processNextFile()
 
 				// Add ESQL calls
 				if (!handle_esql_stmt(cmd, exec_sql_stmt, in_ws)) {
-					main_module_driver.error("Error in ESQL statement", ERR_ALREADY_SET);
+					main_module_driver.error("Error in ESQL statement", ERR_ALREADY_SET, exec_sql_stmt->src_file, exec_sql_stmt->startLine);
 					return false;
 				}
 		}
@@ -441,7 +458,7 @@ bool TPESQLProcessing::processNextFile()
 		// Special case
 		if (exec_sql_stmt->endLine == working_end_line) {
 			if (!handle_esql_stmt(ESQL_Command::WorkingEnd, find_esql_cmd(ESQL_WORKING_END, 0), 0)) {
-				main_module_driver.error("Error in ESQL statement", ERR_ALREADY_SET);
+				main_module_driver.error("Error in ESQL statement", ERR_ALREADY_SET, exec_sql_stmt->src_file, exec_sql_stmt->startLine);
 				return false;
 			}
 		}
@@ -499,29 +516,48 @@ bool TPESQLProcessing::put_query_defs()
 
 		if (!opt_emit_cobol85) {
 
-			if (qry.size() >= 8192) {
-				auto stmt = main_module_driver.exec_list->at(i - 1);
-				std::string msg = string_format("Query too long (%d bytes > 8191)", qry.size());
-				main_module_driver.error(msg, ERR_QUERY_TOO_LONG, stmt->src_abs_path, stmt->startLine);
-				return false;
-			}
-
 			int pos = 0;
 			int max_sec_len = 30;
 
+			int cur_out_char = 0;
+
 			std::string s;
 
-			s = take_max(qry, 30);
-			put_output_line(code_tag + string_format("     02  FILLER PIC X(%d) VALUE \"%s\"", qry_len, s));
+			int nblocks = qry.size() / SQL_QUERY_BLOCK_SIZE;
+			int remainder = qry.size() % SQL_QUERY_BLOCK_SIZE;
 
-			while (true) {
-				s = take_max(qry, 58);
-				if (s.empty())
-					break;
 
-				put_output_line(code_tag + string_format("  &  \"%s\"", s));
+			for (int i = 0; i < nblocks; i++) {
+				std::string qry_block = take_max(qry, SQL_QUERY_BLOCK_SIZE);
+				int blen = qry_block.size();
+
+				s = take_max(qry_block, 30);
+				put_output_line(code_tag + string_format("     02  FILLER PIC X(%04d) VALUE \"%s\"", qry_block.size() + s.size(), s));
+
+				while (true) {
+					s = take_max(qry_block, 59);
+					if (s.empty())
+						break;
+
+					put_output_line(code_tag + string_format("  &  \"%s\"", s));
+				}
+				output_lines.back() += ".";
 			}
-			output_lines.back() += ".";
+
+			if (remainder > 0) {
+				std::string qry_remainder = take_max(qry, SQL_QUERY_BLOCK_SIZE);
+				s = take_max(qry_remainder, 30);
+				put_output_line(code_tag + string_format("     02  FILLER PIC X(%04d) VALUE \"%s\"", qry_remainder.size() + s.size(), s));
+
+				while (true) {
+					s = take_max(qry_remainder, 58);
+					if (s.empty())
+						break;
+
+					put_output_line(code_tag + string_format("  &  \"%s\"", s));
+				}
+				output_lines.back() += ".";
+			}
 
 			put_output_line(code_tag + std::string("     02  FILLER PIC X(1) VALUE X\"00\"."));
 		}
@@ -538,10 +574,10 @@ bool TPESQLProcessing::put_query_defs()
 					break;
 
 				s = take_max(sub_block, 34);
-				put_output_line(code_tag + string_format("  02  FILLER PIC X(%d) VALUE \"%s", sb_size, s));
+				put_output_line(code_tag + string_format("  02  FILLER PIC X(%04d) VALUE \"%s", sb_size, s));
 
 				while (true) {
-					s = take_max(sub_block, 59);
+					s = take_max(sub_block, 60);
 					if (s.empty())
 						break;
 
@@ -550,6 +586,8 @@ bool TPESQLProcessing::put_query_defs()
 
 				output_lines.back() += "\".";
 			}
+
+			put_output_line(code_tag + std::string("     02  FILLER PIC X(1) VALUE X\"00\"."));
 		}
 	}
 
@@ -955,6 +993,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 		case ESQL_Command::Commit:
 		{
+			// Note: RELEASE not supported, in case check the stmt->transaction_release flag
 			put_start_exec_sql(false);
 			ESQLCall fetch_call(get_call_id("Exec"), emit_static);
 			fetch_call.addParameter("SQLCA", BY_REFERENCE);
@@ -967,6 +1006,23 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			put_end_exec_sql(stmt->period);
 		}
 		break;
+
+		case ESQL_Command::Rollback:
+		{
+			// Note: RELEASE not supported, in case check the stmt->transaction_release flag
+			put_start_exec_sql(false);
+			ESQLCall fetch_call(get_call_id("Exec"), emit_static);
+			fetch_call.addParameter("SQLCA", BY_REFERENCE);
+			fetch_call.addParameter(&main_module_driver, stmt->connectionId);
+			fetch_call.addParameter("\"ROLLBACK\" & x\"00\"", BY_REFERENCE);
+
+			if (!put_call(fetch_call, false))
+				return false;
+
+			put_end_exec_sql(stmt->period);
+		}
+		break;
+
 
 		case ESQL_Command::Update:
 		case ESQL_Command::Delete:
@@ -1030,17 +1086,23 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 				}
 
 				uint64_t type_info = var->sql_type;
-
-				uint32_t length = type_info & 0xffffffff;
-				uint16_t precision = (length >> 16);
+				uint64_t length = type_info & 0xffffffffffff;	// 48 bits
+				uint32_t precision = (length >> 16);
 				uint16_t scale = (length & 0xffff);
 
-				int sql_type = (type_info >> 32);
+#ifndef USE_VARLEN_32
+				if (precision > USHRT_MAX) {
+					std::string msg = string_format("Unsupported field length (%d > %d)", precision, USHRT_MAX);
+					main_module_driver.error(msg, ERR_INCOMPATIBLE_TYPES, stmt->src_abs_path, stmt->startLine);
+					return false;
+				}
+#endif
+
+				int sql_type = (type_info >> 60);
 
 				if (!check_sql_type_compatibility(type_info, var)) {
 					std::string msg = string_format("SQL type definition for %s (%s) is not compatible with the COBOL one (%s)", var->sname, "N/A", "N/A");
-					//owner->err_data.err_messages.push_back(msg);
-					main_module_driver.error(msg, ERR_INCOMPATIBLE_TYPES);
+					main_module_driver.error(msg, ERR_INCOMPATIBLE_TYPES, stmt->src_abs_path, stmt->startLine);
 					return false;
 				}
 
@@ -1079,12 +1141,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 							}
 							else {
 								put_output_line(AREA_B_CPREFIX + string_format("01 %s.", var->sname));
-								put_output_line(AREA_B_CPREFIX + string_format("    49 %s-%s PIC %s.", var->sname, VARLEN_SUFFIX_LENGTH, VARLEN_LENGTH_PIC));
-								put_output_line(AREA_B_CPREFIX + string_format("    49 %s-%s PIC X(%d).", var->sname, VARLEN_SUFFIX_DATA, cbl_int_part_len));
+								put_output_line(AREA_B_CPREFIX + string_format("    49 %s-%s PIC %s.", var->sname, opt_varlen_suffix_len, VARLEN_LENGTH_PIC));
+								put_output_line(AREA_B_CPREFIX + string_format("    49 %s-%s PIC X(%d).", var->sname, opt_varlen_suffix_data, cbl_int_part_len));
 
 								cb_field_ptr flength = new cb_field_t();
 								flength->level = 49;
-								flength->sname = var->sname + "-" + VARLEN_SUFFIX_LENGTH;
+								flength->sname = var->sname + "-" + opt_varlen_suffix_len;
 								flength->pictype = PIC_NUMERIC;
 								flength->usage = var->usage;
 								flength->picnsize = VARLEN_PIC_SZ;
@@ -1094,7 +1156,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 								cb_field_ptr fdata = new cb_field_t();
 								fdata->level = 49;
 								fdata->sql_type = sql_type;
-								fdata->sname = var->sname + "-" + VARLEN_SUFFIX_DATA;
+								fdata->sname = var->sname + "-" + opt_varlen_suffix_data;
 								fdata->pictype = PIC_ALPHANUMERIC;
 								fdata->usage = Usage::None;
 								fdata->picnsize = cbl_int_part_len;
@@ -1147,7 +1209,7 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 						break;
 
 					default:
-						main_module_driver.error(string_format("Unsupported SQL type (%d)", sql_type), ERR_INVALID_TYPE, var->defined_at_source_file, var->defined_at_source_line);
+						main_module_driver.error(string_format("Unsupported SQL type (ID: %d)", sql_type), ERR_INVALID_TYPE, var->defined_at_source_file, var->defined_at_source_line);
 						return false;
 				}
 			}
@@ -1490,7 +1552,7 @@ bool TPESQLProcessing::get_actual_field_data(cb_field_ptr f, int *type, int *siz
 
 		}
 		else {	// is_implicit_varlen
-			f_actual_name = f->sname + "-" + VARLEN_SUFFIX_DATA;
+			f_actual_name = f->sname + "-" + opt_varlen_suffix_data;
 		}
 
 		cb_field_ptr f_actual = main_module_driver.field_map[f_actual_name];
@@ -1506,6 +1568,7 @@ void TPESQLProcessing::process_sql_query_list()
 	for (cb_exec_sql_stmt_ptr p : *main_module_driver.exec_list) {
 		if (p->sql_list->size()) {
 			std::string sql = vector_join(*p->sql_list, ' ');
+			sql = string_replace_regex(sql, "[\\r\\n\\t]", " ");
 			ws_query_list.push_back(sql);
 		}
 	}
@@ -1523,10 +1586,10 @@ bool TPESQLProcessing::fixup_declared_vars()
 		int orig_end_line = std::get<2>(d);
 		std::string orig_src_file = std::get<3>(d);
 
-		uint32_t length = type_info & 0xffffffff;
-		uint16_t precision = (length >> 16);
+		uint64_t length = type_info & 0xffffffffffff;	// 48 bits
+		uint32_t precision = (length >> 16);
 		uint16_t scale = (length & 0xffff);
-		int sql_type = (type_info >> 32);
+		int sql_type = (type_info >> 60);
 
 		if (!main_module_driver.field_exists(var_name)) {
 			if (precision == 0) {

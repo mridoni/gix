@@ -37,7 +37,7 @@ USA.
 #define PATH_LIST_SEP ":"
 #endif
 
-#define GIXPP_VER "1.0.14"
+#define GIXPP_VER "1.0.15"
 
 using namespace popl;
 
@@ -76,6 +76,7 @@ int main(int argc, char **argv)
 	auto opt_verbose_debug = options.add<Switch>("d", "verbose-debug", "verbose (debug)");
 	auto opt_emit_map_file = options.add<Switch>("m", "map", "emit map file");
 	auto opt_emit_cobol85 = options.add<Switch>("C", "cobol85", "emit COBOL85-compliant code");
+	auto opt_varying_ids = options.add<Value<std::string>>("Y", "varying", "length/data suffixes for varlen fields (=LEN,ARR)");
 
 	options.parse(argc, argv);
 
@@ -103,6 +104,16 @@ int main(int argc, char **argv)
 				return 1;
 			}
 
+			if (opt_varying_ids->is_set()) {
+				std::string varying_ids = opt_varying_ids->value();
+				int cpos = varying_ids.find(",");
+				if (cpos == std::string::npos || varying_ids.size() < 3 || cpos == 0 || cpos == (varying_ids.size() - 1)) {
+					std::cout << options << std::endl;
+					fprintf(stderr, "ERROR: please enter suffixes as --varying=LEN,ARR\n");
+					return 1;
+				}
+			}
+
 			copy_resolver.setVerbose(opt_verbose->is_set());
 
 			if (opt_copypath->is_set()) {
@@ -119,7 +130,11 @@ int main(int argc, char **argv)
 			if (opt_consolidate->is_set())
 				gp.addStep(new TPSourceConsolidation(&gp));
 
+
 			if (opt_esql->is_set()) {
+				if (opt_varying_ids->is_set())
+					gp.setOpt("varlen_suffixes", opt_varying_ids->value());
+
 				gp.setOpt("emit_static_calls", opt_esql_static_calls->is_set());
 				gp.setOpt("anonymous_params", opt_esql_anon_params->is_set());
 				gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy->is_set());
@@ -127,8 +142,10 @@ int main(int argc, char **argv)
 				gp.setOpt("emit_map_file", opt_emit_map_file->is_set());
 				gp.setOpt("emit_cobol85", opt_emit_cobol85->is_set());
 				gp.addStep(new TPESQLProcessing(&gp));
+
 				if (opt_esql_copy_exts->is_set())
 					copy_resolver.setExtensions(string_split(opt_esql_copy_exts->value(), ","));
+
 			}
 
 			gp.setOpt("emit_debug_info", opt_debug_info->is_set());

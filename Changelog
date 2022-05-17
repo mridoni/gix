@@ -1,3 +1,22 @@
+=== v1.0.15 ======================================================
+- Gix-IDE: Fixed a few layout problems in the Properties window
+- Gix-IDE: Fixed "Compile errors when using -Werror=format-security" (#100)
+- Gix-IDE: Added trace output to DwarfSymbolProvider (debug builds only)
+- Gix-IDE: Fixed "Differences between the packed version and the source code?" (#99)
+- GixSQL: Fixed "long queries break COBOL compiler" (#8)
+- GixSQL: Fixed a couple of possible parser crashes
+- GixSQL: Fixed a regression in the solution for #7
+- GixSQL: Fixed "Set (more) correct error code for 'SQLSTATE FFFFF'" (#17)
+- GixSQL: Fixed "possibly not correct setup of SQLSTATE" (#7), for now PostgreSQL only
+- GixSQL: Fixed "Add support for VARYING groups" (#38)
+- GixSQL: Moved variable length filed storage to COMP-5 instead of binary
+- GixSQL: Fixed "translation defect in 1.0.12" (#1)
+- GixSQL: Fixed "scanner eating SECTIONs" (#36)
+- GixSQL: Removed unnecessary build files
+- GixSQL: Fixed autoconf scripts, "make distcheck" now works
+- GixSQL: Fixed installer script (Windows)
+- GixSQL: Formatting fixes
+
 === v1.0.14 ======================================================
 - Gix-IDE: Fixed a regression in the Linux debugger
 - GixSQL: the parser now handles lowercase PROGRAM-IDs and module names

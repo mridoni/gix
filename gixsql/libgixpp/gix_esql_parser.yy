@@ -68,7 +68,7 @@ static std::string to_std_string(const std::string s) { return s; }
 static std::string to_std_string(const std::vector<std::string> *slp) { if (!slp) return "(NULL-LIST)"; int n = slp->size() > 3 ? 3 : slp->size(); std::string res; for (int i = 0; i < n; i++) res += slp->at(i); return (res + " ..."); }
 static std::string to_std_string(const int i) { char buffer [33]; sprintf(buffer, "%d", i); char *res = (char*) malloc(strlen(buffer) + 1); strcpy (res, buffer); return res; }
 static std::string to_std_string(hostref_or_literal_t *hl) { return hl->name; }
-static std::string to_std_string(connect_to_info_t *i) { char buffer [33]; sprintf(buffer, "%d", i->type); char *res = (char*) malloc(strlen(buffer) + 1); strcpy (res, buffer); return res; }
+static std::string to_std_string(connect_to_info_t *i) { if (i) { char buffer [33]; sprintf(buffer, "%d", i->type); char *res = (char*) malloc(strlen(buffer) + 1); strcpy (res, buffer); return res; } else return "N/A"; }
 
 }
 
@@ -130,6 +130,7 @@ static std::string to_std_string(connect_to_info_t *i) { char buffer [33]; sprin
 %token AS
 %token AT
 %token IS
+%token VARYING
 %token IGNORE
 %token DECLARE_VAR
 %token USING
@@ -276,9 +277,9 @@ INSERT {$$ = driver.cb_text_list_add (NULL, $1);}
 | insert INTO {$$ = driver.cb_text_list_add ($1, $2);}
 
 
-
 rollbacksql:
 execsql_with_opt_at ROLLBACK_WORK END_EXEC {
+	// The necessary fields have been populated by the lexer code
 	driver.put_exec_list();
 }
 | execsql_with_opt_at ROLLBACK_WORK TO SAVEPOINT TOKEN END_EXEC {
@@ -429,10 +430,10 @@ DECLARE_VAR TOKEN IS sql_type END_EXEC {
 	std::string var_name = $2;
 	uint64_t type_info = $4;
 
-	uint32_t length = type_info & 0xffffffff;
-	uint16_t precision = (length >> 16);
+	uint64_t length = type_info & 0xffffffffffff;	// 48 bits
+	uint32_t precision = (length >> 16);
 	uint16_t scale = (length & 0xffff);
-	int sql_type = (type_info >> 32);
+	int sql_type = (type_info >> 60);
 
 	if (driver.field_map.find(var_name) == driver.field_map.end()) {
 		std::string src_file = driver.lexer.src_location_stack.top().filename;
@@ -512,10 +513,7 @@ EXECSQL CONNECT_RESET opt_dbid END_EXEC {
 othersql:
 execsql_with_opt_at OTHERFUNC opt_othersql_tokens END_EXEC {
 	driver.commandname = "PASSTHRU";
-	$$ = driver.cb_text_list_add (NULL, $2);
-	if ($3) {
-		$$ = driver.cb_concat_text_list ($$, $3);
-	}
+	$$ = driver.cb_concat_text_list(driver.cb_text_list_add(NULL, $2), $3);
 	driver.put_exec_list();
 }
 ;
@@ -523,9 +521,15 @@ execsql_with_opt_at OTHERFUNC opt_othersql_tokens END_EXEC {
 opt_othersql_tokens:
 %empty { $$ = nullptr; }
 | othersql_token opt_othersql_tokens {
+#if 0
 	$$ = driver.cb_text_list_add (NULL, $1);
 	if ($2)
 		$$ = driver.cb_concat_text_list ($$, $2);
+#else
+	// This is faster
+	$$ = ($2 != nullptr) ? $2 : new std::vector<cb_sql_token_t>();
+	$$->insert($$->begin(), $1);
+#endif
 }
 ;
 
@@ -752,10 +756,10 @@ NUMERIC WORD opt_sql_type_def {
 
 		if ($3 != 0) {
 			uint64_t type_info = $3;
-			uint32_t length = type_info & 0xffffffff;
-			uint16_t precision = (length >> 16);
+			uint64_t length = type_info & 0xffffffffffff;	// 48 bits
+			uint32_t precision = (length >> 16);
 			uint16_t scale = (length & 0xffff);
-			int sql_type = type_info >> 32;
+			int sql_type = type_info >> 60;
 
 			x->sql_type = type_info;
 			x->is_varlen = IS_VARLEN(sql_type);
@@ -800,13 +804,13 @@ opt_sql_type_def:
 ;
 
 sql_type:
-  BINARY	{ $$ = (TYPE_SQL_BINARY << 32) + $1; }
-| VARBINARY { $$ = (TYPE_SQL_VARBINARY << 32) + $1; }
-| CHAR		{ $$ = (TYPE_SQL_CHAR << 32) + $1; }
-| VARCHAR	{ $$ = (TYPE_SQL_VARCHAR << 32) + $1; }
-| INTEGER  	{ $$ = (TYPE_SQL_INT << 32) + $1; }
-| FLOAT   	{ $$ = (TYPE_SQL_FLOAT << 32) + $1; }
-| DECIMAL  	{ $$ = (TYPE_SQL_DECIMAL << 32) + $1; }
+  BINARY	{ $$ = (TYPE_SQL_BINARY << 60) + $1; }
+| VARBINARY { $$ = (TYPE_SQL_VARBINARY << 60) + $1; }
+| CHAR		{ $$ = (TYPE_SQL_CHAR << 60) + $1; }
+| VARCHAR	{ $$ = (TYPE_SQL_VARCHAR << 60) + $1; }
+| INTEGER  	{ $$ = (TYPE_SQL_INT << 60) + $1; }
+| FLOAT   	{ $$ = (TYPE_SQL_FLOAT << 60) + $1; }
+| DECIMAL  	{ $$ = (TYPE_SQL_DECIMAL << 60) + $1; }
 ;
 
 data_description_clause_sequence:
@@ -822,6 +826,7 @@ picture_clause
 | occurs_clause
 | value_clause
 | external_clause
+| varying_clause
 ;
 
 picture_clause:
@@ -831,6 +836,34 @@ PICTURE         {  driver.build_picture( $1,driver.current_field);  }
 usage_clause:
 usage
 | USAGE _is usage
+;
+
+varying_clause:
+VARYING {
+	auto x = driver.current_field;
+	
+	uint64_t type_info = (TYPE_SQL_VARCHAR << 60);
+	type_info |= (((uint64_t)x->picnsize << 16));
+
+	x->sql_type = type_info;
+	x->is_varlen = true;
+	x->usage = Usage::None;
+
+	x->pictype = PIC_ALPHANUMERIC;	// Preprocessor will build the correct PIC for "SQL TYPE IS" defs
+
+	// We do not want to overwrite precision and scale as defined in the COBOL source
+	// x->picnsize = precision;
+	// x->scale = scale;
+			
+	driver.cb_set_commandname("DECLARE_VAR");
+	driver.cb_host_list_add (driver.host_reference_list, x->sname);
+	driver.put_exec_list(); 
+
+	// We need to store the variable data, so we can fix it up before the output source is generated
+	std::string src_file = driver.lexer.src_location_stack.top().filename;
+	std::tuple<uint64_t, int, int, std::string> d = std::make_tuple(type_info, driver.startlineno, driver.endlineno, src_file);
+	driver.field_sql_type_info[x->sname] = d;
+}
 ;
 
 usage:
