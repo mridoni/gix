@@ -15,6 +15,6 @@
 
         01 MISCDATA.
               49 MISCDATA-LEN
-                 PIC 9(4) COMP-5.
+                 PIC 9(8) COMP-5.
               49 MISCDATA-TEXT
                  PIC X(128).

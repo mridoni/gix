@@ -103,7 +103,7 @@ namespace gix_ide_tests
         public void End()
         {
             app.Kill();
-            Directory.Delete(TestTempDir, true);
+            //Directory.Delete(TestTempDir, true);
             automation.Dispose();
 
             if (debug_compiler_id != null)
@@ -200,13 +200,13 @@ namespace gix_ide_tests
             Thread.Sleep(500);
             var edit = cb.FindFirstDescendant(cf => cf.ByControlType(ControlType.Edit)).AsTextBox();
             Thread.Sleep(500);
+            Console.WriteLine("Trying to load " + Path.Combine(prjdir, prj_name + ".gix"));
             edit.Enter(Path.Combine(prjdir, prj_name + ".gix"));
-            Thread.Sleep(500);
 
             var bok = fd.FindFirstByXPath(Utils.ElementPath("openFileDialog.OK")).AsButton();
             bok.Click();
 
-            Thread.Sleep(1000);
+            Thread.Sleep(3000);
 
             return prjdir;
         }

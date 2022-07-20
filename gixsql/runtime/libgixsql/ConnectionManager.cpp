@@ -42,6 +42,7 @@ ConnectionManager::ConnectionManager()
 
 ConnectionManager::~ConnectionManager()
 {
+
 }
 
 Connection *ConnectionManager::create()
@@ -85,12 +86,21 @@ void ConnectionManager::remove(Connection *conn)
 	_connections.erase(std::remove(_connections.begin(), _connections.end(), conn), _connections.end());
 	_connection_map.erase(id);
 	_connection_name_map.erase(name);
+
+	if (conn == default_connection)
+		default_connection = nullptr;
+
 	delete (conn);
 }
 
 bool ConnectionManager::exists(std::string cname)
 {
-	return false;
+	return _connection_name_map.find(cname) != _connection_name_map.end();
+}
+
+std::vector<Connection*> ConnectionManager::list()
+{
+	return _connections;
 }
 
 

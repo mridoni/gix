@@ -137,6 +137,13 @@ static std::string to_std_string(connect_to_info_t *i) { if (i) { char buffer [3
 %token OPEN
 %token CLOSE
 %token FETCH
+%token WHENEVER
+%token NOT_FOUND
+%token SQLERROR
+%token SQLWARNING
+%token CONTINUE
+%token PERFORM
+%token GOTO
 %token TRAILING
 %token COMP_1
 %token COMP_2
@@ -175,7 +182,8 @@ static std::string to_std_string(connect_to_info_t *i) { if (i) { char buffer [3
 %token PREPARE
 
 %type <std::vector<std::string> *> token_list declaresql includesql incfile opt_othersql_tokens
-%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql cursor_declaration
+%type <std::vector<std::string> *> opensql selectintosql select insertsql insert updatesql 
+%type <std::vector<std::string> *> cursor_declaration cursor_declaration_from_select cursor_declaration_from_prepared_stmt
 %type <std::vector<std::string> *> update deletesql delete disconnect disconnectsql othersql executesql ignoresql
 %type <std::string> host_reference expr othersql_token
 
@@ -185,7 +193,10 @@ static std::string to_std_string(connect_to_info_t *i) { if (i) { char buffer [3
 
 %type <connect_to_info_t *> opt_auth_info opt_identified_by
 
-%nonassoc error
+%type <int> whenever_clause
+%type <std::string> whenever_action
+
+// %nonassoc error
 
 // No %destructors are needed, since memory will be reclaimed by the
 // regular destructors.
@@ -217,6 +228,7 @@ sqlvariantstates
 | preparesql
 | executesql
 | ignoresql
+| wheneversql
 | badsql
 ;
 
@@ -244,9 +256,13 @@ UPDATE {$$ = driver.cb_text_list_add (NULL, $1);}
 
 
 disconnectsql:
-EXECSQL disconnect opt_dbid END_EXEC
+EXECSQL disconnect ALL END_EXEC
 {
-	//$$ = driver.cb_concat_text_list ($2, $3);
+	driver.connectionid = new hostref_or_literal_t("*", true);;
+	driver.put_exec_list();
+}
+| EXECSQL disconnect opt_dbid END_EXEC
+{
 	driver.connectionid = $3;
 	driver.put_exec_list();
 }
@@ -574,21 +590,21 @@ execsql_with_opt_at error END_EXEC
 };
 
 declaresql:
-execsql_with_opt_at DECLARE sql_declaration END_EXEC {
+execsql_with_opt_at DECLARE sql_declaration {
 	//driver.put_exec_list();
 }
 ;
 
 sql_declaration:
-  TOKEN statement_declaration	{ driver.declared_statements.push_back($1); }
-| TOKEN cursor_declaration		{ 
+  TOKEN statement_declaration END_EXEC	{ driver.declared_statements.push_back($1); }
+| TOKEN cursor_declaration END_EXEC	{ 
 	driver.cb_set_cursorname($1); 
 	if (!driver.procedure_division_started)
  		driver.put_startup_exec_list(); 
 	else
 		driver.put_exec_list();	
 }
-| TOKEN table_declaration		{ }
+| TOKEN table_declaration END_EXEC		{ }
 ;
 
 statement_declaration:
@@ -598,7 +614,23 @@ STATEMENT {
 ;
 
 cursor_declaration:
+cursor_declaration_from_select
+| cursor_declaration_from_prepared_stmt
+;
+
+cursor_declaration_from_select:
 CURSOR opt_with_hold FOR select { driver.cb_set_cursor_hold($2); }
+;
+
+cursor_declaration_from_prepared_stmt:
+CURSOR opt_with_hold FOR strliteral_or_hostref { 
+	driver.cb_set_cursor_hold($2); 
+	driver.statement_source = $4;
+	driver.commandname = "SELECT";
+	driver.sql_list->push_back("@" + unquote($4->name));
+	driver.sqlnum++;
+	driver.sqlname = string_format("SQ%04d", driver.sqlnum);
+}
 ;
 
 table_declaration:
@@ -650,12 +682,24 @@ execsql_with_opt_at EXECUTE IMMEDIATE strliteral_or_hostref END_EXEC {
 	}
 	driver.put_exec_list();
 }
-| execsql_with_opt_at EXECUTE TOKEN opt_using_hostref_list END_EXEC {
-
+| execsql_with_opt_at EXECUTE TOKEN opt_into_hostref_list opt_using_hostref_list END_EXEC {
 	driver.commandname = "EXECUTE_PREPARED";
 	driver.statement_name = $3;
 	driver.put_exec_list();
+
+	
 }
+;
+
+opt_using_hostref_list:
+%empty
+| USING host_references { }
+;
+
+
+opt_into_hostref_list:
+%empty
+| INTO res_host_references { }
 ;
 
 ignoresql:
@@ -665,11 +709,43 @@ EXECSQL IGNORE token_list END_EXEC
 }
 ;
 
+wheneversql:
+EXECSQL WHENEVER whenever_clause whenever_action END_EXEC
+{
+	driver.whenever_data = new esql_whenever_data_t();
+	driver.whenever_data->clause = $3;
+	if ($4.empty()) {
+		driver.whenever_data->action = WHENEVER_ACTION_CONTINUE;
+	}
+	else {
+		if (starts_with ($4, "@@")) {
+			driver.whenever_data->action = WHENEVER_ACTION_PERFORM;
+			driver.whenever_data->host_label = $4.substr(2);
+		}
+		else {
+			driver.whenever_data->action = WHENEVER_ACTION_GOTO;
+			driver.whenever_data->host_label = $4;		
+		}
+	}
 
-opt_using_hostref_list:
-%empty
-| USING host_references { }
+	driver.put_exec_list();
+}
 ;
+
+whenever_clause:
+NOT_FOUND		{ $$ = WHENEVER_CLAUSE_NOT_FOUND;	}
+| SQLWARNING	{ $$ = WHENEVER_CLAUSE_SQLWARNING;  }
+| SQLERROR		{ $$ = WHENEVER_CLAUSE_SQLERROR;	}
+
+;
+
+whenever_action:
+CONTINUE			{ $$ = "";			 }
+| PERFORM WORD		{ $$ = "@@" + $2;	 }
+| GOTO WORD			{ $$ = $2;			 }
+| GOTO HOSTTOKEN	{ $$ = $2.substr(1); }	/* Not actually a host token (variable), we just "borrow" its syntax in the lexer */
+;
+
 
 select:
 SELECT token_list{ $$ = driver.cb_concat_text_list (driver.cb_text_list_add (NULL, $1), $2);}

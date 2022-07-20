@@ -21,22 +21,22 @@ USA.
 #include "DbInterfacePGSQL.h"
 
 
-bool DbInterfacePGSQL::getSchemas(vector<SchemaInfo*>& res)
+bool DbInterfacePGSQL::getSchemas(std::vector<SchemaInfo*>& res)
 {
 	return false;
 }
 
-bool DbInterfacePGSQL::getTables(string table, vector<TableInfo*>& res)
+bool DbInterfacePGSQL::getTables(std::string table, std::vector<TableInfo*>& res)
 {
 	return false;
 }
 
-bool DbInterfacePGSQL::getColumns(string schema, string table, vector<ColumnInfo*>& columns)
+bool DbInterfacePGSQL::getColumns(std::string schema, std::string table, std::vector<ColumnInfo*>& columns)
 {
 	return false;
 }
 
-bool DbInterfacePGSQL::getIndexes(string schema, string tabl, vector<IndexInfo*>& idxs)
+bool DbInterfacePGSQL::getIndexes(std::string schema, std::string tabl, std::vector<IndexInfo*>& idxs)
 {
 	return false;
 }

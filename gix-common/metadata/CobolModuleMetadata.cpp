@@ -831,7 +831,7 @@ void CobolModuleMetadata::fill_field_tree(const QList<cb_field_ptr> &flist, Cobo
 GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf, ErrorData *err_data)
 {
 	GixPreProcessor gp;
-	CopyResolver copy_resolver;
+	CopyResolver copy_resolver(pf->GetFileFullPath().toStdString());
 
 	if (!err_data) {
 		return nullptr;

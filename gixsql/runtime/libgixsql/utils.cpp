@@ -55,8 +55,8 @@ sizeof(type_tc_negative_final_number) / sizeof(type_tc_negative_final_number[0])
 */
 void insert_decimal_point(char *data, int data_size, int power) {
 	int before_length, after_length;
-	before_length = strlen(data);
-	after_length = strlen(data) + 1;
+	before_length = (int)strlen(data);
+	after_length = (int)strlen(data) + 1;
 
 	int n_decimal_places = -power;
 
@@ -92,7 +92,6 @@ void insert_decimal_point(char *data, int data_size, int power) {
 */
 int type_tc_is_positive(char *lastchar) {
 	int i;
-	DECLARE_LOGGER(logger);
 
 	if (*lastchar >= '0' &&  *lastchar <= '9')
 		return true;
@@ -106,45 +105,44 @@ int type_tc_is_positive(char *lastchar) {
 		}
 	}
 
-	LOG_DEBUG(__FILE__, __func__, "no final_number found: %c\n", *lastchar);
+	//LOG_DEBUG(__FILE__, __func__, "no final_number found: %c\n", *lastchar);
 	*lastchar = 0;
 	return true;
 }
 
-/*
-* <Function name>
-*   ocdb_getenv
-*
-* <Outline>
-*   環境変数から値を取得する。ない場合はエラーログを残した上でNULLを返す
-*
-* <Input>
-*   @param: パラメータ名
-*   @def  : default value
-*
-* <Output>
-*   success: パラメータの値
-*   failure: default value
-*/
-char *ocdb_getenv(char *param, char *def) {
-	char *env;
-	DECLARE_LOGGER(logger);
-
-	if (param == NULL) {
-		LOG_ERROR("parameter is NULL\n");
-		return def;
-	}
-
-	env = getenv(param);
-	if (env == NULL) {
-		LOG_DEBUG(__FILE__, __func__, "param '%s' is not set. set default value. \n", param);
-		return def;
-	}
-	else {
-		LOG_DEBUG(__FILE__, __func__, "param '%s' is %s. \n", param, env);
-	}
-	return env;
-}
+///*
+//* <Function name>
+//*   ocdb_getenv
+//*
+//* <Outline>
+//*   環境変数から値を取得する。ない場合はエラーログを残した上でNULLを返す
+//*
+//* <Input>
+//*   @param: パラメータ名
+//*   @def  : default value
+//*
+//* <Output>
+//*   success: パラメータの値
+//*   failure: default value
+//*/
+//char *ocdb_getenv(char *param, char *def) {
+//	char *env;
+//
+//	if (param == NULL) {
+//		LOG_ERROR("parameter is NULL\n");
+//		return def;
+//	}
+//
+//	env = getenv(param);
+//	if (env == NULL) {
+//		LOG_DEBUG(__FILE__, __func__, "param '%s' is not set. set default value. \n", param);
+//		return def;
+//	}
+//	else {
+//		LOG_DEBUG(__FILE__, __func__, "param '%s' is %s. \n", param, env);
+//	}
+//	return env;
+//}
 
 
 /*

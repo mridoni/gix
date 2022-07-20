@@ -1,3 +1,21 @@
+=== v1.0.17 ======================================================
+- GixSQL: Added support for "smart" cursor initialization (#88)
+- GixSQL: Added support for EXECUTE prepared-statement INTO #(87)
+- GixSQL: Fixed a logging problem (#84)
+- GixSQL: Fixed "wrong generated COBOL in 1.0.16" (#83)
+- GixSQL: Fixed "missing "close" for spdlog?" (#82)
+- GixSQL: Added support for using prepared statements in cursors (#81)
+- GixSQL: Variable length fields indicators are now 32-bit long by default (#80)
+- GixSQL: Added support for using variable length fields with prepared statements (#79)
+- GixSQL: Added upport for using group fields in INSERT and SELECT..INTO statements (#6)
+- GixSQL: Added support for more connection string formats (including ocesql compatibility) (#16)
+- GixSQL: Added Support for DISCONNECT ALL (#89)
+- GixSQL: Performed some refactoring to improve code size
+- GixSQL: Fixed a few memory leaks
+
+=== v1.0.16 ======================================================
+(not published)
+
 === v1.0.15 ======================================================
 - Gix-IDE: Fixed a few layout problems in the Properties window
 - Gix-IDE: Fixed "Compile errors when using -Werror=format-security" (#100)

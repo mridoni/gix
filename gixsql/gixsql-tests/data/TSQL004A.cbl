@@ -124,6 +124,8 @@
        100-test. 
            MOVE SQLCODE TO DISP-CODE
            DISPLAY 'fetch ' DISP-CODE
+           DISPLAY 'fetch ' SQLCODE 
+           DISPLAY 'fetch ' SQLERRMC(1:SQLERRML)
        
       *  loop until no more data
            PERFORM UNTIL SQLCODE < 0 OR SQLCODE = 100
@@ -153,21 +155,18 @@
            ELSE 
                DISPLAY 'commission ' DISP-COM 
            END-IF 
-      *     DISPLAY 'Do you want to see the next record? (y/n)' 
-      *     ACCEPT ANSS 
-      *     IF ANSS = 'Y' OR 'y' 
-               EXEC SQL 
-                 FETCH EMPTBL INTO 
-                   :ENO,:LNAME,:FNAME,:STREET,:CITY, 
-                   :ST,:ZIP,:DEPT,:PAYRATE, 
-                   :COM,:MISCDATA,:DNUM1,:DNUM2,:DNUM3
-               END-EXEC 
-      *     ELSE 
-      *         GO TO CLOSE-LOOP 
-      *     END-IF 
+
+           EXEC SQL 
+             FETCH EMPTBL INTO 
+               :ENO,:LNAME,:FNAME,:STREET,:CITY, 
+               :ST,:ZIP,:DEPT,:PAYRATE, 
+               :COM,:MISCDATA,:DNUM1,:DNUM2,:DNUM3
+           END-EXEC 
+
            MOVE SQLCODE TO DISP-CODE 
            DISPLAY 'fetch ' DISP-CODE 
            DISPLAY 'fetch ' SQLCODE 
+           DISPLAY 'fetch ' SQLERRMC 
            END-PERFORM  
        
            DISPLAY 'All records in this table have been selected'. 

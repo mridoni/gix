@@ -28,6 +28,8 @@
 #define DB_DB2  			6
 #define DB_SET_RUNTIME		-1
 
+#include "Logger.h"
+
 #if defined(_WIN32) || defined(_WIN64)
 
 #if defined(__MINGW32__)
@@ -58,8 +60,8 @@ class DbInterfaceFactory
 {
 public:
 
-	static LIBGIXSQL_API IDbInterface *getInterface(int);
-	static LIBGIXSQL_API IDbInterface *getInterface(std::string);
+	static LIBGIXSQL_API IDbInterface *getInterface(int, const std::shared_ptr<spdlog::logger>& _logger);
+	static LIBGIXSQL_API IDbInterface *getInterface(std::string, const std::shared_ptr<spdlog::logger>& _logger);
 	static LIBGIXSQL_API IDbManagerInterface* getManagerInterface(int);
 	static LIBGIXSQL_API IDbManagerInterface* getManagerInterface(std::string);
 	static int removeInterface(IDbInterface *);

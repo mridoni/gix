@@ -30,9 +30,8 @@
 
 #include <string>
 #include <map>
+#include <regex>
 #include "IDataSourceInfo.h"
-
-
 
 class DataSourceInfo : public IDataSourceInfo
 {
@@ -41,7 +40,9 @@ public:
 	LIBGIXSQL_API ~DataSourceInfo();
 	LIBGIXSQL_API std::string get() override;
 
-	int init(const std::string &data_source, const std::string &username, const std::string &password) override;
+	int init(const std::string& data_source, const std::string& dbname, const std::string &username, const std::string &password) override;
+
+	void retrieve_driver_options(const std::string& data_source);
 
 	LIBGIXSQL_API std::string getDbType() override;
 	LIBGIXSQL_API std::string getHost() override;
@@ -71,6 +72,13 @@ private:
 	std::string password;
 	std::map<std::string, std::string> options;
 
-	static DataSourceInfo *parse(const std::string& data_source);
+	int conn_string_type = 0;
+	std::string usrpwd_sep = ".";
+
+	bool has_default_driver();
+	std::string get_default_driver();
+	bool retrieve_gixsql_full_params(const std::smatch& cm);
+	bool retrieve_gixsql_dflt_drvr_params(const std::smatch& cm);
+	bool retrieve_ocesql_params(const std::smatch& cm);
 };
 

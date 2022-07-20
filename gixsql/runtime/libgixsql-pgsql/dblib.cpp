@@ -29,8 +29,7 @@ USA.
 #include <vector>
 
 #include "DbInterfacePGSQL.h"
-
-using namespace std;
+#include "Logger.h"
 
 extern "C" {
 

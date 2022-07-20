@@ -31,8 +31,9 @@ Connection::Connection()
 
 Connection::~Connection()
 {
-	if (dbi != NULL)
+	if (dbi != NULL) {
 		DbInterfaceFactory::removeInterface(dbi);
+	}
 
 	if (conninfo && !ext_conninfo)
 		delete (conninfo);
@@ -51,6 +52,11 @@ bool Connection::isOpen()
 void Connection::setName(std::string name)
 {
 	this->name = name;
+}
+
+std::string Connection::getName()
+{
+	return name;
 }
 
 void Connection::setConnectionInfo(IDataSourceInfo *conn_string)

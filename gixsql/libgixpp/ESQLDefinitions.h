@@ -43,6 +43,23 @@ USA.
 #define IS_BINARY(T) (T == TYPE_SQL_BINARY || T == TYPE_SQL_VARBINARY)
 #define IS_NUMERIC(T) (T == TYPE_SQL_INT || T == TYPE_SQL_FLOAT || T == TYPE_SQL_DECIMAL)
 
+// EXEC SQL WHENEVER stuff
+
+#define WHENEVER_CLAUSE_NOT_FOUND	1
+#define WHENEVER_CLAUSE_SQLWARNING	2
+#define WHENEVER_CLAUSE_SQLERROR	3
+
+#define WHENEVER_ACTION_CONTINUE	1
+#define WHENEVER_ACTION_GOTO		2
+#define WHENEVER_ACTION_PERFORM		3
+
+struct esql_whenever_data_t
+{
+	int clause = 0;
+	int action = 0;
+	std::string host_label;
+};
+
 enum class Usage
 {
 	None,
@@ -104,6 +121,7 @@ struct cb_exec_sql_stmt_t
 	std::vector<hostref_or_literal_t *> *hostref_or_literal_list;
 
 	esql_connection_info_t *conninfo = nullptr;
+	esql_whenever_data_t *whenever_data = nullptr;
 
 	bool conn_use_other_db;
 
@@ -202,6 +220,8 @@ struct cb_field_t
 
 	std::string defined_at_source_file;
 	int defined_at_source_line;
+
+	int group_levels_count = 0;
 };
 
 
@@ -214,4 +234,3 @@ struct connect_to_info_t
 	hostref_or_literal_t *t1 = nullptr;
 	hostref_or_literal_t *t2 = nullptr;
 };
-

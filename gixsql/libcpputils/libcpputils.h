@@ -67,7 +67,7 @@ bool is_begin_transaction_statement(std::string query);
 
 std::vector<std::string> split_with_quotes(const std::string& s);
 std::vector<std::string> string_split(const std::string str, const std::string regex_str);
-bool split_in_args(std::vector<std::string> &qargs, std::string command);
+bool split_in_args(std::vector<std::string>& qargs, std::string command, bool remove_empty);
 
 void ltrim(std::string &s);
 
@@ -94,9 +94,14 @@ bool string_contains(const std::string &s1, const std::string &s2, bool case_ins
 std::string string_replace(std::string subject, const std::string &search, const std::string &replace);
 std::string string_replace_regex(std::string subject, const std::string &search_rx, const std::string &replace_rx, bool case_insensitive = false);
 
+
+std::string to_lower(const std::string& s);
+std::string to_upper(const std::string& s);
+
 bool caseInsensitiveStringCompare(const std::string& str1, const std::string& str2);
 
-bool starts_with(std::string s1, std::string s2);
+bool starts_with(const std::string& s1, const std::string& s2);
+bool ends_with(std::string const& s1, std::string const& s2);
 
 std::vector<std::string> file_read_all_lines(const std::string& filename);
 bool file_write_all_lines(const std::string& filename, const std::vector<std::string>& lines);
@@ -104,6 +109,7 @@ bool file_exists(const std::string& filename);
 
 std::string filename_change_ext(const std::string &filename, const std::string &ext);
 std::string filename_get_name(const std::string &filename);
+std::string filename_get_dir(const std::string &filename);
 std::string filename_absolute_path(const std::string &filename);
 std::string filename_absolute_path(const std::filesystem::path &filepath);
 std::string filename_clean_path(const std::string &filepath);
@@ -154,6 +160,13 @@ bool map_contains(const std::map<TK ,TV> &v, const TK& item)
 }
 
 template <typename TK, typename TV>
+bool map_contains(const std::multimap<TK, TV>& v, const TK& item)
+{
+    return v.find(item) != v.end();
+}
+
+
+template <typename TK, typename TV>
 std::vector<TK> map_get_keys(const std::map<TK ,TV> &vmap)
 {
     std::vector<TK> vkeys;
@@ -165,5 +178,25 @@ std::vector<TK> map_get_keys(const std::map<TK ,TV> &vmap)
 
 std::string vector_join(const std::vector<std::string> &v, char sep);
 std::string vector_join(const std::vector<std::string> &v, std::string sep);
+
+template <typename T>
+void vector_remove(std::vector<T>& v, T e)
+{
+    remove(v.begin(), v.end(), e);
+}
+
+template <typename TK, typename TV>
+void map_remove(std::map<TK, TV>& v, TK e)
+{
+    v.erase(e);
+    //remove(v.begin(), v.end(), e);
+}
+
+template <typename TK, typename TV>
+void map_remove(std::multimap<TK, TV>& v, TK e)
+{
+    v.erase(e);
+    //remove(v.begin(), v.end(), e);
+}
 
 std::string unquote(const std::string &s);

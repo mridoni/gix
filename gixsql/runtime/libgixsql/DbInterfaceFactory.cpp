@@ -25,13 +25,10 @@
 
 #include "gixsql.h"
 #include "IDbInterface.h"
-#include "Logger.h"
 
 static std::map<IDbInterface *, LIBHANDLE> lib_map;
 
-DECLARE_LOGGER_STATIC(logger);
-
-typedef IDbInterface *(*DBLIB_PROVIDER_FUNC)(void);
+typedef IDbInterface *(*DBLIB_PROVIDER_FUNC)();
 
 #if defined(_WIN32)
 //Returns the last Win32 error, in string format. Returns an empty string if there is no error.
@@ -60,7 +57,7 @@ std::string GetLastErrorAsString()
 }
 #endif
 
-IDbInterface *DbInterfaceFactory::getInterface(int type)
+IDbInterface *DbInterfaceFactory::getInterface(int type, const std::shared_ptr<spdlog::logger>& _logger)
 {
 	switch (type) {
 		case DB_PGSQL:
@@ -77,7 +74,7 @@ IDbInterface *DbInterfaceFactory::getInterface(int type)
 	}
 }
 
-IDbInterface* DbInterfaceFactory::getInterface(std::string t)
+IDbInterface* DbInterfaceFactory::getInterface(std::string t, const std::shared_ptr<spdlog::logger>& _logger)
 {
 		if (t == "pgsql")
 			return load_dblib("pgsql");
@@ -114,14 +111,15 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 #if defined(_WIN32)
 
 	strcat(bfr, ".dll");
-	LOG_DEBUG(__FILE__, __func__, "loading DB provider: %s\n", bfr);
+	spdlog::debug(FMT_FILE_FUNC "loading DB provider: {}", __FILE__, __func__, bfr);
 
 	libHandle = LoadLibrary(bfr);
+	spdlog::trace(FMT_FILE_FUNC "library handle is: {}", __FILE__, __func__, (void *) libHandle);
 
 	if (libHandle != NULL)
 	{
 		dblib_provider = (DBLIB_PROVIDER_FUNC)GetProcAddress(libHandle, "get_dblib");
-		LOG_DEBUG(__FILE__, __func__, "Accessing DB provider: %s\n", bfr);
+		spdlog::debug(FMT_FILE_FUNC "accessing DB provider: {}", __FILE__, __func__, bfr);
 		// If the function address is valid, call the function. 
 		if (dblib_provider != NULL)
 		{
@@ -129,36 +127,36 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 			char dll_path[MAX_PATH];
 			int rc = GetModuleFileName(libHandle, dll_path, MAX_PATH);
 			if (rc) {
-				LOG_DEBUG(__FILE__, __func__, "DB provider loaded from: %s", dll_path);
+				spdlog::debug(FMT_FILE_FUNC "DB provider loaded from: {}", __FILE__, __func__, dll_path);
 			}
 #endif
 			dbi = dblib_provider();
 			lib_map[dbi] = libHandle;
 		}
 		else {
-			LOG_ERROR("ERROR while accessing DB provider: %s\n", bfr);
+			spdlog::error("ERROR while accessing DB provider: {}", bfr);
 		}
 
 		// Library not freed here
 	}
 	else {
 		auto err = GetLastErrorAsString();
-		LOG_ERROR("ERROR while loading DB provider %s: %s", bfr, err.c_str());
+		spdlog::error("ERROR while loading DB provider {}: {}", bfr, err);
 #if _DEBUG
-		LOG_ERROR("PATH is: %s\n", getenv("PATH"));
+		spdlog::error("PATH is: {}", getenv("PATH"));
 #endif
 	}
 
 #else
 
 	strcat(bfr, ".so");
-	LOG_DEBUG(__FILE__, __func__, "loading DB provider: %s\n", bfr);
+	spdlog::debug("loading DB provider: {}", __FILE__, __func__, bfr);
 
 	libHandle = dlopen(bfr, RTLD_NOW);
 	if (libHandle != NULL)
 	{
 		dblib_provider = (DBLIB_PROVIDER_FUNC)dlsym(libHandle, "get_dblib");
-		LOG_DEBUG(__FILE__, __func__, "Accessing DB provider: %s\n", bfr);
+		spdlog::debug("Accessing DB provider: {}", __FILE__, __func__, bfr);
 		// If the function address is valid, call the function. 
 		if (dblib_provider != NULL)
 		{
@@ -166,24 +164,19 @@ IDbInterface *DbInterfaceFactory::load_dblib(const char *lib_id)
 			lib_map[dbi] = libHandle;
 		}
 		else {
-			LOG_ERROR("ERROR while accessing DB provider: %s\n", bfr);
+			spdlog::error("ERROR while accessing DB provider: {}", bfr);
 		}
 
 		// Library not freed here
 	}
 	else {
-        LOG_ERROR("ERROR while loading DB provider: %s (%s)\n", bfr, dlerror());
+        	spdlog::error("ERROR while loading DB provider: {} ({})", bfr, dlerror());
 	}
 
 #endif
 
 	if (dbi != NULL) {
-#if _DEBUG
-		ILogger *logger = (ILogger *) new Logger();
-#else
-		ILogger* logger = NULL;
-#endif
-		dbi->init(logger);
+		dbi->init(gixsql_logger);
 	}
 	return dbi;
 }
@@ -193,21 +186,18 @@ int DbInterfaceFactory::removeInterface(IDbInterface *dbi)
 	if (dbi == NULL)
 		return 1;
 
-
 	if (lib_map.find(dbi) == lib_map.end())
 		return 1;
 
-	LIBHANDLE lib_ptr = lib_map[dbi];
-
-#if defined(_WIN32) || defined(_WIN64)
-	FreeLibrary(lib_ptr);
-#else
-	dlclose(lib_ptr),
-#endif
-	
 	lib_map.erase(dbi);
+	delete dbi; 
 
-	delete (dbi);
+	LIBHANDLE lib_ptr = lib_map[dbi];
+#if defined(_WIN32) || defined(_WIN64)
+	auto b = FreeLibrary(lib_ptr);
+#else
+	dlclose(lib_ptr);
+#endif
 
 	return 0;
 }

@@ -28,7 +28,7 @@ class IDataSourceInfo
 
 public:
 
-	virtual int init(const std::string &data_source, const std::string &username, const std::string &password) = 0;
+	virtual int init(const std::string &data_source, const std::string& dbname, const std::string &username, const std::string &password) = 0;
 	virtual std::string get() = 0;
 
 	virtual std::string getDbType() = 0;

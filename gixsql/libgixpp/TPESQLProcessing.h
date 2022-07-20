@@ -31,11 +31,14 @@ USA.
 #include "ESQLCall.h"
 
 class gix_esql_driver;
+struct esql_whenever_clause_handler_t;
 
 enum class ESQL_Command;
 
 class TPESQLProcessing : public ITransformationStep
 {
+	friend class gix_esql_driver;
+
 public:
 	TPESQLProcessing(GixPreProcessor *gpp);
 
@@ -71,6 +74,7 @@ private:
 	bool opt_no_output;
 	bool opt_emit_map_file;
 	bool opt_emit_cobol85;
+	bool opt_smart_crsr_init;
 
 	std::string opt_varlen_suffix_len;
 	std::string opt_varlen_suffix_data;
@@ -106,7 +110,7 @@ private:
 	bool put_query_defs();
 	void put_working_storage();
 	bool put_cursor_declarations();
-	bool put_call(const ESQLCall &call, bool terminate_with_period);
+	bool put_call(const ESQLCall &call, bool terminate_with_period, int indent_level = 0);
 
 	bool is_var_len_group(cb_field_ptr f);
 	bool get_actual_field_data(cb_field_ptr f, int *type, int *size, int *scale);
@@ -125,6 +129,14 @@ private:
 	void add_dependency(const std::string &parent, const std::string &dep_path);
 
 	bool is_current_file_included();
+
+	void put_whenever_handler(bool terminate_with_period);
+	void put_whenever_clause_handler(esql_whenever_clause_handler_t* ch);
+	void put_smart_crsr_init_flags();
+	void put_cursor_init_check(const std::string& crsr_name);
+
+	bool put_res_host_parameters(const cb_exec_sql_stmt_ptr stmt, int *res_params_count);
+	bool put_host_parameters(const cb_exec_sql_stmt_ptr stmt);
 
 	std::stack<std::string> input_file_stack;
 	int working_begin_line;

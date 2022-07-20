@@ -26,7 +26,6 @@ USA.
 #include <tuple>
 #include <libpq-fe.h>
 
-#include "ILogger.h"
 #include "ICursor.h"
 #include "IDbInterface.h"
 #include "IDbManagerInterface.h"
@@ -37,7 +36,6 @@ USA.
 #define DECODE_BINARY_OFF		0
 #define DECODE_BINARY_DEFAULT	DECODE_BINARY_ON
 
-using namespace std;
 
 class DbInterfacePGSQL : public IDbInterface, public IDbManagerInterface
 {
@@ -45,14 +43,14 @@ public:
 	DbInterfacePGSQL();
 	~DbInterfacePGSQL();
 
-	virtual int init(ILogger *) override;
-	virtual int connect(IDataSourceInfo *, int, string) override;
+	virtual int init(const std::shared_ptr<spdlog::logger>& _logger) override;
+	virtual int connect(IDataSourceInfo *, int, std::string) override;
 	virtual int reset() override;
 	virtual int terminate_connection() override;
 	virtual int begin_transaction() override;
-	virtual int end_transaction(string) override;
-	virtual int exec(string) override;
-	virtual int exec_params(std::string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats) override;
+	virtual int end_transaction(std::string) override;
+	virtual int exec(std::string) override;
+	virtual int exec_params(std::string query, int nParams, int *paramTypes, std::vector<std::string> &paramValues, int *paramLengths, int *paramFormats) override;
 	virtual int close_cursor(ICursor *) override;
 	virtual int cursor_declare(ICursor *, bool, int) override;
 	virtual int cursor_declare_with_params(ICursor *, char **, bool, int) override;
@@ -61,8 +59,8 @@ public:
 	virtual bool get_resultset_value(ICursor* c, int row, int col, char* bfr, int bfrlen, int *value_len);
 	virtual int move_to_first_record() override;
 	virtual int supports_num_rows() override;
-	virtual int get_num_rows() override;
-	virtual int get_num_fields() override;
+	virtual int get_num_rows(ICursor* crsr) override;
+	virtual int get_num_fields(ICursor* crsr) override;
 	virtual char *get_error_message() override;
 	virtual int get_error_code() override;
 	virtual std::string get_state() override;
@@ -71,22 +69,29 @@ public:
 	virtual int prepare(std::string stmt_name, std::string sql) override;
 	virtual int exec_prepared(std::string stmt_name, std::vector<std::string> &paramValues, std::vector<int> paramLengths, std::vector<int> paramFormats) override;
 
-	virtual bool getSchemas(vector<SchemaInfo*>& res) override;
-	virtual bool getTables(string table, vector<TableInfo*>& res) override;
-	virtual bool getColumns(string schema, string table, vector<ColumnInfo*>& columns) override;
-	virtual bool getIndexes(string schema, string tabl, vector<IndexInfo*>& idxs) override;
+	virtual bool getSchemas(std::vector<SchemaInfo*>& res) override;
+	virtual bool getTables(std::string table, std::vector<TableInfo*>& res) override;
+	virtual bool getColumns(std::string schema, std::string table, std::vector<ColumnInfo*>& columns) override;
+	virtual bool getIndexes(std::string schema, std::string tabl, std::vector<IndexInfo*>& idxs) override;
 
 private:
 	PGconn *connaddr;
-	PGresult *resaddr;
+	PGresult* current_resultset;
 
 	int last_rc;
-	string last_error;
-	string last_state;
+	std::string last_error;
+	std::string last_state;
 
-	map<string, ICursor*> _declared_cursors;
+	std::map<std::string, ICursor*> _declared_cursors;
 	std::map<std::string, std::tuple<std::vector<std::string>, void *>> prepared_stmts;
 
 	int decode_binary = DECODE_BINARY_DEFAULT;
+
+	int _pgsql_exec(ICursor *crsr, std::string);
+	int _pgsql_exec_params(ICursor* crsr, std::string query, int nParams, int* paramTypes, std::vector<std::string>& paramValues, int* paramLengths, int* paramFormats);
+
+	bool retrieve_prepared_statement_source(const std::string& prep_stmt_name, std::string& src);
+
+	int get_num_rows(PGresult* r);
 };
 

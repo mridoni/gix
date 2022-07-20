@@ -1,9 +1,11 @@
 #!/bin/bash
 
+install_dir=$(realpath "$(dirname "$(realpath "$0")")/..")
+
 if test "x$2" == "x"; then
-   gixpp $*
+   $install_dir/bin/gixpp $*
 else
    input=$1; shift   
    output=$1; shift
-   gixpp -e -I $(dirname $(readlink -f "$0"))/../share/gix/copy -i $input -o $output $*
+   $install_dir/bin/gixpp -e -I $install_dir/share/gix/copy -i $input -o $output $*
 fi

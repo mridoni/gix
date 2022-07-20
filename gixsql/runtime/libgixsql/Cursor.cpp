@@ -60,6 +60,12 @@ void Cursor::setQuery(std::string q)
 	query = q;
 }
 
+void Cursor::setQuerySource(void *src_addr, int src_len)
+{
+	query_source_addr = src_addr;
+	query_source_len = src_len;
+}
+
 void Cursor::setNumParams(int np)
 {
 	nParams = np;
@@ -83,6 +89,12 @@ std::string Cursor::getName()
 std::string Cursor::getQuery()
 {
 	return query;
+}
+
+void Cursor::getQuerySource(void **src_addr, int *src_len)
+{
+	*src_addr = query_source_addr;
+	*src_len = query_source_len;
 }
 
 int Cursor::getNumParams()

@@ -46,8 +46,8 @@ sizeof(type_tc_negative_final_number) / sizeof(type_tc_negative_final_number[0])
 
 void insert_decimal_point(char *data, int data_size, int power) {
 	int before_length, after_length;
-	before_length = strlen(data);
-	after_length = strlen(data) + 1;
+	before_length = (int)strlen(data);
+	after_length = (int)strlen(data) + 1;
 
 	int n_decimal_places = -power;
 
@@ -223,10 +223,22 @@ std::string trim_copy(std::string s) {
 	return s;
 }
 
-bool starts_with(std::string s1, std::string s2)
+bool starts_with(const std::string& s1, const std::string& s2)
 {
 	return s1.substr(0, s2.length()) == s2;
 }
+
+bool ends_with(std::string const& s1, std::string const& s2)
+{
+	if (s1.length() >= s2.length()) {
+		return (0 == s1.compare(s1.length() - s2.length(), s2.length(), s2));
+	}
+	else {
+		return false;
+	}
+}
+
+
 
 std::string lpad(const std::string &s, int len)
 {
@@ -353,6 +365,12 @@ std::string filename_get_name(const std::string &filename)
 	return fp.filename().string();
 }
 
+std::string filename_get_dir(const std::string& filename)
+{
+	std::filesystem::path fp(filename);
+	return fp.parent_path().string();
+}
+
 std::string filename_absolute_path(const std::filesystem::path &filepath)
 {
 	return std::filesystem::absolute(filepath).string();
@@ -360,7 +378,7 @@ std::string filename_absolute_path(const std::filesystem::path &filepath)
 
 std::string filename_clean_path(const std::string &filepath)
 {
-	std::string s = filepath;
+	std::string s = std::filesystem::canonical(filepath).string();
 	std::replace(s.begin(), s.end(), '\\', '/');
 	return s;
 }
@@ -478,7 +496,7 @@ std::string vector_join(const std::vector<std::string> &v, std::string sep)
 	return s;
 }
 
-bool split_in_args(std::vector<std::string> &qargs, std::string command)
+bool split_in_args(std::vector<std::string>& qargs, std::string command, bool remove_empty)
 {
 	int len = command.length();
 	bool qot = false, sqot = false;
@@ -514,12 +532,12 @@ bool split_in_args(std::vector<std::string> &qargs, std::string command)
 				i++;
 			arglen = i - start;
 		}
-		qargs.push_back(command.substr(start, arglen));
+
+		std::string a = command.substr(start, arglen);
+		if (!remove_empty || !a.empty())
+			qargs.push_back(a);
 	}
-	//for (int i = 0; i < qargs.size(); i++) {
-	//	std::cout << qargs[i] << std::endl;
-	//}
-	//std::cout << qargs.size();
+
 	return (qot == sqot);
 }
 
@@ -537,4 +555,18 @@ std::string unquote(const std::string &s)
 		res = res.substr(0, res.size() - 1);
 
 	return res;
+}
+
+std::string to_lower(const std::string& s)
+{
+	std::string s1 = s;
+	std::transform(s1.begin(), s1.end(), s1.begin(), ::tolower);
+	return s1;
+}
+
+std::string to_upper(const std::string& s)
+{
+	std::string s1 = s;
+	std::transform(s1.begin(), s1.end(), s1.begin(), ::toupper);
+	return s1;
 }

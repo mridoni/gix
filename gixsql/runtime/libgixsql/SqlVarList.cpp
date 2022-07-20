@@ -61,12 +61,11 @@ void SqlVarList::clear()
 
 void SqlVarList::dump()
 {
-	DECLARE_LOGGER(logger);
 	std::vector<SqlVar *>::iterator it;
 	for (it = std::vector<SqlVar *>::begin(); it != std::vector<SqlVar *>::end(); it++) {
 		SqlVar * v = *it;
 		if (v != NULL) 
-			LOG_DEBUG(__FILE__, __func__, "%p %d %d %d %p\n", v, v->type, v->length, v->power, v->addr);
+			spdlog::trace(FMT_FILE_FUNC"pre: {}, type: {}, length: {}, power: {}, addr: {}", __FILE__, __func__, (void *)v, v->type, v->length, v->power, v->addr);
 	}
 }
 

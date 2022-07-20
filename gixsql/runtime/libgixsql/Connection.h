@@ -68,17 +68,19 @@ public:
 	std::string getEncoding() override;
 	void setEncoding(std::string) override;
 
+	std::string getName();
+
 private:
 
 	int id;
 	std::string name;
-	IDataSourceInfo *conninfo;
+	IDataSourceInfo *conninfo = nullptr;
 	bool autocommit;
 	bool is_opened; //open flag
 	std::string encoding;
 
 	bool ext_conninfo;
 
-	IDbInterface *dbi;
+	IDbInterface *dbi = nullptr;
 };
 

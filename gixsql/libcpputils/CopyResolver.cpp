@@ -24,12 +24,12 @@ USA.
 #include <filesystem>
 
 
-CopyResolver::CopyResolver(const std::vector<std::string> &_copy_dirs)
+CopyResolver::CopyResolver(const std::string& base_dir, const std::vector<std::string> &_copy_dirs)
 {
 	copy_dirs = _copy_dirs;
 }
 
-CopyResolver::CopyResolver()
+CopyResolver::CopyResolver(const std::string& base_dir)
 {
 	copy_exts.push_back(".");
 	copy_exts.push_back(".CPY");
@@ -107,33 +107,13 @@ bool CopyResolver::resolveCopyFile(const std::string copy_name, std::string &cop
 	if (copy_dirs.empty())
 		return false;
 
+	if (resolve_from_dir(base_dir, copy_name, copy_file))
+		return true;
+
 	for (std::string copy_dir : copy_dirs) {
 
-		for (std::string ext : copy_exts) {
-
-			std::filesystem::path the_file(copy_dir + PATH_SEPARATOR + trim_copy(copy_name));
-
-			if (ext == ".")
-				ext = "";
-
-			the_file.replace_filename(copy_name + ext);
-			if (verbose) {
-				printf("Trying \"%s\": ", the_file.string().c_str());
-			}
-
-			if (std::filesystem::exists(the_file)) {
-				copy_file = filename_absolute_path(the_file);
-				resolve_cache[copy_name] = copy_file;
-				if (verbose)
-					printf("OK\n");
-
-				return true;
-			}
-
-			if (verbose)
-				printf("KO\n");
-		}
-
+		if (resolve_from_dir(copy_dir, copy_name, copy_file))
+			return true;
 	}
 
 	return false;
@@ -142,4 +122,36 @@ bool CopyResolver::resolveCopyFile(const std::string copy_name, std::string &cop
 void CopyResolver::setVerbose(bool b)
 {
 	verbose = b;
+}
+
+bool CopyResolver::resolve_from_dir(const std::string& copy_dir, const std::string& copy_name, std::string& copy_file)
+{
+	if (copy_dir.empty())
+		return false;
+
+	for (std::string ext : copy_exts) {
+
+		std::filesystem::path the_file(copy_dir + PATH_SEPARATOR + trim_copy(copy_name));
+
+		if (ext == ".")
+			ext = "";
+
+		the_file.replace_filename(copy_name + ext);
+		if (verbose) {
+			printf("Trying \"%s\": ", the_file.string().c_str());
+		}
+
+		if (std::filesystem::exists(the_file)) {
+			copy_file = filename_absolute_path(the_file);
+			resolve_cache[copy_name] = copy_file;
+			if (verbose)
+				printf("OK\n");
+
+			return true;
+		}
+
+		if (verbose)
+			printf("KO\n");
+	}
+	return false;
 }

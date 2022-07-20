@@ -6,17 +6,15 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runtime", "runtime", "{CA214231-A8B6-4FBA-B3AE-3FE5CAF64A38}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql", "runtime\libgixsql\libgixsql-cpp.vcxproj", "{F501313D-9C68-4164-80C3-E21CA3837E47}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C9ED4948-CA5B-4E8A-A4A8-EF54C13B19EA} = {C9ED4948-CA5B-4E8A-A4A8-EF54C13B19EA}
-		{C8BB29A7-CC21-4811-95DE-14C24A64DF5E} = {C8BB29A7-CC21-4811-95DE-14C24A64DF5E}
-		{63FDBCCD-8254-479C-A19F-5DAC3A0B9910} = {63FDBCCD-8254-479C-A19F-5DAC3A0B9910}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-mysql", "runtime\libgixsql-mysql\libgixsql-mysql.vcxproj", "{63FDBCCD-8254-479C-A19F-5DAC3A0B9910}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-odbc", "runtime\libgixsql-odbc\libgixsql-odbc.vcxproj", "{C8BB29A7-CC21-4811-95DE-14C24A64DF5E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-pgsql", "runtime\libgixsql-pgsql\libgixsql-pgsql.vcxproj", "{C9ED4948-CA5B-4E8A-A4A8-EF54C13B19EA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F501313D-9C68-4164-80C3-E21CA3837E47} = {F501313D-9C68-4164-80C3-E21CA3837E47}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{03E0162F-A04E-40F0-94A8-6E897A00EFB7}"
 EndProject
@@ -35,6 +33,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gixpp", "gixpp\gixpp.vcxpro
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gixsql-tests", "gixsql-tests\gixsql-tests.csproj", "{2DC3D86A-319C-4656-9CE6-A09DB069EABF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{52E19C91-8228-4E0B-8678-C2EB6828EB47}"
+	ProjectSection(SolutionItems) = preProject
+		ChangeLog = ChangeLog
+		checklists.txt = checklists.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -329,7 +333,7 @@ Global
 		{1BA5A886-6EC9-434A-8B66-AF29211B4499} = {03E0162F-A04E-40F0-94A8-6E897A00EFB7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 		Qt5Version = Qt_5.14_msvc64
+		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 	EndGlobalSection
 EndGlobal

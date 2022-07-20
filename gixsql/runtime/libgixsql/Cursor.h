@@ -44,11 +44,13 @@ public:
 	void setConnectionName(std::string) override;
 	void setName(std::string) override;
 	void setQuery(std::string) override;
+	void setQuerySource(void*, int) override;
 	void setNumParams(int) override;
 	IConnection *getConnection() override;
 	std::string getConnectionName() override;
 	std::string getName() override;
 	std::string getQuery() override;
+	void getQuerySource(void**, int*) override;
 	int getNumParams() override;
 	bool isOpen() override;
 	bool isWithHold() override;
@@ -77,6 +79,8 @@ private:
 	std::string connection_name; // default NULL
 	std::string name; // default NULL
 	std::string query; // default NULL
+	void* query_source_addr = nullptr;
+	int query_source_len = 0;
 	int nParams; // params for query
 	bool is_opened; //open flag
 	bool is_with_hold;
@@ -84,7 +88,7 @@ private:
 
 	SqlVarList parameter_list; // parameter list
 
-	void *dbi_data;
+	void* dbi_data = nullptr;
 
 	uint64_t rownum;
 

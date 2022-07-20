@@ -14,10 +14,6 @@ namespace gixsql_tests
         public new void Begin()
         {
             base.Begin();
-
-            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG_ON", "1");
-            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG", Path.Combine(TestTempDir, "gisql-debug.log"));
-            Environment.SetEnvironmentVariable("GIXSQL_ERR_LOG", Path.Combine(TestTempDir, "gisql-error.log"));
         }
 
 
@@ -32,11 +28,11 @@ namespace gixsql_tests
             check_file_contains(LastPreprocessedFile, new string[]
             {
                 "GIXSQL*    01 VBFLD SQL TYPE IS VARBINARY(100).",
-                "49 VBFLD-LEN PIC 9(4) COMP-5.",
+                "49 VBFLD-LEN PIC 9(8) COMP-5.",
                 "49 VBFLD-ARR PIC X(100).",
 
                 "GIXSQL*    01 VCFLD PIC X(100) VARYING.",
-                "49 VCFLD-LEN PIC 9(4) COMP-5.",
+                "49 VCFLD-LEN PIC 9(8) COMP-5.",
                 "49 VCFLD-ARR PIC X(100)."
             });
         }
@@ -52,11 +48,11 @@ namespace gixsql_tests
             check_file_contains(LastPreprocessedFile, new string[]
             {
                 "GIXSQL*    01 VBFLD SQL TYPE IS VARBINARY(100).",
-                "49 VBFLD-LLLL PIC 9(4) COMP-5.",
+                "49 VBFLD-LLLL PIC 9(8) COMP-5.",
                 "49 VBFLD-AAAA PIC X(100).",
 
                 "GIXSQL*    01 VCFLD PIC X(100) VARYING.",
-                "49 VCFLD-LLLL PIC 9(4) COMP-5.",
+                "49 VCFLD-LLLL PIC 9(8) COMP-5.",
                 "49 VCFLD-AAAA PIC X(100)."
             });
         }
@@ -74,19 +70,19 @@ namespace gixsql_tests
             check_file_contains(LastPreprocessedFile, new string[]
             {
                 "01 BUFFER1.",
-                "49 BUFFER1-LEN PIC 9(4) COMP-5.",
+                "49 BUFFER1-LEN PIC 9(8) COMP-5.",
                 "49 BUFFER1-ARR PIC X(100).",
 
                 "01 BUFFER2.",
-                "49 BUFFER2-LEN PIC 9(4) COMP-5.",
+                "49 BUFFER2-LEN PIC 9(8) COMP-5.",
                 "49 BUFFER2-ARR PIC X(32767).",
 
                 "01 BUFFER3.",
-                "49 BUFFER3-LEN PIC 9(4) COMP-5.",
+                "49 BUFFER3-LEN PIC 9(8) COMP-5.",
                 "49 BUFFER3-ARR PIC X(32768).",
 
                 "01 BUFFER4.",
-                "49 BUFFER4-LEN PIC 9(4) COMP-5.",
+                "49 BUFFER4-LEN PIC 9(8) COMP-5.",
                 "49 BUFFER4-ARR PIC X(50000).",
 
             });
@@ -99,7 +95,7 @@ namespace gixsql_tests
         [TestCategory("Checks for field length > 16 bit")]
         public void TSQL022C_MSVC_pgsql_x64_exe()
         {
-            compile(CompilerType.MSVC, "release", "x64", "exe", true);
+            compile(CompilerType.MSVC, "release", "x64", "exe");
             
         }
     }

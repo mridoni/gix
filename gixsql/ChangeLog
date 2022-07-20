@@ -1,3 +1,28 @@
+=== v1.0.17 ======================================================
+- Added support for "smart" cursor initialization (#88)
+- Added support for EXECUTE prepared-statement INTO #(87)
+- Fixed a logging problem (#84)
+- Fixed "wrong generated COBOL in 1.0.16" (#83)
+- Fixed "missing "close" for spdlog?" (#82)
+- Added support for using prepared statements in cursors (#81)
+- Variable length fields indicators are now 32-bit long by default (#80)
+- Added support for using variable length fields with prepared statements (#79)
+- Added upport for using group fields in INSERT and SELECT..INTO statements (#6)
+- Added support for more connection string formats (including ocesql compatibility) (#16)
+- Added Support for DISCONNECT ALL (#89)
+- Performed some refactoring to improve code size
+- Fixed a few memory leaks
+
+=== v1.0.16 ======================================================
+- Much improved logging system
+- EXEC SQL WHENEVER support
+- New formats for "connection strings", including an ocesql-compatible one
+- The MySQL driver now links against (and ships with) the MariaDB client libraries
+- PostgreSQL client library (libpq) has been updated
+- Binary dependencies are now installed with vcpkg (on Windows)
+- autoconf can now also build on MinGW
+- Fixed memory problems and misc warnings (merged PRs by @GitMensch)
+
 === v1.0.15 ======================================================
 - Fixed "long queries break COBOL compiler" (#8)
 - Fixed a couple of possible parser crashes

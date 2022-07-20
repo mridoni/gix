@@ -39,6 +39,7 @@ public:
 	int add(Connection *conn);
 	void remove(Connection *conn);
 	bool exists(std::string cname);
+	std::vector<Connection*> list();
 
 private:
 	Connection *default_connection = nullptr;

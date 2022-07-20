@@ -37,7 +37,7 @@ USA.
 #define PATH_LIST_SEP ":"
 #endif
 
-#define GIXPP_VER "1.0.15"
+#define GIXPP_VER "1.0.17"
 
 using namespace popl;
 
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	int rc = -1;
 
 	GixPreProcessor gp;
-	CopyResolver copy_resolver;
+	
 
 
 	// Do processing here
@@ -77,6 +77,7 @@ int main(int argc, char **argv)
 	auto opt_emit_map_file = options.add<Switch>("m", "map", "emit map file");
 	auto opt_emit_cobol85 = options.add<Switch>("C", "cobol85", "emit COBOL85-compliant code");
 	auto opt_varying_ids = options.add<Value<std::string>>("Y", "varying", "length/data suffixes for varlen fields (=LEN,ARR)");
+	auto opt_smart_crsr_init = options.add<Switch>("L", "smart-cursor-init", "use smart cursor initialization");
 
 	options.parse(argc, argv);
 
@@ -114,6 +115,8 @@ int main(int argc, char **argv)
 				}
 			}
 
+			CopyResolver copy_resolver(filename_get_dir(filename_absolute_path(opt_infile->value())));
+
 			copy_resolver.setVerbose(opt_verbose->is_set());
 
 			if (opt_copypath->is_set()) {
@@ -141,6 +144,7 @@ int main(int argc, char **argv)
 				gp.setOpt("consolidated_map", true);
 				gp.setOpt("emit_map_file", opt_emit_map_file->is_set());
 				gp.setOpt("emit_cobol85", opt_emit_cobol85->is_set());
+				gp.setOpt("smart_crsr_init", opt_smart_crsr_init->is_set());
 				gp.addStep(new TPESQLProcessing(&gp));
 
 				if (opt_esql_copy_exts->is_set())

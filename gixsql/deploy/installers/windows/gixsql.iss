@@ -78,7 +78,7 @@ Source: "{#REDIST_DIR}\mysql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ig
 Filename: "{tmp}\redist\ms\x64\VC_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x64\"; Flags: waituntilterminated; Description: "Visual C++ 2019 redistributable package (x64)"
 #endif
 Filename: "{tmp}\redist\ms\x86\VC_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x86\"; Flags: waituntilterminated; Description: "Visual C++ 2019 redistributable package (x86)"
-Filename: "{tmp}\redist\ms\x86\vcredist_x86_vs2013.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x86\"; Flags: waituntilterminated; Description: "Visual C++ 2013 redistributable package (x86)"
+; Filename: "{tmp}\redist\ms\x86\vcredist_x86_vs2013.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x86\"; Flags: waituntilterminated; Description: "Visual C++ 2013 redistributable package (x86)"
 #endif
 
 [Registry]

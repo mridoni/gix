@@ -39,8 +39,10 @@ void ESQLCall::addParameter(std::string value, bool by_reference)
 	params.push_back({ value, by_reference });
 }
 
-void ESQLCall::addParameter(gix_esql_driver *driver, hostref_or_literal_t *p)
+void ESQLCall::addParameter(gix_esql_driver *driver, hostref_or_literal_t *p, int varlen_sz)
 {
+	int f_type = 0, f_size = 0, f_scale = 0;
+
 	if (!p || !p->is_set) {
 		addParameter("x\"00\"", BY_REFERENCE);
 		addParameter(0, BY_VALUE);
@@ -58,8 +60,16 @@ void ESQLCall::addParameter(gix_esql_driver *driver, hostref_or_literal_t *p)
 			this->has_error = true;
 			return;
 		}
+
+		// N.B. If we are dealing with a varlen field, we are pointing to the root element of the varlen group
 		addParameter(p->name.substr(1), BY_REFERENCE);
-		addParameter(driver->field_map[p->name.substr(1)]->picnsize, BY_VALUE);
+
+		if (!varlen_sz) {	// Not a variable length field
+			addParameter(driver->field_map[p->name.substr(1)]->picnsize, BY_VALUE);
+		}
+		else {
+			addParameter(-varlen_sz, BY_VALUE);
+		}
 	}
 
 }
@@ -69,18 +79,20 @@ void ESQLCall::addParameter(int value, bool by_reference)
 	params.push_back({ std::to_string(value), by_reference });
 }
 
-std::vector<std::string> ESQLCall::format() const
+std::vector<std::string> ESQLCall::format(int indent_level) const
 {
+	std::string indent = std::string(indent_level * 4, ' ');
+
 	std::vector<std::string> res;
 	const char *lp = LINE_PREFIX;
 
-	res.push_back(lp + string_format("CALL %s\"%s\"", (is_static ? "STATIC " : ""), call_name) + (params.size() ? " USING" : ""));
+	res.push_back(lp + string_format(indent + "CALL %s\"%s\"", (is_static ? "STATIC " : ""), call_name) + (params.size() ? " USING" : ""));
 	
 	for (auto p : params) {
-		res.push_back(lp + string_format("    BY %s %s", (p.by_reference ? "REFERENCE" : "VALUE"), p.value));
+		res.push_back(lp + string_format(indent + "    BY %s %s", (p.by_reference ? "REFERENCE" : "VALUE"), p.value));
 	}
 
-	res.push_back(lp + std::string("END-CALL"));
+	res.push_back(lp + indent + std::string("END-CALL"));
 
 	return res;
 }
@@ -94,4 +106,3 @@ bool ESQLCall::hasError() const
 {
 	return has_error;
 }
-

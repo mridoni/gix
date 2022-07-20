@@ -125,6 +125,7 @@
     <ClCompile Include="TPSourceConsolidation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cobol_var_types.h" />
     <ClInclude Include="ESQLCall.h" />
     <ClInclude Include="ESQLDefinitions.h" />
     <ClInclude Include="FileData.h" />

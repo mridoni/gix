@@ -29,8 +29,9 @@ USA.
 class CopyResolver
 {
 public:
-	CopyResolver(const std::vector<std::string>& _copy_dirs);
-	CopyResolver();
+	CopyResolver() {}
+	CopyResolver(const std::string& base_dir, const std::vector<std::string>& _copy_dirs);
+	CopyResolver(const std::string& base_dir);
 
 	void resetCache();
 	void setCopyDirs(const std::vector<std::string>& _copy_dirs);
@@ -52,5 +53,7 @@ private:
 	bool verbose = false;
 
 	std::map<std::string, std::string> resolve_cache;
+
+	bool resolve_from_dir(const std::string& copy_dir, const std::string& copy_name, std::string& copy_file);
 };
 

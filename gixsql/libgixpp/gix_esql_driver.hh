@@ -55,10 +55,13 @@ USA.
 #define ERR_MISSING_LENGTH      19105
 #define ERR_INVALID_TYPE        19106
 #define ERR_FILE_NOT_FOUND      19107
-#define ERR_QUERY_TOO_LONG     19108
+#define ERR_QUERY_TOO_LONG      19108
+#define ERR_INVALID_DATA        19109
 
 // This is used to keep the error code from nested function
 #define ERR_ALREADY_SET         -9999
+
+class TPESQLProcessing;
 
 // Conducting the whole scanning and parsing of Calc++.
 class gix_esql_driver
@@ -66,6 +69,8 @@ class gix_esql_driver
 public:
     gix_esql_driver ();
     virtual ~gix_esql_driver ();
+
+    void setCaller(TPESQLProcessing* p);
 
 #pragma region Options
 
@@ -166,6 +171,7 @@ public:
     cb_field_ptr description_field;
 
     esql_connection_info_t *conninfo = nullptr;
+    esql_whenever_data_t* whenever_data = nullptr;
 
     bool has_esql_in_cbl_copybooks;
     bool procedure_division_started = false;
@@ -176,7 +182,8 @@ public:
 #pragma endregion
 
 #pragma region Management
-    GixPreProcessor *pp_inst;
+    GixPreProcessor *pp_inst = nullptr;
+    TPESQLProcessing* pp_caller = nullptr;
     
     std::map<std::string, cb_field_ptr> field_map;
     std::map<std::string, std::tuple<uint64_t, int, int, std::string>> field_sql_type_info;

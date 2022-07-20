@@ -1,3 +1,3 @@
 #pragma once
 
-#define LIBGIXPP_VER "1.0.15"
+#define LIBGIXPP_VER "1.0.17"

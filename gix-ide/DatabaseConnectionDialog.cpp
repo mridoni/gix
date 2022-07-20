@@ -251,7 +251,7 @@ void DatabaseConnectionDialog::doDatabaseConnection()
 {
 	QString cs = buildConnectionString();
 	DataSourceInfo *conn = new DataSourceInfo();
-	if (!conn->init(cs.toStdString(), "***", "***")) {	// FIXME!!
+	if (!conn->init(cs.toStdString(), "***", "***", "***")) {	// FIXME!!
 		if (!Ide::DbManager()->test(conn)) {
 			UiUtils::ErrorDialog(tr("Cannot connect, please check the connection parameters"));
 			return;

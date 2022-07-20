@@ -213,6 +213,13 @@ namespace gix_ide_tests
                 data_sources.Add(new Tuple<string, int>(ga.type, ga.index));
                 Assert.IsTrue(data_source_init(data_sources.Count - 1));
             }
+
+            string log_path = Path.Combine(TestTempDir, "gixsql-" + this.GetType().Name + ".log");
+            if (File.Exists(log_path))
+                File.Delete(log_path);
+
+            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG_LEVEL", "trace");
+            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG_FILE", log_path);
         }
 
         protected DbConnection GetConnection(int ds_index = 0)
@@ -419,9 +426,9 @@ namespace gix_ide_tests
             {
                 cwd = Environment.CurrentDirectory;
                 Environment.CurrentDirectory = Path.GetDirectoryName(module_src);
-                module_src = Path.GetFileName(module_src);
+                string module_filename = Path.GetFileName(module_src);
 
-                string outfile = module_src.Replace(".cbl", "." + build_type);
+                string outfile = module_filename.Replace(".cbl", "." + build_type);
                 Assert.IsTrue(File.Exists(outfile));
 
                 CompilerConfig cc = CompilerConfig.init(ctype, configuration, platform, build_type);
@@ -439,7 +446,7 @@ namespace gix_ide_tests
                 {
                     exe = cc.cobcrun_exe;
                     env["PATH"] = Environment.GetEnvironmentVariable("PATH") + $";{cc.cobc_bin_dir_path};{cc.link_lib_dir_path}";
-                    args = module_src.Substring(0, module_src.IndexOf("."));
+                    args = module_filename.Substring(0, module_filename.IndexOf("."));
                 }
 
                 set_db_client_path(platform, env);
@@ -627,10 +634,28 @@ namespace gix_ide_tests
             return $"{data_source_type.ToUpper()}_{data_source_index}_{key.ToUpper()}";
         }
 
+        protected string get_datasource_type(int ds_index = 0)
+        {
+            Tuple<string, int> t = data_sources[ds_index];
+            return t.Item1;
+        }
+
+        protected string get_datasource_host(int ds_index = 0)
+        {
+            return get_ds_val("host", ds_index);
+        }
+
+        protected string get_datasource_port(int ds_index = 0)
+        {
+            return get_ds_val("port", ds_index);
+        }
+
         protected string get_datasource_usr(int ds_index = 0)
         {
             return get_ds_val("usr", ds_index);
         }
+
+
 
         protected string get_datasource_pwd(int ds_index = 0)
         {

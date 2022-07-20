@@ -15,10 +15,6 @@ namespace gixsql_tests
         public new void Begin()
         {
             base.Begin();
-
-            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG_ON", "1");
-            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG", Path.Combine(TestTempDir, "gisql-debug.log"));
-            Environment.SetEnvironmentVariable("GIXSQL_ERR_LOG", Path.Combine(TestTempDir, "gisql-error.log"));
         }
 
         [TestMethod]
@@ -124,7 +120,7 @@ namespace gixsql_tests
         [GixSqlDataSource("odbc", 1)]
         public void TSQL001A_MSVC_odbc_x64_exe()
         {
-            compile(CompilerType.MSVC, "release", "x64", "exe");
+            compile(CompilerType.MSVC, "release", "x64", "exe", false, false, "", "");
 
             string s = build_data_source_string(true, true, true);
             Environment.SetEnvironmentVariable("DATASRC", build_data_source_string(true, true, true));

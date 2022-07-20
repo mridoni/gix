@@ -24,6 +24,9 @@ USA.
 
 #include "gix_esql_parser.hh"
 #include "libcpputils.h"
+#include "cobol_var_types.h"
+
+#include "TPESQLProcessing.h"
 
 #if _DEBUG
 #if defined (VERBOSE)
@@ -85,6 +88,11 @@ gix_esql_driver::~gix_esql_driver ()
 	delete sql_list;
 	delete exec_list;
 	delete hostref_or_literal_list;
+}
+
+void gix_esql_driver::setCaller(TPESQLProcessing* p)
+{
+	pp_caller = p;
 }
 
 int gix_esql_driver::parse (GixPreProcessor *gpp, const std::string &f)
@@ -193,6 +201,25 @@ std::vector<cb_sql_token_t> *gix_esql_driver::cb_concat_text_list(std::vector<cb
 
 std::string gix_esql_driver::cb_host_list_add(std::vector<cb_hostreference_ptr> *list, std::string text)
 {
+	// Handle placeholders for group items passed as host variables
+	if (map_contains(field_map, text.substr(1))) {
+		int f_type = 0, f_size = 0, f_scale = 0;
+		cb_field_ptr f = field_map[text.substr(1)];
+		bool is_varlen = pp_caller->get_actual_field_data(f, &f_type, &f_size, &f_scale);
+		int n = 999;
+		if ((this->commandname == "INSERT" || this->commandname == "SELECT") && 
+				f_type == COBOL_TYPE_GROUP && !is_varlen) {
+			cb_field_ptr c = f->children;
+			std::string s;
+			while (c) {
+				s += cb_host_list_add(list, ":" + c->sname);
+				c = c->sister;
+				if (c) s += ",";
+			}
+			return "@[" + s + "]";
+		}
+	}
+
 	int hostno = cb_search_list(text);
 
 	if (!opt_use_anonymous_params)
@@ -203,6 +230,25 @@ std::string gix_esql_driver::cb_host_list_add(std::vector<cb_hostreference_ptr> 
 
 std::string gix_esql_driver::cb_host_list_add_force(std::vector<cb_hostreference_ptr> *list, std::string text)
 {
+	// Handle placeholders for group items passed as host variables
+	if (map_contains(field_map, text.substr(1))) {
+		int f_type = 0, f_size = 0, f_scale = 0;
+		cb_field_ptr f = field_map[text.substr(1)];
+		bool is_varlen = pp_caller->get_actual_field_data(f, &f_type, &f_size, &f_scale);
+		int n = 999;
+		if ((this->commandname == "INSERT" || this->commandname == "SELECT") &&
+			f_type == COBOL_TYPE_GROUP && !is_varlen) {
+			cb_field_ptr c = f->children;
+			std::string s;
+			while (c) {
+				s += cb_host_list_add_force(list, ":" + c->sname);
+				c = c->sister;
+				if (c) s += ",";
+			}
+			return "@[" + s + "]";
+		}
+	}
+
 	int hostno = list->size() + 1;
 
 	cb_hostreference_ptr p = new cb_hostreference_t();
@@ -306,12 +352,16 @@ void gix_esql_driver::put_exec_list()
 
 	l->conninfo = conninfo;
 	l->connectionId = connectionid;
+	l->whenever_data = whenever_data;
 
 	host_reference_list = new std::vector<cb_hostreference_ptr>();
 	res_host_reference_list = new std::vector<cb_res_hostreference_ptr>();
 	sql_list = new std::vector<cb_sql_token_t>();
 	hostref_or_literal_list = new std::vector<hostref_or_literal_t *>();
 	conninfo = new esql_connection_info_t();
+
+	statement_name.clear();
+	statement_source = nullptr;
 
 	exec_list->push_back(l);
 

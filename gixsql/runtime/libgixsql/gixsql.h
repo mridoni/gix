@@ -120,9 +120,9 @@ static struct sqlca_t sqlca_init =
 #endif  
 
 extern "C" {
-	//LIBGIXSQL_API int GIXSQLConnect(struct sqlca_t* st, char* user, int userlen, char* passwd, int passwdlen, char* name, int namelen);
+
 	LIBGIXSQL_API int GIXSQLConnect(struct sqlca_t *st, void *d_data_source, int data_source_tl, void *d_connection_id, int connection_id_tl,
-										void *d_username, int username_tl, void *d_password, int password_tl);
+										void* d_dbname, int dbname_tl, void *d_username, int username_tl, void *d_password, int password_tl);
 
 	LIBGIXSQL_API int GIXSQLConnectReset(struct sqlca_t *, void *d_connection_id, int connection_id_tl);
 	LIBGIXSQL_API int GIXSQLDisconnect(struct sqlca_t *, void *d_connection_id, int connection_id_tl);
@@ -132,14 +132,15 @@ extern "C" {
 	LIBGIXSQL_API int GIXSQLExecSelectIntoOne(struct sqlca_t *, void *d_connection_id, int connection_id_tl, char *, int, int);
 	LIBGIXSQL_API int GIXSQLExecImmediate(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, void *d_query, int query_tl);
 
-	LIBGIXSQL_API int GIXSQLCursorDeclare(struct sqlca_t *, void *d_connection_id, int connection_id_tl, char *, int, char *);
-	LIBGIXSQL_API int GIXSQLCursorDeclareParams(struct sqlca_t* st, void *d_connection_id, int connection_id_tl, char* cname, int with_hold, char* _query, int nParams);
+	LIBGIXSQL_API int GIXSQLCursorDeclare(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char* cursor_name, int with_hold, void* d_query, int query_tl);
+	LIBGIXSQL_API int GIXSQLCursorDeclareParams(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char* cursor_name, int with_hold, void* d_query, int query_tl, int nParams);
 	LIBGIXSQL_API int GIXSQLCursorOpen(struct sqlca_t *, char *);
 	LIBGIXSQL_API int GIXSQLCursorFetchOne(struct sqlca_t *, char *);
 	LIBGIXSQL_API int GIXSQLCursorClose(struct sqlca_t *, char *);
 
 	LIBGIXSQL_API int GIXSQLPrepareStatement(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *stmt_name, void *d_statement_src, int statement_src_tl);
 	LIBGIXSQL_API int GIXSQLExecPrepared(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *stmt_name, int nParams);
+	LIBGIXSQL_API int GIXSQLExecPreparedInto(struct sqlca_t *st, void *d_connection_id, int connection_id_tl, char *stmt_name, int nParams, int nResParams);
 
 	LIBGIXSQL_API int GIXSQLStartSQL(void);
 	LIBGIXSQL_API int GIXSQLSetSQLParams(int type, int length, int scale, uint32_t flags, void* addr);

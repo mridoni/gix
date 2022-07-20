@@ -24,6 +24,8 @@
 #include <cstring>
 #include <locale.h>
 
+#include "cobol_var_types.h"
+
 #include "SqlVar.h"
 #include "utils.h"
 #include "Logger.h"
@@ -102,8 +104,6 @@ char* SqlVar::getRealData()
 
 void SqlVar::createRealData()
 {
-	DECLARE_LOGGER(logger);
-
 	int type = this->type;
 	int length = this->length;
 	int power = this->power;
@@ -120,7 +120,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len, power);
 			}
 
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_TC:
@@ -138,7 +138,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_LS:
@@ -149,7 +149,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_UNSIGNED_NUMBER_PD:
@@ -195,7 +195,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len, power);
 			}
 
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_PD:
@@ -246,7 +246,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 
@@ -257,7 +257,7 @@ void SqlVar::createRealData()
 		{
 			if (!is_variable_length) {
 				memcpy(realdata, (char*)addr, length);
-				LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+				spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			}
 			else {
 				void* actual_addr = (char*)addr + VARLEN_LENGTH_SZ;
@@ -265,7 +265,7 @@ void SqlVar::createRealData()
 				//int actual_len = VARLEN_BSWAP(*len_addr);
 				int actual_len = (*len_addr);
 				memcpy(realdata, (char*)actual_addr, actual_len);
-				LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+				spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			}
 		}
 		break;
@@ -307,7 +307,7 @@ void SqlVar::createRealData()
 				}
 			}
 
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 
 		case COBOL_TYPE_SIGNED_BINARY:
@@ -348,14 +348,14 @@ void SqlVar::createRealData()
 				}
 			}
 
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 
 		default:
 			realdata = (char*)calloc(length + TERMINAL_LENGTH, sizeof(char));
 
 			memcpy(realdata, (char*)addr, length);
-			LOG_DEBUG(__FILE__, __func__, "%d %d->#data:%s#realdata:%s\n", type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
 			break;
 	}
 }
@@ -369,8 +369,6 @@ void* SqlVar::getAddr()
 void SqlVar::createCobolData(char *retstr, int datalen)
 {
 	void* addr = this->addr;
-
-	DECLARE_LOGGER(logger);
 
 	switch (type) {
 		case COBOL_TYPE_UNSIGNED_NUMBER:
@@ -474,7 +472,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 
 			}
 
-			final_length = strlen((const char *)addr);
+			final_length = (int)strlen((const char *)addr);
 			uint8_t* addr_ptr = (uint8_t*)addr;
 			if (is_negative) {
 				int index = *(addr_ptr + (final_length - 1)) - '0';

@@ -76,7 +76,7 @@ bool IdeDbManager::test(IDataSourceInfo* conn_info)
 	Connection conn;
 	conn.setConnectionInfo(conn_info);
 
-	IDbInterface* dbi = DbInterfaceFactory::getInterface(conn_info->getDbType());
+	IDbInterface* dbi = DbInterfaceFactory::getInterface(conn_info->getDbType(), spdlog::default_logger());
 	if (!dbi)
 		return false;
 
@@ -159,11 +159,11 @@ void IdeDbManager::loadDbConnection(QString pfx)
 	DbConnection* dbc = new DbConnection;
 	std::string ci = conn_info_s.toStdString();
 	dbc->conn_info = new DataSourceInfo();
-	dbc->conn_info->init(ci, "***", "***");	// FIXME
+	dbc->conn_info->init(ci, "***", "***", "***");	// FIXME
 	dbc->internal_conn = new Connection();
 	dbc->internal_conn->setConnectionInfo(dbc->conn_info);
 	dbc->internal_conn->setName(conn_name.toStdString());
-	dbc->dbi = DbInterfaceFactory::getInterface(dbtype.toStdString());
+	dbc->dbi = DbInterfaceFactory::getInterface(dbtype.toStdString(), spdlog::default_logger());
 	dbc->dbi->set_owner(dbc->internal_conn);
 
 	connections[conn_name] = dbc;
@@ -173,7 +173,7 @@ void IdeDbManager::loadDbConnection(QString pfx)
 
 DbConnection* IdeDbManager::createConnection(IDataSourceInfo * conn_info)
 {
-	IDbInterface* dbi = DbInterfaceFactory::getInterface(conn_info->getDbType());
+	IDbInterface* dbi = DbInterfaceFactory::getInterface(conn_info->getDbType(), spdlog::default_logger());
 	if (!dbi)
 		return nullptr;
 
