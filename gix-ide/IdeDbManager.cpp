@@ -83,7 +83,9 @@ bool IdeDbManager::test(IDataSourceInfo* conn_info)
 	conn.setDbInterface(dbi);
 	dbi->set_owner(&conn);
 
-	int res = dbi->connect(conn_info, 0, "UTF-8");
+	IConnectionOptions options;
+	options.client_encoding = "UTF-8";
+	int res = dbi->connect(conn_info, &options);
 	if (res)
 		return false;
 
@@ -159,7 +161,7 @@ void IdeDbManager::loadDbConnection(QString pfx)
 	DbConnection* dbc = new DbConnection;
 	std::string ci = conn_info_s.toStdString();
 	dbc->conn_info = new DataSourceInfo();
-	dbc->conn_info->init(ci, "***", "***", "***");	// FIXME
+	dbc->conn_info->init(ci, dbname.toStdString(), username.toStdString(), password.toStdString());	// FIXME
 	dbc->internal_conn = new Connection();
 	dbc->internal_conn->setConnectionInfo(dbc->conn_info);
 	dbc->internal_conn->setName(conn_name.toStdString());

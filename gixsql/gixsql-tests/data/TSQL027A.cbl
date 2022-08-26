@@ -50,6 +50,9 @@
                 SELECT MAX(VAR) - MIN(VAR) FROM TAB00
        END-EXEC.
 
+       LINKAGE SECTION.
+            01 DUMMY01 PIC X(99).
+
        PROCEDURE DIVISION. 
  
        000-CONNECT.
@@ -70,21 +73,11 @@
                      IDENTIFIED BY :DBPWD
                      AT            :DBS
                      USING         :DATASRC
-           END-EXEC.
+           END-EXEC.  
 
-           MOVE 'START TRANSACTION' TO CUR-STEP.
            EXEC SQL AT :DBS
-              START TRANSACTION
-           END-EXEC.        
-           
-           MOVE 'DROP TABLE' TO CUR-STEP.
-           EXEC SQL AT :DBS
-                DROP TABLE IF EXISTS TAB00
-           END-EXEC.
-
-           MOVE 'CREATE TABLE' TO CUR-STEP.
-           EXEC SQL AT :DBS
-                CREATE TABLE TAB00 (VAR INT)
+               DECLARE VM4 CURSOR FOR 
+                    SELECT MAX(VAR) + MIN(VAR) FROM TAB00
            END-EXEC.
 
            MOVE 1 TO IDX
@@ -167,12 +160,26 @@
                CLOSE VM3 
            END-EXEC.
 
-      * DONE
+      * VM4 : CURSOR FROM DIRECT STATEMENT (EVAL. AT OPEN)
+      * VM4 : DECLARE IN PROCEDURE DIVSION.
 
-           MOVE 'COMMIT' TO CUR-STEP.
+           MOVE 'OPEN-VM4' TO CUR-STEP. 
            EXEC SQL AT :DBS
-              COMMIT
-           END-EXEC.        
+               OPEN VM4 
+           END-EXEC.
+          
+           EXEC SQL AT :DBS
+               FETCH VM4
+               INTO
+                 :VAR-RES
+           END-EXEC.
+           DISPLAY 'VM4 - VAR-RES:' VAR-RES.
+          
+           EXEC SQL AT :DBS
+               CLOSE VM4 
+           END-EXEC.
+
+      * DONE   
 
            MOVE 'DISCONNECT' TO CUR-STEP.
            EXEC SQL

@@ -65,7 +65,7 @@ public:
 private:
 
 	// ESQL options
-	bool opt_anonymous_params;
+	ESQL_ParameterStyle opt_params_style;
 	bool opt_preprocess_copy_files;
 	bool opt_emit_static_calls;
 	bool opt_emit_debug_info;
@@ -74,7 +74,8 @@ private:
 	bool opt_no_output;
 	bool opt_emit_map_file;
 	bool opt_emit_cobol85;
-	bool opt_smart_crsr_init;
+	bool opt_picx_as_varchar;
+	int opt_norec_sqlcode = 100;	// Just to be safe, it will be (re)set in the constructor
 
 	std::string opt_varlen_suffix_len;
 	std::string opt_varlen_suffix_data;
@@ -115,6 +116,7 @@ private:
 	bool is_var_len_group(cb_field_ptr f);
 	bool get_actual_field_data(cb_field_ptr f, int *type, int *size, int *scale);
 	void process_sql_query_list();
+	std::string process_sql_query_item(const std::vector<std::string>& input_sql_list);
 	bool fixup_declared_vars();
 
 	bool write_map_file(const std::string &preprocd_file);
@@ -132,8 +134,8 @@ private:
 
 	void put_whenever_handler(bool terminate_with_period);
 	void put_whenever_clause_handler(esql_whenever_clause_handler_t* ch);
-	void put_smart_crsr_init_flags();
-	void put_cursor_init_check(const std::string& crsr_name);
+	void put_smart_cursor_init_flags();
+	void put_smart_cursor_init_check(const std::string& crsr_name);
 
 	bool put_res_host_parameters(const cb_exec_sql_stmt_ptr stmt, int *res_params_count);
 	bool put_host_parameters(const cb_exec_sql_stmt_ptr stmt);
@@ -153,5 +155,6 @@ private:
 	int current_input_line;
 
 	bool emitted_query_defs = false;
+	bool emitted_smart_cursor_init_flags = false;
 };
 

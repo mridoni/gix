@@ -27,9 +27,8 @@ USA.
 #include "Logger.h"
 #include "IConnection.h"
 #include "IDataSourceInfo.h"
+#include "IConnectionOptions.h"
 #include "IDbManagerInterface.h"
-
-
 
 #define USE_DEFAULT_CONNECTION		-998
 
@@ -69,9 +68,22 @@ USA.
 #define FETCH_PREV_ROW	2
 #define FETCH_CUR_ROW	3
 
+#define NO_REC_CODE_DEFAULT	100
+
+#define RS_CTX_CURRENT_RESULTSET	1
+#define RS_CTX_PREPARED_STATEMENT	2
+#define RS_CTX_CURSOR				3
+
 class IDataSourceInfo;
 class IConnection;
 class ICursor;
+struct IConnectionOptions;
+
+enum class ResultSetContextType {
+	CurrentResultSet	= 1,
+	PreparedStatement	= 2,
+	Cursor				= 3
+};
 
 class IDbInterface
 {
@@ -79,20 +91,20 @@ public:
 	virtual ~IDbInterface() {}
 
 	virtual int init(const std::shared_ptr<spdlog::logger>& _logger) = 0;
-	virtual int connect(IDataSourceInfo *, int, std::string) = 0;
+	virtual int connect(IDataSourceInfo *, IConnectionOptions *) = 0;
 	virtual int reset() = 0;
 	virtual int terminate_connection() = 0;
 	virtual int begin_transaction() = 0;
 	virtual int end_transaction(std::string) = 0;
 	virtual int exec(std::string) = 0;
-	virtual int exec_params(std::string query, int nParams, int *paramTypes, std::vector<std::string> &paramValues, int *paramLengths, int *paramFormats) = 0;
+	virtual int exec_params(std::string query, int nParams, const std::vector<int>& paramTypes, const std::vector<std::string>& paramValues, const std::vector<int>& paramLengths, const std::vector<int>& paramFormats) = 0;
 	virtual int close_cursor(ICursor *) = 0;
 	virtual int cursor_declare(ICursor *, bool, int) = 0;
 	virtual int cursor_declare_with_params(ICursor *, char **, bool, int) = 0;
 	virtual int cursor_open(ICursor *) = 0;
 	virtual int fetch_one(ICursor *, int) = 0;
-	virtual bool get_resultset_value(ICursor *, int, int, char* bfr, int bfrlen, int *value_len) = 0;
-	virtual int move_to_first_record() = 0;
+	virtual bool get_resultset_value(ResultSetContextType resultset_context_type, void *context, int row, int col, char* bfr, int bfrlen, int* value_len) = 0;
+	virtual bool move_to_first_record(std::string stmt_name = "") = 0;
 	virtual int supports_num_rows() = 0;
 	virtual int get_num_rows(ICursor* crsr) = 0;
 	virtual int get_num_fields(ICursor *crsr) = 0;

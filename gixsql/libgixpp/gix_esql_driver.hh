@@ -46,6 +46,7 @@ USA.
 #define DD_SECTION_LL       3   // LOCAL-STORAGE SECTION
 #define DD_SECTION_LS       4   // LINKAGE SECTION
 
+#define ERR_PP_PARAM_ERROR      18000
 #define ERR_SYNTAX_ERROR        19000
 #define ERR_MISSING_HOSTVAR     19100
 #define ERR_MISSING_COPYFILE    19101
@@ -60,6 +61,16 @@ USA.
 
 // This is used to keep the error code from nested function
 #define ERR_ALREADY_SET         -9999
+
+void decode_sql_type_info(uint64_t type_info, uint32_t* sql_type, uint32_t* precision, uint16_t* scale, uint8_t* flags);
+uint64_t encode_sql_type_info(uint32_t sql_type, uint32_t precision, uint16_t scale, uint8_t flags);
+
+enum class ESQL_ParameterStyle {
+    DollarPrefix,
+    ColonPrefix,
+    Anonymous,
+    Unknown
+};
 
 class TPESQLProcessing;
 
@@ -77,7 +88,7 @@ public:
     // We only have here the flags connected to parsing, other flags
     // are handled in the code generation module
     bool opt_preprocess_copy_files;
-    bool opt_use_anonymous_params;
+    ESQL_ParameterStyle opt_params_style;
 
 #pragma endregion
 

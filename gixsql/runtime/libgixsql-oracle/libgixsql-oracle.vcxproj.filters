@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dblib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiConn.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiContext.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiData.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiDebug.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiDeqOptions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiEnqOptions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiEnv.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiError.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiGen.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiGlobal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiHandleList.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiHandlePool.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiJson.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiLob.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiMsgProps.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiObject.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiObjectAttr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiObjectType.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiOci.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiOracleType.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiPool.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiQueue.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiRowid.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiSodaColl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiSodaCollCursor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiSodaDb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiSodaDoc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiSodaDocCursor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiStmt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiSubscr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiUtils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="odpi\dpiVar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DbInterfaceManagerOracle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DbInterfaceOracle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="odpi\dpi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="odpi\dpiErrorMessages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="odpi\dpiImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DbInterfaceOracle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="odpi\LICENSE.txt" />
+  </ItemGroup>
+</Project>

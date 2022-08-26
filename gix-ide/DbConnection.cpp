@@ -41,7 +41,10 @@ bool DbConnection::connect()
 	if (dbi->get_owner()->isOpen())
 		return true;
 
-	last_error = dbi->connect(conn_info, 0, "UTF-8");
+	IConnectionOptions options;
+	options.client_encoding = "UTF-8";
+
+	last_error = dbi->connect(conn_info, &options);
 	return (last_error == 0);
 }
 

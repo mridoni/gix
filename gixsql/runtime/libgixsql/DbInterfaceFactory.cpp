@@ -69,6 +69,12 @@ IDbInterface *DbInterfaceFactory::getInterface(int type, const std::shared_ptr<s
 		case DB_MYSQL:
 			return load_dblib("mysql");
 
+		case DB_ORACLE:
+			return load_dblib("oracle");
+
+		case DB_SQLITE:
+			return load_dblib("sqlite");
+
 		default:
 			return NULL;
 	}
@@ -85,7 +91,13 @@ IDbInterface* DbInterfaceFactory::getInterface(std::string t, const std::shared_
 		if (t == "mysql")
 			return load_dblib("mysql");
 
-			return NULL;
+		if (t == "oracle")
+			return load_dblib("oracle");
+
+		if (t == "sqlite")
+			return load_dblib("sqlite");
+
+		return NULL;
 }
 
 IDbManagerInterface* DbInterfaceFactory::getManagerInterface(int type)

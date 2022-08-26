@@ -16,6 +16,14 @@ if ENABLE_PGSQL
 SUBDIRS += runtime/libgixsql-pgsql
 endif
 
+if ENABLE_ORACLE
+SUBDIRS += runtime/libgixsql-oracle
+endif
+
+if ENABLE_SQLITE
+SUBDIRS += runtime/libgixsql-sqlite
+endif
+
 pkgconfigdir = $(prefix)/share/gix/copy
 pkgconfig_DATA = copy/SQLCA.cpy
 

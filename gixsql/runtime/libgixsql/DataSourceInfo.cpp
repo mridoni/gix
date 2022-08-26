@@ -24,6 +24,7 @@
 
 #include <string>
 #include <sstream>
+#include <filesystem>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -70,9 +71,32 @@ int DataSourceInfo::init(const std::string& data_source, const std::string& dbna
 		this->usrpwd_sep = ".";
 	}
 
-	std::string connstring_rx_text_full = R"(^(?:((?:gixsql|mysql|pgsql|odbc)\:))(\/\/(?:(([^:]+)##GIXSQL_USRPWD_SEP##([^:]+)@)?)[A-Za-z0-9\-_\.]+)(:[0-9]+)?(\/[A-Za-z0-9\-_]+)?)";
-	std::string connstring_rx_text_dflt_drvr = R"(^((?:(([^:]+)##GIXSQL_USRPWD_SEP##([^:]+)@)?)[A-Za-z0-9\-_\.]+)(:[0-9]+)?(\/[A-Za-z0-9\-_]+)?)";
-	std::string connstring_rx_text_ocesql = R"(^((?:(([^:]+)@)?)([A-Za-z0-9\-_\.]+))(:[0-9]+)?)";
+	// Special case: it is a filename
+	if (starts_with(data_source, "sqlite://")) {
+		if (data_source.size() <= 10)
+			return 1;
+
+		std::string sqlite_path;
+		std::string sqlite_opts;
+		std::string path_opts = data_source.substr(9);
+
+		if (path_opts.find('?') != std::string::npos) {
+			sqlite_path = path_opts;
+		}
+		else {
+			sqlite_path = path_opts.substr(0, path_opts.find('?'));
+			retrieve_driver_options(path_opts);
+		}
+
+		this->dbtype = "sqlite";
+		this->host = sqlite_path;
+		this->dbname = std::filesystem::path(this->host).filename().string();
+		return 0;
+	}
+
+	std::string connstring_rx_text_full = R"(^(?:((?:gixsql|mysql|pgsql|odbc|oracle|sqlite)\:))(\/\/(?:(([^:]+)##GIXSQL_USRPWD_SEP##([^:]+)@)?)[A-Za-z0-9\-_\.]+)(:[0-9]+)?(\/[A-Za-z0-9\-_]+)?\ *)";
+	std::string connstring_rx_text_dflt_drvr = R"(^((?:(([^:]+)##GIXSQL_USRPWD_SEP##([^:]+)@)?)[A-Za-z0-9\-_\.]+)(:[0-9]+)?(\/[A-Za-z0-9\-_]+)?\ *)";
+	std::string connstring_rx_text_ocesql = R"(^((?:(([^:]+)@)?)([A-Za-z0-9\-_\.]+))(:[0-9]+)?\ *)";
 	std::string connstring_rx_text;
 
 	connstring_rx_text = string_replace(connstring_rx_text_full, "##GIXSQL_USRPWD_SEP##", rx_escape(this->usrpwd_sep));
@@ -94,7 +118,7 @@ int DataSourceInfo::init(const std::string& data_source, const std::string& dbna
 			rxConnString.assign(connstring_rx_text);
 
 			// regex_match instead of regex_search is used because we need stricter matching here
-			if (!regex_match(data_source, ocematch, rxConnString)) {	
+			if (!regex_match(data_source, ocematch, rxConnString)) {
 				conn_string_type = CS_TYPE_GIXSQL_DFLT_DRVR;
 			}
 			else {
@@ -159,8 +183,13 @@ int DataSourceInfo::init(const std::string& data_source, const std::string& dbna
 		this->dbname = dbname;
 	}
 
+	trim(this->host);
+	trim(this->dbname);
+	trim(this->username);
+	trim(this->password);
+
 	return 0;
-}
+	}
 
 void DataSourceInfo::retrieve_driver_options(const std::string& data_source)
 {

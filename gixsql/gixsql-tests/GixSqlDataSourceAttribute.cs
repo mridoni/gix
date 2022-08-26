@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace gix_ide_tests
+namespace gixsql_tests
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class GixSqlDataSourceAttribute : Attribute

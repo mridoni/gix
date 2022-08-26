@@ -2,11 +2,9 @@
 <RunSettings>
 	<RunConfiguration>
 		<EnvironmentVariables>
-			<GIX_INSTALL_PKG_X64>D:\gixsql-x64-test-install</GIX_INSTALL_PKG_X64>
-			<GIX_INSTALL_PKG_X86>D:\gixsql-x86-test-install</GIX_INSTALL_PKG_X86>
+			<GIXSQL_TEST_MATRIX_CONFIG>C:\Users\marchetto\source\repos\gixsql\gixsql-tests\gixsql_test_data.xml</GIXSQL_TEST_MATRIX_CONFIG>
 			
-			<!--<GIX_BASE_PATH_X64>D:\gixsql-x64-pkg</GIX_BASE_PATH_X64>
-			<GIX_BASE_PATH_X86>D:\gixsql-x64-pkg</GIX_BASE_PATH_X86>-->
+			<GIXSQL_INSTALL_BASE>D:\gix-ide-x64</GIXSQL_INSTALL_BASE>
 			
 			<GIX_BASE_PATH_X64>D:\gix-ide-x64</GIX_BASE_PATH_X64>
 			<GIX_BASE_PATH_X86>D:\gix-ide-x86</GIX_BASE_PATH_X86>			
@@ -83,58 +81,6 @@
 			<ODBC_3_USR>test</ODBC_3_USR>
 			<ODBC_3_PWD>test</ODBC_3_PWD>
 			<ODBC_3_OPTS></ODBC_3_OPTS>
-
-
-
-			<!--<MYSQL_DATASRC_1>mysql://192.168.1.171/testdb</MYSQL_DATASRC_1>
-      <MYSQL_USR_1>test</MYSQL_USR_1>
-      <MYSQL_PWD_1>test</MYSQL_PWD_1>
-      <MYSQL_OPTS_1></MYSQL_OPTS_1>
-
-      <MYSQL_DATASRC_2>mysql://test.test@192.168.1.171/testdb</MYSQL_DATASRC_2>
-      <MYSQL_USR_2></MYSQL_USR_2>
-      <MYSQL_PWD_2></MYSQL_PWD_2>
-      <MYSQL_OPTS_2></MYSQL_OPTS_2>
-
-      <MYSQL_DATASRC_3>mysql://test.test@192.168.1.171:3306/testdb</MYSQL_DATASRC_3>
-      <MYSQL_USR_3></MYSQL_USR_3>
-      <MYSQL_PWD_3></MYSQL_PWD_3>
-      <MYSQL_OPTS_3></MYSQL_OPTS_3>
-
-      <MYSQL_DATASRC_4>mysql://192.168.1.171:3306/testdb</MYSQL_DATASRC_4>
-      <MYSQL_USR_4>test</MYSQL_USR_4>
-      <MYSQL_PWD_4>test</MYSQL_PWD_4>
-      <MYSQL_OPTS_4></MYSQL_OPTS_4>
-
-      <PGSQL_DATASRC_1>pgsql://localhost/testdb</PGSQL_DATASRC_1>
-      <PGSQL_USR_1>test</PGSQL_USR_1>
-      <PGSQL_PWD_1>test</PGSQL_PWD_1>
-      <PGSQL_OPTS_1></PGSQL_OPTS_1>
-
-      <PGSQL_DATASRC_2>pgsql://test.test@localhost/testdb</PGSQL_DATASRC_2>
-      <PGSQL_USR_2></PGSQL_USR_2>
-      <PGSQL_PWD_2></PGSQL_PWD_2>
-      <PGSQL_OPTS_2></PGSQL_OPTS_2>
-
-      <PGSQL_DATASRC_3>pgsql://test.test@localhost:5432/testdb</PGSQL_DATASRC_3>
-      <PGSQL_USR_3></PGSQL_USR_3>
-      <PGSQL_PWD_3></PGSQL_PWD_3>
-      <PGSQL_OPTS_3></PGSQL_OPTS_3>
-
-      <PGSQL_DATASRC_4>pgsql://localhost:5432/testdb</PGSQL_DATASRC_4>
-      <PGSQL_USR_4>test</PGSQL_USR_4>
-      <PGSQL_PWD_4>test</PGSQL_PWD_4>
-      <PGSQL_OPTS_4></PGSQL_OPTS_4>
-
-      <ODBC_DATASRC_1>odbc://TESTDB_MYSQL</ODBC_DATASRC_1>
-      <ODBC_USR_1>test</ODBC_USR_1>
-      <ODBC_PWD_1>test</ODBC_PWD_1>
-      <ODBC_OPTS_1></ODBC_OPTS_1>
-
-      <ODBC_DATASRC_2>odbc://TESTDB_PGSQL</ODBC_DATASRC_2>
-      <ODBC_USR_2>test</ODBC_USR_2>
-      <ODBC_PWD_2>test</ODBC_PWD_2>
-      <ODBC_OPTS_2></ODBC_OPTS_2>-->
 
 		</EnvironmentVariables>
 	</RunConfiguration>

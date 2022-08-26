@@ -139,7 +139,7 @@
 
            DISPLAY 'SUM(2) SQLCODE: ' SQLCODE.
            IF SQLCODE <> 0 THEN
-              DISPLAY 'SUM SQLERRMC: ' SQLERRMC
+              DISPLAY 'SUM(2) SQLERRMC: ' SQLERRMC
               GO TO 100-EXIT
            END-IF.
        
@@ -148,8 +148,6 @@
            DISPLAY 'TOT-KEY01(2): [' TOT-KEY01 ']'.
            DISPLAY 'TOT-COL1 (2): [' TOT-COL1 ']'.
            DISPLAY 'TOT-COL2 (2): [' TOT-COL2 ']'.
-
-       EXEC SQL AT :DBS COMMIT END-EXEC.
 
        EXEC SQL CONNECT RESET :DBS END-EXEC.
 

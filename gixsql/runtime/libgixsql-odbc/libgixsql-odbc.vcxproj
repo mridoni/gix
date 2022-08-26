@@ -305,6 +305,9 @@
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\x64-windows\lib\</AdditionalLibraryDirectories>
       <AdditionalDependencies>fmtd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy D:\gix-ide-x64\bin\libgixsql-odbc.dll D:\gix-ide-x64\lib\x64\msvc\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'">
     <ClCompile>

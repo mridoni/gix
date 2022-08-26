@@ -57,6 +57,7 @@ public:
 	void setOpened(bool) override;
 	std::vector<std::string> getParameterValues() override;
 	std::vector<int> getParameterTypes() override;
+	std::vector<int> getParameterLengths() override;
 
 	// For private DbInterfaceData
 	void *getPrivateData() override;

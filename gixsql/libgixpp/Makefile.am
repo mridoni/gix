@@ -8,7 +8,7 @@ libgixpp_a_SOURCES = ESQLCall.cpp  FileData.cpp  GixEsqlLexer.cpp  GixPreProcess
 		location.hh MapFileReader.h MapFileWriter.h TPESQLProcessing.h ../build-tools/grammar-tools/FlexLexer.h \
 		TPSourceConsolidation.h ../libcpputils/libcpputils.h ../libcpputils/CopyResolver.h cobol_var_types.h
 
-libgixpp_a_CXXFLAGS = -std=c++17 -I../libcpputils -I$(top_srcdir)/libcpputils -I$(top_srcdir)/build-tools/grammar-tools
+libgixpp_a_CXXFLAGS = -std=c++17 -I.. -I../libcpputils -I$(top_srcdir)/libcpputils -I$(top_srcdir)/build-tools/grammar-tools
 
 # sources to be build first (we actually want the bison generated headers)
 BUILT_SOURCES = gix_esql_parser.cc

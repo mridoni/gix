@@ -81,14 +81,6 @@
            ACCEPT DATASRC FROM ENVIRONMENT-VALUE.
            DISPLAY "DATASRC_USR" UPON ENVIRONMENT-NAME.
            ACCEPT DBUSR FROM ENVIRONMENT-VALUE.
-           DISPLAY "DATASRC_PWD" UPON ENVIRONMENT-NAME.
-           ACCEPT DBPWD FROM ENVIRONMENT-VALUE.
-           
-           DISPLAY '***************************************'.
-           DISPLAY " DATASRC  : " DATASRC.
-           DISPLAY " DB       : " DBUSR.
-           DISPLAY " USER     : " DBPWD.
-           DISPLAY '***************************************'.
 
            EXEC SQL
               CONNECT TO :DATASRC USER :DBUSR
@@ -101,14 +93,15 @@
            END-IF.
        100-MAIN.
 
-           EXEC SQL
-              START TRANSACTION
-	       END-EXEC.                
+      *     EXEC SQL
+      *        START TRANSACTION
+      *     END-EXEC.                
 
       *  open cursor
            EXEC SQL
                OPEN EMPTBL
            END-EXEC 
+
            MOVE SQLCODE TO DISP-CODE
            DISPLAY 'open code:' DISP-CODE.
            DISPLAY 'open msg :' SQLERRMC.
@@ -134,7 +127,6 @@
            MOVE PAYRATE TO DISP-RATE
            MOVE COM TO DISP-COM
            DISPLAY 'employee #: [' ENO ']'
-           
            DISPLAY 'last name : [' LNAME ']'
            DISPLAY 'first name: [' FNAME ']'
            DISPLAY 'street    : [' STREET ']'
@@ -177,6 +169,49 @@
                CLOSE EMPTBL 
            END-EXEC. 
        
+      * we try a single open + fetch + close to see if the cursor
+      * is still available for opening after being closed
+
+      *  open cursor
+           EXEC SQL
+               OPEN EMPTBL
+           END-EXEC 
+
+           DISPLAY 'reopen code:' SQLCODE.
+           DISPLAY 'reopen msg :' SQLERRMC(1:SQLERRML)
+       
+      *  fetch a data item 
+           EXEC SQL
+               FETCH EMPTBL INTO 
+                 :ENO,:LNAME,:FNAME,:STREET,:CITY, 
+                 :ST,:ZIP,:DEPT,:PAYRATE, 
+                 :COM,:MISCDATA,:DNUM1,:DNUM2,:DNUM3
+           END-EXEC. 
+           DISPLAY 'refetch ' SQLCODE 
+           DISPLAY 'refetch ' SQLERRMC(1:SQLERRML)
+
+           DISPLAY '(reopen) employee #: [' ENO ']'
+           DISPLAY '(reopen) last name : [' LNAME ']'
+           DISPLAY '(reopen) first name: [' FNAME ']'
+           DISPLAY '(reopen) street    : [' STREET ']'
+           DISPLAY '(reopen) city      : [' CITY ']'
+           DISPLAY '(reopen) state     : [' ST ']'
+           DISPLAY '(reopen) zip code  : [' ZIP ']'
+           DISPLAY '(reopen) department: [' DEPT ']'
+           DISPLAY '(reopen) payrate   : [' PAYRATE ']'
+           DISPLAY '(reopen) commission: [' COM ']'
+           DISPLAY '(reopen) misc      : [' MISCDATA-TEXT ']'
+           DISPLAY '(reopen) misc (len): [' MISCDATA-LEN ']'
+           DISPLAY '(reopen) dnum1     : [' DNUM1 ']'
+           DISPLAY '(reopen) dnum2     : [' DNUM2 ']'
+           DISPLAY '(reopen) dnum3     : [' DNUM3 ']'
+
+      *  close the cursor 
+           EXEC SQL 
+               CLOSE EMPTBL 
+           END-EXEC. 
+           DISPLAY 'reclose ' SQLCODE 
+           DISPLAY 'reclose ' SQLERRMC(1:SQLERRML)
        EXEC SQL CONNECT RESET END-EXEC.
 
        100-EXIT. 

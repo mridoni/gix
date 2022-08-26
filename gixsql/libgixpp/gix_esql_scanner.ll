@@ -615,14 +615,26 @@ LOW_VALUE "LOW\-VALUE"
 
 	"IDENTIFIED"[ \r\n]+"BY" { return yy::gix_esql_parser::make_IDENTIFIED_BY(loc); }
 
-	"END-EXEC" {
+	"END-EXEC"[ \r\n]*"." {
 		flag_insqlstring = 0;
 		flag_selectcommand = 0;
 		driver.endlineno = yylineno;
+		driver.period = 1;
 		__yy_pop_state();	// Not an error, we pop twice
 		__yy_pop_state();
 		return yy::gix_esql_parser::make_END_EXEC(loc);
 	}
+
+	"END-EXEC" {
+		flag_insqlstring = 0;
+		flag_selectcommand = 0;
+		driver.endlineno = yylineno;
+		driver.period = 0;
+		__yy_pop_state();	// Not an error, we pop twice
+		__yy_pop_state();
+		return yy::gix_esql_parser::make_END_EXEC(loc);
+	}
+
 	
 	{HOSTWORD} { 
 		return yy::gix_esql_parser::make_HOSTTOKEN(yytext, loc);

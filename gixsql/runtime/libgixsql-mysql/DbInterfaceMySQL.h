@@ -44,30 +44,24 @@ extern "C" {
 
 using namespace std;
 
-class MySQLResultsetData
+struct MySQLStatementData
 {
-public:
-	MySQLResultsetData();
-	~MySQLResultsetData();
 
+	MySQLStatementData();
+	~MySQLStatementData();
 
+	void resizeParams(int n);
+	int resizeColumnData();
+
+	int column_count = 0;
 	vector<char*> data_buffers;
 	vector<int> data_buffer_lengths;
 	vector<unsigned long *> data_lengths;
 
-	bool setup_buffers();
-	bool clear();
-
-	int getColumnCount();
-	void setResultsetHandle(MYSQL_STMT* m);
-	MYSQL_STMT *getResultsetHandle();
-	bool hasValidHandle();
+	MYSQL_STMT* statement = nullptr;
 
 private:
-
-	MYSQL_STMT* _mysql_stmt = nullptr;
-
-	void clear_buffers();
+	void cleanup();
 
 };
 
@@ -79,20 +73,20 @@ public:
 	~DbInterfaceMySQL();
 
 	virtual int init(const std::shared_ptr<spdlog::logger>& _logger) override;
-	virtual int connect(IDataSourceInfo *, int, string) override;
+	virtual int connect(IDataSourceInfo *, IConnectionOptions* opts) override;
 	virtual int reset() override;
 	virtual int terminate_connection() override;
 	virtual int begin_transaction() override;
 	virtual int end_transaction(string) override;
 	virtual int exec(string) override;
-	virtual int exec_params(std::string query, int nParams, int *paramTypes, vector<string> &paramValues, int *paramLengths, int *paramFormats) override;
+	virtual int exec_params(std::string query, int nParams, const std::vector<int>& paramTypes, const std::vector<std::string>& paramValues, const std::vector<int>& paramLengths, const std::vector<int>& paramFormats) override;
 	virtual int close_cursor(ICursor *) override;
 	virtual int cursor_declare(ICursor *, bool, int) override;
 	virtual int cursor_declare_with_params(ICursor *, char **, bool, int) override;
 	virtual int cursor_open(ICursor *) override;
 	virtual int fetch_one(ICursor *, int) override;
-	virtual bool get_resultset_value(ICursor*, int, int, char* bfr, int bfrlen, int *value_len) override;
-	virtual int move_to_first_record() override;
+	virtual bool get_resultset_value(ResultSetContextType resultset_context_type, void* context, int row, int col, char* bfr, int bfrlen, int* value_len) override;
+	virtual bool move_to_first_record(std::string stmt_name = "") override;
 	virtual int supports_num_rows() override;
 	virtual int get_num_rows(ICursor* crsr) override;
 	virtual int get_num_fields(ICursor* crsr) override;
@@ -110,23 +104,27 @@ public:
 	virtual bool getIndexes(string schema, string tabl, vector<IndexInfo*> &idxs) override;
 
 private:
-	MYSQL *connaddr;
+	MYSQL *connaddr = nullptr;
 	
-	MySQLResultsetData current_resultset;
+	MySQLStatementData *current_statement_data = nullptr;
 
-	IConnection *owner;
+	IConnection *owner = nullptr;
 
 	int last_rc;
 	string last_error;
 	string last_state;
 
-	map<string, ICursor*> _declared_cursors;
+	int mysqlRetrieveError(int rc);
+	void mysqlClearError();
+	void mysqlSetError(int err_code, std::string sqlstate, std::string err_msg);
 
-	int _mysql_exec_params(ICursor*, const string, int, int*, vector<string>&, int*, int*);
-	int _mysql_exec(ICursor*, const string);
+	std::map<std::string, ICursor*> _declared_cursors;
+	std::map<std::string, MySQLStatementData*> _prepared_stmts;
 
-	const char * retrieve_mysql_error_message(MYSQL_STMT* stmt = NULL);
-	int retrieve_mysql_error_code(MYSQL_STMT* stmt = NULL);
+	int _mysql_exec_params(ICursor*, std::string query, int nParams, const std::vector<int>& paramTypes, const std::vector<std::string>& paramValues, const std::vector<int>& paramLengths, const std::vector<int>& paramFormats, MySQLStatementData* prep_stmt_data = nullptr);
+	int _mysql_exec(ICursor*, const string, MySQLStatementData* prep_stmt_data = nullptr);
 
+	bool is_cursor_from_prepared_statement(ICursor* cursor);
+	bool retrieve_prepared_statement(const std::string& prep_stmt_name, MySQLStatementData** prepared_stmt_data);
 };
 

@@ -288,9 +288,7 @@ Global
 		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Release|Win32.ActiveCfg = Release|Any CPU
-		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Release|Win32.Build.0 = Release|Any CPU
 		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Release|x64.ActiveCfg = Release|Any CPU
-		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Release|x64.Build.0 = Release|Any CPU
 		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Test_Debug|Any CPU.ActiveCfg = Test_Debug|Any CPU
 		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Test_Debug|Any CPU.Build.0 = Test_Debug|Any CPU
 		{FE2EB43D-8CCA-4F02-9AB9-E70AD52385FE}.Test_Debug|Win32.ActiveCfg = Test_Debug|Any CPU
@@ -389,9 +387,7 @@ Global
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Win32.ActiveCfg = Release|Any CPU
-		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|Win32.Build.0 = Release|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|x64.ActiveCfg = Release|Any CPU
-		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Release|x64.Build.0 = Release|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Debug|Win32.ActiveCfg = Debug|Any CPU
@@ -604,7 +600,7 @@ Global
 		{C9ED4948-CA5B-4E8A-A4A8-EF54C13B19EA} = {F776960F-269A-4987-BE98-4EA1279F79D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 		Qt5Version = Qt_5.14_msvc64
+		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 	EndGlobalSection
 EndGlobal

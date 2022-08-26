@@ -42,11 +42,11 @@
          DISPLAY "DATASRC_PWD" UPON ENVIRONMENT-NAME.
          ACCEPT DBPWD FROM ENVIRONMENT-VALUE.
          
-      *   DISPLAY '***************************************'.
-      *   DISPLAY " DATASRC  : " DATASRC.
-      *   DISPLAY " DB       : " DBUSR.
-      *   DISPLAY " USER     : " DBPWD.
-      *   DISPLAY '***************************************'.
+         DISPLAY '***************************************'.
+         DISPLAY " DATASRC  : " DATASRC.
+         DISPLAY " DB       : " DBUSR.
+         DISPLAY " USER     : " DBPWD.
+         DISPLAY '***************************************'.
 
            EXEC SQL
               CONNECT TO :DATASRC USER :DBUSR USING :DBPWD
@@ -60,9 +60,9 @@
 
        100-MAIN.
 
-           EXEC SQL
-              START TRANSACTION
-           END-EXEC.                                                    
+      *     EXEC SQL
+      *        START TRANSACTION
+      *     END-EXEC.                                                    
 
            EXEC SQL
                SELECT COUNT(*) INTO :T1 FROM EMPTABLE

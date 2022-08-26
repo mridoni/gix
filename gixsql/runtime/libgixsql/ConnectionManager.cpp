@@ -26,6 +26,7 @@
 
 #include "ConnectionManager.h"
 #include "DbInterfaceFactory.h"
+#include "utils.h"
 
 #define GIXSQL_DEFAULT_CONN_PREFIX "DEFAULT"
 
@@ -52,6 +53,8 @@ Connection *ConnectionManager::create()
 
 Connection *ConnectionManager::get(std::string name)
 {
+	trim(name);
+
 	if (name.empty())
 		return default_connection;
 

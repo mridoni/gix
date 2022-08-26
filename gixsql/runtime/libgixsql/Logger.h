@@ -28,6 +28,6 @@
 
 #define FMT_FILE_FUNC				"{}>{}: "
 #define DEFAULT_GIXSQL_LOG_FILE		"gixsql.log"
-#define DEFAULT_GIXSQL_LOG_LEVEL	spdlog::level::off
+#define DEFAULT_GIXSQL_LOG_LEVEL	spdlog::level::err
 
 extern std::shared_ptr<spdlog::logger> gixsql_logger;

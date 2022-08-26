@@ -33,6 +33,10 @@
            01 OID         PIC 9(8) VALUE 0.  
            01 LEN         PIC 9(8) VALUE 0.  
            01 RES         PIC 9(8) VALUE 0.  
+
+           01 VAR-L       PIC 9(8) VALUE 0.       
+           01 VAR-I       PIC 9(8) VALUE 0.       
+           01 VAR-ROWID   PIC 9(8) VALUE 0.       
        
        EXEC SQL 
             INCLUDE SQLCA 
@@ -60,10 +64,6 @@
 
        100-MAIN.
 
-           EXEC SQL
-              START TRANSACTION
-           END-EXEC.                                                    
-
            MOVE 4 TO T1.
 
            EXEC SQL AT :DBS
@@ -73,17 +73,6 @@
                 HISTID = (SELECT MAX(HISTID) FROM TAB_A WHERE
                            REFNR         = :T1)
            END-EXEC.
-
-      *     EXEC SQL
-      *        SELECT LEN INTO :LEN FROM TAB WHERE OID=:OID
-      *     END-EXEC.
-      * 
-      *     EXEC SQL
-      *         SELECT lo_close (:DESCRIPTOR) INTO :RES
-      *             FROM TAB
-      *                WHERE OID=:OID
-      *     END-EXEC.
-
 
            DISPLAY 'SELECT SQLCODE: ' SQLCODE.
            IF SQLCODE <> 0 THEN

@@ -7,7 +7,6 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Xml;
 using System.Reflection;
 using System.Diagnostics;
 using CliWrap;
@@ -18,104 +17,8 @@ using Npgsql;
 using MySql.Data.MySqlClient;
 using System.Data.Odbc;
 
-namespace gix_ide_tests
+namespace gixsql_tests
 {
-    public enum CompilerType
-    {
-        MSVC,
-        MinGW
-    }
-
-    internal class CompilerConfig
-    {
-        public string compiler_id { get; private set; }
-
-        public string gix_data_dir { get; private set; }
-        public string gix_bin_path { get; private set; }
-        public string gix_lib_path { get; private set; }
-        public string gix_copy_path { get; private set; }
-
-        public string cobc_homedir { get; private set; }
-        public string cobc_bin_dir_path { get; private set; }
-        public string cobc_lib_dir_path { get; private set; }
-        public string cobc_config_dir_path { get; private set; }
-
-        public string link_lib_dir_path { get; private set; }
-        public string link_lib_name { get; private set; }
-        public string link_lib_lname { get; private set; }
-
-        public string gixpp_exe { get; private set; }
-        public string cobc_exe { get; private set; }
-        public string cobcrun_exe { get; private set; }
-
-        public static CompilerConfig init(CompilerType ctype, string configuration, string platform, string build_type)
-        {
-            CompilerConfig cc = new CompilerConfig();
-
-            string gix_base_path = Environment.GetEnvironmentVariable($"GIX_BASE_PATH_{platform}");
-
-            if (ctype == CompilerType.MSVC)
-            {
-                cc.compiler_id = Environment.GetEnvironmentVariable("VC_COMPILER_ID");
-            }
-            else
-            {
-                cc.compiler_id = platform.ToLower() == "x86" ? Environment.GetEnvironmentVariable("MINGW_COMPILER_X86_ID") : Environment.GetEnvironmentVariable("MINGW_COMPILER_X64_ID");
-            }
-
-            string local_app_data = Environment.GetEnvironmentVariable("LOCALAPPDATA");
-            cc.gix_data_dir = Path.Combine(local_app_data, "Gix");
-
-            string cdef_file = Path.Combine(cc.gix_data_dir, "compiler-defs", cc.compiler_id + ".def");
-            Assert.IsTrue(File.Exists(cdef_file));
-
-            XmlDocument xdef = new XmlDocument();
-            Assert.IsNotNull(xdef);
-            xdef.Load(cdef_file);
-
-            XmlElement xh = (XmlElement)xdef.SelectSingleNode($"//homedir");
-            Assert.IsNotNull(xh);
-            cc.cobc_homedir = xh.InnerText;
-
-            XmlElement xp = (XmlElement)xdef.SelectSingleNode($"//platform[@id=\"{platform}\"]");
-            Assert.IsNotNull(xp);
-
-            cc.cobc_bin_dir_path = xp.SelectSingleNode("bin_dir_path")?.InnerText;
-            cc.cobc_bin_dir_path = cc.cobc_bin_dir_path.Replace("${homedir}", cc.cobc_homedir).Replace("${gixdata}", cc.gix_data_dir);
-            Assert.IsTrue(Directory.Exists(cc.cobc_bin_dir_path));
-
-            cc.cobc_lib_dir_path = xp.SelectSingleNode("lib_dir_path")?.InnerText;
-            cc.cobc_lib_dir_path = cc.cobc_lib_dir_path.Replace("${homedir}", cc.cobc_homedir).Replace("${gixdata}", cc.gix_data_dir);
-            Assert.IsTrue(Directory.Exists(cc.cobc_lib_dir_path));
-
-            cc.cobc_config_dir_path = xp.SelectSingleNode("config_dir_path")?.InnerText;
-            cc.cobc_config_dir_path = cc.cobc_config_dir_path.Replace("${homedir}", cc.cobc_homedir).Replace("${gixdata}", cc.gix_data_dir);
-            Assert.IsTrue(Directory.Exists(cc.cobc_config_dir_path));
-
-            cc.gix_copy_path = Path.Combine(gix_base_path, "lib", "copy");
-            Assert.IsTrue(Directory.Exists(cc.gix_copy_path));
-            Assert.IsTrue(File.Exists(Path.Combine(cc.gix_copy_path, "SQLCA.cpy")));
-
-            cc.gix_bin_path = Path.Combine(gix_base_path, "bin");
-            cc.gix_lib_path = Path.Combine(gix_base_path, "lib");
-            cc.link_lib_dir_path = Path.Combine(cc.gix_lib_path, platform, (ctype == CompilerType.MSVC ? "msvc" : "gcc"));
-            cc.link_lib_name = ctype == CompilerType.MSVC ? "libgixsql.lib" : "libgixsql.a";
-            Assert.IsTrue(File.Exists(Path.Combine(cc.link_lib_dir_path, cc.link_lib_name)));
-
-            cc.gixpp_exe = Path.Combine(cc.gix_bin_path, "gixpp.exe");
-            Assert.IsTrue(File.Exists(cc.gixpp_exe));
-
-            cc.cobc_exe = Path.Combine(cc.cobc_bin_dir_path, "cobc.exe");
-            Assert.IsTrue(File.Exists(cc.cobc_exe));
-
-            cc.cobcrun_exe = Path.Combine(cc.cobc_bin_dir_path, "cobcrun.exe");
-            Assert.IsTrue(File.Exists(cc.cobcrun_exe));
-
-            cc.link_lib_lname = ctype == CompilerType.MSVC ? "libgixsql" : "gixsql";
-
-            return cc;
-        }
-    }
 
     public class GixSqlTestBase
     {
@@ -135,7 +38,7 @@ namespace gix_ide_tests
 
         protected bool flat_layout = false;
 
-        protected string module_src;
+        protected List<string> module_srcs = new List<string>();
         protected List<string> dependencies = new List<string>();
 
         protected string LastPreprocessedFile { get { return last_preprocessed_file; } }
@@ -143,6 +46,7 @@ namespace gix_ide_tests
         
         protected string LastOutputText { get { return last_output_text; } }
         protected string LastErrorText { get { return last_error_text; } }
+        protected double LastExecutionTime { get { return execution_time; } }
 
 
         private string last_preprocessed_file;
@@ -151,7 +55,7 @@ namespace gix_ide_tests
         private string last_error_text;
         private string last_output_text;
 
-
+        private double execution_time;
 
         private List<Tuple<string, int>> data_sources = new List<Tuple<string, int>>();
 
@@ -187,18 +91,20 @@ namespace gix_ide_tests
             MethodInfo methodInfo = GetType().GetMethod(TestContext.TestName);
             attrs = System.Attribute.GetCustomAttributes(methodInfo);
             attrs = attrs.Where(a => a is CobolSourceAttribute).ToArray();
-            if (attrs.Length != 1)
-                Assert.Fail("Invalid test attributes (CobolSource)");
 
-            var ca = (CobolSourceAttribute)attrs[0];
-            Utils.SaveResource(ca.Module, Path.Combine(TestTempDir, ca.Module));
-            module_src = Path.Combine(TestTempDir, ca.Module);
-            if (ca.Dependencies != null)
+            for (int i = 0; i < attrs.Length; i++)
             {
-                foreach (string d in ca.Dependencies)
+                var ca = (CobolSourceAttribute)attrs[i];
+                Utils.SaveResource(ca.Module, Path.Combine(TestTempDir, ca.Module));
+                string m = Path.Combine(TestTempDir, ca.Module);
+                module_srcs.Add(m);
+                if (ca.Dependencies != null)
                 {
-                    Utils.SaveResource(d, Path.Combine(TestTempDir, d));
-                    dependencies.Add(Path.Combine(TestTempDir, d));
+                    foreach (string d in ca.Dependencies)
+                    {
+                        Utils.SaveResource(d, Path.Combine(TestTempDir, d));
+                        dependencies.Add(Path.Combine(TestTempDir, d));
+                    }
                 }
             }
 
@@ -218,8 +124,8 @@ namespace gix_ide_tests
             if (File.Exists(log_path))
                 File.Delete(log_path);
 
-            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG_LEVEL", "trace");
-            Environment.SetEnvironmentVariable("GIXSQL_DEBUG_LOG_FILE", log_path);
+            Environment.SetEnvironmentVariable("GIXSQL_LOG_LEVEL", "trace");
+            Environment.SetEnvironmentVariable("GIXSQL_LOG_FILE", log_path);
         }
 
         protected DbConnection GetConnection(int ds_index = 0)
@@ -312,105 +218,108 @@ namespace gix_ide_tests
 
             try
             {
-                Assert.IsTrue(File.Exists(module_src));
-
-                cwd = Environment.CurrentDirectory;
-                Environment.CurrentDirectory = Path.GetDirectoryName(module_src);
-                string msrc = Path.GetFileName(module_src);
-
-                string pp_file = msrc.Replace(".cbl", ".cbsql");
-
-                CompilerConfig cc = CompilerConfig.init(ctype, configuration, platform, build_type);
-
-                // Preprocess
-                string gixpp_args = $"-e -v -S -I. -I{cc.gix_copy_path} -i {msrc} -o {pp_file}";
-                if (additional_pp_params != "")
-                    gixpp_args += (" " + additional_pp_params);
-
-                Console.WriteLine($"[gixpp]: {cc.gixpp_exe} {gixpp_args}");
-
-                var r1 = Task.Run(async () =>
+                foreach (string module_src in module_srcs)
                 {
-                    return await Cli.Wrap(cc.gixpp_exe)
-                         .WithArguments(gixpp_args)
-                         //.WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer, System.Text.Encoding.ASCII))
-                         //.WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer, System.Text.Encoding.ASCII))
-                         //.WithEnvironmentVariables(env)
-                         .WithValidation(CommandResultValidation.None)
-                         .ExecuteBufferedAsync();
+                    Assert.IsTrue(File.Exists(module_src));
 
-                });
+                    cwd = Environment.CurrentDirectory;
+                    Environment.CurrentDirectory = Path.GetDirectoryName(module_src);
+                    string msrc = Path.GetFileName(module_src);
 
-                Console.WriteLine(r1.Result.StandardOutput);
-                Console.WriteLine(r1.Result.StandardError);
-                Console.Out.Flush();
+                    string pp_file = msrc.Replace(".cbl", ".cbsql");
 
-                if (!expected_to_fail_pp)
-                {
-                    Assert.IsTrue(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
-                    Assert.IsTrue(File.Exists(pp_file));
-                    Assert.IsTrue((new FileInfo(pp_file)).Length > 0);
+                    CompilerConfig cc = CompilerConfig.init(ctype, configuration, platform, build_type);
+
+                    // Preprocess
+                    string gixpp_args = $"-e -v -S -I. -I{cc.gix_copy_path} -i {msrc} -o {pp_file}";
+                    if (additional_pp_params != "")
+                        gixpp_args += (" " + additional_pp_params);
+
+                    Console.WriteLine($"[gixpp]: {cc.gixpp_exe} {gixpp_args}");
+
+                    var r1 = Task.Run(async () =>
+                    {
+                        return await Cli.Wrap(cc.gixpp_exe)
+                             .WithArguments(gixpp_args)
+                             //.WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer, System.Text.Encoding.ASCII))
+                             //.WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer, System.Text.Encoding.ASCII))
+                             //.WithEnvironmentVariables(env)
+                             .WithValidation(CommandResultValidation.None)
+                             .ExecuteBufferedAsync();
+
+                    });
+
+                    Console.WriteLine(r1.Result.StandardOutput);
+                    Console.WriteLine(r1.Result.StandardError);
+                    Console.Out.Flush();
+
+                    if (!expected_to_fail_pp)
+                    {
+                        Assert.IsTrue(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
+                        Assert.IsTrue(File.Exists(pp_file));
+                        Assert.IsTrue((new FileInfo(pp_file)).Length > 0);
+                    }
+                    else
+                    {
+                        Assert.IsFalse(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
+                        Console.WriteLine("Preprocessing failed (it was expected)");
+                        return;
+                    }
+
+                    last_preprocessed_file = Path.Combine(Path.GetDirectoryName(module_src), pp_file);
+
+                    // Compile
+
+                    if (ctype == CompilerType.MSVC)
+                    {
+                        compiler_init_cmd = $@"{cc.cobc_bin_dir_path}\..\set_env_vs_{platform}.cmd";
+                    }
+                    Assert.IsTrue(File.Exists(cc.cobc_exe));
+
+                    Console.WriteLine($"[cobc]: {cc.cobc_exe}");
+
+                    string outfile = msrc.Replace(".cbl", "." + build_type);
+
+                    string opt_exe = build_type == "exe" ? "-x" : "";
+
+                    var r2 = Task.Run(async () =>
+                    {
+                        string cobc_args = $"/C \"{compiler_init_cmd} && {cc.cobc_exe} {opt_exe} -I. -I{cc.gix_copy_path} {pp_file} -l{cc.link_lib_lname} -L{cc.link_lib_dir_path}";
+                        if (additional_cobc_params != "")
+                            cobc_args += (" " + additional_cobc_params);
+
+                        return await Cli.Wrap("cmd.exe")
+                           .WithArguments(cobc_args)
+                           //.WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer))
+                           //.WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer))
+                           .WithEnvironmentVariables(new Dictionary<string, string>
+                           {
+                               ["COB_CONFIG_DIR"] = cc.cobc_config_dir_path,
+                               ["PATH"] = Environment.GetEnvironmentVariable("PATH") + $";{cc.cobc_bin_dir_path}"
+                           })
+                           .WithValidation(CommandResultValidation.None)
+                           .ExecuteBufferedAsync();
+                    });
+
+                    Console.WriteLine(r2.Result.StandardOutput);
+                    Console.WriteLine(r2.Result.StandardError);
+
+                    if (!expected_to_fail_cobc)
+                    {
+                        Assert.IsTrue(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
+                        Assert.IsTrue(File.Exists(outfile));
+                        FileInfo fi = new FileInfo(outfile);
+                        Assert.IsTrue(fi.Length > 0);
+                        Console.WriteLine($"Output: {fi.FullName} ({fi.Length} bytes)");
+                    }
+                    else
+                    {
+                        Assert.IsFalse(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
+                        Console.WriteLine("COBOL compilation failed (it was expected)");
+                    }
+
+                    last_compiled_file = outfile;
                 }
-                else
-                {
-                    Assert.IsFalse(r1.Result.ExitCode == 0, $"Exit code : {r1.Result.ExitCode:x}");
-                    Console.WriteLine("Preprocessing failed (it was expected)");
-                    return;
-                }
-
-                last_preprocessed_file = Path.Combine(Path.GetDirectoryName(module_src), pp_file);
-
-                // Compile
-
-                if (ctype == CompilerType.MSVC)
-                {
-                    compiler_init_cmd = $@"{cc.cobc_bin_dir_path}\..\set_env_vs_{platform}.cmd";
-                }
-                Assert.IsTrue(File.Exists(cc.cobc_exe));
-
-                Console.WriteLine($"[cobc]: {cc.cobc_exe}");
-
-                string outfile = msrc.Replace(".cbl", "." + build_type);
-
-                string opt_exe = build_type == "exe" ? "-x" : "";
-
-                var r2 = Task.Run(async () =>
-                {
-                    string cobc_args = $"/C \"{compiler_init_cmd} && {cc.cobc_exe} {opt_exe} -I. -I{cc.gix_copy_path} {pp_file} -l{cc.link_lib_lname} -L{cc.link_lib_dir_path}";
-                    if (additional_cobc_params != "")
-                        cobc_args += (" " + additional_cobc_params);
-
-                    return await Cli.Wrap("cmd.exe")
-                       .WithArguments(cobc_args)
-                       //.WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer))
-                       //.WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer))
-                       .WithEnvironmentVariables(new Dictionary<string, string>
-                       {
-                           ["COB_CONFIG_DIR"] = cc.cobc_config_dir_path,
-                           ["PATH"] = Environment.GetEnvironmentVariable("PATH") + $";{cc.cobc_bin_dir_path}"
-                       })
-                       .WithValidation(CommandResultValidation.None)
-                       .ExecuteBufferedAsync();
-                });
-
-                Console.WriteLine(r2.Result.StandardOutput);
-                Console.WriteLine(r2.Result.StandardError);
-
-                if (!expected_to_fail_cobc)
-                {
-                    Assert.IsTrue(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
-                    Assert.IsTrue(File.Exists(outfile));
-                    FileInfo fi = new FileInfo(outfile);
-                    Assert.IsTrue(fi.Length > 0);
-                    Console.WriteLine($"Output: {fi.FullName} ({fi.Length} bytes)");
-                }
-                else
-                {
-                    Assert.IsFalse(r2.Result.ExitCode == 0, $"Exit code : {r2.Result.ExitCode}");
-                    Console.WriteLine("COBOL compilation failed (it was expected)");
-                }
-
-                last_compiled_file = outfile;
             }
             finally
             {
@@ -421,9 +330,30 @@ namespace gix_ide_tests
         protected void run(CompilerType ctype, string configuration, string platform, string build_type,
                             string expected_md5_output_hash = "", bool useregex = false, string[] check_output_contains = null, int wait_runtime = 3000)
         {
+            run1(ctype, configuration, platform, build_type, expected_md5_output_hash, useregex, check_output_contains, wait_runtime);
+        }
+
+        protected void run1(CompilerType ctype, string configuration, string platform, string build_type,
+                            string expected_md5_output_hash = "", bool useregex = false, string[] check_output_contains = null, int wait_runtime = 3000)
+        {
+            run(0, ctype, configuration, platform, build_type, expected_md5_output_hash, useregex, check_output_contains, wait_runtime);
+        }
+
+        protected void run2(CompilerType ctype, string configuration, string platform, string build_type,
+                            string expected_md5_output_hash = "", bool useregex = false, string[] check_output_contains = null, int wait_runtime = 3000)
+        {
+            run(1, ctype, configuration, platform, build_type, expected_md5_output_hash, useregex, check_output_contains, wait_runtime);
+        }
+
+        private void run(int module_idx, CompilerType ctype, string configuration, string platform, string build_type,
+                            string expected_md5_output_hash = "", bool useregex = false, string[] check_output_contains = null, int wait_runtime = 3000)
+        {
             string cwd = ".";
             try
             {
+                Assert.IsTrue(module_idx < module_srcs.Count);
+                string module_src = module_srcs[module_idx];
+
                 cwd = Environment.CurrentDirectory;
                 Environment.CurrentDirectory = Path.GetDirectoryName(module_src);
                 string module_filename = Path.GetFileName(module_src);
@@ -453,6 +383,8 @@ namespace gix_ide_tests
 
                 Console.WriteLine($"Running {exe} {args}");
 
+                DateTime t1 = DateTime.Now;
+                
                 var res = Task.Run(async () =>
                 {
                     return await Cli.Wrap(exe)
@@ -462,11 +394,13 @@ namespace gix_ide_tests
                         .WithEnvironmentVariables(env)
                         .WithValidation(CommandResultValidation.None)
                         .ExecuteBufferedAsync();
-
                 });
 
                 Console.WriteLine(res.Result.StandardOutput);
                 Console.WriteLine(res.Result.StandardError);
+
+                DateTime t2 = DateTime.Now;
+                execution_time = (t2 - t1).TotalMilliseconds;
 
                 last_error_text = res.Result.StandardError;
                 last_output_text = res.Result.StandardOutput;
@@ -479,7 +413,7 @@ namespace gix_ide_tests
 
                 if (!String.IsNullOrWhiteSpace(expected_md5_output_hash))
                 {
-                    string out_md5 = CreateMD5(File.ReadAllBytes(res.Result.StandardOutput));
+                    string out_md5 = Utils.CreateMD5(File.ReadAllBytes(res.Result.StandardOutput));
                     Assert.AreEqual(expected_md5_output_hash, out_md5, $"Expected: {expected_md5_output_hash}, actual: {out_md5}");
                     b1 = true;
                 }
@@ -560,22 +494,6 @@ namespace gix_ide_tests
 
         }
 
-        public static string CreateMD5(byte[] inputBytes)
-        {
-            // Use input string to calculate MD5 hash
-            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
-            {
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-                // Convert the byte array to hexadecimal string
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
 
         protected string build_data_source_string(bool embed_auth, bool use_port, bool use_opts, int ds_index = 0)
         {

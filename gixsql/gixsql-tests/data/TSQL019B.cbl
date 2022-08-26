@@ -60,15 +60,6 @@
            END-IF.
 
        100-MAIN.
-
-           EXEC SQL START TRANSACTION END-EXEC.
-           DISPLAY 'START TRANSACTION SQLCODE: ' SQLCODE.
-           IF SQLCODE <> 0 THEN
-              GO TO 100-EXIT
-           END-IF.
-       
-
-          EXEC SQL TRUNCATE TABLE TAB_A END-EXEC.
       
            MOVE 1 TO REC-ID.
            MOVE -42.74 TO TORNW-1.

@@ -62,6 +62,7 @@ public:
 	variant_map& getOpts() const;
 	variant getOpt(std::string id, bool b);
 	variant getOpt(std::string id, std::string s);
+	variant getOpt(std::string id, int i);
 	void setOpt(std::string id, variant v);
 
 private:

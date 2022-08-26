@@ -48,9 +48,10 @@
 #define COB_BSWAP_64(val) (_byteswap_uint64 (val))
 #endif
 
-#define CBL_FIELD_FLAG_NONE	0x0
-#define CBL_FIELD_FLAG_VARLEN	0x80
-#define CBL_FIELD_FLAG_BINARY	0x100
+#define CBL_FIELD_FLAG_NONE		(uint32_t)0x0
+#define CBL_FIELD_FLAG_VARLEN	(uint32_t)0x80
+#define CBL_FIELD_FLAG_BINARY	(uint32_t)0x100
+#define CBL_FIELD_FLAG_AUTOTRIM	(uint32_t)0x200
 
 #define ASCII_ZERO ((unsigned char)0x30)
 
@@ -58,6 +59,8 @@ const char SqlVar::_decimal_point = [] {
     struct lconv	*lc = localeconv();
     return lc->decimal_point[0];
 }();
+
+char* rtrim(char* const s);
 
 SqlVar::SqlVar(int _type, int _length, int _power, uint32_t _flags, void *_addr)
 {
@@ -67,7 +70,7 @@ SqlVar::SqlVar(int _type, int _length, int _power, uint32_t _flags, void *_addr)
 	addr = _addr;
 	is_variable_length = (_flags & CBL_FIELD_FLAG_VARLEN);
 	is_binary = (_flags & CBL_FIELD_FLAG_BINARY);
-	
+	is_autrotrim = (_flags & CBL_FIELD_FLAG_AUTOTRIM);
 	allocate_realdata_buffer();
 }
 
@@ -120,7 +123,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len, power);
 			}
 
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_TC:
@@ -138,7 +141,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_LS:
@@ -149,7 +152,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_UNSIGNED_NUMBER_PD:
@@ -195,7 +198,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len, power);
 			}
 
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 		case COBOL_TYPE_SIGNED_NUMBER_PD:
@@ -246,7 +249,7 @@ void SqlVar::createRealData()
 				insert_decimal_point(realdata, realdata_len + SIGN_LENGTH, power);
 			}
 
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 		}
 
@@ -257,15 +260,18 @@ void SqlVar::createRealData()
 		{
 			if (!is_variable_length) {
 				memcpy(realdata, (char*)addr, length);
-				spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+				if (is_autrotrim) {
+					realdata = rtrim(realdata);
+					length = strlen(realdata);
+				}
+				spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			}
 			else {
 				void* actual_addr = (char*)addr + VARLEN_LENGTH_SZ;
 				VARLEN_LENGTH_T *len_addr = (VARLEN_LENGTH_T *)addr;
-				//int actual_len = VARLEN_BSWAP(*len_addr);
 				int actual_len = (*len_addr);
 				memcpy(realdata, (char*)actual_addr, actual_len);
-				spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+				spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			}
 		}
 		break;
@@ -307,7 +313,7 @@ void SqlVar::createRealData()
 				}
 			}
 
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 
 		case COBOL_TYPE_SIGNED_BINARY:
@@ -348,14 +354,14 @@ void SqlVar::createRealData()
 				}
 			}
 
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 
 		default:
 			realdata = (char*)calloc(length + TERMINAL_LENGTH, sizeof(char));
 
 			memcpy(realdata, (char*)addr, length);
-			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: {}", __FILE__, __func__, type, length, addr, realdata);
+			spdlog::trace(FMT_FILE_FUNC "type: {}, length: {}, data: {}, realdata: [{}]", __FILE__, __func__, type, length, addr, realdata);
 			break;
 	}
 }
@@ -684,6 +690,16 @@ int SqlVar::getLength()
 	return length;
 }
 
+bool SqlVar::isVarLen()
+{
+	return is_variable_length;
+}
+
+bool SqlVar::isBinary()
+{
+	return is_binary;
+}
+
 void SqlVar::display_to_comp3(const char *data, bool has_sign) // , int total_len, int scale, int has_sign, uint8_t *addr
 {
 	uint8_t *addr = (uint8_t *) this->addr;
@@ -697,34 +713,39 @@ void SqlVar::display_to_comp3(const char *data, bool has_sign) // , int total_le
 	tmp[this->length] = 0;
 
 	int data_intpart_len = 0, data_decpart_len = 0;
-	int *dlen = &data_intpart_len;
+	int dlen = 0;
+	bool data_has_dp = false;
 
-	for (uint8_t *ptr = (uint8_t *)data; *ptr != '\0'; ptr++) {
+	for (uint8_t *ptr = (uint8_t *)(data + (strlen(data) - 1)); ptr >= (uint8_t *)data; ptr--) {
 		if (*ptr == '-' || *ptr == '+')
 			continue;
 
 		if (*ptr == _decimal_point) {
-			dlen = &data_decpart_len;
+			data_decpart_len = dlen;
+			data_has_dp = true;
+			break;
 		}
-		else {
-			(*dlen)++;
-		}
+		dlen++;
 	}
-
-	unsigned int abs_power = abs(this->power);
-	unsigned int disp_intpart_len = this->length - abs_power;
-	unsigned int disp_decpart_len = abs_power;
 
 	data_has_sign = (has_sign && (*data == '-') || (*data == '+'));
 	if (has_sign && *data == '-') {
 		is_negative = true;
 	}
 
+	data_intpart_len = strlen(data) - (data_decpart_len + (data_has_dp ? 1 : 0) + (data_has_sign ? 1 : 0));
+
+	unsigned int abs_power = abs(this->power);
+	unsigned int disp_intpart_len = this->length - abs_power;
+	unsigned int disp_decpart_len = abs_power;
+
 	// check for truncation (integer part)
 	memcpy(tmp + (disp_intpart_len - data_intpart_len), data + (data_has_sign ? 1 : 0), data_intpart_len);
 
-	// check for truncation (decimal part)
-	memcpy(tmp + disp_intpart_len, data + data_intpart_len + DECIMAL_LENGTH + (data_has_sign ? 1 : 0), disp_decpart_len);
+	if (disp_decpart_len > 0 && data_decpart_len > 0) {
+		// check for truncation (decimal part)
+		memcpy(tmp + disp_intpart_len, data + data_intpart_len + DECIMAL_LENGTH + (data_has_sign ? 1 : 0), data_decpart_len);
+	}
 
 	// convert
 	int i; // string index
@@ -845,3 +866,20 @@ char *SqlVar::allocate_realdata_buffer()
 	return realdata;
 }
 
+char* rtrim(char* const s)
+{
+	size_t len;
+	char* cur;
+
+	if (s && *s) {
+		len = strlen(s);
+		cur = s + len - 1;
+
+		while (cur != s && isspace(*cur))
+			--cur, --len;
+
+		cur[isspace(*cur) ? 0 : 1] = '\0';
+	}
+
+	return s;
+}

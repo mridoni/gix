@@ -24,8 +24,9 @@
 #define DB_ODBC  			2
 #define DB_ORACLE 			3
 #define DB_MYSQL			4
-#define DB_MSSQL			5
-#define DB_DB2  			6
+#define DB_MSSQL			5	// Currently unused
+#define DB_DB2  			6	// Currently unused (uses ODBC)
+#define DB_SQLITE  			7
 #define DB_SET_RUNTIME		-1
 
 #include "Logger.h"

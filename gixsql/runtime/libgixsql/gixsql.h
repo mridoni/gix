@@ -104,6 +104,7 @@ static struct sqlca_t sqlca_init =
 #define RESULT_SUCCESS	0
 #define RESULT_FAILED	1
 
+
 //#define GIXSQL_USE_DEFAULT_CONNECTION -999
 
 // autocommit
@@ -111,7 +112,14 @@ static struct sqlca_t sqlca_init =
 #define GIXSQL_AUTOCOMMIT_ON  true
 #define GIXSQL_AUTOCOMMIT_DEFAULT GIXSQL_AUTOCOMMIT_OFF
 
+// fix up parameter markers
+#define GIXSQL_FIXUP_PARAMS_OFF false
+#define GIXSQL_FIXUP_PARAMS_ON  true
+#define GIXSQL_FIXUP_PARAMS_DEFAULT GIXSQL_FIXUP_PARAMS_OFF
+
 #define GIXSQL_CLIENT_ENCODING_DEFAULT ""
+
+#define GIXSQL_DEFAULT_NO_REC_CODE 100
 
 #if defined(_WIN32) || defined(_WIN64)
 #define LIBGIXSQL_API __declspec(dllexport)   

@@ -108,33 +108,59 @@
 
        100-MAIN.       
 
-           EXEC SQL AT :CONN1-ID DROP TABLE IF EXISTS TAB1 END-EXEC.
-           DISPLAY 'CONNECT DROP(1): ' SQLCODE
-
-           EXEC SQL AT :CONN2-ID DROP TABLE IF EXISTS TAB2 END-EXEC.
-           DISPLAY 'CONNECT DROP(2): ' SQLCODE
-
-           EXEC SQL AT :CONN1-ID DROP TABLE IF EXISTS TAB2 END-EXEC.
-           DISPLAY 'CONNECT DROP(3): ' SQLCODE
-
-           EXEC SQL AT :CONN2-ID DROP TABLE IF EXISTS TAB1 END-EXEC.
-           DISPLAY 'CONNECT DROP(4): ' SQLCODE
-
-           EXEC SQL AT :CONN1-ID CREATE TABLE TAB1 (FLD1 INT) END-EXEC.
-           DISPLAY 'CONNECT CREATE(1): ' SQLCODE
+      *     EXEC SQL AT :CONN1-ID DROP TABLE IF EXISTS TAB1 END-EXEC.
+      *     DISPLAY 'CONNECT DROP(1): ' SQLCODE
+      *
+      *     EXEC SQL AT :CONN2-ID DROP TABLE IF EXISTS TAB2 END-EXEC.
+      *     DISPLAY 'CONNECT DROP(2): ' SQLCODE
+      *
+      *     EXEC SQL AT :CONN1-ID DROP TABLE IF EXISTS TAB2 END-EXEC.
+      *     DISPLAY 'CONNECT DROP(3): ' SQLCODE
+      *
+      *     EXEC SQL AT :CONN2-ID DROP TABLE IF EXISTS TAB1 END-EXEC.
+      *     DISPLAY 'CONNECT DROP(4): ' SQLCODE
+      *
+            EXEC SQL AT :CONN1-ID CREATE TABLE TAB1 (FLD1 INT) END-EXEC.
+            DISPLAY 'CONNECT CREATE(1): ' SQLCODE
 
            EXEC SQL AT :CONN2-ID CREATE TABLE TAB2 (FLD2 INT) END-EXEC.
            DISPLAY 'CONNECT CREATE(2): ' SQLCODE
            
-           EXEC SQL AT :CONN1-ID 
-                INSERT INTO TAB1 (FLD1) VALUES (1),(3),(5)
+           EXEC SQL AT CONN1 
+                INSERT INTO TAB1 (FLD1) VALUES (1)
            END-EXEC.
-           DISPLAY 'CONNECT INSERT(1): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(1-1): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(1-1): ' SQLERRMC(1:SQLERRML)
+
+           EXEC SQL AT CONN1 
+                INSERT INTO TAB1 (FLD1) VALUES (3)
+           END-EXEC.
+           DISPLAY 'CONNECT INSERT(1-2): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(1-2): ' SQLERRMC(1:SQLERRML)
+
+           EXEC SQL AT CONN1 
+                INSERT INTO TAB1 (FLD1) VALUES (5)
+           END-EXEC.
+           DISPLAY 'CONNECT INSERT(1-3): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(1-3): ' SQLERRMC(1:SQLERRML)
  
-           EXEC SQL AT :CONN2-ID 
-                INSERT INTO TAB2 (FLD2) VALUES (100),(300),(500)
+           EXEC SQL AT CONN2 
+                INSERT INTO TAB2 (FLD2) VALUES (100)
            END-EXEC.           
-           DISPLAY 'CONNECT INSERT(2): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(2-1): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(2-1): ' SQLERRMC(1:SQLERRML)
+
+           EXEC SQL AT CONN2 
+                INSERT INTO TAB2 (FLD2) VALUES (300)
+           END-EXEC.           
+           DISPLAY 'CONNECT INSERT(2-2): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(2-2): ' SQLERRMC(1:SQLERRML)
+
+           EXEC SQL AT CONN2 
+                INSERT INTO TAB2 (FLD2) VALUES (500)
+           END-EXEC.           
+           DISPLAY 'CONNECT INSERT(2-3): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(2-3): ' SQLERRMC(1:SQLERRML)
            
            EXEC SQL AT :CONN1-ID
                SELECT SUM(FLD1) INTO :T1 FROM TAB1
@@ -160,12 +186,22 @@
                SELECT SUM(FLD1) INTO :T1 FROM TAB1
            END-EXEC. 
            DISPLAY 'SQLSTATE FAIL1 (OK IF <> 00000): ' SQLSTATE.
+           IF SQLSTATE <> '00000' THEN
+                DISPLAY 'SQLSTATE FAIL1: OK'
+           ELSE
+                DISPLAY 'SQLSTATE FAIL1: KO'
+           END-IF.
            
       *    THIS SHOULD FAIL
            EXEC SQL AT :CONN1-ID
                SELECT SUM(FLD2) INTO :T2 FROM TAB2
            END-EXEC. 
            DISPLAY 'SQLSTATE FAIL2 (OK IF <> 00000): ' SQLSTATE.  
+           IF SQLSTATE <> '00000' THEN
+                DISPLAY 'SQLSTATE FAIL2: OK'
+           ELSE
+                DISPLAY 'SQLSTATE FAIL2: KO'
+           END-IF.
 
            EXEC SQL AT :CONN1-ID ROLLBACK TO SAVEPOINT SP1 END-EXEC.
            EXEC SQL AT :CONN2-ID ROLLBACK TO SAVEPOINT SP2 END-EXEC.
@@ -183,19 +219,20 @@
 
            PERFORM UNTIL SQLCODE < 0 OR SQLCODE = 100
 
-           EXEC SQL
-               FETCH CRSR01 INTO :T1
-           END-EXEC
+               EXEC SQL
+                   FETCH CRSR01 INTO :T1
+               END-EXEC
 
-           DISPLAY 'SQLCODE : ' SQLCODE
-           DISPLAY 'SQLERRMC: ' SQLERRMC
+               DISPLAY 'SQLCODE : ' SQLCODE
+               DISPLAY 'SQLERRMC: ' SQLERRMC
                   
-           IF SQLCODE <> 100 THEN
+               IF SQLCODE <> 100 THEN
       *         display the record
-                DISPLAY 'CRSR01 rec #' CURREC ' : [' T1 ']'
-                ADD 1 TO CURREC
-                ADD T1 TO TOT
-           END-IF
+                    DISPLAY 'CRSR01 rec #' CURREC ' : [' T1 ']'
+                    ADD 1 TO CURREC
+                    ADD T1 TO TOT
+               END-IF
+
            END-PERFORM.  
 
            DISPLAY 'TOT CRSR01 :' TOT.

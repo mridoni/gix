@@ -39,13 +39,10 @@
          ACCEPT DATASRC FROM ENVIRONMENT-VALUE.
          DISPLAY "DATASRC_USR" UPON ENVIRONMENT-NAME.
          ACCEPT DBUSR FROM ENVIRONMENT-VALUE.
-         DISPLAY "DATASRC_PWD" UPON ENVIRONMENT-NAME.
-         ACCEPT DBPWD FROM ENVIRONMENT-VALUE.
          
          DISPLAY '***************************************'.
          DISPLAY " DATASRC  : " DATASRC.
-         DISPLAY " DB       : " DBUSR.
-         DISPLAY " USER     : " DBPWD.
+         DISPLAY " DBUSR    : " DBUSR.
          DISPLAY '***************************************'.
 
            EXEC SQL

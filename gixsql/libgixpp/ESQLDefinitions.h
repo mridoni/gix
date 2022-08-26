@@ -27,7 +27,8 @@ USA.
 	SQL TYPE INFO is a 64 bit unsigned int:
 	bits 00-15: scale (16 bit unsigned int)
 	bits 16-47: precision (32 bit unsigned int)
-	bits 48-59: unused/reserved
+	bits 48-51: misc flags
+	bits 52-59: unused/reserved
 	bits 60-63: type (encoded with the TYPE_SQL_* consts)
 */
 
@@ -38,10 +39,17 @@ USA.
 #define TYPE_SQL_DECIMAL	 5ULL
 #define TYPE_SQL_BINARY		 6ULL
 #define TYPE_SQL_VARBINARY	 7ULL
+// 8-15 are currently free for expansion
+
+#define FLAG_PICX_AS_VARCHAR	 1
+#define FLAG_EMIT_VAR			 2
 
 #define IS_VARLEN(T) (T == TYPE_SQL_VARCHAR || T == TYPE_SQL_VARBINARY)
 #define IS_BINARY(T) (T == TYPE_SQL_BINARY || T == TYPE_SQL_VARBINARY)
 #define IS_NUMERIC(T) (T == TYPE_SQL_INT || T == TYPE_SQL_FLOAT || T == TYPE_SQL_DECIMAL)
+#define HAS_PICX_AS_VARCHAR(F) (F & FLAG_PICX_AS_VARCHAR)
+#define HAS_PICX_AS_CHARF(F) ((F & FLAG_PICX_AS_VARCHAR) == 0))
+#define HAS_FLAG_EMIT_VAR(F) (F & FLAG_EMIT_VAR)
 
 // EXEC SQL WHENEVER stuff
 
@@ -209,13 +217,7 @@ struct cb_field_t
 	bool sign_leading = false;
 	bool separate = false;
 
-	/*
-		SQL TYPE INFO is a 64 bit unsigned int:
-		bits 00-15: scale (16 bit unsigned int)
-		bits 16-47: precision (32 bit unsigned int)
-		bits 48-59: unused/reserved
-		bits 60-63: type (encoded with the TYPE_SQL_* consts)
-	*/
+	// See definitions above
 	uint64_t sql_type = 0;
 
 	std::string defined_at_source_file;
@@ -234,3 +236,7 @@ struct connect_to_info_t
 	hostref_or_literal_t *t1 = nullptr;
 	hostref_or_literal_t *t2 = nullptr;
 };
+
+
+
+

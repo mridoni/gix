@@ -143,37 +143,37 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)libcpputils;$(SolutionDir)libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gixsql\libcpputils;$(SolutionDir)gixsql\libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)libcpputils;$(SolutionDir)libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gixsql\libcpputils;$(SolutionDir)gixsql\libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)libcpputils;$(SolutionDir)libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gixsql\libcpputils;$(SolutionDir)gixsql\libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)libcpputils;$(SolutionDir)libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gixsql\libcpputils;$(SolutionDir)gixsql\libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)libcpputils;$(SolutionDir)libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gixsql\libcpputils;$(SolutionDir)gixsql\libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)libcpputils;$(SolutionDir)libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)gix-ide;$(SolutionDir)gix-common;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gixsql\libcpputils;$(SolutionDir)gixsql\libgixpp;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libgixutils;$(SolutionDir)build-tools\grammar-tools;$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>

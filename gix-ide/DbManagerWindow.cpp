@@ -117,7 +117,11 @@ DbManagerWindow::DbManagerWindow(QWidget* parent, MainWindow* mw)
 					if (canceled)
 						return;
 
-					int rc = dbi->connect(conn->conn_info, 0, "UTF-8");
+
+					IConnectionOptions options;
+					options.client_encoding = "UTF-8";
+
+					int rc = dbi->connect(conn->conn_info, &options);
 					if (rc) {
 						UiUtils::ErrorDialog(tr("Cannot connect to ") + item->text(0));
 						item->setExpanded(false);

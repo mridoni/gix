@@ -32,6 +32,8 @@
            01 VAR-RES     PIC 9(8).
            
            01 CUR-STEP    PIC X(16).
+           
+           01 PREPSTMT-2-NAME   PIC X(64).
                
        EXEC SQL 
             INCLUDE SQLCA 
@@ -48,6 +50,10 @@
        EXEC SQL AT :DBS
            DECLARE VM3 CURSOR FOR 
                 SELECT MAX(VAR) - MIN(VAR) FROM TAB00
+       END-EXEC.
+
+       EXEC SQL AT :DBS
+           DECLARE VM4 CURSOR FOR PREPSTMT2
        END-EXEC.
 
        PROCEDURE DIVISION. 
@@ -70,21 +76,6 @@
                      IDENTIFIED BY :DBPWD
                      AT            :DBS
                      USING         :DATASRC
-           END-EXEC.
-
-           MOVE 'START TRANSACTION' TO CUR-STEP.
-           EXEC SQL AT :DBS
-              START TRANSACTION
-           END-EXEC.        
-           
-           MOVE 'DROP TABLE' TO CUR-STEP.
-           EXEC SQL AT :DBS
-                DROP TABLE IF EXISTS TAB00
-           END-EXEC.
-
-           MOVE 'CREATE TABLE' TO CUR-STEP.
-           EXEC SQL AT :DBS
-                CREATE TABLE TAB00 (VAR INT)
            END-EXEC.
 
            MOVE 1 TO IDX
@@ -167,12 +158,35 @@
                CLOSE VM3 
            END-EXEC.
 
-      * DONE
+      * VM4 : CURSOR FROM PREPARED STATEMENT (FROM FIELD, EVAL. AT OPEN)
+      * VM4 : CHECK CASE SENSITIVITY IN STATEMENT NAME
 
-           MOVE 'COMMIT' TO CUR-STEP.
+           MOVE 'SELECT MIN(VAR) FROM TAB00' TO SQLCOMMAND-ARR
+           MOVE FUNCTION LENGTH (FUNCTION TRIM (SQLCOMMAND-ARR))
+             TO SQLCOMMAND-LEN
+
+           MOVE 'PREPARE-VM4' TO CUR-STEP. 
            EXEC SQL AT :DBS
-              COMMIT
-           END-EXEC.        
+               PREPARE prepstmt2 FROM :SQLCOMMAND
+           END-EXEC.
+
+           MOVE 'OPEN-VM4' TO CUR-STEP. 
+           EXEC SQL AT :DBS
+               OPEN VM4 
+           END-EXEC.
+          
+           EXEC SQL AT :DBS
+               FETCH VM4
+               INTO
+                 :VAR-RES
+           END-EXEC.
+           DISPLAY 'VM4 - VAR-RES:' VAR-RES.
+          
+           EXEC SQL AT :DBS
+               CLOSE VM4 
+           END-EXEC.
+
+      * DONE  
 
            MOVE 'DISCONNECT' TO CUR-STEP.
            EXEC SQL

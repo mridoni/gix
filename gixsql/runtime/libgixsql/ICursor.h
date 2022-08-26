@@ -55,6 +55,7 @@ public:
 
 	virtual std::vector<std::string> getParameterValues() = 0;
 	virtual std::vector<int> getParameterTypes() = 0;
+	virtual std::vector<int> getParameterLengths() = 0;
 
 	virtual void *getPrivateData() = 0;
 	virtual void setPrivateData(void *) = 0;

@@ -30,6 +30,8 @@ USA.
 #include "TPESQLProcessing.h"
 #include "libcpputils.h"
 
+#include "config.h"
+
 
 #ifdef _WIN32
 #define PATH_LIST_SEP ";"
@@ -37,16 +39,19 @@ USA.
 #define PATH_LIST_SEP ":"
 #endif
 
-#define GIXPP_VER "1.0.17"
+#define Q(x) #x
+#define QUOTE(x) Q(x)
+
+#define GIXPP_VER VERSION
 
 using namespace popl;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	int rc = -1;
 
 	GixPreProcessor gp;
-	
+
 
 
 	// Do processing here
@@ -67,7 +72,7 @@ int main(int argc, char **argv)
 	auto opt_esql = options.add<Switch>("e", "esql", "preprocess for ESQL");
 	auto opt_esql_preprocess_copy = options.add<Switch>("p", "esql-preprocess-copy", "ESQL: preprocess all included COPY files");
 	auto opt_esql_copy_exts = options.add<Value<std::string>>("E", "esql-copy-exts", "ESQL: copy files extension list (comma-separated)");
-	auto opt_esql_anon_params = options.add<Switch>("a", "esql-anon-params", "ESQL: use anonymous (not numbered) parameters");
+	auto opt_esql_param_style = options.add<Value<std::string>>("z", "param-style", "ESQL: generated parameters style (=a|d|c", "d");
 	auto opt_esql_static_calls = options.add<Switch>("S", "esql-static-calls", "ESQL: emit static calls");
 	auto opt_debug_info = options.add<Switch>("g", "debug-info", "generate debug info");
 	auto opt_consolidate = options.add<Switch>("c", "consolidate", "consolidate source to single-file");
@@ -77,9 +82,19 @@ int main(int argc, char **argv)
 	auto opt_emit_map_file = options.add<Switch>("m", "map", "emit map file");
 	auto opt_emit_cobol85 = options.add<Switch>("C", "cobol85", "emit COBOL85-compliant code");
 	auto opt_varying_ids = options.add<Value<std::string>>("Y", "varying", "length/data suffixes for varlen fields (=LEN,ARR)");
-	auto opt_smart_crsr_init = options.add<Switch>("L", "smart-cursor-init", "use smart cursor initialization");
+	auto opt_picx_as_varchar = options.add<Value<std::string>>("P", "picx-as", "text field options (=char|charf|varchar)", "char");
+	auto opt_no_rec_code = options.add<Value<std::string>>("", "no-rec-code", "custom code for \"no record\" condition(=nnn)");
 
 	options.parse(argc, argv);
+
+	if (options.unknown_options().size() > 0) {
+		std::cout << options << std::endl;
+		for (auto uo : options.unknown_options()) {
+			fprintf(stderr, "ERROR: unknown option: %s\n", uo.c_str());
+		}
+
+		return 1;
+	}
 
 	if (opt_help->is_set()) {
 		rc = 0;
@@ -102,6 +117,14 @@ int main(int argc, char **argv)
 			if (!opt_infile->is_set() || !opt_outfile->is_set()) {
 				std::cout << options << std::endl;
 				fprintf(stderr, "ERROR: please enter at least the input and output file parameters\n");
+				return 1;
+			}
+
+
+			if (opt_picx_as_varchar->is_set() && opt_picx_as_varchar->value() != "char" && opt_picx_as_varchar->value() != "charf" && opt_picx_as_varchar->value() != "varchar") {
+				std::cout << options << std::endl;
+				fprintf(stderr, "ERROR: picx argument must be \"charf\" or \"varchar\"\n");
+				fprintf(stderr, "ERROR: -P/--picx-as argument must be one of \"char\", \"charf\", \"varchar\"\n");
 				return 1;
 			}
 
@@ -139,17 +162,25 @@ int main(int argc, char **argv)
 					gp.setOpt("varlen_suffixes", opt_varying_ids->value());
 
 				gp.setOpt("emit_static_calls", opt_esql_static_calls->is_set());
-				gp.setOpt("anonymous_params", opt_esql_anon_params->is_set());
+				gp.setOpt("params_style", opt_esql_param_style->value());
 				gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy->is_set());
 				gp.setOpt("consolidated_map", true);
 				gp.setOpt("emit_map_file", opt_emit_map_file->is_set());
 				gp.setOpt("emit_cobol85", opt_emit_cobol85->is_set());
-				gp.setOpt("smart_crsr_init", opt_smart_crsr_init->is_set());
-				gp.addStep(new TPESQLProcessing(&gp));
+				gp.setOpt("picx_as_varchar", to_lower(opt_picx_as_varchar->value()) == "varchar");
 
 				if (opt_esql_copy_exts->is_set())
 					copy_resolver.setExtensions(string_split(opt_esql_copy_exts->value(), ","));
 
+				if (opt_no_rec_code->is_set()) {
+					std::string c = opt_no_rec_code->value();
+					int i = atoi(c.c_str());
+					if (i != 0 && i >= -999999999 && i <= 999999999) {
+						gp.setOpt("no_rec_code", i);
+					}
+				}
+
+				gp.addStep(new TPESQLProcessing(&gp));
 			}
 
 			gp.setOpt("emit_debug_info", opt_debug_info->is_set());

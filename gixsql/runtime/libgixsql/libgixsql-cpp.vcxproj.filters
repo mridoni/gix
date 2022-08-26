@@ -38,6 +38,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="IConnectionOptions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Connection.h">
@@ -98,6 +99,7 @@
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="default_driver.h" />
+    <ClInclude Include="IConnectionOptions.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

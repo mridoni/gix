@@ -6,15 +6,19 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "runtime", "runtime", "{CA214231-A8B6-4FBA-B3AE-3FE5CAF64A38}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql", "runtime\libgixsql\libgixsql-cpp.vcxproj", "{F501313D-9C68-4164-80C3-E21CA3837E47}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7B513404-5306-4F79-9124-FE588042858C} = {7B513404-5306-4F79-9124-FE588042858C}
+		{C9ED4948-CA5B-4E8A-A4A8-EF54C13B19EA} = {C9ED4948-CA5B-4E8A-A4A8-EF54C13B19EA}
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071} = {EECD5583-42BB-4A10-AF3B-4DC5CF419071}
+		{C8BB29A7-CC21-4811-95DE-14C24A64DF5E} = {C8BB29A7-CC21-4811-95DE-14C24A64DF5E}
+		{63FDBCCD-8254-479C-A19F-5DAC3A0B9910} = {63FDBCCD-8254-479C-A19F-5DAC3A0B9910}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-mysql", "runtime\libgixsql-mysql\libgixsql-mysql.vcxproj", "{63FDBCCD-8254-479C-A19F-5DAC3A0B9910}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-odbc", "runtime\libgixsql-odbc\libgixsql-odbc.vcxproj", "{C8BB29A7-CC21-4811-95DE-14C24A64DF5E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-pgsql", "runtime\libgixsql-pgsql\libgixsql-pgsql.vcxproj", "{C9ED4948-CA5B-4E8A-A4A8-EF54C13B19EA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F501313D-9C68-4164-80C3-E21CA3837E47} = {F501313D-9C68-4164-80C3-E21CA3837E47}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{03E0162F-A04E-40F0-94A8-6E897A00EFB7}"
 EndProject
@@ -38,7 +42,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		ChangeLog = ChangeLog
 		checklists.txt = checklists.txt
+		config.h = config.h
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-sqlite", "runtime\libgixsql-sqlite\libgixsql-sqlite.vcxproj", "{7B513404-5306-4F79-9124-FE588042858C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgixsql-oracle", "runtime\libgixsql-oracle\libgixsql-oracle.vcxproj", "{EECD5583-42BB-4A10-AF3B-4DC5CF419071}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -319,6 +328,74 @@ Global
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|Win32.Build.0 = Release|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|x64.ActiveCfg = Release|Any CPU
 		{2DC3D86A-319C-4656-9CE6-A09DB069EABF}.Test_Release|x64.Build.0 = Release|Any CPU
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug_5.15.2|Any CPU.ActiveCfg = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug_5.15.2|Any CPU.Build.0 = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug_5.15.2|Win32.ActiveCfg = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug_5.15.2|Win32.Build.0 = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug_5.15.2|x64.ActiveCfg = Debug|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug_5.15.2|x64.Build.0 = Debug|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug|Win32.Build.0 = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug|x64.ActiveCfg = Debug|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Debug|x64.Build.0 = Debug|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Release_NoRuntime|Any CPU.ActiveCfg = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Release_NoRuntime|Any CPU.Build.0 = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Release_NoRuntime|Win32.ActiveCfg = Release|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Release_NoRuntime|Win32.Build.0 = Release|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Release_NoRuntime|x64.ActiveCfg = Release|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Release_NoRuntime|x64.Build.0 = Release|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Release|Any CPU.ActiveCfg = Release|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Release|Win32.ActiveCfg = Release|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Release|Win32.Build.0 = Release|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Release|x64.ActiveCfg = Release|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Release|x64.Build.0 = Release|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Debug|Any CPU.ActiveCfg = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Debug|Any CPU.Build.0 = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Debug|Win32.ActiveCfg = Test_Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Debug|Win32.Build.0 = Test_Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Debug|x64.ActiveCfg = Test_Debug|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Debug|x64.Build.0 = Test_Debug|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Release|Any CPU.ActiveCfg = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Release|Any CPU.Build.0 = Debug|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Release|Win32.ActiveCfg = Release|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Release|Win32.Build.0 = Release|Win32
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Release|x64.ActiveCfg = Release|x64
+		{7B513404-5306-4F79-9124-FE588042858C}.Test_Release|x64.Build.0 = Release|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug_5.15.2|Any CPU.ActiveCfg = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug_5.15.2|Any CPU.Build.0 = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug_5.15.2|Win32.ActiveCfg = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug_5.15.2|Win32.Build.0 = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug_5.15.2|x64.ActiveCfg = Debug|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug_5.15.2|x64.Build.0 = Debug|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug|Win32.Build.0 = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug|x64.ActiveCfg = Debug|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Debug|x64.Build.0 = Debug|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release_NoRuntime|Any CPU.ActiveCfg = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release_NoRuntime|Any CPU.Build.0 = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release_NoRuntime|Win32.ActiveCfg = Release|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release_NoRuntime|Win32.Build.0 = Release|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release_NoRuntime|x64.ActiveCfg = Release|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release_NoRuntime|x64.Build.0 = Release|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release|Any CPU.ActiveCfg = Release|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release|Win32.ActiveCfg = Release|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release|Win32.Build.0 = Release|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release|x64.ActiveCfg = Release|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Release|x64.Build.0 = Release|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Debug|Any CPU.ActiveCfg = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Debug|Any CPU.Build.0 = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Debug|Win32.ActiveCfg = Test_Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Debug|Win32.Build.0 = Test_Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Debug|x64.ActiveCfg = Test_Debug|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Debug|x64.Build.0 = Test_Debug|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Release|Any CPU.ActiveCfg = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Release|Any CPU.Build.0 = Debug|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Release|Win32.ActiveCfg = Release|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Release|Win32.Build.0 = Release|Win32
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Release|x64.ActiveCfg = Release|x64
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071}.Test_Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -331,6 +408,8 @@ Global
 		{7C58891C-47A9-4269-97BE-4F3945B8F595} = {DFBBE7C7-A0DF-4483-8B6B-2EDCDC67F4EA}
 		{2D9B2EB8-CA93-410C-9359-CD44B5F9DD18} = {DFBBE7C7-A0DF-4483-8B6B-2EDCDC67F4EA}
 		{1BA5A886-6EC9-434A-8B66-AF29211B4499} = {03E0162F-A04E-40F0-94A8-6E897A00EFB7}
+		{7B513404-5306-4F79-9124-FE588042858C} = {CA214231-A8B6-4FBA-B3AE-3FE5CAF64A38}
+		{EECD5583-42BB-4A10-AF3B-4DC5CF419071} = {CA214231-A8B6-4FBA-B3AE-3FE5CAF64A38}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		Qt5Version = Qt_5.14_msvc64

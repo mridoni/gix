@@ -59,26 +59,7 @@
            EXEC SQL
               CONNECT :DBUSR IDENTIFIED BY :DBPWD
                         USING :DATASRC
-           END-EXEC.     
-
-           MOVE 'START TRANSACTION' TO CUR-STEP.
-           EXEC SQL
-              START TRANSACTION
            END-EXEC.        
-           
-           MOVE 'DROP TABLE' TO CUR-STEP.
-           EXEC SQL
-                DROP TABLE IF EXISTS TAB00
-           END-EXEC.
-
-           MOVE 'CREATE TABLE' TO CUR-STEP.
-           EXEC SQL
-                CREATE TABLE TAB00 (
-                    CID INT,
-                    FLD01 INT,
-                    FLD02 VARCHAR(255)
-                )
-           END-EXEC.
 
            MOVE 1      TO CID.
            MOVE -1     TO FLD01.
@@ -173,12 +154,7 @@
                
                ADD 1 TO IDX
                   
-           END-PERFORM.  
-
-           MOVE 'COMMIT' TO CUR-STEP.
-           EXEC SQL
-              COMMIT
-           END-EXEC.        
+           END-PERFORM.      
 
            MOVE 'DISCONNECT' TO CUR-STEP.
            EXEC SQL

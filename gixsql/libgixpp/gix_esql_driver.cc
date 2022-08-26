@@ -49,7 +49,7 @@ gix_esql_driver::gix_esql_driver ()
 {
 	lexer.setDriver(this);
 	
-	opt_use_anonymous_params = false;
+	opt_params_style = ESQL_ParameterStyle::DollarPrefix;
 	opt_preprocess_copy_files = false;	// if true, copybooks outside EXEC SQL INCLUDE... are preprocessed
 	has_esql_in_cbl_copybooks = false;
 
@@ -206,7 +206,7 @@ std::string gix_esql_driver::cb_host_list_add(std::vector<cb_hostreference_ptr> 
 		int f_type = 0, f_size = 0, f_scale = 0;
 		cb_field_ptr f = field_map[text.substr(1)];
 		bool is_varlen = pp_caller->get_actual_field_data(f, &f_type, &f_size, &f_scale);
-		int n = 999;
+
 		if ((this->commandname == "INSERT" || this->commandname == "SELECT") && 
 				f_type == COBOL_TYPE_GROUP && !is_varlen) {
 			cb_field_ptr c = f->children;
@@ -222,10 +222,16 @@ std::string gix_esql_driver::cb_host_list_add(std::vector<cb_hostreference_ptr> 
 
 	int hostno = cb_search_list(text);
 
-	if (!opt_use_anonymous_params)
-		return "$" + std::to_string(hostno);
-	else
-		return "?";
+	switch (opt_params_style) {
+		case ESQL_ParameterStyle::DollarPrefix:
+			return "$" + std::to_string(hostno);
+
+		case ESQL_ParameterStyle::ColonPrefix:
+			return ":" + std::to_string(hostno);
+
+		case ESQL_ParameterStyle::Anonymous:
+			return "?";
+	}
 }
 
 std::string gix_esql_driver::cb_host_list_add_force(std::vector<cb_hostreference_ptr> *list, std::string text)
@@ -235,7 +241,7 @@ std::string gix_esql_driver::cb_host_list_add_force(std::vector<cb_hostreference
 		int f_type = 0, f_size = 0, f_scale = 0;
 		cb_field_ptr f = field_map[text.substr(1)];
 		bool is_varlen = pp_caller->get_actual_field_data(f, &f_type, &f_size, &f_scale);
-		int n = 999;
+
 		if ((this->commandname == "INSERT" || this->commandname == "SELECT") &&
 			f_type == COBOL_TYPE_GROUP && !is_varlen) {
 			cb_field_ptr c = f->children;
@@ -257,11 +263,16 @@ std::string gix_esql_driver::cb_host_list_add_force(std::vector<cb_hostreference
 	p->lineno = hostlineno;
 
 	list->push_back(p);
-
-	if (!opt_use_anonymous_params)
+	switch (opt_params_style) {
+	case ESQL_ParameterStyle::DollarPrefix:
 		return "$" + std::to_string(hostno);
-	else
+
+	case ESQL_ParameterStyle::ColonPrefix:
+		return ":" + std::to_string(hostno);
+
+	case ESQL_ParameterStyle::Anonymous:
 		return "?";
+	}
 }
 
 
@@ -277,7 +288,7 @@ void gix_esql_driver::cb_res_host_list_add(std::vector<cb_res_hostreference_ptr>
 int
 gix_esql_driver::cb_search_list(std::string text)
 {
-	if (!opt_use_anonymous_params) {
+	if (opt_params_style != ESQL_ParameterStyle::Anonymous) {
 		for (auto it = host_reference_list->begin(); it != host_reference_list->end(); ++it) {
 			if ((*it)->hostreference == text)
 				return (*it)->hostno;
@@ -638,4 +649,34 @@ int gix_esql_driver::build_picture(const std::string str, cb_field_ptr pic)
 	pic->have_sign = (unsigned char)s_count;
 	pic->pictype = category;
 	return 1;
+}
+
+/*
+	SQL TYPE INFO is a 64 bit unsigned int:
+	bits 00-15: scale (16 bit unsigned int)
+	bits 16-47: precision (32 bit unsigned int)
+	bits 48-51: misc flags
+	bits 52-59: unused/reserved
+	bits 60-63: type (encoded with the TYPE_SQL_* consts)
+*/
+void decode_sql_type_info(uint64_t type_info, uint32_t* sql_type, uint32_t* precision, uint16_t* scale, uint8_t* flags)
+{
+	uint64_t length = type_info & 0xffffffffffff;	// 48 bits
+	*precision = (length >> 16);
+	*scale = (length & 0xffff);
+	*sql_type = (type_info >> 60);
+	*flags = (type_info >> 48) & 0x0f;
+}
+
+uint64_t encode_sql_type_info(uint32_t sql_type, uint32_t precision, uint16_t scale, uint8_t flags)
+{
+	uint64_t type_info = 0ULL;
+	type_info |= ((uint64_t)sql_type << 60);
+	type_info |= (((uint64_t)precision << 16));
+	type_info |= (((uint64_t)scale));
+	flags &= 0x0f;
+	uint64_t flag_mask = 0xf000000000000;
+	uint64_t flag_val = (((uint64_t)flags << 48));
+	type_info = (type_info & ~flag_mask) | (flag_val & flag_mask);
+	return type_info;
 }

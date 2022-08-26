@@ -41,8 +41,6 @@
        END-EXEC. 
 
        EXEC SQL VAR NUM3 IS FLOAT END-EXEC .
-       
-       EXEC SQL VAR NUM4 IS FLOAT(6,2) END-EXEC.
          
        PROCEDURE DIVISION. 
  

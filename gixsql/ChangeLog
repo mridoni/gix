@@ -1,3 +1,27 @@
+=== v1.0.18 ======================================================
+- Added new Oracle driver, based on ODPI
+- Added new SQLite driver
+- All the drivers have been updated and now implement the complete set of supported features
+- Solution for "PG: issue with prepared statements" (#99)
+- Solution for "PCursors cannot be re-opened after close" (#98)
+- Solution for "libgixpp: setStatus is called for errors without DBI parm passed - sets SQLERRM" (#94)
+- Solution for "error handling (especially for 07001)" (#92)
+- Solution for "show-stopper bug in pgsql_prepare" (#91)
+- Solution for "PREPARE does not work with VARLENGTH groups (ocesql compat)" (#79)
+- Partial solution for "PREPARE does not work with VARLENGTH groups (ocesql compat)" (#68)
+- Solution for "The PostgreSQL driver needs START TRANSACTION before using cursors" (#14)
+- Solution for "FR: support EXEC SQL VAR" (#21)
+- Fixed a bug in "problems with "codegen / logic issue for "GIXSQLCursorDeclareParams" (#88)
+- Solution for "FR: allow mapping of "NoRecCode"' (#95) - added --no-rec-code parameter to gixpp
+- Tokens in the parser have been labeled to improve diagnostics (pulled PR #96 by @GitMensch)
+- Fixed COMP-3 handling in drivers other than PostgreSQL
+- Rewrote the test suite (still MSTest-based) to dynamically generate a matrix of test to be run on the various platforms/database drivers
+- Added options for parameter generation in gixpp (-a was removed)
+- Added new GIXSQL_FIXUP_PARAMS option for runtime, to automatically convert parameter format in prepared statments
+- "Native" cursors are now the default for the PostgreSQL driver
+- "Smart" cursor initialization is now the default for all cursors, including those declared in WORKING-STORAGE (-L was removed from gixpp), should fix #101
+- Removed dynamic cursor emulation from the ODBC driver when using PostgreSQL
+
 === v1.0.17 ======================================================
 - Added support for "smart" cursor initialization (#88)
 - Added support for EXECUTE prepared-statement INTO #(87)

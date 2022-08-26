@@ -186,6 +186,11 @@ variant GixPreProcessor::getOpt(std::string id, std::string s)
 	return map_contains<std::string, variant>(opts, id) ? opts[id] : variant(s);
 }
 
+variant GixPreProcessor::getOpt(std::string id, int i)
+{
+	return map_contains<std::string, variant>(opts, id) ? opts[id] : variant(i);
+}
+
 variant_map& GixPreProcessor::getOpts() const
 {
 	return const_cast<variant_map &>(opts);

@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace gix_ide_tests
+namespace gixsql_tests
 {
     internal class Utils
     {
@@ -45,10 +45,15 @@ namespace gix_ide_tests
             //}
         }
 
-        internal static byte[] RandomBytes(int len)
+        internal static byte[] RandomBytes(int len, int min = 0, int max = 255)
         {
+            if (max > 255)
+                max = 255;
+
             byte[] data = new byte[len];
-            random.NextBytes(data);
+            for (int i = 0; i < len; i++)
+                data[i] = (byte) random.Next (min, max);
+
             return data;
         }
 
@@ -85,6 +90,9 @@ namespace gix_ide_tests
             var assembly = Assembly.GetExecutingAssembly();
             using (Stream fs = assembly.GetManifestResourceStream("gixsql_tests.data." + resourceName))
             {
+                if (fs == null)
+                    return null;
+
                 using (StreamReader sr = new StreamReader(fs)) { 
                     return sr.ReadToEnd();
                 }
@@ -145,6 +153,24 @@ namespace gix_ide_tests
                     file.IsStreamOwner = true; // Makes close also shut the underlying stream
                     file.Close(); // Ensure we release resources
                 }
+            }
+        }
+
+
+        public static string CreateMD5(byte[] inputBytes)
+        {
+            // Use input string to calculate MD5 hash
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // Convert the byte array to hexadecimal string
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("x2"));
+                }
+                return sb.ToString();
             }
         }
     }

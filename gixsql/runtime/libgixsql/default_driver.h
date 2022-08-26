@@ -1,4 +1,4 @@
 #pragma once
 
-#define GIXSQL_DEFAULT_DRIVER "pgsql"
+#define GIXSQL_DEFAULT_DRIVER ""
 

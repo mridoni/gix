@@ -91,34 +91,36 @@
            
 
        100-MAIN.       
-
-           EXEC SQL AT CONN1 DROP TABLE IF EXISTS TAB1 END-EXEC.
-           DISPLAY 'CONNECT DROP(1): ' SQLCODE
-
-           EXEC SQL AT CONN2 DROP TABLE IF EXISTS TAB2 END-EXEC.
-           DISPLAY 'CONNECT DROP(2): ' SQLCODE
-
-           EXEC SQL AT CONN1 DROP TABLE IF EXISTS TAB2 END-EXEC.
-           DISPLAY 'CONNECT DROP(3): ' SQLCODE
-
-           EXEC SQL AT CONN2 DROP TABLE IF EXISTS TAB1 END-EXEC.
-           DISPLAY 'CONNECT DROP(4): ' SQLCODE
-
-           EXEC SQL AT CONN1 CREATE TABLE TAB1 (FLD1 INT) END-EXEC.
-           DISPLAY 'CONNECT CREATE(1): ' SQLCODE
-
-           EXEC SQL AT CONN2 CREATE TABLE TAB2 (FLD2 INT) END-EXEC.
-           DISPLAY 'CONNECT CREATE(2): ' SQLCODE
            
            EXEC SQL AT CONN1 
-                INSERT INTO TAB1 (FLD1) VALUES (1),(3),(5)
+                INSERT INTO TAB1 (FLD1) VALUES (1)
            END-EXEC.
-           DISPLAY 'CONNECT INSERT(1): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(1-1): ' SQLCODE
+
+           EXEC SQL AT CONN1 
+                INSERT INTO TAB1 (FLD1) VALUES (3)
+           END-EXEC.
+           DISPLAY 'CONNECT INSERT(1-2): ' SQLCODE
+
+           EXEC SQL AT CONN1 
+                INSERT INTO TAB1 (FLD1) VALUES (5)
+           END-EXEC.
+           DISPLAY 'CONNECT INSERT(1-3): ' SQLCODE
  
            EXEC SQL AT CONN2 
-                INSERT INTO TAB2 (FLD2) VALUES (100),(300),(500)
+                INSERT INTO TAB2 (FLD2) VALUES (100)
            END-EXEC.           
-           DISPLAY 'CONNECT INSERT(2): ' SQLCODE
+           DISPLAY 'CONNECT INSERT(2-1): ' SQLCODE
+ 
+           EXEC SQL AT CONN2 
+                INSERT INTO TAB2 (FLD2) VALUES (300)
+           END-EXEC.           
+           DISPLAY 'CONNECT INSERT(2-2): ' SQLCODE
+ 
+           EXEC SQL AT CONN2 
+                INSERT INTO TAB2 (FLD2) VALUES (500)
+           END-EXEC.           
+           DISPLAY 'CONNECT INSERT(2-3): ' SQLCODE
            
            EXEC SQL AT CONN1
                SELECT SUM(FLD1) INTO :T1 FROM TAB1
@@ -152,8 +154,11 @@
            DISPLAY 'SQLSTATE FAIL2 (OK IF <> 00000): ' SQLSTATE.  
 
            EXEC SQL AT CONN1 ROLLBACK TO SAVEPOINT SP1 END-EXEC.
+           DISPLAY 'SQLCODE ROLLBACK SP1 : ' SQLCODE.
+
            EXEC SQL AT CONN2 ROLLBACK TO SAVEPOINT SP2 END-EXEC.
-           
+           DISPLAY 'SQLCODE ROLLBACK SP2 : ' SQLCODE.
+
        100-CURSOR1-TEST.            
       *  open cursor
            EXEC SQL 

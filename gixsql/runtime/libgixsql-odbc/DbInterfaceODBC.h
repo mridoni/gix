@@ -43,7 +43,39 @@ typedef unsigned char byte;
 #include "IDbInterface.h"
 #include "IDbManagerInterface.h"
 #include "IDataSourceInfo.h"
+#include "IConnectionOptions.h"
 #include "ISchemaManager.h"
+
+struct IConnectionOptions;
+
+enum class ErrorSource {
+	Environmennt = 1,
+	Connection = 2,
+	Statement = 3
+};
+
+struct ODBCStatementData {
+
+	ODBCStatementData(SQLHANDLE conn);
+	~ODBCStatementData();
+
+	void resizeParams(int n);
+	void resizeColumnData(int n);
+
+	SQLHANDLE statement = nullptr;
+
+	//dpiVar** params = nullptr;
+	//dpiData** params_bfrs = nullptr;
+
+	//dpiVar** coldata = nullptr;
+	//dpiData** coldata_bfrs = nullptr;
+
+	//int params_count = 0;
+	//int coldata_count = 0;
+
+private:
+	void cleanup();
+};
 
 class DbInterfaceODBC : public IDbInterface, public IDbManagerInterface
 {
@@ -52,20 +84,20 @@ public:
 	~DbInterfaceODBC();
 
 	virtual int init(const std::shared_ptr<spdlog::logger>& _logger) override;
-	virtual int connect(IDataSourceInfo *, int, std::string) override;
+	virtual int connect(IDataSourceInfo *, IConnectionOptions* opts) override;
 	virtual int reset() override;
 	virtual int terminate_connection() override;
 	virtual int begin_transaction() override;
 	virtual int end_transaction(std::string) override;
 	virtual int exec(std::string) override;
-	virtual int exec_params(std::string query, int nParams, int *paramTypes, std::vector<std::string> &paramValues, int *paramLengths, int *paramFormats) override;
+	virtual int exec_params(std::string query, int nParams, const std::vector<int>& paramTypes, const std::vector<std::string>& paramValues, const std::vector<int>& paramLengths, const std::vector<int>& paramFormats) override;
 	virtual int close_cursor(ICursor *) override;
 	virtual int cursor_declare(ICursor *, bool, int) override;
 	virtual int cursor_declare_with_params(ICursor *, char **, bool, int) override;
 	virtual int cursor_open(ICursor *) override;
 	virtual int fetch_one(ICursor *, int) override;
-	virtual bool get_resultset_value(ICursor*, int, int, char* bfr, int bfrlen, int *value_len) override;
-	virtual int move_to_first_record() override;
+	virtual bool get_resultset_value(ResultSetContextType resultset_context_type, void* context, int row, int col, char* bfr, int bfrlen, int* value_len) override;
+	virtual bool move_to_first_record(std::string stmt_name = "") override;
 	virtual int supports_num_rows() override;
 	virtual int get_num_rows(ICursor* crsr) override;
 	virtual int get_num_fields(ICursor* crsr) override;
@@ -84,29 +116,35 @@ public:
 
 private:
 
-	void retrieve_odbc_error(int, SQLHANDLE stmt = 0);
 	int cobol2odbctype(int);
 	int cobol2ctype(int);
 	int get_data_len(SQLHANDLE hStmt, int cnum);
 
-	SQLHANDLE env_handle;
-	SQLHANDLE conn_handle;
-	SQLHANDLE cur_stmt_handle;
+	static SQLHANDLE odbc_global_env_context;
+	static int odpi_global_env_context_usage_count;
 
-	std::vector<std::string> odbc_errors;
+	SQLHANDLE conn_handle = nullptr;
 
-	IConnection *owner;
-	int last_rc;
+	ODBCStatementData* current_statement_data = nullptr;
+
+	IConnection *owner = nullptr;
+	int last_rc = 0;
 	std::string last_state;
-
-	int driver_has_num_rows_support;
-	bool dynamic_cursor_emulation;
-	std::string rowid_col_name;
-	char current_rowid_val[128];
+	std::string last_error;
 
 	std::map<std::string, ICursor *> _declared_cursors;
+	std::map<std::string, ODBCStatementData*> _prepared_stmts;
 
-	int _odbc_exec_params(ICursor *, const std::string, int, int*, std::vector<std::string>&, int*, int*);
-	int _odbc_exec(ICursor*, const std::string);
+	int odbcRetrieveError(int rc, ErrorSource err_src, SQLHANDLE h = 0);
+	void odbcClearError();
+	void odbcSetError(int err_code, std::string sqlstate, std::string err_msg);
+
+	int _odbc_exec_params(ICursor *, std::string query, int nParams, const std::vector<int>& paramTypes, const std::vector<std::string>& paramValues, const std::vector<int>& paramLengths, const std::vector<int>& paramFormats, ODBCStatementData* prep_stmt = nullptr);
+	int _odbc_exec(ICursor*, const std::string, ODBCStatementData* prep_stmt = nullptr);
+
+	int get_affected_rows(ODBCStatementData* d);
+	bool is_cursor_from_prepared_statement(ICursor* cursor);
+	bool retrieve_prepared_statement(const std::string& prep_stmt_name, ODBCStatementData** prepared_stmt_data);
+	bool column_is_binary(SQLHANDLE stmt, int col_index, bool* is_binary);
 };
 
