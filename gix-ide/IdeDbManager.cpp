@@ -166,6 +166,11 @@ void IdeDbManager::loadDbConnection(QString pfx)
 	dbc->internal_conn->setConnectionInfo(dbc->conn_info);
 	dbc->internal_conn->setName(conn_name.toStdString());
 	dbc->dbi = DbInterfaceFactory::getInterface(dbtype.toStdString(), spdlog::default_logger());
+	if (!dbc->dbi) {
+		spdlog::error("Cannot load DB connection (type: {})", pfx.toStdString());
+		return;
+	}
+
 	dbc->dbi->set_owner(dbc->internal_conn);
 
 	connections[conn_name] = dbc;

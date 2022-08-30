@@ -234,10 +234,18 @@ bool CodeviewSymbolProvider::isGnuCOBOLModule(GixDebugger *gd, void *hproc, void
 	}
 
 #if _WIN64
-	//res &= ((bool)(pSymbol->Flags & 0x400000));
 	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags & 0x400000);
 #else
 	res = (strcmp(pSymbol->Name, COB_MODULE_GLOBAL_ENTER) == 0) && (pSymbol->Flags & 0x400000);
+	if (!res) {
+		// We need to handle some possible decoration issues on x86
+		if (!SymEnumSymbols(hproc, (ULONG64)hmod, "_imp__" COB_MODULE_GLOBAL_ENTER, DLL_GetSymbolFromDLL, pSymbol)) {
+			gd->printLastError();
+			delete[](BYTE*)pSymbol;
+			return false;
+		}
+		res = (strcmp(pSymbol->Name, "_imp__" COB_MODULE_GLOBAL_ENTER) == 0);
+	}
 #endif
 	return res;
 }

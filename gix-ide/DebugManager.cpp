@@ -189,9 +189,10 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	bool dbg_merge_env = prj->PropertyGetValue("dbg_merge_env").toBool();
 
 	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-	SysUtils::mergeEnvironmentVariable(env, "PATH", compiler_cfg->binDirPath);
-	SysUtils::mergeEnvironmentVariable(env, "PATH", compiler_cfg->libDirPath);
-	SysUtils::mergeEnvironmentVariable(env, "PATH", GixGlobals::getGixRuntimeLibDir(compiler_cfg->getCompilerEnvironment(), target_platform), true);
+
+	SysUtils::mergeEnvironmentVariable(env, "PATH", compiler_cfg->libDirPath, true);
+	SysUtils::mergeEnvironmentVariable(env, "PATH", compiler_cfg->binDirPath, true);
+	SysUtils::mergeEnvironmentVariable(env, "PATH", GixGlobals::getGixRuntimeLibDir(compiler_cfg->getCompilerEnvironment(), target_platform));
 
 	env.insert("COB_EXIT_WAIT", "Y");
 
@@ -409,9 +410,10 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	for (auto k : env.keys()) {
 		QString v = env.value(k);
 		dbg_env[k] = v;
-#if _DEBUG
-		//ide_task_manager->logMessage(GIX_CONSOLE_LOG, k + "=" + v, QLogger::LogLevel::Trace);
-#endif
+
+		if (ide_task_manager->isDebugOutputEnabled()) {
+			ide_task_manager->logMessage(GIX_CONSOLE_LOG, k + "=" + v, QLogger::LogLevel::Trace);
+		}
 	}
 
 	gd->setEnvironment(dbg_env);

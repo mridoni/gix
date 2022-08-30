@@ -16,15 +16,6 @@
 #define CONFIG "Release"
 #define HOST_PLATFORM GetEnv('HOST_PLATFORM')
 
-; We try to avoid problems with x86 defined as Win32 in MSVC
-#if "x64" == HOST_PLATFORM
-#define DEST_PLATFORM "x64"
-#define SECONDARY_PLATFORM "x86"
-#else
-#define DEST_PLATFORM "x86"
-#define SECONDARY_PLATFORM ""
-#endif
-
 [Setup]
 AppName=Gix-Ide
 AppVersion={#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}

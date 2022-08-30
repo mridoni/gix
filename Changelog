@@ -1,3 +1,16 @@
+=== v1.0.18a =====================================================
+- Gix-IDE: Fixed compiler handling for x86-only (Windows)
+- Gix-IDE: Fixed decoration issues on x86/Codeview (Windows)
+- Gix-IDE: Modified path handling for runtime libraries (affects GCC compilers on Windows)
+- Gix-IDE: Fixed x86 packaging (Windows)
+- Gix-IDE: Fixed a few problems in the DB manager that prevented it from working with the latest GixSQL
+- GixSQL: Changed logging system initializationto avoid possible crashes
+- GixSQL: Fixed some spelling problems in the documentation
+- GixSQL: Fixed some memory leaks in the runtime
+- GixSQL: Solution for "sqlstate by driver may set 00000 for errors (in GixSQL?)" (#114)
+- GixSQL: Additional fix for "codegen / logic issue for "GIXSQLCursorDeclareParams" (#88)
+- GixSQL: Allowing variable with level 77/78 in the parser
+
 === v1.0.18 ======================================================
 - GixSQL: Added new Oracle driver, based on ODPI
 - GixSQL: Added new SQLite driver

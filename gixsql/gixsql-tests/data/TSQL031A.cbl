@@ -21,8 +21,8 @@
            01 DBUSR  PIC X(64).
 
            01 CID PIC 9(12).
-           01 FLD1 PIC X(64).
-           01 FLD2 PIC X(64).
+           01 FLD1 PIC X(100).
+           01 FLD2 PIC X(100).
 
            01 OP PIC X(64).
 

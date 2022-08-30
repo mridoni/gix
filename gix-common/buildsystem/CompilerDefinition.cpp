@@ -293,6 +293,11 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 
 
 	for (QString platform_id : this->getTargetPlatforms().keys()) {
+
+#ifndef _WIN64
+		if (platform_id == "x64")
+			continue;
+#endif
 		QScopedPointer<CompilerConfiguration> compiler_cfg(CompilerConfiguration::get(this, platform_id));
 		if (compiler_cfg.isNull()) {
 			info.append(QCoreApplication::translate("gix", "Cannot create compiler instance"));
@@ -431,12 +436,16 @@ bool CompilerDefinition::testConfiguration(QString home_dir, QStringList &info, 
 		p1->setConfigDirPath(config_dir);
 		p1->setCopyDirPath(copy_dir);
 
+#ifdef _WIN64
 		p2 = new CompilerPlatformDefinition();
 		p2->setBinDirPath(PathUtils::combine(home_dir, "bin" + p2_suffix));
 		p2->setLibDirPath(PathUtils::combine(home_dir, "lib" + p2_suffix));
 		p2->setIncludeDirPath(include_dir);
 		p2->setConfigDirPath(config_dir);
 		p2->setCopyDirPath(copy_dir);
+#endif
+
+		test_cfg->setIsVsBased(true);
 	}
 	else {
 		// Single platform, we expect at least a bin directory
@@ -458,6 +467,9 @@ bool CompilerDefinition::testConfiguration(QString home_dir, QStringList &info, 
 		p1->setIncludeDirPath(include_dir);
 		p1->setConfigDirPath(config_dir);
 		p1->setCopyDirPath(copy_dir);
+
+		// We assume single-platform compiler to be MinGW-based
+		test_cfg->setIsVsBased(false);
 	}
 
 	if (!p1 && !p2) {
@@ -499,9 +511,6 @@ bool CompilerDefinition::testConfiguration(QString home_dir, QStringList &info, 
 		}
 
 		QString platform_id = (res == SCS_64BIT_BINARY) ? "x64" : "x86";
-
-		// We assume single-platform compiler to be MinGW-based
-		test_cfg->setIsVsBased(false);
 		test_cfg->setId("*");
 		test_cfg->setName("*");
 		test_cfg->setHostPlatform(SysUtils::getGixBuildPlatform());

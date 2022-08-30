@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([gixsql], [1.0.18], [m.ridoni@gmail.com])
+AC_INIT([gixsql], [1.0.18a], [m.ridoni@gmail.com])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9.6 -Wall -Werror dist-bzip2 subdir-objects])

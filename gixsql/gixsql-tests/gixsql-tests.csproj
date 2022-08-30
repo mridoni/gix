@@ -230,6 +230,8 @@
     <EmbeddedResource Include="data\TSQL031A.cbl" />
     <EmbeddedResource Include="data\TSQL014D.cbl" />
     <EmbeddedResource Include="data\TSQL033A.cbl" />
+    <EmbeddedResource Include="data\TSQL017D.cbl" />
+    <EmbeddedResource Include="data\TSQL017E.cbl" />
     <None Include="gixsql.local.runsettings" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>

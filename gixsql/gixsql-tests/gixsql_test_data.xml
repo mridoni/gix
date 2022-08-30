@@ -1257,6 +1257,58 @@
 			</expected-output>
 		</test>
 
+		<test name="TSQL017D" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#088</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL017D.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<!--<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-statement>create table tab_a (col1 int, col2 int, key01 int)</pre-run-sql-statement>-->
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<environment>
+			</environment>
+
+			<expected-output>
+			</expected-output>
+		</test>
+
+		<test name="TSQL017E" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#088</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL017E.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<!--<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-statement>create table tab_a (col1 int, col2 int, key01 int)</pre-run-sql-statement>-->
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<environment>
+			</environment>
+
+			<expected-output>
+			</expected-output>
+		</test>
+
 		<test name="TSQL018A-1" enabled="true">
 			<description>Long queries break COBOL compiler (COBOL 85)</description>
 			<issue-coverage>#008</issue-coverage>

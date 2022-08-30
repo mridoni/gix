@@ -52,6 +52,8 @@
 #include "platform.h"
 #include "Logger.h"
 
+#include "spdlog/sinks/null_sink.h"
+
 #include "cobol_var_types.h"
 
 #define FAIL_ON_ERROR(_rc, _st, _dbi, _err) if (_rc != DBERR_NO_ERROR) { \
@@ -59,6 +61,7 @@
 										return RESULT_FAILED; \
 								   }
 
+#define CHECK_LIB_INIT() if (!__lib_initialized) lib_initialize();
 
 struct query_info {
 	char* pname;  // default
@@ -68,6 +71,7 @@ struct query_info {
 
 static ConnectionManager connection_manager;
 static CursorManager cursor_manager;
+static bool __lib_initialized = false;
 
 static void sqlca_initialize(struct sqlca_t*);
 static int setStatus(struct sqlca_t* st, IDbInterface* dbi, int err);
@@ -88,6 +92,8 @@ static int _gixsqlConnectReset(struct sqlca_t* st, const std::string& connection
 
 static std::string get_hostref_or_literal(void* data, int connection_id_tl);
 
+static bool lib_initialize();
+
 int __norec_sqlcode = GIXSQL_DEFAULT_NO_REC_CODE;
 
 static void
@@ -100,6 +106,8 @@ LIBGIXSQL_API int
 GIXSQLConnect(struct sqlca_t* st, void* d_data_source, int data_source_tl, void* d_connection_id, int connection_id_tl,
 	void* d_dbname, int dbname_tl, void* d_username, int username_tl, void* d_password, int password_tl)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::debug(FMT_FILE_FUNC "GIXSQLConnect start", __FILE__, __func__);
 
 	std::string data_source_info;
@@ -208,6 +216,8 @@ int _gixsqlConnectReset(struct sqlca_t* st, const std::string& connection_id)
 LIBGIXSQL_API int
 GIXSQLConnectReset(struct sqlca_t* st, void* d_connection_id, int connection_id_tl)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLConnectReset start", __FILE__, __func__);
 
 	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
@@ -232,6 +242,7 @@ GIXSQLConnectReset(struct sqlca_t* st, void* d_connection_id, int connection_id_
 LIBGIXSQL_API int
 GIXSQLExec(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char* _query)
 {
+	CHECK_LIB_INIT();
 
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLExec start", __FILE__, __func__);
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLExec SQL: {}", __FILE__, __func__, _query);
@@ -258,6 +269,7 @@ GIXSQLExec(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char
 LIBGIXSQL_API int
 GIXSQLExecImmediate(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, void* d_query, int query_tl)
 {
+	CHECK_LIB_INIT();
 
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLExecImmediate start", __FILE__, __func__);
 
@@ -286,6 +298,8 @@ GIXSQLExecImmediate(struct sqlca_t* st, void* d_connection_id, int connection_id
 
 static int _gixsqlExec(Connection* conn, struct sqlca_t* st, char* _query)
 {
+	CHECK_LIB_INIT();
+
 	std::string query = _query;
 	int rc = 0;
 	IDbInterface* dbi = conn->getDbInterface();
@@ -325,6 +339,8 @@ static int _gixsqlExec(Connection* conn, struct sqlca_t* st, char* _query)
 LIBGIXSQL_API int
 GIXSQLExecParams(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char* _query, int nParams)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLExecParams - SQL: {}", __FILE__, __func__, _query);
 
 	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
@@ -410,6 +426,8 @@ static int _gixsqlExecParams(Connection* conn, struct sqlca_t* st, char* _query,
 
 LIBGIXSQL_API int GIXSQLExecPrepared(sqlca_t* st, void* d_connection_id, int connection_id_tl, char* stmt_name, int nParams)
 {
+	CHECK_LIB_INIT();
+
 	IDbInterface* dbi = nullptr;	// not used but we need it for the call to the worker function
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLExecPrepared start", __FILE__, __func__);
 	return _gixsqlExecPrepared(st, d_connection_id, connection_id_tl, stmt_name, nParams, &dbi);
@@ -417,6 +435,8 @@ LIBGIXSQL_API int GIXSQLExecPrepared(sqlca_t* st, void* d_connection_id, int con
 
 int _gixsqlExecPrepared(sqlca_t* st, void* d_connection_id, int connection_id_tl, char* stmt_name, int nParams, IDbInterface** r_dbi)
 {
+	CHECK_LIB_INIT();
+
 	*r_dbi = nullptr;
 
 	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
@@ -472,6 +492,8 @@ int _gixsqlExecPrepared(sqlca_t* st, void* d_connection_id, int connection_id_tl
 
 LIBGIXSQL_API int GIXSQLExecPreparedInto(sqlca_t* st, void* d_connection_id, int connection_id_tl, char* stmt_name, int nParams, int nResParams)
 {
+	CHECK_LIB_INIT();
+
 	IDbInterface* dbi = nullptr;
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLExecPreparedInto start", __FILE__, __func__);
 
@@ -537,6 +559,7 @@ LIBGIXSQL_API int GIXSQLExecPreparedInto(sqlca_t* st, void* d_connection_id, int
 LIBGIXSQL_API int
 GIXSQLCursorDeclareParams(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char* cursor_name, int with_hold, void* d_query, int query_tl, int nParams)
 {
+	CHECK_LIB_INIT();
 
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLCursorDeclareParams start for cursor [{}]", __FILE__, __func__, cursor_name);
 
@@ -592,6 +615,8 @@ GIXSQLCursorDeclareParams(struct sqlca_t* st, void* d_connection_id, int connect
 LIBGIXSQL_API int
 GIXSQLCursorDeclare(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char* cursor_name, int with_hold, void* d_query, int query_tl)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLCursorDeclare start for cursor [{}]", __FILE__, __func__, cursor_name);
 
 	bool is_literal = (query_tl == 0);
@@ -672,6 +697,8 @@ static int  _gixsqlCursorDeclare(struct sqlca_t* st, Connection* conn, std::stri
 LIBGIXSQL_API int
 GIXSQLCursorOpen(struct sqlca_t* st, char* cname)
 {
+	CHECK_LIB_INIT();
+
 	int rc = 0;
 
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLCursorOpen start for cursor [{}]", __FILE__, __func__, cname);
@@ -762,6 +789,8 @@ GIXSQLCursorOpen(struct sqlca_t* st, char* cname)
 
 LIBGIXSQL_API int GIXSQLCursorFetchOne(struct sqlca_t* st, char* cname)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLCursorFetchOne start", __FILE__, __func__);
 
 	sqlca_initialize(st);
@@ -829,6 +858,8 @@ LIBGIXSQL_API int GIXSQLCursorFetchOne(struct sqlca_t* st, char* cname)
 LIBGIXSQL_API int
 GIXSQLCursorClose(struct sqlca_t* st, char* cname)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLCursorClose start", __FILE__, __func__);
 
 	sqlca_initialize(st);
@@ -868,6 +899,8 @@ GIXSQLCursorClose(struct sqlca_t* st, char* cname)
 
 LIBGIXSQL_API int GIXSQLPrepareStatement(sqlca_t* st, void* d_connection_id, int connection_id_tl, char* stmt_name, void* d_statement_src, int statement_src_tl)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLPrepareStatement start", __FILE__, __func__);
 	spdlog::trace(FMT_FILE_FUNC "Statement name: {}", __FILE__, __func__, stmt_name);
 
@@ -903,6 +936,8 @@ LIBGIXSQL_API int GIXSQLPrepareStatement(sqlca_t* st, void* d_connection_id, int
 LIBGIXSQL_API int
 GIXSQLExecSelectIntoOne(struct sqlca_t* st, void* d_connection_id, int connection_id_tl, char* _query, int nParams, int nResParams)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLExecSelectIntoOne start", __FILE__, __func__);
 	spdlog::trace(FMT_FILE_FUNC "SQL: #{}#", __FILE__, __func__, _query);
 
@@ -990,6 +1025,8 @@ GIXSQLExecSelectIntoOne(struct sqlca_t* st, void* d_connection_id, int connectio
 LIBGIXSQL_API int
 GIXSQLDisconnect(struct sqlca_t* st, void* d_connection_id, int connection_id_tl)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "GIXSQLDisconnect start", __FILE__, __func__);
 
 	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
@@ -1010,7 +1047,10 @@ GIXSQLDisconnect(struct sqlca_t* st, void* d_connection_id, int connection_id_tl
 }
 
 LIBGIXSQL_API int
-GIXSQLStartSQL(void) {
+GIXSQLStartSQL(void) 
+{
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "#begin SQL fragment", __FILE__, __func__);
 	init_sql_var_list();
 	spdlog::trace(FMT_FILE_FUNC "#end SQL fragment", __FILE__, __func__);
@@ -1018,7 +1058,10 @@ GIXSQLStartSQL(void) {
 }
 
 LIBGIXSQL_API int
-GIXSQLSetSQLParams(int type, int length, int scale, uint32_t flags, void* addr) {
+GIXSQLSetSQLParams(int type, int length, int scale, uint32_t flags, void* addr) 
+{
+	CHECK_LIB_INIT();
+
 	if (type < COBOL_TYPE_MIN || type > COBOL_TYPE_MAX) {
 		spdlog::error("invalid argument 'type': {}", type);
 		return RESULT_FAILED;
@@ -1044,6 +1087,8 @@ GIXSQLSetSQLParams(int type, int length, int scale, uint32_t flags, void* addr) 
 
 LIBGIXSQL_API int GIXSQLSetResultParams(int type, int length, int scale, uint32_t flags, void* addr)
 {
+	CHECK_LIB_INIT();
+
 	if (type < COBOL_TYPE_MIN || type > COBOL_TYPE_MAX) {
 		spdlog::error("invalid arugument 'type' for variable: {}", type);
 		return RESULT_FAILED;
@@ -1068,6 +1113,8 @@ LIBGIXSQL_API int GIXSQLSetResultParams(int type, int length, int scale, uint32_
 
 LIBGIXSQL_API int GIXSQLEndSQL(void)
 {
+	CHECK_LIB_INIT();
+
 	spdlog::trace(FMT_FILE_FUNC "#debug start dump var_list", __FILE__, __func__);
 	_current_sql_var_list.dump();
 	spdlog::trace(FMT_FILE_FUNC "#debug start dump res_list", __FILE__, __func__);
@@ -1367,4 +1414,106 @@ std::string get_hostref_or_literal(void* data, int l)
 
 	std::string t = std::string((char*)actual_data, (-l) - VARLEN_LENGTH_SZ);
 	return t;
+}
+
+static std::string get_debug_log_file() {
+	char* c = getenv("GIXSQL_LOG_FILE");
+	if (c) {
+		return c;
+	}
+	return DEFAULT_GIXSQL_LOG_FILE;
+}
+
+static spdlog::level::level_enum get_debug_log_level() {
+	char* c = getenv("GIXSQL_LOG_LEVEL");
+	if (!c) {
+		return DEFAULT_GIXSQL_LOG_LEVEL;
+	}
+
+	std::string s = c;
+	if (s == "trace") {
+		return spdlog::level::trace;
+	}
+	else
+		if (s == "debug") {
+			return spdlog::level::debug;
+		}
+		else
+			if (s == "info") {
+				return spdlog::level::info;
+			}
+			else
+				if (s == "warn") {
+					return spdlog::level::warn;
+				}
+				else
+					if (s == "error") {
+						return spdlog::level::err;
+					}
+					else
+						if (s == "critical") {
+							return spdlog::level::critical;
+						}
+						else
+							if (s == "off") {
+								return spdlog::level::off;
+							}
+							else
+								return DEFAULT_GIXSQL_LOG_LEVEL;
+}
+
+void setup_no_rec_code()
+{
+	char* c = getenv("GIXSQL_NOREC_CODE");
+	if (c) {
+		int i = atoi(c);
+		if (i != 0 && i >= -999999999 && i <= 999999999) {
+			__norec_sqlcode = i;
+			spdlog::info("GixSQL: \"no record found\" code set to {})", __norec_sqlcode);
+		}
+
+	}
+}
+
+static bool lib_initialize()
+{
+	int pid = getpid();
+
+	spdlog::sink_ptr gixsql_std_sink;
+
+	spdlog::level::level_enum level = get_debug_log_level();
+	if (level == spdlog::level::off) {
+		gixsql_std_sink = std::make_shared<spdlog::sinks::null_sink_st>();
+	}
+	else {
+		std::string filename = get_debug_log_file();
+		if (filename.find("$$") != std::string::npos) {
+			filename = string_replace(filename, "$$", std::to_string(pid));
+		}
+
+		gixsql_std_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename);
+	}
+
+	//gixsql_logger = std::make_shared<spdlog::logger>("libgixsql", gixsql_std_sink);
+	gixsql_logger = std::shared_ptr<spdlog::logger>(new spdlog::logger("libgixsql", gixsql_std_sink), [](spdlog::logger* p) {
+		if (p != nullptr) {
+			p->info("Terminating logger");
+			p->flush();
+			delete p;
+		}
+	});
+
+#ifdef _DEBUG
+	gixsql_logger->flush_on(spdlog::level::trace);
+#endif
+	spdlog::set_default_logger(gixsql_logger);
+	spdlog::set_level(level);
+	spdlog::info("GixSQL logger started (PID: {})", pid);
+
+	// customize default values
+	setup_no_rec_code();
+
+	__lib_initialized = true;
+
+	return true;
 }

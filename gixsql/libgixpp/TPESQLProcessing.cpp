@@ -352,7 +352,7 @@ int TPESQLProcessing::outputESQL()
 	input_file_stack.push(filename_clean_path(input_file));
 	if (!put_cursor_declarations()) {
 		main_module_driver.error("An error occurred while generating ESQL cursor declarations", ERR_CRSR_GEN);
-		return false;
+		return 1;
 	}
 	input_file_stack.pop();
 
@@ -644,9 +644,6 @@ bool TPESQLProcessing::put_cursor_declarations()
 	int f_type, f_size, f_scale;
 	bool emit_static = opt_emit_static_calls;
 	const char* _areab = AREA_B_CPREFIX;
-
-	if (!startup_items.size())
-		return true;
 
 	put_output_line(code_tag + "*");
 	put_output_line(code_tag + "*   ESQL CURSOR DECLARATIONS (START)");
@@ -1039,8 +1036,6 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 		int res_params_count = 0;
 
 		for (cb_res_hostreference_ptr rp : *stmt->res_host_list) {
-
-
 
 			if (!main_module_driver.field_exists(rp->hostreference.substr(1))) {
 				main_module_driver.error("Cannot find host variable: " + rp->hostreference.substr(1), ERR_MISSING_HOSTVAR, stmt->src_abs_path, rp->lineno);
