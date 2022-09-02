@@ -1,6 +1,7 @@
 ﻿## Gix-IDE and Web Modules
 
-*Note: the "Web Modules" feature is still in its infancy: while working for common cases, it might break under load and/or expose quirky behaviour here and there. Moreover, data sanitization and verification are only minimally implemented (for now, obviously) so particular care should be taken not to expose or leak sensitive data by accident. Needless to say, this should not be currently used on a public facing server without a properly configured firewall in between.*
+*Note: the "Web Modules" feature is still in its infancy: while working for common cases, it might break under load and/or expose quirky behaviour here and there. Moreover, data sanitization and verification are only minimally implemented (for now, obviously) so particular care should be taken not to expose or leak sensitive data by accident.  
+Needless to say, **this should not be currently used on a public facing server without a properly configured firewall in between**.*
 
 Gix-IDE includes a HTTP server (gix-http, based on [QtWebApp](http://stefanfrings.de/qtwebapp/index-en.html) by Stefan Frings) that allows you to expose GnuCOBOL modules as web services (currently REST only).
 
@@ -19,14 +20,15 @@ Practically any COBOL source can be compiled as a web module, there are only a f
 When gix-http starts, it parses a configuration file that contains information on the server itself (e.g. the HTTP port) and on the services it will make available. Each service corresponds to a Web Module and, in turn, to a COBOL "main" program. The "main" program can call other sub-programs as needed. For now, only REST services are supported.
 
 ### How to start
-Open Gix-IDE and create a new Project Collection, then set the options like this (you can check "Precompile for ESQL") if needed:
+Open Gix-IDE and create a new Project Collection, then set the options like this (you can check "Precompile for ESQL" if needed):  
 ![New Web Project](https://www.mediumgray.info/img/new_webprj.png)
 
-A new Web Project will be created, containing a single module and a COPY file:
+A new Web Project will be created, containing a single module and a COPY file:  
 ![Web Project structure](https://www.mediumgray.info/img/webprj_prjc.png)
 
 The sample module contains the following COBOL code:
 
+```cobol
        IDENTIFICATION DIVISION.
        
        PROGRAM-ID. WEBTEST002.
@@ -57,36 +59,36 @@ The sample module contains the following COBOL code:
            
            MOVE OPCODE-IN TO OPCODE-OUT.
            MOVE FUNCTION CURRENT-DATE TO DATA-OUT-1.
+```
 
 
-As you can see, there is a sample copy file (in this case IOWEBTEST002) that is included in the LINKAGE-SECTION area. The COPY file has this structure:
+As you can see, there is a sample copy file (in this case IOWEBTEST002) that is included in the `LINKAGE-SECTION` area. The copy file has this structure:
 
-            01  PAR-IN.
-              03  OPCODE-IN      PIC X(2).
-              03  DATA-IN.
+```cobol
+        01  PAR-IN.
+          03  OPCODE-IN      PIC X(2).
+          03  DATA-IN.
                  05  DATA-IN-1 PIC X(64).
                  05  DATA-IN-2 PIC X(64).
 			  
-            01  PAR-OUT.
-              03  OPCODE-OUT      PIC X(2).
-              03  DATA-OUT.
-                 05  DATA-OUT-1 PIC X(64).
-                 05  DATA-OUT-2 PIC X(64).            
+        01  PAR-OUT.
+          03  OPCODE-OUT      PIC X(2).
+          03  DATA-OUT.
+              05  DATA-OUT-1 PIC X(64).
+              05  DATA-OUT-2 PIC X(64).            
+```
 
-PAR-IN and PAR-OUT (and their child fields) will be mapped at runtime when an HTTP call is performed. This mapping is already set by default in the new project, but obviously you cam completely change the name of the COPY files and of the input/output data areas. To do this, select the module file (WEBTEST002.cbl) in the Project Collection window, and go to the Properties window. 
+`PAR-IN` and `PAR-OUT` (and their child fields) will be mapped at runtime when an HTTP call is performed. This mapping is already set by default in the new project, but obviously you cam completely change the name of the COPY files and of the input/output data areas. To do this, select the module file (WEBTEST002.cbl) in the Project Collection window, and go to the Properties window. 
 
-There, you will find the "Expose as REST Web Service" option, already set to Yes. This indicates that this module will be used as a Web Module, i.e. the appropriate metadata will be generated to allow gix-http to use it as an entry point. You can have other modules in the same project, called in turn by the Web (entry) module, but that cannot serve as Web modules themselves. 
-
+There, you will find the "Expose as REST Web Service" option, already set to Yes. This indicates that this module will be used as a Web Module, i.e. the appropriate metadata will be generated to allow gix-http to use it as an entry point. You can have other modules in the same project, called in turn by the Web (entry) module, but that cannot serve as Web modules themselves.  
 ![REST Web Service](https://www.mediumgray.info/img/rest_opts_click.png)
 
-Click on the "..." button and a dialog will appear, where you can set some runtime options:
-
+Click on the "..." button and a dialog will appear, where you can set some runtime options:  
 ![REST Web Service options](https://www.mediumgray.info/img/rest_opts.png)
 
 For the time being, and for the sake of this tutorial, leave all the options like you found them.
 
-Now run the project by clicking the "Run" button on the toolbar, your service will be started:
-
+Now run the project by clicking the "Run" button on the toolbar, your service will be started:  
 ![Web project starting](https://www.mediumgray.info/img/webprj_start_log.png)
 
 
@@ -96,16 +98,10 @@ You can also note that the log contains two URLs: the first must be used to call
 
 Both the schema definition and the output data are in JSON format, while the input data (for now) is supplied through GET/POST parameters (this mechanism will be extended in the future to allow JSON data as input).
 
-Let's call the schema URL, which in this case is http://localhost:9090/WEBTEST002/schema
-
+Let's call the schema URL, which in this case is `http://localhost:9090/WEBTEST002/schema`  
 ![Schema call output](https://www.mediumgray.info/img/websvc_schema.png)
  
- As you can see, we get a JSON object whose two properties "properties_in" and "properties_out" contain the data definitions for input/output areas.
+ As you can see, we get a JSON object whose two properties `properties_in` and `properties_out` contain the data definitions for input/output areas.
 
-Now we can try to call the service from a web browser (or with curl/wget) passing some parameters in the URL (we'll need to replace the hyphens in field names with underscores). So if we call the URL http://localhost:9090/WEBTEST002?OPCODE_IN=73 we ge:
-
+Now we can try to call the service from a web browser (or with curl/wget) passing some parameters in the URL (we'll need to replace the hyphens in field names with underscores). So if we call the URL `http://localhost:9090/WEBTEST002?OPCODE_IN=73` we get:  
 ![Web service call data](https://www.mediumgray.info/img/websvc_data.png)
-
-
-
-

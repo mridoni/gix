@@ -17,7 +17,7 @@
 #define HOST_PLATFORM GetEnv('HOST_PLATFORM')
 
 [Setup]
-AppName=Gix-Ide
+AppName=Gix-IDE
 AppVersion={#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}
 AppCopyright=Marco Ridoni
 DefaultDirName={pf}\Gix-IDE

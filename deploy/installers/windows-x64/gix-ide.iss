@@ -7,7 +7,7 @@
 #define OTH_PLATFORM "x86"
 
 [Setup]
-AppName=Gix-Ide
+AppName=Gix-IDE
 AppVersion=1.0.{#BUILD_NUMBER}
 AppCopyright=Marco Ridoni
 DefaultDirName={autopf}\Gix-IDE
