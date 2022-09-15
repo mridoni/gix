@@ -1,0 +1,634 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_5.15.2|Win32">
+      <Configuration>Debug_5.15.2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_5.15.2|x64">
+      <Configuration>Debug_5.15.2</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Test_Debug|Win32">
+      <Configuration>Test_Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Test_Debug|x64">
+      <Configuration>Test_Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Test_Release|Win32">
+      <Configuration>Test_Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Test_Release|x64">
+      <Configuration>Test_Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B72379BA-EAE0-34E1-8D1B-8B57149215EC}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>dwarf-static</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'" Label="Configuration">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'" Label="Configuration">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'" Label="Configuration">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <PlatformToolset>v142</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">D:\gix-ide-x86\bin</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">dwarf</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">dwarf</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'">dwarf</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">dwarf</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">dwarf</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">dwarf</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">dwarf</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>dwarf</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'">
+    <TargetName>dwarf</TargetName>
+    <OutDir>D:\gix-ide-x64\bin</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'">
+    <TargetName>dwarf</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <TargetName>dwarf</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>dwarf</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'">
+    <TargetName>dwarf</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <TargetName>dwarf</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>$(SolutionDir)\libs\libdwarf\libdwarf;$(SolutionDir)\libs\libdwarf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_abbrev.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_alloc.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_crc32.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_arange.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_debug_sup.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_debuglink.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_die_deliv.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_debug_names.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_dsc.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_access.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_load_headers.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elfread.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_rel_detector.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_error.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_fission_to_cu.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_form.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_frame.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_frame2.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_funcs.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_gdbindex.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_global.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_gnu_index.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_groups.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_harmless.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_generic_init.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_init_finish.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_leb.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_line.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_loc.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_loclists.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_locationop_read.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_machoread.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_macro.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_macro5.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_names.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_object_read_common.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_object_detector.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_original_elf_init.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_peread.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_pubtypes.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_query.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_ranges.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_rnglists.c" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarfstring.h" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarfstring.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_stringsection.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_tied.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_str_offsets.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_tsearchhash.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_types.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_util.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_vars.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_weaks.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_xu_index.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_print_lines.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\malloc_check.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_alloc.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_arange.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\crc32.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_debug_sup.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_die.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_dnames.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_encode_nm.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_error.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_expr.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_finish.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_forms.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_funcs.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_frame.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_init.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_line.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_reloc.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_reloc_stream.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_reloc_symbolic.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_pubnames.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_section.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_types.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_vars.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_macinfo.c" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_weaks.c" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_abbrev.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_alloc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_arange.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_base_types.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_debuglink.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_die_deliv.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_debug_names.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_dsc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_access.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_defines.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elfread.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_rel_detector.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_386.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_aarch64.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_arm.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_mips.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_ppc64.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_ppc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_sparc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elf_reloc_x86_64.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_elfstructs.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_error.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_frame.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_funcs.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_gdbindex.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_global.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_harmless.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_gnu_index.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_incl.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_line.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_loc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_machoread.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_macro.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_macro5.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_names.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_object_detector.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_opaque.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_pe_descr.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_peread.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_reading.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_reloc_arm.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_reloc_mips.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_reloc_ppc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_reloc_ppc64.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_reloc_x86_64.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_rnglists.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_tied_decls.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_tsearch.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_str_offsets.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_types.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_util.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_vars.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_weaks.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_xu_index.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\libdwarfdefs.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\dwarf_macho_loader.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\malloc_check.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\memcpy_swap.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_alloc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_arange.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_die.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_encode_nm.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_error.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_expr.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_frame.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_incl.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_line.h" />
+    <ClCompile Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_log_extra_flag_strings.c" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_macinfo.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_opaque.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_reloc.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_reloc_stream.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_reloc_symbolic.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_section.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_types.h" />
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\libdwarf\pro_util.h" />
+    <None Include="$(SolutionDir)\libs\libdwarf\config.h.in.cmake">
+    </None>
+    <ClInclude Include="$(SolutionDir)\libs\libdwarf\config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)\libs\libdwarf\ZERO_CHECK.vcxproj">
+      <Project>{BFF70304-8D0A-30F1-9AC7-207E9B9E15A2}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
