@@ -315,7 +315,6 @@ Global
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Debug|Win32.Build.0 = Debug|Win32
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Debug|x64.ActiveCfg = Debug|x64
-		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Debug|x64.Build.0 = Debug|x64
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Release_NoRuntime|Any CPU.ActiveCfg = Test_Debug|x64
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Release_NoRuntime|Any CPU.Build.0 = Test_Debug|x64
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Release_NoRuntime|Win32.ActiveCfg = Release|Win32
@@ -326,7 +325,6 @@ Global
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Release|Win32.ActiveCfg = Release|Win32
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Release|Win32.Build.0 = Release|Win32
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Release|x64.ActiveCfg = Release|x64
-		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Release|x64.Build.0 = Release|x64
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Test_Debug|Any CPU.ActiveCfg = Debug|Win32
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Test_Debug|Any CPU.Build.0 = Debug|Win32
 		{EE6CE55D-D60E-4398-AA9F-F86E62ABBFF1}.Test_Debug|Win32.ActiveCfg = Test_Debug|Win32
@@ -666,7 +664,7 @@ Global
 		{7B513404-5306-4F79-9124-FE588042858C} = {F776960F-269A-4987-BE98-4EA1279F79D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+		Qt5Version = $(DefaultQtVersion)
 		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
-		Qt5Version = Qt_5.14_msvc64
 	EndGlobalSection
 EndGlobal
