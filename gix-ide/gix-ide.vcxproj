@@ -581,6 +581,15 @@
     <QtRcc Include="icons.qrc" />
     <QtRcc Include="templates.qrc" />
   </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="AddCompilerDialog.ui" />
+    <QtUic Include="gix-ide.ui" />
+    <QtUic Include="NewProject.ui" />
+    <QtUic Include="RestOptions.ui" />
+    <QtUic Include="Search.ui" />
+    <QtUic Include="Settings.ui" />
+    <QtUic Include="SoapOptions.ui" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />

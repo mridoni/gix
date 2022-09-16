@@ -660,13 +660,13 @@
     <ResourceCompile Include="gix-ide.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="gix-ide-compiler-def.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <QtUic Include="SoapOptions.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="Settings.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="NewProject.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="Search.ui">
@@ -675,11 +675,14 @@
     <QtUic Include="RestOptions.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="NewProject.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="gix-ide.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
     <QtUic Include="AddCompilerDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="gix-ide-compiler-def.xml" />
   </ItemGroup>
 </Project>
