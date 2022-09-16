@@ -162,16 +162,16 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'" Label="QtSettings">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'" Label="QtSettings">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -180,28 +180,28 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'" Label="QtSettings">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'" Label="QtSettings">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'" Label="QtSettings">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'" Label="QtSettings">
     <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;webchannel;websockets;xml;xmlpatterns</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
     <VcpkgAdditionalInstallOptions>VcpkgConfiguration=Debug</VcpkgAdditionalInstallOptions>
