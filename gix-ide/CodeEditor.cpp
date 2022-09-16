@@ -125,6 +125,13 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 
 		showSpecialChars(false);
 
+		// Rectangular selection
+		setSelectionMode(SC_SEL_STREAM);
+		setMouseSelectionRectangularSwitch(true);
+		setAdditionalSelectionTyping(true);
+		setMultipleSelection(false);
+		setMultiPaste(SC_MULTIPASTE_EACH);
+
 		// Auto-indent
 		connect(this, &CodeEditor::charAdded, this, [this](int ch) {
 
@@ -248,6 +255,24 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
 		});
 
+		// Tooltips
+		setMouseDwellTime(500);
+
+		connect(this, &CodeEditor::dwellStart, this, [this](int x, int y) {
+			sptr_t pos = this->positionFromPoint(x, y);
+			sptr_t wstart = wordStartPosition(pos, true);
+			sptr_t wend = wordEndPosition(pos, true);
+			QString s = QString::fromUtf8(this->get_text_range(wstart, wend));
+			emit handleTooltipOn(s, x, y, pos);
+		});
+
+		connect(this, &CodeEditor::dwellEnd, this, [this](int x, int y) {
+			sptr_t pos = this->positionFromPoint(x, y);
+			sptr_t wstart = wordStartPosition(pos, true);
+			sptr_t wend = wordEndPosition(pos, true);
+			QString s = QString::fromUtf8(this->get_text_range(wstart, wend));
+			emit handleTooltipOff(s, x, y, pos);
+		});
 	}
 };
 

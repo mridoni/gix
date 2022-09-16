@@ -49,6 +49,7 @@ class ModuleDebugInfo;
 class SymbolMappingEntry;
 class TPESQLProcessing;
 class CobolModuleMetadata;
+class PreprocessedBlockInfo;
 
 class GIXCOMMON_EXPORT CobolModuleMetadata
 {
@@ -66,6 +67,7 @@ public:
 	const QList<DataEntry *> &getFileDataEntries();
 	const QList<DataEntry *> getDataEntries();
 	const QMap<QString, Paragraph *> &getParagraphs();
+	const QList<PreprocessedBlockInfo*> getPreprocessedBlocks();
 	
 	bool runningToOriginal(int running_module_file_id, int running_line, int *orig_file_id, int *orig_line);
 	bool originalToRunning(int orig_file_id, int orig_line, int *running_module_file_id, int *running_line);
@@ -136,6 +138,8 @@ private:
 	QMap <QString, int> reverse_filemap;
 	QMap<uint64_t, uint64_t> orig_to_running_linemap;
 	QMap<uint64_t, uint64_t> running_to_orig_linemap;
+
+	QList<PreprocessedBlockInfo*> preprocessed_blocks;
 
 	QList<SymbolMappingEntry *> syms_to_dbg_syms;
 

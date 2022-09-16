@@ -237,6 +237,24 @@ struct connect_to_info_t
 	hostref_or_literal_t *t2 = nullptr;
 };
 
+enum class PreprocessedBlockType {
+	ESQL = 1
+};
 
+struct PreprocessedBlockInfo {
+	std::string module_name;
 
+	std::string orig_source_file;
+	int orig_start_line = 0;
+	int orig_end_line = 0;
+
+	std::string pp_source_file;
+	int pp_start_line = 0;
+	int pp_end_line = 0;
+	int pp_gen_start_line = 0;
+	int pp_gen_end_line = 0;
+	
+	PreprocessedBlockType type;
+	std::string command;
+};
 

@@ -39,6 +39,7 @@ public:
 	virtual LibCobInfo *extractLibCobInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err) override;
 	virtual void * getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err) override;
 	virtual bool initCobolModuleLocalInfo(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi) override;
+	virtual bool initCobolModulePreprocessedBlockInfo(GixDebugger *gd, void *hproc, SharedModuleInfo* mi) override;
 	virtual bool deinit(GixDebugger *gd, void *hproc) override;
 	virtual QString dumpStackFrame(GixDebugger *gd, void *hproc, void *hthread) override;
 	virtual void *resolveLocalVariableAddress(GixDebugger *gd, void *hproc, CobolModuleInfo *cmi, uint64_t frame_ptr, VariableResolverData *rootvar, VariableResolverData *vvar) override;

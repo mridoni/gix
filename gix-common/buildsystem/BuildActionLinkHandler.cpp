@@ -40,6 +40,18 @@ USA.
 
 using namespace cpplinq;
 
+#if defined(_WIN32) 
+	#define EMIT_FORCE_ATTR if (!compiler_cfg->isVsBased)  fs << "__attribute__((__used__)) ";  if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
+#else
+	#define EMIT_FORCE if (!compiler_cfg->isVsBased)  fs << "__attribute__((__used__)) ";
+#endif
+
+
+
+#if _WIN32
+	
+#endif
+
 BuildActionLinkHandler::BuildActionLinkHandler()
 {}
 
@@ -280,6 +292,7 @@ QStringList BuildActionLinkHandler::retrieve_link_libs(ESQLConfiguration *esql_c
 }
 
 #define DUMP_QSTRING(QS)  for (unsigned char c : QS.toLocal8Bit()) { fs << (int)c; fs << ", "; } fs << "0,\n";
+#define DUMP_STDSTRING(S)  for (unsigned char c : S) { fs << (int)c; fs << ", "; } fs << "0,\n";
 #define DUMP_INT(II) { uint32_t l = (uint32_t)II; unsigned char *pl = (unsigned char *)&l; fs << (unsigned char)(*(pl++)); fs << ", "; fs << (unsigned char)(*(pl++)); fs << ", "; fs << (unsigned char)(*(pl++)); fs << ", "; fs << (unsigned char)(*(pl++)); fs << ",\n"; }
 
 bool BuildActionLinkHandler::generateDebugHelperObj(QStringList srclist, QString target_path, QString build_dir, QString &dbg_helper_obj)
@@ -344,11 +357,19 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES\"));\n");	// Module list
 			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_C\"));\n");	// Module list (count)
 			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_S\"));\n");	// Module list (size)
+
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_PPB\"));\n");	// Pre-processed block list
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_PPB_C\"));\n");	// Pre-processed block list (count)
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_PPB_S\"));\n");	// Pre-processed block list (size)
 		}
 		else {
 			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES=___GIX_SYM_MODULES\"));\n");		// Module list
 			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_C=___GIX_SYM_MODULES_C\"));\n");	// Module list (count)
 			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_MODULES_S=___GIX_SYM_MODULES_S\"));\n");	// Module list (size)
+
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_PPB=___GIX_SYM_PPB\"));\n");		// Pre-processed block list
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_PPB_C=___GIX_SYM_PPB_C\"));\n");	// Pre-processed block list (count)
+			fs << QString("__pragma(comment(linker, \"/export:__GIX_SYM_PPB_S=___GIX_SYM_PPB_S\"));\n");	// Pre-processed block list (size)
 		}
 
 		for (CobolModuleMetadata *cmm : mod_list) {
@@ -387,18 +408,10 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 
 	fs << QString("/* Modules: %1  */\n").arg(m_names.join(", "));
 
-	if (!compiler_cfg->isVsBased)
-		fs << "__attribute__((__used__)) ";
-#if _WIN32
-	if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
+	EMIT_FORCE_ATTR
 	fs << QString("int __GIX_SYM_MODULES_C = %1;\n").arg(m_count);
 
-	if (!compiler_cfg->isVsBased)
-		fs << "__attribute__((__used__)) ";
-#if _WIN32
-	if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
+	EMIT_FORCE_ATTR
 	fs << QString("int __GIX_SYM_MODULES_S = %1;\n").arg(m_size);
 
 	fs << QString("unsigned char __GIX_SYM_MODULES[] = {\n");
@@ -412,11 +425,8 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 	// Module-specific data
 
 	for (CobolModuleMetadata *cmm : mod_list) {
-		if (!compiler_cfg->isVsBased)
-			fs << "__attribute__((__used__)) ";
-#if _WIN32
-		if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
+		
+		EMIT_FORCE_ATTR
 		fs << QString("int __GIX_SYM_%1_MC = %2;\n").arg(cmm->getModuleName()).arg(cmm->getSymbolMappingTable().size());
 
 		int size = 0;
@@ -425,22 +435,11 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 			size += (sm->id.length() + sm->cbl_var.length() + sizeof(int) + 2);
 		}
 		size += 1;
-		if (!compiler_cfg->isVsBased)
-			fs << "__attribute__((__used__)) ";
 
-#if _WIN32
-		if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
-
+		EMIT_FORCE_ATTR
 		fs << QString("int __GIX_SYM_%1_MS = %2;\n").arg(cmm->getModuleName()).arg(size);
 
-		if (!compiler_cfg->isVsBased)
-			fs << "__attribute__((__used__)) ";
-
-#if _WIN32
-		if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
-
+		EMIT_FORCE_ATTR
 		fs << QString("unsigned char __GIX_SYM_%1_M[] = {\n").arg(cmm->getModuleName());
 		for (int i = 0; i < cmm->getSymbolMappingTable().size(); i++) {
 			auto sm = cmm->getSymbolMappingTable().at(i);
@@ -458,22 +457,10 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 		QList<DataEntry *> etree = cmm->getDataEntries();
 		cmm->flattenEntryTree(entries, etree);
 
-		if (!compiler_cfg->isVsBased)
-			fs << "__attribute__((__used__)) ";
-
-#if _WIN32
-		if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
-
+		EMIT_FORCE_ATTR
 		fs << QString("int __GIX_SYM_%1_EC = %2;\n\n").arg(cmm->getModuleName()).arg(entries.size());
 
-		if (!compiler_cfg->isVsBased)
-			fs << "__attribute__((__used__)) ";
-
-#if _WIN32
-		if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
-
+		EMIT_FORCE_ATTR
 		fs << QString("unsigned char __GIX_SYM_%1_E[] = {\n").arg(cmm->getModuleName());
 
 		/*
@@ -512,15 +499,66 @@ st_gix_sym __GIX_SYM_TEST000_D[] = {
 		fs << "0\n";
 		fs << "};\n\n";
 
-		if (!compiler_cfg->isVsBased)
-			fs << "__attribute__((__used__)) ";
-
-#if _WIN32
-		if (!compiler_cfg->isVsBased) fs << " __declspec(dllexport) ";
-#endif
-
+		EMIT_FORCE_ATTR
 		fs << QString("int __GIX_SYM_%1_ES = %2;\n\n").arg(cmm->getModuleName()).arg(esize);
 	}
+
+	// Pre-processed blocks
+
+	int ppbs_count = 0;
+	int ppbs_size = 0;
+
+	for (CobolModuleMetadata* cmm : mod_list) {
+		ppbs_count += cmm->getPreprocessedBlocks().size();
+	}
+
+	fs << QString("/* Pre-processed blocks: %1  */\n").arg(ppbs_count);
+
+	// block count
+	EMIT_FORCE_ATTR
+	fs << QString("int __GIX_SYM_PPB_C = %1;\n\n").arg(ppbs_count);
+
+	// data declaration
+	EMIT_FORCE_ATTR
+	fs << QString("unsigned char __GIX_SYM_PPB[] = {\n");
+
+	if (ppbs_count > 0) {
+		// data (all modules)	
+		for (CobolModuleMetadata* cmm : mod_list) {
+			for (auto ppblk : cmm->getPreprocessedBlocks()) {
+
+				fs << QString("/* %1, %2, %3, %4, %5, %6 %7 %8 %9*/")
+					.arg(QString::fromStdString(ppblk->orig_source_file)).arg(QString::fromStdString(ppblk->pp_source_file)).arg(QString::fromStdString(ppblk->module_name))
+					.arg(ppblk->orig_start_line).arg(ppblk->orig_end_line).arg(ppblk->pp_start_line).arg(ppblk->pp_end_line)
+					.arg((int)ppblk->type).arg(QString::fromStdString(ppblk->command));
+
+				DUMP_STDSTRING(ppblk->module_name); ppbs_size += (ppblk->module_name.length() + 1);
+
+				DUMP_STDSTRING(ppblk->orig_source_file); ppbs_size += (ppblk->orig_source_file.length() + 1);
+				DUMP_INT(ppblk->orig_start_line); ppbs_size += (sizeof(uint32_t));
+				DUMP_INT(ppblk->orig_end_line); ppbs_size += (sizeof(uint32_t));
+
+				DUMP_STDSTRING(ppblk->pp_source_file); ppbs_size += (ppblk->pp_source_file.length() + 1);
+				DUMP_INT(ppblk->pp_start_line); ppbs_size += (sizeof(uint32_t));
+				DUMP_INT(ppblk->pp_end_line); ppbs_size += (sizeof(uint32_t));
+
+				DUMP_INT(ppblk->pp_gen_start_line); ppbs_size += (sizeof(uint32_t));
+				DUMP_INT(ppblk->pp_gen_end_line); ppbs_size += (sizeof(uint32_t));
+
+				DUMP_INT((int)ppblk->type); ppbs_size += (sizeof(uint32_t));
+				DUMP_STDSTRING(ppblk->command); ppbs_size += (ppblk->command.length() + 1);
+			}
+		}
+	}
+	else {
+		fs << "0";	// we need to put at least one byte in the array, or we'll gt an error when compiling the generated file
+	}
+	fs << "};\n\n";
+
+	EMIT_FORCE_ATTR
+	fs << QString("int __GIX_SYM_PPB_S = %1;\n").arg(ppbs_size);
+
+	// ****************************************************
 
 	cfile.close();
 

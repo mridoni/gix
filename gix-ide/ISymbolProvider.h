@@ -34,6 +34,7 @@ public:
 	virtual LibCobInfo *extractLibCobInfo(GixDebugger *gd, void *hproc, void *hmod, void *hsym, const QString &mod_path, void *userdata, int *err) = 0;
 	virtual void *getSymbolAddress(GixDebugger *gd, void *hproc, void *hmod, const QString &sym_name, void *userdata, int *err) = 0;
 	virtual bool initCobolModuleLocalInfo(GixDebugger *gd, void *hproc, CobolModuleInfo *) = 0;
+	virtual bool initCobolModulePreprocessedBlockInfo(GixDebugger* gd, void* hproc, SharedModuleInfo* mi) = 0;
 	virtual bool deinit(GixDebugger *gd, void *hproc) = 0;
 	virtual QString dumpStackFrame(GixDebugger *gd, void *hproc, void *hthread) = 0;
 
@@ -43,6 +44,52 @@ protected:
 
 	void _dbgMessageTrace(GixDebugger *gd, QString msg) {
 		gd->getInterfaceBlock()->debuggerMessage(gd, msg, 0);
+	}
+
+	bool filterPreprocessedBlockBreakpoints(SharedModuleInfo* mi)
+	{
+		auto bk = mi->owner->breakpoints_by_line;
+		if (!mi)
+			return false;
+
+		for (auto m : mi->cbl_modules) {
+
+			for (auto ppblk : m->preprocessed_blocks) {
+
+				if (ppblk->pp_gen_start_line < ppblk->pp_gen_end_line)
+					continue;
+
+				QString bkp_id = QDir::toNativeSeparators(QString::fromStdString(ppblk->pp_source_file)) + ":" + QString::number(ppblk->pp_gen_start_line);
+				if (!mi->owner->breakpoints_by_line.contains(bkp_id))
+					continue;
+
+				//if (ppblk->pp_end_line == ppblk->pp_start_line) {
+				//	QList<UserBreakpoint *> bkps = mi->owner->breakpoints_by_line.values(bkp_id);
+				//	for (auto bkp : bkps) {
+				//		//bkp->uninstall();
+				//		mi->owner->breakPointRemove(bkp);
+				//		mi->owner->getInterfaceBlock()->debuggerMessage(mi->owner, "PPBKP filter: removed breakpoint at " + bkp_id, 0);
+				//	}
+				//}
+				//else {
+					for (int ln = ppblk->pp_gen_start_line + 1; ln <= ppblk->pp_gen_end_line; ln++) {
+						QString bkp_id = QString::fromStdString(ppblk->pp_source_file) + ":" + QString::number(ln);
+						if (!mi->owner->breakpoints_by_line.contains(bkp_id))
+							continue;
+
+						QList<UserBreakpoint*> bkps = mi->owner->breakpoints_by_line.values(bkp_id);
+						for (auto bkp : bkps) {
+							bkp->uninstall();
+							mi->owner->breakPointRemove(bkp);
+							mi->owner->getInterfaceBlock()->debuggerMessage(mi->owner, "PPBKP filter: removed breakpoint at " + bkp_id, 0);
+						}
+					}
+				//}
+			}
+			
+		}
+
+		return true;
 	}
 };
 

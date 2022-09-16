@@ -97,6 +97,47 @@ MdiChild::MdiChild()
     });
 #endif
 
+    connect(this, &CodeEditor::handleTooltipOn, this, [this](QString s, int x, int y, sptr_t pos) {
+        QString data;
+        CobolModuleMetadata* cmm = nullptr;
+        ProjectFile* pf = this->getProjectFile();
+        if (!pf)
+            return;
+
+        if (pf->isCopy()) {
+            cmm = GixGlobals::getMetadataManager()->findFirstModuleWithCopy(pf->GetFileFullPath());
+        }
+        else {
+            if (pf->isModule()) {
+                cmm = GixGlobals::getMetadataManager()->getModuleMetadataBySource(pf->GetFileFullPath());
+            }
+        }
+
+        if (!cmm)
+            return;
+
+        DataEntry* de = cmm->findDefinition(s);
+        if (!de)
+            return;
+
+        data = de->name + "\n";
+        data += de->format + "\n";
+        data += de->filename + ":" + QString::number(de->line);
+
+        if (Ide::TaskManager()->getStatus() == IdeStatus::DebuggingOnBreak) {
+            data += "\n--------\n";
+            data += Ide::TaskManager()->getDebugManager()->getPrintableVarContent(de->name);
+        }
+
+
+        callTipShow(pos, data.toUtf8().constData());     
+        callTipSetForeHlt(RGB(0, 0, 0));
+        callTipSetHlt(0, de->name.length());
+    });
+
+    connect(this, &CodeEditor::handleTooltipOff, this, [this](QString s, int x, int y, sptr_t pos) {
+        callTipCancel();
+    });
 
 }
 

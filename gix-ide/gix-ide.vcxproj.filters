@@ -278,9 +278,6 @@
     <ClInclude Include="RestOptionsDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CodeEditor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SoapOptionsDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -420,6 +417,9 @@
     </QtMoc>
     <QtMoc Include="DragDropTableWidget.h">
       <Filter>Header Files\components</Filter>
+    </QtMoc>
+    <QtMoc Include="CodeEditor.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

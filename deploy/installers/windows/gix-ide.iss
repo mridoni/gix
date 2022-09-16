@@ -99,8 +99,8 @@ Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueNam
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{localappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 #if "1" == INCLUDE_COMPILERS
-Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "ReleaseCompilerId"; ValueData: {code:DefaultCompiler}; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DebugCompilerId"; ValueData: {code:DefaultCompiler}; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "ReleaseCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DebugCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 #endif
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "editor_font_name"; ValueData: "Courier New"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "editor_font_size"; ValueData: "9"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
@@ -112,6 +112,10 @@ Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName:
 
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
+Root: "HKLM"; Subkey: "SOFTWARE\Classes\.gix"; ValueData: "GixIdePrjColl"; Flags: createvalueifdoesntexist deletekey
+Root: "HKLM"; Subkey: "SOFTWARE\Classes\GixIdePrjColl"; ValueData: "{app}\bin\gix-ide.exe,1"; Flags: createvalueifdoesntexist deletekey
+Root: "HKLM"; Subkey: "SOFTWARE\Classes\.gixprj"; ValueData: "GixIdePrj"; Flags: createvalueifdoesntexist deletekey
+Root: "HKLM"; Subkey: "SOFTWARE\Classes\GixIdePrj"; ValueData: "{app}\bin\gix-ide.exe,2"; Flags: createvalueifdoesntexist deletekey
 
 [Dirs]
 Name: "{app}\bin"

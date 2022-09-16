@@ -1,6 +1,6 @@
 /*
 * This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
-* Copyright (C) 2021 Marco Ridoni
+* Copyright (C) 2021-2022 Marco Ridoni
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public License
@@ -306,7 +306,7 @@ void SqlVar::createRealData()
 								snprintf((char*)realdata, length, "%d", n64);
 							}
 							else {
-								// Should never happen
+								// Should never happen - TODO: log fatal and abort
 							}
 						}
 					}
@@ -347,7 +347,7 @@ void SqlVar::createRealData()
 								snprintf((char*)realdata, length, "%d", n64);
 							}
 							else {
-								// Should never happen
+								// Should never happen - TODO: log fatal and abort
 							}
 						}
 					}
@@ -385,10 +385,10 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 			// before decimal point
 			int beforedp = 0;
 			for (ptr = retstr; *ptr != '\0'; ptr++) {
-                if (*ptr == _decimal_point) {
+				if (*ptr == _decimal_point) {
 					break;
 				}
-                else {
+				else {
 					beforedp++;
 				}
 			}
@@ -442,7 +442,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 			// before decimal point
 			int beforedp = 0;
 			for (ptr = value; *ptr != '\0'; ptr++) {
-                if (*ptr == _decimal_point) {
+				if (*ptr == _decimal_point) {
 					break;
 				}
 				else {
@@ -505,7 +505,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 			// before decimal point
 			int beforedp = 0;
 			for (ptr = value; *ptr != '\0'; ptr++) {
-                if (*ptr == _decimal_point) {
+				if (*ptr == _decimal_point) {
 					break;
 				}
 				else {
@@ -600,8 +600,6 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 
 		case COBOL_TYPE_UNSIGNED_BINARY:
 
-			memset(addr, 0, length);
-
 			if (this->length == 1) {	// 1 byte
 				*((uint8_t*)addr) = (uint8_t)strtoull(retstr, NULL, 0);
 			}
@@ -627,7 +625,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 								*((uint64_t*)addr) = COB_BSWAP_64(u_long_number);
 							}
 							else {
-								// Should never happen
+								// Should never happen - TODO: log fatal and abort
 							}
 						}
 					}
@@ -636,7 +634,6 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 			break;
 
 		case COBOL_TYPE_SIGNED_BINARY:
-			memset(addr, 0, length);
 
 			if (this->length == 1) {	// 1 byte
 				*((int8_t*)addr) = (int8_t)strtoll(retstr, NULL, 0);
@@ -662,7 +659,7 @@ void SqlVar::createCobolData(char *retstr, int datalen)
 								*((int64_t*)addr) = COB_BSWAP_64(s_long_number);
 							}
 							else {
-								// Should never happen
+								// Should never happen - TODO: log fatal and abort
 							}
 						}
 					}

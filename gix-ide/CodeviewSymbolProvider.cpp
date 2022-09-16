@@ -309,6 +309,7 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 	for (auto src_mask : gd->src_file_types) {
 		if (!SymEnumSourceFiles(hProcess, (ULONG64)hsym, src_mask.toLocal8Bit().constData(), DLL_EnumSourceFilesProc, mi)) {
 			gd->printLastError();
+			*err = -1;
 			return nullptr;
 		}
 	}
@@ -338,6 +339,7 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 	if (!__GIX_SYM_MODULES || __GIX_SYM_MODULES_C < 0 || __GIX_SYM_MODULES_S < 0) {
 		gd->printMessage("ERROR: cannot parse module debug info (module info)\n");
 		delete mi;
+		*err = -1;
 		return nullptr;
 	}
 
@@ -384,9 +386,23 @@ SharedModuleInfo *CodeviewSymbolProvider::extractModuleDebugInfo(GixDebugger *gd
 			gd->printMessage("ERROR: cannot parse module debug info (source lines)\n");
 			delete cmi;
 			delete mi;
+			*err = -1;
 			return nullptr;
 		}
 	}
+
+	if (!initCobolModulePreprocessedBlockInfo(gd, hproc, mi)) {
+		gd->printMessage("ERROR: cannot parse module preprocessed block info\n");
+		*err = -1;
+		return nullptr;
+	}
+
+	if (!filterPreprocessedBlockBreakpoints(mi)) {
+		gd->printMessage("ERROR: cannot apply preprocessed block info\n");
+		*err = -1;
+		return nullptr;
+	}
+
 	return mi;
 }
 
@@ -447,6 +463,9 @@ int CodeviewSymbolProvider::readSymbolValueAsInt(void *hproc, const QString &s)
 
 uint8_t *CodeviewSymbolProvider::readSymbolValueInBuffer(void *hproc, const QString &s, int bfrlen)
 {
+	if (!bfrlen)
+		return 0;
+
 	DWORD64 addr = (DWORD64)getSymbolAddress(NULL, hproc, NULL, s, NULL, 0);
 	if (!addr)
 		return 0;
@@ -516,6 +535,66 @@ bool CodeviewSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hpr
 	free(__GIX_SYM_MOD_M);
 
 	cmi->initialized = true;
+	return true;
+}
+
+bool CodeviewSymbolProvider::initCobolModulePreprocessedBlockInfo(GixDebugger* gd, void* hproc, SharedModuleInfo *smi)
+{
+	int __GIX_SYM_PPB_C = readSymbolValueAsInt(hproc, "__GIX_SYM_PPB_C");
+	int __GIX_SYM_PPB_S = readSymbolValueAsInt(hproc, "__GIX_SYM_PPB_S");
+
+	uint8_t* __GIX_SYM_PPB = readSymbolValueInBuffer(hproc, "__GIX_SYM_PPB", __GIX_SYM_PPB_S);
+
+	if (__GIX_SYM_PPB_C < 0 || __GIX_SYM_PPB_S < 0) {	// __GIX_SYM_PPB may be 0 when we have no preprocessed blocks
+		gd->printMessage("ERROR: cannot parse debug info (preprocessed block data)\n");
+		return false;
+	}
+
+	SymbolBufferReader sr(__GIX_SYM_PPB, __GIX_SYM_PPB_S);
+	for (int i = 0; i < __GIX_SYM_PPB_C; i++) {
+
+		PreprocessedBlockInfo* ppblk = new PreprocessedBlockInfo();
+
+		QString module_name = sr.readString();
+		ppblk->module_name = module_name.toStdString();
+
+		if (!smi->cbl_modules.contains(module_name)) {
+			delete ppblk;
+			gd->printMessage("WARNING: module " + module_name + " not found\n");
+			continue;
+		}
+
+		ppblk->orig_source_file = sr.readString().toStdString();
+		ppblk->orig_start_line = sr.readInt();
+		ppblk->orig_end_line = sr.readInt();
+
+		ppblk->pp_source_file = sr.readString().toStdString();
+		if (starts_with(ppblk->pp_source_file, "#")) {
+			QString d = gd->getBuildDirectory();
+			QString f = PathUtils::combine(d, QString::fromStdString(ppblk->pp_source_file.substr(1)));
+			if (!QFile::exists(f)) {
+				delete ppblk;
+				gd->printMessage("WARNING: source " + f + " not found\n");
+				continue;
+			}
+			ppblk->pp_source_file = f.toStdString();
+		}
+		ppblk->pp_start_line = sr.readInt();
+		ppblk->pp_end_line = sr.readInt();
+
+		ppblk->pp_gen_start_line = sr.readInt();
+		ppblk->pp_gen_end_line = sr.readInt();
+
+		ppblk->type = (PreprocessedBlockType) sr.readInt();
+		ppblk->command = sr.readString().toStdString();
+
+
+		CobolModuleInfo* cmi = smi->cbl_modules[module_name];
+		cmi->preprocessed_blocks.append(ppblk);
+	}
+
+	free(__GIX_SYM_PPB);
+
 	return true;
 }
 

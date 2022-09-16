@@ -49,6 +49,8 @@ public:
 
     const QMap<QString, ProjectFile *> &getModulesSourceMap();
 
+    CobolModuleMetadata* findFirstModuleWithCopy(QString filename);
+
     void reset();
 
 signals:

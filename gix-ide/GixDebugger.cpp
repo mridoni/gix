@@ -165,7 +165,7 @@ void GixDebugger::getAndResolveUserBreakpoints()
 	// Second: we add new breakpoints
 	for (auto it = new_bkps.begin(); it != new_bkps.end(); ++it) {
 		QPair<QString, int> newbp = *it;
-		auto itt = std::find_if(breakpoints.begin(), breakpoints.end(), [newbp](UserBreakpoint *b) { return QDir::cleanPath(newbp.first) == QDir::cleanPath(b->source_file) && newbp.second == b->line; });
+		auto itt = std::find_if(breakpoints.begin(), breakpoints.end(), [newbp](UserBreakpoint *b) { return QDir::cleanPath(newbp.first).toLower() == QDir::cleanPath(b->source_file).toLower() && newbp.second == b->line; });
 		if (itt == breakpoints.end()) {
 			UserBreakpoint *bkp = UserBreakpoint::createInstance();
 			bkp->key = newbp.first + ":" + QString::number(newbp.second);
@@ -213,6 +213,19 @@ bool GixDebugger::isCblEntryPoint(void *addr, CobolModuleInfo **cmi)
 	return false;
 }
 
+bool GixDebugger::is_first_line_of_preproc_block(CobolModuleInfo* cmi, QString src_file, int line, int* actual_line)
+{
+	for (auto ppblk : cmi->preprocessed_blocks) {
+		QString s1 = QString::fromStdString(ppblk->pp_source_file).toLower();
+		QString s2 = src_file.toLower();
+		if (QDir::cleanPath(s1) == QDir::cleanPath(s2) && ppblk->pp_gen_start_line == line) {
+			*actual_line = ppblk->pp_start_line;
+			return true;
+		}
+	}
+	return false;
+}
+
 
 GixDebugger::~GixDebugger()
 {
@@ -246,6 +259,11 @@ void GixDebugger::setProcess(const QString &path)
 void GixDebugger::setWorkingDirectory(const QString &wd)
 {
 	working_dir = QDir::cleanPath(wd);
+}
+
+void GixDebugger::setBuildDirectory(const QString& bd)
+{
+	build_dir = bd;
 }
 
 void GixDebugger::setModuleDirectory(const QString &md)
@@ -311,6 +329,11 @@ QString GixDebugger::getWorkingDirectory()
 QString GixDebugger::getModuleDirectory()
 {
 	return module_dir;
+}
+
+QString GixDebugger::getBuildDirectory()
+{
+	return build_dir;
 }
 
 DebuggedModuleType GixDebugger::getDebuggedModuleType()

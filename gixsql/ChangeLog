@@ -1,3 +1,11 @@
+=== v1.0.18a =====================================================
+- Changed logging system initializationto avoid possible crashes
+- Fixed some spelling problems in the documentation
+- Fixed some memory leaks in the runtime
+- Solution for "sqlstate by driver may set 00000 for errors (in GixSQL?)" (#114)
+- Additional fix for "codegen / logic issue for "GIXSQLCursorDeclareParams" (#88)
+- Allowing variable with level 77/78 in the parser
+
 === v1.0.18 ======================================================
 - Added new Oracle driver, based on ODPI
 - Added new SQLite driver

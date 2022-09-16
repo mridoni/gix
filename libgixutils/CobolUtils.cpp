@@ -32,6 +32,12 @@ bool CobolUtils::isReservedWord(QString s)
 	return reserved_words.contains(s.toUpper());
 }
 
+void CobolUtils::resetReservedWordsSet()
+{
+	reserved_words.clear();
+	init_reserved_words_set();
+}
+
 QString CobolUtils::extractProgramId(const QString &filename)
 {
 	if (filename.isEmpty() || !QFile::exists(filename))

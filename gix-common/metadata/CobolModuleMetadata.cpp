@@ -204,6 +204,11 @@ const QMap<QString, Paragraph *> &CobolModuleMetadata::getParagraphs()
 	return paragraphs;
 }
 
+const QList<PreprocessedBlockInfo*> CobolModuleMetadata::getPreprocessedBlocks()
+{
+	return preprocessed_blocks;
+}
+
 bool CobolModuleMetadata::runningToOriginal(int running_module_file_id, int running_line, int *orig_file_id, int *orig_line)
 {
 	//if (running_line == 0) {
@@ -918,6 +923,10 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		cmm->original_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp->getInput()));
 		cmm->running_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp->getOutput()));
 		cmm->flags |= FLAG_M_PREPROCD_COPY;
+
+		for (auto b : pp->getPreprocessedBlocks()) {
+			cmm->preprocessed_blocks.append(b);
+		}
 	}
 	else {
 		// 2nd pass
@@ -956,6 +965,11 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		cmm->filemap = SysUtils::to_qmap_int_qstring(pp2->getReverseFileMap());
 		cmm->original_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp2->getInput()));
 		cmm->running_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp2->getOutput()));
+
+		cmm->preprocessed_blocks.clear();
+		for (auto b : pp2->getPreprocessedBlocks()) {
+			cmm->preprocessed_blocks.append(b);
+		}
 	}
 	// *********************
 

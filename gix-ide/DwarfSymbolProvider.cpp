@@ -308,6 +308,11 @@ SharedModuleInfo *DwarfSymbolProvider::extractModuleDebugInfo(GixDebugger *gd, v
 				_dbgMessageTrace(gd, QString("ERROR: cannot initialize module local info"));
 			}
 		}
+
+		if (!initCobolModulePreprocessedBlockInfo(gd, hproc, shared_module)) {
+			gd->printMessage("ERROR: cannot parse module preprocessed block info\n");
+			return nullptr;
+		}
 	}
 
 	return shared_module;
@@ -501,6 +506,11 @@ bool DwarfSymbolProvider::initCobolModuleLocalInfo(GixDebugger *gd, void *hproc,
 	cmi->initialized = true;
 
 	return true;
+}
+
+bool DwarfSymbolProvider::initCobolModulePreprocessedBlockInfo(GixDebugger* gd, void* hproc, SharedModuleInfo* mi)
+{
+	return false;
 }
 
 bool DwarfSymbolProvider::deinit(GixDebugger *gd, void *hproc)

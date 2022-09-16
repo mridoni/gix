@@ -57,6 +57,8 @@ public:
 	std::map<std::string, srcLocation> getParagraphs();
 	std::map<std::string,  std::vector<std::string>> getFileDependencies();
 
+	std::vector<PreprocessedBlockInfo*> getPreprocessedBlocks();
+
 	// Inherited via ITransformationStep
 	virtual bool run(ITransformationStep *prev_step) override;
 	virtual std::string getOutput(ITransformationStep *me = nullptr) override;
@@ -91,6 +93,9 @@ private:
 
 	std::map<uint64_t, uint64_t> b_in_to_out;
 	std::map<uint64_t, uint64_t> b_out_to_in;
+
+	std::vector<PreprocessedBlockInfo*> preprocessed_blocks;
+	std::map<cb_exec_sql_stmt_ptr, std::tuple<int, int>> generated_blocks;
 
 	int outputESQL();
 	cb_exec_sql_stmt_ptr find_exec_sql_stmt(const std::string filename, int i);
@@ -139,6 +144,8 @@ private:
 
 	bool put_res_host_parameters(const cb_exec_sql_stmt_ptr stmt, int *res_params_count);
 	bool put_host_parameters(const cb_exec_sql_stmt_ptr stmt);
+
+	void add_preprocessed_blocks();
 
 	std::stack<std::string> input_file_stack;
 	int working_begin_line;

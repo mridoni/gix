@@ -72,7 +72,7 @@ USA.
 #define COB_BSWAP_64(val) (_byteswap_uint64 (val))
 #endif
 
-DebugManager::DebugManager(IdeTaskManager *_ide_task_manager)
+DebugManager::DebugManager(IdeTaskManager* _ide_task_manager)
 {
 	debug_driver = nullptr;
 	ide_task_manager = _ide_task_manager;
@@ -95,7 +95,7 @@ DebugManager::~DebugManager()
 		debug_driver_thread->wait();
 	}
 
-	for (ModuleDebugInfo *mdi : modules) {
+	for (ModuleDebugInfo* mdi : modules) {
 		delete mdi;
 	}
 
@@ -110,17 +110,17 @@ void DebugManager::setDebuggingEnabled(bool f)
 	is_debugging_enabled = f;
 }
 
-bool DebugManager::start(Project *prj, QString _build_configuration, QString _target_platform)
+bool DebugManager::start(Project* prj, QString _build_configuration, QString _target_platform)
 {
 	QSettings settings;
 
 #if defined (__linux__)
-    if (prj->getType() == ProjectType::Web) {
-        QString msg = QString(tr("Debugging of Web Projects under Linux is not currently supported"));
-        ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
-        UiUtils::ErrorDialog(msg);
-        return false;
-    }
+	if (prj->getType() == ProjectType::Web) {
+		QString msg = QString(tr("Debugging of Web Projects under Linux is not currently supported"));
+		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		UiUtils::ErrorDialog(msg);
+		return false;
+	}
 #endif
 
 	build_configuration = _build_configuration;
@@ -139,7 +139,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		return false;
 	}
 
-	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform, QVariantMap());
+	CompilerConfiguration* compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform, QVariantMap());
 	if (compiler_cfg == nullptr) {
 		QString msg(tr("Invalid compiler configuration"));
 		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
@@ -166,7 +166,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	MacroManager mm(build_env);
 
 #if _DEBUG
-	BuildTarget *bt = prj->getBuildTarget(build_env, nullptr);
+	BuildTarget* bt = prj->getBuildTarget(build_env, nullptr);
 #else
 	QScopedPointer<BuildTarget> bt(prj->getBuildTarget(build_env, nullptr));
 #endif
@@ -293,9 +293,9 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 
 	// No need to manually delete these, the ServerConfig they're eventually attached to 
 	// will do it for us when it goes out of scope
-	ServiceConfig *svc_rest = nullptr, *svc_soap = nullptr;
+	ServiceConfig* svc_rest = nullptr, * svc_soap = nullptr;
 
-	ProjectFile *main_module_obj = prj->getStartupItem();
+	ProjectFile* main_module_obj = prj->getStartupItem();
 
 	if (main_module_obj && main_module_obj->isHttpService()) {
 		cmd = PathUtils::combine(GixGlobals::getGixBinDir(), "gix-http");
@@ -396,7 +396,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	QStringList cmd_args = parseArguments(prj->PropertyGetValue("dbg_args").toString());
 	cobcrun_opts.append(cmd_args);
 
-	GixDebugger *gd = GixDebugger::get();
+	GixDebugger* gd = GixDebugger::get();
 	if (!gd) {
 		QString msg = tr("Cannot create a debugger instance. Unsupported platform?");
 		QLogger::QLog_Error(GIX_CONSOLE_LOG, msg);
@@ -412,7 +412,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		dbg_env[k] = v;
 
 		if (ide_task_manager->isDebugOutputEnabled()) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, k + "=" + v, QLogger::LogLevel::Trace);
+			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString("%1=%2").arg(k).arg(v), QLogger::LogLevel::Trace);
 		}
 	}
 
@@ -420,11 +420,13 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	gd->setProperty("symformat", compiler_cfg->isVsBased ? "pdb" : "dwarf");
 	gd->setWorkingDirectory(working_dir);
 	gd->setModuleDirectory(QFileInfo(target_full_path).path());
+	gd->setBuildDirectory(build_dir);
 	gd->setProcess(cmd);
 	gd->setCommandLine(cobcrun_opts.join(" "));
 	gd->setDebuggedModuleType(build_type == "dll" ? DebuggedModuleType::Shared : DebuggedModuleType::Executable);
 	gd->setDebuggingEnabled(is_debugging_enabled);
 	gd->setUseExternalConsole(dbg_separate_console);
+	
 
 	QString stdin_file = prj->PropertyGetValue("dbg_stdin_file").toString();
 	if (!stdin_file.isEmpty()) {
@@ -447,11 +449,11 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	QObject::connect(debug_driver, &DebugDriver::DebuggerProcessError, this, [this](QString m, int l) {
 		debuggedProcessError(l, m);
 		QGuiApplication::restoreOverrideCursor();
-	}, Qt::ConnectionType::QueuedConnection);
+		}, Qt::ConnectionType::QueuedConnection);
 
 	QObject::connect(debug_driver, &DebugDriver::DebuggerReady, debug_driver, [this](QString msg) {
 		QGuiApplication::restoreOverrideCursor();
-	}, Qt::ConnectionType::DirectConnection);   // This is direct to avoid a race condition
+		}, Qt::ConnectionType::DirectConnection);   // This is direct to avoid a race condition
 
 	QObject::connect(debug_driver, &DebugDriver::DebuggerStdOutAvailable, this, [this](QString m) { ide_task_manager->consoleWriteStdOut(m); }, Qt::ConnectionType::QueuedConnection);
 	QObject::connect(debug_driver, &DebugDriver::DebuggerStdErrAvailable, this, [this](QString m) { ide_task_manager->consoleWriteStdErr(m); }, Qt::ConnectionType::QueuedConnection);
@@ -487,7 +489,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 
 void DebugManager::readStdErr()
 {
-	QProcess *p = (QProcess *)sender();
+	QProcess* p = (QProcess*)sender();
 	p->setReadChannel(QProcess::ProcessChannel::StandardError);
 	QString s = p->readAll();
 	ide_task_manager->logMessage(GIX_CONSOLE_LOG, s, QLogger::LogLevel::Error);
@@ -495,7 +497,7 @@ void DebugManager::readStdErr()
 
 void DebugManager::readStdOut()
 {
-	QProcess *p = (QProcess *)sender();
+	QProcess* p = (QProcess*)sender();
 	p->setReadChannel(QProcess::ProcessChannel::StandardOutput);
 	QString s = p->readAll();
 	ide_task_manager->logMessage(GIX_CONSOLE_LOG, s, QLogger::LogLevel::Info);
@@ -555,7 +557,7 @@ void DebugManager::debug_break(QString module_name, QString src_file, int ln)
 	bool bkp_located = false;
 
 	//CobolModuleMetadata *cmm = dbg_metadata_by_module.contains(module_name) ? dbg_metadata_by_module[module_name] : nullptr;
-	CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
+	CobolModuleMetadata* cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
 	if (cmm) {
 		if (!cmm->isPreprocessedESQL()) {	// Type 1
 			cur_src_file = src_file;
@@ -629,7 +631,7 @@ int DebugManager::getCurrentLine()
 	return cur_line;
 }
 
-bool DebugManager::parsePosition(QString pos, QString &module, int *line)
+bool DebugManager::parsePosition(QString pos, QString& module, int* line)
 {
 	QRegularExpression rx("^([A-Za-z0-9\\-_]+):([0-9]+)$");
 	QRegularExpressionMatch m = rx.match(pos);
@@ -644,7 +646,7 @@ bool DebugManager::parsePosition(QString pos, QString &module, int *line)
 
 void DebugManager::loadDebugManagerState()
 {
-	ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
+	ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
 	if (ppj == nullptr)
 		return;
 
@@ -653,14 +655,14 @@ void DebugManager::loadDebugManagerState()
 
 void DebugManager::saveDebugManagerState()
 {
-	ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
+	ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
 	if (ppj == nullptr)
 		return;
 
 	Ide::TaskManager()->setWatchedVars(watched_vars);
 }
 
-QString DebugManager::driverWrite(const QString &msg)
+QString DebugManager::driverWrite(const QString& msg)
 {
 	//driver_client.write(msg.toLocal8Bit().constData());
 	debug_driver->write(msg);
@@ -688,14 +690,32 @@ QStringList DebugManager::parseArguments(QString args)
 	return arglist;
 }
 
-QString DebugManager::getPrintableVarContent(QString n)
+QString DebugManager::getPrintableVarContent(QString var_name)
 {
-	driverWrite(DebugDriver::CMD_GET_VAR + n);
-	QString value = debug_driver->getLastResponse();
-	if (value.startsWith("OK:"))
-		return value.mid(3);
-	else
-		return value;
+	QString res = "{??}";
+
+	QList<VariableData*> var_req;
+	VariableData* vd = new VariableData();
+	vd->var_name = var_name;
+	var_req.push_back(vd);
+
+	if (debug_driver->debuggerInstance()->getVariables(var_req)) {
+
+		QString s = "";
+		VariableResolverData* vrd = vd->resolver_data;
+
+		if (vrd) {
+
+			formatVariable(vrd->var_path, vd->data, vrd->type, (WsEntryStorageType)vrd->storage_type, vrd->storage_size, vrd->display_size, vrd->is_signed, vrd->decimals, s);
+			res = s;
+
+			delete vd->data;
+		}
+	}
+
+	qDeleteAll(var_req);
+
+	return res;
 }
 
 QMap<QString, QString> DebugManager::getPrintableVarListContent(QStringList vlist)
@@ -704,27 +724,27 @@ QMap<QString, QString> DebugManager::getPrintableVarListContent(QStringList vlis
 	if (!vlist.size())
 		return res;
 
-	QList<VariableData *> var_req;
+	QList<VariableData*> var_req;
 	for (QString var_name : vlist) {
-		VariableData *vd = new VariableData();
+		VariableData* vd = new VariableData();
 		vd->var_name = var_name;
 		var_req.push_back(vd);
 	}
 
 	if (debug_driver->debuggerInstance()->getVariables(var_req)) {
-		for (VariableData *vd : var_req) {
-			
+		for (VariableData* vd : var_req) {
+
 			if (!vd)
 				continue;
 
 			QString s = "";
-			VariableResolverData *vrd = vd->resolver_data;
+			VariableResolverData* vrd = vd->resolver_data;
 
 			if (!vrd) {
 				res[vd->var_name] = "{??}";
 				continue;
 			}
-			
+
 			formatVariable(vrd->var_path, vd->data, vrd->type, (WsEntryStorageType)vrd->storage_type, vrd->storage_size, vrd->display_size, vrd->is_signed, vrd->decimals, s);
 			res[vd->var_name] = s;
 
@@ -737,9 +757,9 @@ QMap<QString, QString> DebugManager::getPrintableVarListContent(QStringList vlis
 	return res;
 }
 
-void DebugManager::formatVariable(QString var_path, uint8_t *data, WsEntryType type, WsEntryStorageType storage_type, int storage_size, int display_size, bool is_signed, int decimals, QString& vres)
+void DebugManager::formatVariable(QString var_path, uint8_t* data, WsEntryType type, WsEntryStorageType storage_type, int storage_size, int display_size, bool is_signed, int decimals, QString& vres)
 {
-	char *s = nullptr;
+	char* s = nullptr;
 	int ndigits = 0;
 
 	if (!data || !storage_size) {
@@ -749,65 +769,65 @@ void DebugManager::formatVariable(QString var_path, uint8_t *data, WsEntryType t
 
 	switch (type) {
 		// TODO: storage size and address are not computed correctly for group variables
-		case WsEntryType::Group: 
-			{
-				QString module_name = debug_driver->debuggerInstance()->getCurrentCobolModuleName();
-				CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
-				if (!cmm) {
-					vres += "{??}";
-					break;
-				}
-
-				// We need a DataEntry, since it has more information (children, etc.)
-				DataEntry *e = cmm->findDefinition(var_path, true);
-				if (!e) {
-					vres += "{??}";
-					break;
-				}
-
-				for (DataEntry *c : e->children) {
-					formatVariable(c->path, data + c->offset_local, c->type, c->storage_type, c->storage_size, c->display_size, c->is_signed, c->decimals, vres);
-				}
-			}
-			break;
-
-		case WsEntryType::Filler:
-			vres += QString(display_size, ' ');
-			break;
-
-		case WsEntryType::Unknown:
+	case WsEntryType::Group:
+	{
+		QString module_name = debug_driver->debuggerInstance()->getCurrentCobolModuleName();
+		CobolModuleMetadata* cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
+		if (!cmm) {
 			vres += "{??}";
 			break;
+		}
 
-		default:
-			switch (storage_type) {
+		// We need a DataEntry, since it has more information (children, etc.)
+		DataEntry* e = cmm->findDefinition(var_path, true);
+		if (!e) {
+			vres += "{??}";
+			break;
+		}
 
-				case WsEntryStorageType::Literal:
-					s = (char *)malloc(storage_size + 1);
-					memcpy(s, data, storage_size);
-					s[storage_size] = 0;
+		for (DataEntry* c : e->children) {
+			formatVariable(c->path, data + c->offset_local, c->type, c->storage_type, c->storage_size, c->display_size, c->is_signed, c->decimals, vres);
+		}
+	}
+	break;
 
-					vres += QString(s);
-					free(s);
-					break;
+	case WsEntryType::Filler:
+		vres += QString(display_size, ' ');
+		break;
 
-				case WsEntryStorageType::Comp3:
-					ndigits = display_size - ((is_signed ? 1 : 0) + (decimals > 0 ? 1 : 0));
-					s = comp3_to_display(ndigits, decimals, is_signed, data);
-					vres += QString::fromLocal8Bit(s);
-					free(s);
-					break;
+	case WsEntryType::Unknown:
+		vres += "{??}";
+		break;
 
-				case WsEntryStorageType::Comp:
-				case WsEntryStorageType::Comp5:
-					bool is_native_binary = (storage_type == WsEntryStorageType::Comp5);
-					ndigits = display_size - ((is_signed ? 1 : 0) + (decimals > 0 ? 1 : 0));
-					s = comp5_to_display(ndigits, decimals, is_signed, data, is_native_binary);
-					vres += QString::fromLocal8Bit(s);
-					free(s);
-					break;
+	default:
+		switch (storage_type) {
 
-			}
+		case WsEntryStorageType::Literal:
+			s = (char*)malloc(storage_size + 1);
+			memcpy(s, data, storage_size);
+			s[storage_size] = 0;
+
+			vres += QString(s);
+			free(s);
+			break;
+
+		case WsEntryStorageType::Comp3:
+			ndigits = display_size - ((is_signed ? 1 : 0) + (decimals > 0 ? 1 : 0));
+			s = comp3_to_display(ndigits, decimals, is_signed, data);
+			vres += QString::fromLocal8Bit(s);
+			free(s);
+			break;
+
+		case WsEntryStorageType::Comp:
+		case WsEntryStorageType::Comp5:
+			bool is_native_binary = (storage_type == WsEntryStorageType::Comp5);
+			ndigits = display_size - ((is_signed ? 1 : 0) + (decimals > 0 ? 1 : 0));
+			s = comp5_to_display(ndigits, decimals, is_signed, data, is_native_binary);
+			vres += QString::fromLocal8Bit(s);
+			free(s);
+			break;
+
+		}
 	}
 
 }
@@ -849,18 +869,18 @@ QStringList DebugManager::getTranslatedBreakpoints()
 
 	for (auto usr_bkp : usr_breakpoints) {
 		QString srcfile = usr_bkp.mid(usr_bkp.indexOf('@') + 1);
-		CobolModuleMetadata *the_module = nullptr;
+		CobolModuleMetadata* the_module = nullptr;
 
 		for (QString module_name : GixGlobals::getMetadataManager()->getModulesSourceMap().keys()) {
-			CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
+			CobolModuleMetadata* cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
 			if (!cmm) {
 				QString msg = QString(tr("Cannot resolve data for module %1")).arg(module_name);
 				ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
 				continue;
 			}
 
-			if (GixGlobals::getMetadataManager()->getModulesSourceMap().value(module_name)->GetFileFullPath() == srcfile || 
-					cmm->getFileDependencies().contains(srcfile)) {
+			if (GixGlobals::getMetadataManager()->getModulesSourceMap().value(module_name)->GetFileFullPath() == srcfile ||
+				cmm->getFileDependencies().contains(srcfile)) {
 				the_module = cmm;
 				break;
 			}
@@ -895,7 +915,7 @@ void DebugManager::writeToProcess(QString s)
 		debug_driver->writeToProcess(s);
 }
 
-QString DebugManager::translateBreakpoint(CobolModuleMetadata *cmm, const QString &orig_bkp)
+QString DebugManager::translateBreakpoint(CobolModuleMetadata* cmm, const QString& orig_bkp)
 {
 	QString orig_src_file = orig_bkp.mid(orig_bkp.indexOf("@") + 1);
 	int orig_ln = orig_bkp.mid(0, orig_bkp.indexOf("@")).toInt();
@@ -922,7 +942,7 @@ QString DebugManager::translateBreakpoint(CobolModuleMetadata *cmm, const QStrin
 	return tx_bkp;
 }
 
-QStringList DebugManager::translateBreakpoints(CobolModuleMetadata *cmm, const QStringList &orig_bkps)
+QStringList DebugManager::translateBreakpoints(CobolModuleMetadata* cmm, const QStringList& orig_bkps)
 {
 	QStringList tx_bkps;
 	for (QString orig_bkp : orig_bkps) {
@@ -933,7 +953,7 @@ QStringList DebugManager::translateBreakpoints(CobolModuleMetadata *cmm, const Q
 	return tx_bkps;
 }
 
-bool DebugManager::translateBreakpointReverse(CobolModuleMetadata *cmm, const QString &running_file, int running_ln, QString &orig_file, int *orig_ln)
+bool DebugManager::translateBreakpointReverse(CobolModuleMetadata* cmm, const QString& running_file, int running_ln, QString& orig_file, int* orig_ln)
 {
 	QString r_orig_file;
 	int r_orig_ln = 0;
@@ -951,15 +971,15 @@ bool DebugManager::translateBreakpointReverse(CobolModuleMetadata *cmm, const QS
 	return true;
 }
 
-char *DebugManager::comp3_to_display(int total_len, int scale, int has_sign, uint8_t *addr)
+char* DebugManager::comp3_to_display(int total_len, int scale, int has_sign, uint8_t* addr)
 {
 	int display_len = total_len;
 
 	int bfrlen = display_len + (has_sign ? 1 : 0) + (scale > 0 ? 1 : 0);
 
-	char *copy = (char *)malloc(bfrlen + 1);
+	char* copy = (char*)malloc(bfrlen + 1);
 	memset(copy, ASCII_ZERO, display_len);
-	uint8_t *ptr = (uint8_t *)copy;
+	uint8_t* ptr = (uint8_t*)copy;
 
 	int storage_len = (total_len / 2) + 1;
 
@@ -1006,48 +1026,48 @@ char *DebugManager::comp3_to_display(int total_len, int scale, int has_sign, uin
 	return copy;
 }
 
-char *DebugManager::comp5_to_display(int total_len, int scale, int has_sign, uint8_t *addr, bool is_native_binary)
+char* DebugManager::comp5_to_display(int total_len, int scale, int has_sign, uint8_t* addr, bool is_native_binary)
 {
 	int display_len = total_len;
 
 	int bfrlen = display_len + (has_sign ? 1 : 0) + (scale > 0 ? 1 : 0);
 
-	char *bfr = (char *)malloc(bfrlen + 1);
+	char* bfr = (char*)malloc(bfrlen + 1);
 	memset(bfr, ASCII_ZERO, display_len);
-	uint8_t *ptr = (uint8_t *)bfr;
+	uint8_t* ptr = (uint8_t*)bfr;
 
 	bool is_negative = false;
 
 	if (!has_sign) {
 		if (total_len == 1) {	// 1 byte
-			uint8_t n8 = *((uint8_t *)addr);
-			snprintf((char *)bfr, total_len, "%d", n8);
+			uint8_t n8 = *((uint8_t*)addr);
+			snprintf((char*)bfr, total_len, "%d", n8);
 		}
 		else {
 			if (total_len == 2) {	// 1 byte
-				uint8_t n8 = *((uint8_t *)addr);
-				snprintf((char *)bfr, total_len, "%d", n8);
+				uint8_t n8 = *((uint8_t*)addr);
+				snprintf((char*)bfr, total_len, "%d", n8);
 			}
 			else {
 				if (total_len == 3 || total_len == 4) {	// 2 bytes
-					uint16_t n16 = *((uint16_t *)addr);
+					uint16_t n16 = *((uint16_t*)addr);
 					if (!is_native_binary)
 						n16 = COB_BSWAP_16(n16);
-					snprintf((char *)bfr, total_len, "%d", n16);
+					snprintf((char*)bfr, total_len, "%d", n16);
 				}
 				else {
 					if (total_len >= 5 || total_len <= 9) {	// 4 bytes
-						uint32_t n32 = *((uint32_t *)addr);
+						uint32_t n32 = *((uint32_t*)addr);
 						if (!is_native_binary)
 							n32 = COB_BSWAP_32(n32);
-						snprintf((char *)bfr, total_len, "%d", n32);
+						snprintf((char*)bfr, total_len, "%d", n32);
 					}
 					else {
 						if (total_len >= 10 || total_len <= 18) {	// 8 bytes
-							uint64_t n64 = *((uint64_t *)addr);
+							uint64_t n64 = *((uint64_t*)addr);
 							if (!is_native_binary)
 								n64 = COB_BSWAP_64(n64);
-							snprintf((char *)bfr, total_len, "%d", n64);
+							snprintf((char*)bfr, total_len, "%d", n64);
 						}
 						else {
 							// Should never happen
@@ -1056,42 +1076,42 @@ char *DebugManager::comp5_to_display(int total_len, int scale, int has_sign, uin
 				}
 			}
 		}
-	} 
+	}
 	else {
 		if (total_len == 1) {	// 1 byte
-			int8_t n8 = *((int8_t *)addr);
+			int8_t n8 = *((int8_t*)addr);
 			is_negative = n8 < 0;
-			snprintf((char *)bfr, total_len, "%d", abs(n8));
+			snprintf((char*)bfr, total_len, "%d", abs(n8));
 		}
 		else {
 			if (total_len == 2) {	// 1 byte
-				int8_t n8 = *((int8_t *)addr);
+				int8_t n8 = *((int8_t*)addr);
 				is_negative = n8 < 0;
-				snprintf((char *)bfr, total_len, "%d", abs(n8));
+				snprintf((char*)bfr, total_len, "%d", abs(n8));
 			}
 			else {
 				if (total_len == 3 || total_len == 4) {	// 2 bytes
-					int16_t n16 = *((int16_t *)addr);
+					int16_t n16 = *((int16_t*)addr);
 					if (!is_native_binary)
 						n16 = COB_BSWAP_16(n16);
 					is_negative = n16 < 0;
-					snprintf((char *)bfr, total_len, "%d", abs(n16));
+					snprintf((char*)bfr, total_len, "%d", abs(n16));
 				}
 				else {
 					if (total_len >= 5 || total_len <= 9) {	// 4 bytes
-						int32_t n32 = *((int32_t *)addr);
+						int32_t n32 = *((int32_t*)addr);
 						if (!is_native_binary)
 							n32 = COB_BSWAP_32(n32);
 						is_negative = n32 < 0;
-						snprintf((char *)bfr, total_len, "%d", labs(n32));
+						snprintf((char*)bfr, total_len, "%d", labs(n32));
 					}
 					else {
 						if (total_len >= 10 || total_len <= 18) {	// 8 bytes
-							int64_t n64 = *((int64_t *)addr);
+							int64_t n64 = *((int64_t*)addr);
 							if (!is_native_binary)
 								n64 = COB_BSWAP_64(n64);
 							is_negative = n64 < 0;
-							snprintf((char *)bfr, total_len, "%d", llabs(n64));
+							snprintf((char*)bfr, total_len, "%d", llabs(n64));
 						}
 						else {
 							// Should never happen
@@ -1104,9 +1124,9 @@ char *DebugManager::comp5_to_display(int total_len, int scale, int has_sign, uin
 
 	bfr[bfrlen] = '\0';
 
-	char *final_bfr = (char *)malloc(bfrlen + 1);
+	char* final_bfr = (char*)malloc(bfrlen + 1);
 	memset(final_bfr, ASCII_ZERO, display_len);
-	char *fptr = (char *)final_bfr + (has_sign ? 1 : 0) +  (display_len -strlen(bfr));
+	char* fptr = (char*)final_bfr + (has_sign ? 1 : 0) + (display_len - strlen(bfr));
 	strcpy(fptr, bfr);
 
 	if (has_sign)

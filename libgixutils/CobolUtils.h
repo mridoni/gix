@@ -27,6 +27,7 @@ class CobolUtils
 {
 public:
 	static bool isReservedWord(QString s);
+	static void resetReservedWordsSet();
 	static QString extractProgramId(const QString &filename);
 
 private:

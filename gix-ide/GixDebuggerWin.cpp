@@ -281,7 +281,9 @@ int GixDebuggerWin::start()
 					strEventMessage = QString("Loaded EXE: ") + sEXEName;
 					DWORD64 hSymbols = (DWORD64)sym_provider->loadSymbols(this, the_process, debug_event.u.CreateProcessInfo.lpBaseOfImage, sEXEName, (void *) debug_event.u.CreateProcessInfo.lpStartAddress, &err);
 					if (!processImage(the_process, debug_event.u.CreateProcessInfo.lpBaseOfImage, hSymbols, sEXEName)) {
-						if_blk->debuggerMessage(this, "Error loading image information for: " + sEXEName, 0);
+						error_exit = true;
+						if_blk->debuggerError(this, -1, "Error loading image information for: " + sEXEName);
+						bContinueDebugging = false;
 					}
 				}
 
@@ -339,7 +341,9 @@ int GixDebuggerWin::start()
 				DWORD64 hSymbols = (DWORD64)sym_provider->loadSymbols(this, the_process, debug_event.u.LoadDll.lpBaseOfDll, sDLLName, NULL, &err);
 
 				if (!processImage(the_process, debug_event.u.LoadDll.lpBaseOfDll, hSymbols, sDLLName)) {
-					if_blk->debuggerMessage(this, "Error loading image information for: " + sDLLName, 0);
+					error_exit = true;
+					if_blk->debuggerError(this, -1, "Error loading image information for: " + sDLLName);
+					bContinueDebugging = false;
 				}
 
 			}
@@ -482,7 +486,17 @@ int GixDebuggerWin::start()
 									_DBG_OUT("EXCEPTION_SINGLE_STEP: Successfully decoded source line info\n");
 									SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
 									if_blk->debuggerMessage(this, QString::fromStdString(string_format("Found breakpoint at 0x%08p (%s:%d)\n", last_bkp->address, sli->source_file, sli->line)), 0);
+									// Check if breakpoint is on the first line of a generated preprocessor block
+									// If yes, pass the line corresponding to the start of the original block
+									int actual_line = 0;
+									if (!is_first_line_of_preproc_block(current_cbl_module, sli->source_file, sli->line, &actual_line)) {
 									if_blk->debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
+										_DBG_OUT("Debugger breaking at: %s:%d\n", sli->source_file.toLocal8Bit().constData(), sli->line);
+									}
+									else {
+										if_blk->debuggerBreak(this, current_cbl_module->name, sli->source_file, actual_line);
+										_DBG_OUT("Debugger breaking at: %s:%d\n", sli->source_file.toLocal8Bit().constData(), actual_line);
+									}
 								}
 							}
 							else {
@@ -961,6 +975,10 @@ bool GixDebuggerWin::processImage(HANDLE hProc, HANDLE imageBase, DWORD64 hSym, 
 				return false;
 		}
 		else {
+			if (err) {
+
+			}
+
 			if_blk->debuggerMessage(this, imageName + " is NOT a GnuCOBOL module", 0);
 			if (PathUtils::getFilename(imageName.toLower()).startsWith("libcob.")) {
 				uint32_t base_of_code = extract_base_of_code(hProc, imageBase);

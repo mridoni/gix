@@ -33,6 +33,8 @@ USA.
 
 class CodeEditor : public ScintillaEdit
 {
+	Q_OBJECT
+
 	friend class MainWindow;
 
 public:
@@ -56,6 +58,11 @@ public:
 
 	void setSourceFormat(SourceFileFormat sfmt);
 
+signals:
+	void handleTooltipOn(QString s, int x, int y, sptr_t pos);
+	void handleTooltipOff(QString s, int x, int y, sptr_t pos);
+
+
 private:
 	int __maxLineNumberCharLength;
 	int __lineNumberWidth;
@@ -64,6 +71,7 @@ private:
 	void setFontFromSettings();
 	void showBookmarkAtLine(int ln);
 	bool isCurrentlyCommented(QString s);
+
 
 private slots:
 	void changed();

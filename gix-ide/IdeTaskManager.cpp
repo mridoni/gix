@@ -50,6 +50,7 @@ USA.
 #include "QLogger.h"
 
 #ifdef WIN32
+#include <Windows.h>
 typedef TestHelper *(*TESTLHPR_INIT_FUNC)(TestHelperInterface *);
 typedef TestHelperInterface *(*TESTLHPR_INTERFACE_FUNC)();
 #endif

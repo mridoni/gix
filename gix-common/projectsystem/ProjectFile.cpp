@@ -122,7 +122,7 @@ bool ProjectFile::isSoapService()
 	return this->getSubProperty("is_soap_ws", "enabled").toBool();
 }
 
-bool ProjectFile::isCompilable()
+bool ProjectFile::isModule()
 {
 	return this->PropertyGetValue("build_action").toString() == BuildConsts::BUILD_ACTION_COMPILE;
 }
@@ -435,4 +435,9 @@ ProjectFile *ProjectFile::clone()
 QList<BuildTarget *> ProjectFile::getCobolCopyFiles()
 {
 	return QList<BuildTarget *>();
+}
+
+bool ProjectFile::isCopy()
+{
+	return this->PropertyGetValue("build_action").toString() == BuildConsts::BUILD_ACTION_COPY;
 }

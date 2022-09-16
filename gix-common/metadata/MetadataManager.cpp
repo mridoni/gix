@@ -22,6 +22,7 @@ USA.
 #include "GixGlobals.h"
 #include "linq/linq.hpp"
 #include "CobolUtils.h"
+#include "PathUtils.h"
 
 MetadataManager::MetadataManager(QObject *parent) : QObject(parent)
 {
@@ -129,6 +130,24 @@ bool MetadataManager::existsMetadata(const QString &module_name)
 const QMap<QString, ProjectFile *>& MetadataManager::getModulesSourceMap()
 {
 	return module_srcs;
+}
+
+CobolModuleMetadata* MetadataManager::findFirstModuleWithCopy(QString copy_filename)
+{
+	copy_filename = QDir::cleanPath(copy_filename);
+
+	for (auto m : by_module_map.values()) {
+
+		auto dep_entries = m->getFileDependencies();
+		for (auto dep_entry : dep_entries) {
+			for (auto sub_entry : dep_entry) {
+				if (QDir::cleanPath(sub_entry) == copy_filename)
+					return m;
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 void MetadataManager::reset()

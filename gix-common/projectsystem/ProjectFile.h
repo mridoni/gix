@@ -53,7 +53,8 @@ public:
 	bool isHttpService();
 	bool isRestService();
 	bool isSoapService();
-	bool isCompilable();
+	bool isModule();
+	bool isCopy();
 
 	SourceFileFormat getSourceFormat();
 
@@ -82,6 +83,7 @@ public:
 	virtual QList<IBuildableItem *> getDependencies(const QString &use, QVariantMap *props, bool *yield_ownership) override;
 
 	ProjectFile *clone();
+
 
 
 private:

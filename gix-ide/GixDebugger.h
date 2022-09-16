@@ -140,6 +140,7 @@ public:
 	QString name;
 	void *entry_point = nullptr;;
 	QMap<QString, VariableResolverData *> locals;
+	QList<PreprocessedBlockInfo *> preprocessed_blocks;
 
 	UserBreakpoint *entry_breakpoint = nullptr;
 	bool initialized = false;
@@ -230,6 +231,7 @@ public:
 	void setEnvironment(QMap<QString, QString> vars);
 	void setProcess(const QString &path);
 	void setWorkingDirectory(const QString &wd);
+	void setBuildDirectory(const QString &bd);
 	void setModuleDirectory(const QString &md);
 	void setCommandLine(const QString &path);
 	void setSourceFileTypes(const QList<QString> &_src_file_types);
@@ -244,6 +246,7 @@ public:
     GixDebuggerInterfaceBlock *getInterfaceBlock();
 	QString getWorkingDirectory();
 	QString getModuleDirectory();
+	QString getBuildDirectory();
 
 	DebuggedModuleType getDebuggedModuleType();
 
@@ -311,7 +314,10 @@ protected:
 
 	LibCobInfo *libcob_info = nullptr;
 
+	QString build_dir;
+
     bool isCblEntryPoint(void *addr, CobolModuleInfo **cmi);
+	bool is_first_line_of_preproc_block(CobolModuleInfo* cmi, QString src_file, int line, int* actual_line);
 
 private:
 

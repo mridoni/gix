@@ -214,8 +214,10 @@ int DbInterfaceFactory::removeInterface(IDbInterface *dbi)
 	return 0;
 }
 
+
+// TODO: this should really be generated dynamically
 std::vector<std::string> DbInterfaceFactory::getAvailableDrivers()
 {
-	return std::vector<std::string> { "odbc", "mysql", "pgsql" } ;
+	return std::vector<std::string> { "odbc", "mysql", "pgsql", "oracle", "sqlite" } ;
 }
 

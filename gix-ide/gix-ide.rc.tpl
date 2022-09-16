@@ -25,18 +25,18 @@ LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"
@@ -52,7 +52,9 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "gix-ide-icon.ico"
+IDI_ICON1               ICON                    "..\misc\main_icon.ico"
+IDI_ICON_PRJC           ICON                    "..\misc\prjcoll_icon.ico"
+IDI_ICON_PRJ            ICON                    "..\misc\prj_icon.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

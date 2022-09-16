@@ -297,7 +297,11 @@ bool TPESQLProcessing::run(ITransformationStep* prev_step)
 	int rc = main_module_driver.parse(owner, input_file);
 	if (!rc) {
 		rc = outputESQL();
+		if (rc == 0)
+		add_preprocessed_blocks();
 	}
+
+
 
 	owner->err_data.err_code = rc;
 
@@ -813,6 +817,8 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 	if (stmt->startup_item)
 		return true;
+
+	int gen_block_start = output_line;
 
 	switch (cmd) {
 
@@ -1610,10 +1616,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 			return false;
 	}
 	break;
-
-
-
 	}
+
+	int gen_block_end = output_line;
+
+	generated_blocks[stmt] = std::tuple(gen_block_start + 1, gen_block_end);
+
 	return true;
 }
 
@@ -2373,6 +2381,49 @@ bool TPESQLProcessing::put_host_parameters(const cb_exec_sql_stmt_ptr stmt)
 	return true;
 }
 
+void TPESQLProcessing::add_preprocessed_blocks()
+{
+	std::vector<cb_exec_sql_stmt_ptr>* p = main_module_driver.exec_list;
+	for (auto e : *p) {
+		PreprocessedBlockInfo *bi = new PreprocessedBlockInfo();
+		bi->type = PreprocessedBlockType::ESQL;
+		bi->command = e->commandName;
+
+		bi->orig_source_file = e->src_file;
+		bi->orig_start_line = e->startLine;
+		bi->orig_end_line = e->endLine;
+
+		auto in_out_start_key = std::to_string(bi->orig_start_line) + "@" + bi->orig_source_file;
+		auto in_out_end_key = std::to_string(bi->orig_end_line) + "@" + bi->orig_source_file;
+		if (in_to_out.find(in_out_start_key) == in_to_out.end() || in_to_out.find(in_out_end_key) == in_to_out.end()) {
+			delete bi;
+			continue;
+		}
+
+		if (generated_blocks.find(e) == generated_blocks.end()) {
+			delete bi;
+			continue;
+		}
+
+		auto in_out_start_val = in_to_out[in_out_start_key];
+		auto in_out_end_val = in_to_out[in_out_end_key];
+
+		bi->pp_source_file = in_out_start_val.substr(in_out_start_val.find("@") + 1);
+		bi->pp_start_line = atoi(in_out_start_val.substr(0, in_out_start_val.find("@")).c_str());
+
+		bi->pp_end_line = atoi(in_out_end_val.substr(0, in_out_end_val.find("@")).c_str());
+
+		bi->module_name = main_module_driver.program_id;
+		
+		auto gb = generated_blocks[e];
+		bi->pp_gen_start_line = std::get<0>(gb);
+		bi->pp_gen_end_line = std::get<1>(gb);
+
+		preprocessed_blocks.push_back(bi);
+	}
+
+}
+
 void TPESQLProcessing::put_whenever_handler(bool terminate_with_period)
 {
 	const char* lp = AREA_B_CPREFIX;
@@ -2491,6 +2542,11 @@ std::map<std::string, srcLocation> TPESQLProcessing::getParagraphs()
 std::map<std::string, std::vector<std::string>> TPESQLProcessing::getFileDependencies()
 {
 	return file_dependencies;
+}
+
+std::vector<PreprocessedBlockInfo*> TPESQLProcessing::getPreprocessedBlocks()
+{
+	return preprocessed_blocks;
 }
 
 bool check_sql_type_compatibility(uint64_t type_info, cb_field_ptr var)

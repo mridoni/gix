@@ -44,7 +44,7 @@
                SELECT * 
                  FROM EMPTABLE
                ORDER BY LNAME
-           END-EXEC              
+           END-EXEC.              
        PROCEDURE DIVISION. 
  
        000-CONNECT.
@@ -63,7 +63,7 @@
            
            IF SQLCODE <> 0 THEN
               DISPLAY 'SQLCODE. ' SQLCODE
-              DISPLAY 'SQLERRM. ' SQLERRM
+              DISPLAY 'SQLERRM. ' SQLERRMC(1:SQLERRML)
               GO TO 100-EXIT
            END-IF.
        100-MAIN.
