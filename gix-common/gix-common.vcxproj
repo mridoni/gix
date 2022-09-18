@@ -161,46 +161,46 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;network;xml</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'" Label="QtSettings">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;network;xml</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'" Label="QtSettings">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;network;xml</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'" Label="QtSettings">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;network;xml</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017</QtInstall>
     <QtModules>core;network;xml</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'" Label="QtSettings">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017</QtInstall>
     <QtModules>core;network;xml</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'" Label="QtSettings">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017</QtInstall>
     <QtModules>core;network;xml</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtInstall>msvc2017</QtInstall>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'" Label="QtSettings">
-    <QtInstall>$(DefaultQtVersion)</QtInstall>
+    <QtInstall>msvc2017</QtInstall>
     <QtModules>core;network;xml</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
