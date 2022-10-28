@@ -1,0 +1,113 @@
+name: MSBuild
+
+on:
+  workflow_dispatch
+  
+#  push:
+#    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: gixsql.sln
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  VCPKG_ROOT: 'D:\a\gixsql\gixsql\vcpkg'    
+
+permissions:
+  contents: read
+
+jobs:
+  windows-x64-msvc:
+    name: windows-x64-msvc
+    env:
+      BUILD_CONFIGURATION: Release
+      BUILD_PLATFORM: x64      
+      PLATFORM_ID: x64    
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with: mridoni/gixsql
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore artifacts, or setup vcpkg (do not install any package)
+      uses: lukka/run-vcpkg@v10
+      with:
+        vcpkgGitCommitId: 3d8f78171a2a37d461077bf8d063256b63e25a4f
+
+    - name: Install dependencies Windows
+      run: |
+        vcpkg integrate install
+        vcpkg remove libmysql:${{env.PLATFORM_ID}}-windows
+        vcpkg install libpq:${{env.PLATFORM_ID}}-windows libmariadb:${{env.PLATFORM_ID}}-windows spdlog:${{env.PLATFORM_ID}}-windows-static-md
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Platform=${{env.BUILD_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: archive-gixsql-${{env.PLATFORM_ID}}-windows-artifacts
+        path: |
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe
+
+  windows-x86-msvc:
+    name: windows-x86-msvc
+    env:
+      BUILD_CONFIGURATION: Release
+      BUILD_PLATFORM: Win32     
+      PLATFORM_ID: x86    
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with: mridoni/gixsql
+ 
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore artifacts, or setup vcpkg (do not install any package)
+      uses: lukka/run-vcpkg@v10
+      with:
+        vcpkgGitCommitId: 3d8f78171a2a37d461077bf8d063256b63e25a4f
+
+    - name: Install dependencies Windows
+      run: |
+        vcpkg integrate install
+        vcpkg remove libmysql:${{env.PLATFORM_ID}}-windows
+        vcpkg install libpq:${{env.PLATFORM_ID}}-windows libmariadb:${{env.PLATFORM_ID}}-windows spdlog:${{env.PLATFORM_ID}}-windows-static-md
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Platform=${{env.BUILD_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: archive-gixsql-${{env.PLATFORM_ID}}-windows-artifacts
+        path: |
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.dll
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql-mysql.dll
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql-odbc.dll
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql-pgsql.dll
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
+          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/gixpp.exe

@@ -1,0 +1,131 @@
+name: gixsql-mingw
+
+on:
+  workflow_dispatch
+  
+#  push:
+#    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: gixsql.sln
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  VCPKG_ROOT: 'D:\a\gixsql\gixsql\vcpkg'    
+
+permissions:
+  contents: read
+
+jobs:
+  gixsql-windows-x64-mingw:
+    name: windows-x64-mingw
+    env:
+      BUILD_CONFIGURATION: Release
+      BUILD_PLATFORM: mingw64      
+      PLATFORM_ID: x86_64    
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+          repository: 'mridoni/gixsql'    
+
+    - name: Set up MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{env.BUILD_PLATFORM}}
+        install: >-
+            mingw-w64-${{env.PLATFORM_ID}}-pkg-config
+            autoconf
+            make
+            automake
+            libtool
+            bison
+            flex
+            mingw-w64-${{env.PLATFORM_ID}}-gcc
+            mingw-w64-${{env.PLATFORM_ID}}-postgresql 
+            mingw-w64-${{env.PLATFORM_ID}}-libmariadbclient 
+            mingw-w64-${{env.PLATFORM_ID}}-unixodbc 
+            mingw-w64-${{env.PLATFORM_ID}}-spdlog 
+
+    - shell: msys2 {0}
+      name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+         echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
+         ls -l
+         autoreconf --install --force
+         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
+         make
+         make install-strip
+ 
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+         name: ${{ env.GITHUB_JOB }}-artifacts
+         path: |
+           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/bin/*.*
+           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/lib/*.*
+           
+    - shell: msys2 {0}
+      name: List outputs
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+         ls -lR $(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")     
+ 
+  gixsql-windows-x86-mingw:
+     name: windows-x86-mingw
+     env:
+       BUILD_CONFIGURATION: Release
+       BUILD_PLATFORM: mingw32      
+       PLATFORM_ID: i686    
+     runs-on: windows-latest
+     steps:
+     - uses: actions/checkout@v3
+       with:
+           repository: 'mridoni/gixsql'      
+ 
+     - name: Set up MinGW
+       uses: msys2/setup-msys2@v2
+       with:
+         msystem: ${{env.BUILD_PLATFORM}}
+         install: >-
+             mingw-w64-${{env.PLATFORM_ID}}-pkg-config
+             autoconf
+             make
+             automake
+             libtool
+             bison
+             flex
+             mingw-w64-${{env.PLATFORM_ID}}-gcc
+             mingw-w64-${{env.PLATFORM_ID}}-postgresql 
+             mingw-w64-${{env.PLATFORM_ID}}-libmariadbclient 
+             mingw-w64-${{env.PLATFORM_ID}}-unixodbc 
+             mingw-w64-${{env.PLATFORM_ID}}-spdlog 
+ 
+     - shell: msys2 {0}
+       name: Build
+       working-directory: ${{env.GITHUB_WORKSPACE}}
+       run: |
+         echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
+         autoreconf --install --force
+         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
+         make
+         make install-strip
+ 
+     - name: Archive production artifacts
+       uses: actions/upload-artifact@v3
+       with:
+         name: ${{ env.GITHUB_JOB }}-artifacts
+         path: |
+           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/bin/*.*
+           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/lib/*.*
+           
+     - shell: msys2 {0}
+       name: List outputs
+       working-directory: ${{env.GITHUB_WORKSPACE}}
+       run: |
+         ls -lR $(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")                
