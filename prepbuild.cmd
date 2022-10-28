@@ -1,23 +1,26 @@
 @echo off
 
-:: Check these variables and in case adjust them depending on your environment
-set HOSTNAME=x64
-set QTDIR=C:\Qt\5.14.2\msvc2017_64
-set VCPKG_ROOT=C:\VCPKG
-:: Check these variables (end)
+:: If /E is specified on the command line we take the following variables from the current environment
+IF "%1%" NEQ "/E" (
+	:: Check these variables and in case adjust them depending on your environment
+	set HOST_PLATFORM=x64
+	set QTDIR=C:\Qt\5.14.2\msvc2017_64
+	set VCPKG_ROOT=C:\VCPKG
+	:: Check these variables (end)
 
-:: These indicates the current version of Gix-IDE
-set GIXIDEMAJ=1
-set GIXIDEMIN=1
-set GIXIDEREL=0dev1
-set GIX_REVISION=1922
-:: These indicates the current version of Gix-IDE (end)
+	:: These indicates the current version of Gix-IDE
+	set GIXIDEMAJ=1
+	set GIXIDEMIN=1
+	set GIXIDEREL=0dev1
+	set GIX_REVISION=1922
+	:: These indicates the current version of Gix-IDE (end)
 
-:: These indicates the current version of GixSQL included in Gix-IDE
-set GIXSQLMAJ=1
-set GIXSQLMIN=0
-set GIXSQLREL=18b
-:: These indicates the current version of GixSQL included in Gix-IDE (end)
+	:: These indicates the current version of GixSQL included in Gix-IDE
+	set GIXSQLMAJ=1
+	set GIXSQLMIN=0
+	set GIXSQLREL=18b
+	:: These indicates the current version of GixSQL included in Gix-IDE (end)
+)
 
 SET MYPATH=%~dp0
 set SCRIPT_DIR=%MYPATH:~0,-1%

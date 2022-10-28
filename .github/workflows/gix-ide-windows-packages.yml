@@ -27,6 +27,7 @@ env:
   MSVC_RUNTIME_x64: https://aka.ms/vs/17/release/vc_redist.x64.exe
   WORKSPACE: ${{ github.workspace }}
   DIST_DIR: ${{ github.workspace }}\DIST
+  EXE_7Z: "C:\Program Files\7-Zip\7z.exe"
 
 permissions:
   contents: read
@@ -36,7 +37,7 @@ jobs:
     name: gix-ide-windows-x64-msvc
     env:
       BUILD_CONFIGURATION: Release
-      BUILD_PLATFORM: x64      
+      HOST_PLATFORM: x64      
       PLATFORM_ID: x64    
     runs-on: windows-latest
     steps:
@@ -93,36 +94,31 @@ jobs:
           PATH: ${{ env.PATH}};c:\tools
       run: |
         echo "VCPKG_ROOT         : ${{env.VCPKG_ROOT}}"
-        echo "BUILD_PLATFORM     : ${{env.BUILD_PLATFORM}}"
+        echo "HOST_PLATFORM      : ${{env.HOST_PLATFORM}}"
         echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
         echo "SOLUTION_FILE_PATH : ${{env.SOLUTION_FILE_PATH}}"
         echo "QTDIR              : ${{env.QTDIR}}"
         echo "JOB                : ${{ github.job }}"
+        %EXE_7Z% x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip             
         echo #define VERSION "${{ env.GIX_SQL_VERSION }}" > gixsql/config.h
-        7z x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip     
-        copy /Y ${{ github.workspace }}\libs\libdwarf\config.h.msvc ${{ github.workspace }}\libs\libdwarf\config.h
-        copy /Y gix-ide\GixVersion.h.tpl gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEMAJ}/${{env.GIX_VER_GIXIDEMAJ}}/' gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEMIN}/${{env.GIX_VER_GIXIDEMIN}}/' gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEREL}/${{env.GIX_VER_GIXIDEREL}}/' gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEBLD}/${{env.GIX_VER_GIXIDEBLD}}/' gix-ide\GixVersion.h
+        call ${{ github.workspace }}\prepbuild.cmd /E
         vcpkg integrate install
-        msbuild /p:Platform=${{env.BUILD_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
+        msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
         name: ${{ github.job }}-artifacts
         path: |
-          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
-          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
-          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe
+          ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
+          ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
+          ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe
           
   gix-ide-windows-x86-msvc:
     name: gix-ide-windows-x86-msvc
     env:
       BUILD_CONFIGURATION: Release
-      BUILD_PLATFORM: Win32      
+      HOST_PLATFORM: Win32      
       PLATFORM_ID: x86    
     runs-on: windows-latest
     steps:
@@ -179,35 +175,29 @@ jobs:
           PATH: ${{ env.PATH}};c:\tools
       run: |
         echo "VCPKG_ROOT         : ${{env.VCPKG_ROOT}}"
-        echo "BUILD_PLATFORM     : ${{env.BUILD_PLATFORM}}"
+        echo "HOST_PLATFORM      : ${{env.HOST_PLATFORM}}"
         echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
         echo "SOLUTION_FILE_PATH : ${{env.SOLUTION_FILE_PATH}}"
         echo "QTDIR              : ${{env.QTDIR}}"
         echo "JOB                : ${{ github.job }}"
-        echo #define VERSION "${{ env.GIX_SQL_VERSION }}" > gixsql/config.h
-        7z x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip  
-        copy /Y ${{ github.workspace }}\libs\libdwarf\config.h.msvc ${{ github.workspace }}\libs\libdwarf\config.h
-        copy /Y gix-ide\GixVersion.h.tpl gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEMAJ}/${{env.GIX_VER_GIXIDEMAJ}}/' gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEMIN}/${{env.GIX_VER_GIXIDEMIN}}/' gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEREL}/${{env.GIX_VER_GIXIDEREL}}/' gix-ide\GixVersion.h
-        sed -i 's/{GIXIDEBLD}/${{env.GIX_VER_GIXIDEBLD}}/' gix-ide\GixVersion.h
+        %EXE_7Z% x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip  
+        call ${{ github.workspace }}\prepbuild.cmd /E
         vcpkg integrate install
-        msbuild /p:Platform=${{env.BUILD_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
+        msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
         name: ${{ github.job }}-artifacts
         path: |
-          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
-          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
-          ${{ github.workspace }}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe          
+          ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
+          ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
+          ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe          
   gixsql-windows-x64-mingw:
     name: gixsql-windows-x64-mingw
     env:
       BUILD_CONFIGURATION: Release
-      BUILD_PLATFORM: mingw64      
+      HOST_PLATFORM: mingw64      
       PLATFORM_ID: x86_64    
     runs-on: windows-latest
     steps:
@@ -218,7 +208,7 @@ jobs:
     - name: Set up MinGW
       uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{env.BUILD_PLATFORM}}
+        msystem: ${{env.HOST_PLATFORM}}
         install: >-
             mingw-w64-${{env.PLATFORM_ID}}-pkg-config
             autoconf
@@ -262,7 +252,7 @@ jobs:
      name: gixsql-windows-x86-mingw
      env:
        BUILD_CONFIGURATION: Release
-       BUILD_PLATFORM: mingw32      
+       HOST_PLATFORM: mingw32      
        PLATFORM_ID: i686    
      runs-on: windows-latest
      steps:
@@ -273,7 +263,7 @@ jobs:
      - name: Set up MinGW
        uses: msys2/setup-msys2@v2
        with:
-         msystem: ${{env.BUILD_PLATFORM}}
+         msystem: ${{env.HOST_PLATFORM}}
          install: >-
              mingw-w64-${{env.PLATFORM_ID}}-pkg-config
              autoconf
@@ -507,10 +497,10 @@ jobs:
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        7z x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        7z x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
-        7z x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        7z x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
+        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+        %EXE_7Z% x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x64.def ${{ github.workspace }}\deploy\compilers\gcc\defs
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
@@ -768,9 +758,9 @@ jobs:
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        7z x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        7z x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        7z x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+        %EXE_7Z% x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
 
