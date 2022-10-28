@@ -350,6 +350,7 @@ jobs:
       shell: cmd
       working-directory: ${{ github.workspace }}
       run: |          
+        dir ${{ github.workspace }}
         "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }}.zip        
         "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }}.zip   
         "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }}.zip        
