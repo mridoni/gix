@@ -30,7 +30,7 @@ env:
   MSVC_RUNTIME_x64: https://aka.ms/vs/17/release/vc_redist.x64.exe
   WORKSPACE: ${{ github.workspace }}
   DIST_DIR: ${{ github.workspace }}\DIST
-  EXE_7Z: "C:\Program Files\7-Zip\7z.exe"
+  EXE_7Z: "C:/Program Files/7-Zip/7z.exe"
 
 permissions:
   contents: read
