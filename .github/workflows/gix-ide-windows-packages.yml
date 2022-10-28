@@ -29,7 +29,7 @@ env:
   MSVC_RUNTIME_x64: https://aka.ms/vs/17/release/vc_redist.x64.exe
   WORKSPACE: ${{ github.workspace }}
   DIST_DIR: ${{ github.workspace }}\DIST
-  EXE_7Z: "C:/Program Files/7-Zip/7z.exe"
+  EXE_7Z: C:/Program Files/7-Zip/7z.exe
 
 permissions:
   contents: read
@@ -101,7 +101,7 @@ jobs:
         echo "SOLUTION_FILE_PATH : ${{env.SOLUTION_FILE_PATH}}"
         echo "QTDIR              : ${{env.QTDIR}}"
         echo "JOB                : ${{ github.job }}"
-        %EXE_7Z% x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip             
+        "%EXE_7Z%" x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip             
         call ${{ github.workspace }}\prepbuild.cmd /E
         %VCPKG_ROOT%\vcpkg integrate install
         msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
@@ -181,7 +181,7 @@ jobs:
         echo "SOLUTION_FILE_PATH : ${{env.SOLUTION_FILE_PATH}}"
         echo "QTDIR              : ${{env.QTDIR}}"
         echo "JOB                : ${{ github.job }}"
-        %EXE_7Z% x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip  
+        "%EXE_7Z%" x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip  
         call ${{ github.workspace }}\prepbuild.cmd /E
         %VCPKG_ROOT%\vcpkg integrate install
         msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
@@ -498,10 +498,10 @@ jobs:
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
-        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        %EXE_7Z% x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
+        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x64.def ${{ github.workspace }}\deploy\compilers\gcc\defs
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
@@ -759,9 +759,9 @@ jobs:
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
         curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        %EXE_7Z% x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        %EXE_7Z% x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
         copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
 
