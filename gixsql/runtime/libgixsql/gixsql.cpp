@@ -223,6 +223,7 @@ GIXSQLConnectReset(struct sqlca_t* st, void* d_connection_id, int connection_id_
 	std::string connection_id = get_hostref_or_literal(d_connection_id, connection_id_tl);
 
 	if (connection_id != "*") {
+		spdlog::trace(FMT_FILE_FUNC "GIXSQLConnectReset: Executing connect reset on {}", __FILE__, __func__, connection_id);
 		return _gixsqlConnectReset(st, connection_id);
 	}
 	else {
@@ -305,7 +306,7 @@ static int _gixsqlExec(Connection* conn, struct sqlca_t* st, char* _query)
 	IDbInterface* dbi = conn->getDbInterface();
 
 	if (is_commit_or_rollback_statement(query)) {
-		cursor_manager.clearConnectionCursors(conn->getId(), false);
+		cursor_manager.closeConnectionCursors(conn->getId(), false);
 
 		if (conn->getConnectionOptions()->autocommit) {
 			rc = dbi->end_transaction(query);
@@ -393,7 +394,7 @@ static int _gixsqlExecParams(Connection* conn, struct sqlca_t* st, char* _query,
 		FAIL_ON_ERROR(1, st, dbi, DBERR_SQL_ERROR)
 
 		if (is_commit_or_rollback_statement(query)) {
-			cursor_manager.clearConnectionCursors(conn->getId(), false);
+			cursor_manager.closeConnectionCursors(conn->getId(), false);
 
 			if (conn->getConnectionOptions()->autocommit) {
 				rc = dbi->end_transaction(query);

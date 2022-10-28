@@ -26,6 +26,7 @@ USA.
 
 #include "gixcommon_global.h"
 #include "gix_esql_driver.hh"
+#include "gix-debugger-types.h"
 
 class CobolModuleMetadata;
 
@@ -39,14 +40,16 @@ public:
 
 };
 
-enum class GIXCOMMON_EXPORT WsEntryType {
-	Unknown = 0,	// only for initialization	
-	Alphabetic = 1,
-	Numeric = 2,
-	Alphanumeric = 3,
-	Group = 99,
-	Filler = 98
-};
+//#ifdef GIXCOMMON_LIB
+//enum class GIXCOMMON_EXPORT WsEntryType {
+//	Unknown = 0,	// only for initialization	
+//	Alphabetic = 1,
+//	Numeric = 2,
+//	Alphanumeric = 3,
+//	Group = 99,
+//	Filler = 98
+//};
+//#endif
 
 enum class GIXCOMMON_EXPORT WsEntryStorageType {
 	Unknown = 0,	// only for initialization

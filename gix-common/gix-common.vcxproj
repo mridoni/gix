@@ -162,16 +162,16 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'" Label="QtSettings">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'" Label="QtSettings">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -180,20 +180,20 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'" Label="QtSettings">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <QtInstall>msvc2017</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'" Label="QtSettings">
     <QtInstall>msvc2017</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'" Label="QtSettings">
     <QtInstall>msvc2017</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <QtInstall>msvc2017</QtInstall>
@@ -201,7 +201,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'" Label="QtSettings">
     <QtInstall>msvc2017</QtInstall>
-    <QtModules>core;network;xml</QtModules>
+    <QtModules>core;network;xml;xmlpatterns</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
     <VcpkgAdditionalInstallOptions>VcpkgConfiguration=Debug</VcpkgAdditionalInstallOptions>
@@ -218,7 +218,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -238,7 +238,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -258,7 +258,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -277,7 +277,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -297,7 +297,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -310,7 +310,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions);_DEBUG_LOG_ON</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -323,7 +323,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_DEBUG;GIXCOMMON_LIB;%(PreprocessorDefinitions);_DEBUG_LOG_ON</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -336,7 +336,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions);_DEBUG_LOG_ON</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -349,7 +349,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -361,7 +361,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>

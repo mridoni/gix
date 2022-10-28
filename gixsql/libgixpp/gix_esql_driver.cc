@@ -232,6 +232,7 @@ std::string gix_esql_driver::cb_host_list_add(std::vector<cb_hostreference_ptr> 
 		case ESQL_ParameterStyle::Anonymous:
 			return "?";
 	}
+	return "";	/* FIXME: possibly assert? */
 }
 
 std::string gix_esql_driver::cb_host_list_add_force(std::vector<cb_hostreference_ptr> *list, std::string text)
@@ -273,6 +274,7 @@ std::string gix_esql_driver::cb_host_list_add_force(std::vector<cb_hostreference
 	case ESQL_ParameterStyle::Anonymous:
 		return "?";
 	}
+	return "";	/* FIXME: possibly assert? */
 }
 
 

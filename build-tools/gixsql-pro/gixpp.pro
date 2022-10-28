@@ -6,7 +6,7 @@ CONFIG(debug,debug|release) DESTDIR = ../../$$(HOST_PLATFORM)/Debug
 
 QT += 
 CONFIG += c++17
-INCLUDEPATH += . .. ./GeneratedFiles ./GeneratedFiles/build ../libgixpp ../libcpputils
+INCLUDEPATH += . .. ./GeneratedFiles ./GeneratedFiles/build ../libgixpp ../libcpputils  ../../build-tools/grammar-tools
 
 linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"					 
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic
@@ -14,7 +14,7 @@ linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -Wno-unknown-pragmas
 linux:QMAKE_LFLAGS_RELEASE+= -lcpputils -lgixpp
 linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
 linux:DEFINES += QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _GCDEBUGGER_NET_DEBUG _DEBUG
-linux:INCLUDEPATH +=
+#linux:INCLUDEPATH +=
 linux:LIBPATH += $(DESTDIR) 
 linux:LIBS += -lgixpp -lcpputils
 

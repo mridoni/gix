@@ -140,7 +140,7 @@ private:
 	void put_whenever_handler(bool terminate_with_period);
 	void put_whenever_clause_handler(esql_whenever_clause_handler_t* ch);
 	void put_smart_cursor_init_flags();
-	void put_smart_cursor_init_check(const std::string& crsr_name);
+	void put_smart_cursor_init_check(const std::string& crsr_name, bool reset_sqlcode = false);
 
 	bool put_res_host_parameters(const cb_exec_sql_stmt_ptr stmt, int *res_params_count);
 	bool put_host_parameters(const cb_exec_sql_stmt_ptr stmt);

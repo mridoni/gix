@@ -11,13 +11,14 @@ HEADERS += \
 	./DbCodeGenerator.h \
 	./DbConnection.h \
 	./DbManagerWindow.h \
-	./DebugDriver.h \
+	./IDebugDriver.h \
+	./ExperimentalDebugDriver.h \
+	./StandardDebugDriver.h \
 	./DebugDriverUtils.h \
 	./DebugManager.h \
 	./DependenciesWindow.h \
 	./ElidedLabel.h \
 	./EolMode.h \
-	./GixDebugger.h \
 	./GixVersion.h \
 	./IdeDbManager.h \
 	./Ide.h \
@@ -52,10 +53,11 @@ HEADERS += \
 	./AddCompilerWizard.h \
 	./IdeStatusSyncSetter.h \ 
 	./DragDropTreeWidget.h \
-	./DragDropTableWidget.h
+	./DragDropTableWidget.h \
+	./DebugDriverFactory.h
 
 SOURCES += \
-    ./Changeling.cpp \
+        ./Changeling.cpp \
 	./CodeEditor.cpp \
 	./ConsoleWidget.cpp \
 	./ConsoleWindow.cpp \
@@ -65,12 +67,13 @@ SOURCES += \
 	./DbCodeGenerator.cpp \
 	./DbConnection.cpp \
 	./DbManagerWindow.cpp \
-	./DebugDriver.cpp \
+	./IDebugDriver.cpp \
+	./ExperimentalDebugDriver.cpp \
+	./StandardDebugDriver.cpp \
 	./DebugDriverUtils.cpp \
 	./DebugManager.cpp \
 	./DependenciesWindow.cpp \
 	./ElidedLabel.cpp \
-	./GixDebugger.cpp \
 	./GixVersion.cpp \
 	./Ide.cpp \
 	./IdeDbManager.cpp \
@@ -101,7 +104,8 @@ SOURCES += \
 	./AddCompilerWizard.cpp \
 	./IdeStatusSyncSetter.cpp \ 
 	./DragDropTreeWidget.cpp \
-	./DragDropTableWidget.cpp
+	./DragDropTableWidget.cpp \
+	./DebugDriverFactory.cpp
 
 FORMS += ./NewProject.ui \
 	./Settings.ui  \

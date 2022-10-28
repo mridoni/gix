@@ -1,8 +1,8 @@
 TEMPLATE = lib
-TARGET = gixsql-sqlite
-win32:TARGET = libgixsql-sqlite
+TARGET = gixsql-oracle
+win32:TARGET = libgixsql-oracle
 
-INCLUDEPATH += . ../libgixsql /usr/include/postgresql
+INCLUDEPATH += . ../libgixsql ./odpi
 
 CONFIG(debug,debug|release) DESTDIR = ../../$$(HOST_PLATFORM)/Debug
 CONFIG(release,debug|release) DESTDIR = ../../$$(HOST_PLATFORM)/Release
@@ -15,13 +15,13 @@ linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17
 
 linux:QMAKE_LIBS+= 
 
-win32:QMAKE_CXXFLAGS_RELEASE+= 
-win32:QMAKE_LFLAGS_RELEASE+= 
+win32:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17
+win32:QMAKE_LFLAGS_RELEASE+= -O0 -std=c++17 -D_DEBUG
 
 win32:QMAKE_LIBS+= -lpq
 
 win32:DEFINES -= UNICODE _UNICODE
 
-HEADERS += DbInterfaceSQLite.h  utils.h
+HEADERS += DbInterfaceOracle.h  utils.h
 
-SOURCES += DbInterfaceManagerSQLite.cpp   DbInterfaceSQLite.cpp   dblib.cpp   utils.cpp
+SOURCES += DbInterfaceManagerOracle.cpp   DbInterfaceOracle.cpp   dblib.cpp   utils.cpp

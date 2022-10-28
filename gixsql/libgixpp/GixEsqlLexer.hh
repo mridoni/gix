@@ -29,7 +29,8 @@ USA.
 // preprocessor chokes on the line `#define yyFlexLexer yyFlexLexer`
 // in `FlexLexer.h`:
 #undef yyFlexLexer
-#include <FlexLexer.h>
+#include "FlexLexer.h"
+
 #include <stack>
 #include <map>
 #include <string>

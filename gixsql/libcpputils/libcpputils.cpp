@@ -350,7 +350,19 @@ bool file_write_all_lines(const std::string &filename, const std::vector<std::st
 bool file_exists(const std::string &filename)
 {
 	std::filesystem::path fp(filename);
-	return std::filesystem::exists(fp);
+	return std::filesystem::exists(fp) && std::filesystem::is_regular_file(fp);    
+}
+
+bool dir_exists(const std::string &dir_name)
+{
+	std::filesystem::path fp(dir_name);
+	return std::filesystem::exists(fp) && std::filesystem::is_directory(fp);    
+}
+
+bool file_remove(const std::string &filename)
+{
+	std::filesystem::path fp(filename);
+	return std::filesystem::remove(fp);    
 }
 
 std::string filename_change_ext(const std::string &filename, const std::string &ext)
@@ -569,4 +581,147 @@ std::string to_upper(const std::string& s)
 	std::string s1 = s;
 	std::transform(s1.begin(), s1.end(), s1.begin(), ::toupper);
 	return s1;
+}
+
+std::string path_get_temp_path()
+{
+    return std::filesystem::temp_directory_path().string();
+}
+
+std::string path_combine(std::initializer_list<std::string> a_args)
+{
+    if (!a_args.size())
+        return std::string();
+    
+    std::filesystem::path p;
+    for (auto s : a_args)
+        p.append(s);
+    
+    return p.string();
+}
+
+uint8_t *file_read_all_bytes(const std::string &filename)
+{
+    if (!file_exists(filename))
+        return nullptr;
+    
+    std::filesystem::path p(filename);
+    uint64_t sz = std::filesystem::file_size(p);
+    uint8_t *bfr = (uint8_t *) malloc(sz);
+    
+    FILE *fp = fopen(filename.c_str(), "rb");
+    if (!fp) {
+        free(bfr);
+        return nullptr;
+    }
+    
+    uint64_t nread = fread(bfr, sz, 1, fp);
+    if (nread != sz) {
+        free(bfr);
+        fclose(fp);
+        return nullptr;
+    }    
+    
+    fclose(fp);
+    
+    return bfr;
+}
+
+byte_array::byte_array()
+{
+    bfr = nullptr;
+    sz = 0;
+}
+
+byte_array::~byte_array()
+{
+    deallocate();
+}
+
+bool byte_array::read_from_file(const std::string &filename)
+{
+    deallocate();
+    
+    if (!file_exists(filename))
+        return false;
+    
+    std::filesystem::path p(filename);
+    uint64_t _sz = std::filesystem::file_size(p);
+    uint8_t *_bfr = new uint8_t[_sz];
+    
+    FILE *fp = fopen(filename.c_str(), "rb");
+    if (!fp) {
+        deallocate();
+        return false;
+    }
+    
+    uint64_t nread = fread(bfr, _sz, 1, fp);
+    if (nread != _sz) {
+        deallocate();
+        return false;
+    }    
+    
+    fclose(fp);   
+    
+    this->bfr = _bfr;
+    this->sz = _sz;
+    
+    return true;
+}
+
+bool byte_array::allocate(size_t _sz)
+{
+    sz = _sz;
+    bfr = new uint8_t[sz];
+	return bfr != nullptr;
+}
+
+void byte_array::deallocate()
+{
+    if (bfr)
+        delete bfr;
+    
+    bfr = nullptr;
+    sz = 0;
+}
+
+size_t byte_array::size()
+{
+    return sz;
+}
+
+uint8_t *byte_array::buffer() const
+{
+    return bfr;
+}
+
+byte_array byte_array::slice(size_t start, size_t sz)
+{
+    if (sz == (size_t)-1)
+        sz = this->sz - start;
+    
+    if (start >= this->sz || ((start + sz) > this->sz))
+        return byte_array();
+    
+    byte_array b;
+    
+    b.bfr = new uint8_t[sz];
+    b.sz = sz;
+    
+    memcpy(b.bfr, this->bfr + start, sz);
+    
+    return b;
+}
+
+size_t byte_array::find(uint8_t b, size_t from)
+{
+    if (from >= this->sz)
+        return -1;
+    
+    for(size_t i = from; i < this->sz; i++) {
+        if (this->bfr[i] == b)
+            return i;
+    }
+    
+    return -1;
 }

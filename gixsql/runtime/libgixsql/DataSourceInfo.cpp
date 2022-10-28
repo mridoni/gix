@@ -197,6 +197,7 @@ void DataSourceInfo::retrieve_driver_options(const std::string& data_source)
 	int p = data_source.find("?");
 	if (p != std::string::npos && p < (data_source.size() - 1)) {
 		std::string ps = data_source.substr(p + 1);
+		trim(ps);
 		auto params = string_split(ps, "&");
 		for (auto pp : params) {
 			auto ppi = string_split(pp, "=");

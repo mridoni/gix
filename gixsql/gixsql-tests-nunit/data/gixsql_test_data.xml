@@ -1,0 +1,2360 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<test-data>
+
+	<environment>
+		<variable key="GIXSQL_FIXUP_PARAMS" value="on" />
+	</environment>
+
+	<architectures>
+		<architecture id="x64" />
+		<!--<architecture id="x86" />-->
+	</architectures>
+	<compiler-types>
+		<compiler-type id="msvc" />
+		<!--<compiler-type id="gcc" />-->
+	</compiler-types>
+
+	<compilers>
+		<compiler type="msvc" architecture="x64" id="comp_32616" />
+		<compiler type="msvc" architecture="x86" id="comp_32616" />
+		<compiler type="gcc" architecture="x64" id="gnucobol-3.1.2-msys2-x64" />
+		<compiler type="gcc" architecture="x86" id="gnucobol-3.1.2-msys2-x86" />
+	</compilers>
+
+	<data-source-clients>
+		<data-source-client type="pgsql" architecture="x64">
+			<environment>
+				<variable key="PATH" value="C:\vcpkg\installed\x64-windows\bin;C:\vcpkg\installed\x64-mingw-dynamic\bin" />
+			</environment>
+			<provider value="Npgsql" />
+		</data-source-client>
+		<data-source-client type="pgsql" architecture="x86">
+			<environment>
+				<variable key="PATH" value="C:\vcpkg\installed\x86-windows\bin;C:\vcpkg\installed\x86-mingw-dynamic\bin" />
+			</environment>
+			<provider value="Npgsql" />
+		</data-source-client>
+
+		<!--<data-source-client type="mysql" architecture="x86">
+			<environment>
+				<variable key="PATH" value="C:\vcpkg\installed\x86-windows\bin;C:\vcpkg\installed\x86-mingw-dynamic\bin" />
+			</environment>
+			<provider value="MySql.Data.MySqlClient" />
+			<additional-preprocess-params value="-z a" />
+		</data-source-client>
+		<data-source-client type="mysql" architecture="x64">
+			<environment>
+				<variable key="PATH" value="C:\vcpkg\installed\x64-windows\bin;C:\vcpkg\installed\x64-mingw-dynamic\bin" />
+			</environment>
+			<provider value="MySql.Data.MySqlClient" />
+			<additional-preprocess-params value="-z a" />
+		</data-source-client>
+
+		<data-source-client type="oracle" architecture="x64">
+			<environment>
+				<variable key="PATH" value="D:\oracle\instantclient_21_6_x64" />
+			</environment>
+			<provider value="Oracle.ManagedDataAccess.Client" />
+			<additional-preprocess-params value="-z c" />
+		</data-source-client>
+		<data-source-client type="oracle" architecture="x86">
+			<environment>
+				<variable key="PATH" value="D:\oracle\instantclient_21_6_x86" />
+			</environment>
+			<provider value="Oracle.ManagedDataAccess.Client" />
+			<additional-preprocess-params value="-z c" />
+		</data-source-client>
+
+		<data-source-client type="sqlite" architecture="x64">
+			<environment>
+			</environment>
+			<provider value="System.Data.SQLite" />
+			<additional-preprocess-params value="-z c" />
+		</data-source-client>
+		<data-source-client type="sqlite" architecture="x86">
+			<environment>
+			</environment>
+			<provider value="System.Data.SQLite" />
+			<additional-preprocess-params value="-z c" />
+		</data-source-client>
+
+		<data-source-client type="odbc" architecture="x64">
+			<environment>
+			</environment>
+			<provider value="System.Data.Odbc" />
+			<additional-preprocess-params value="-z a" />
+		</data-source-client>
+		<data-source-client type="odbc" architecture="x86">
+			<environment>
+			</environment>
+			<provider value="System.Data.Odbc" />
+			<additional-preprocess-params value="-z a" />
+		</data-source-client>-->
+
+	</data-source-clients>
+
+	<data-sources>
+		<data-source type="pgsql" index="1">
+			<hostname>localhost</hostname>
+			<port>5432</port>
+			<dbname>testdb1</dbname>
+			<username>test</username>
+			<password>test</password>
+			<options>native_cursors=off</options>
+		</data-source>
+		<data-source type="pgsql" index="2">
+			<hostname>localhost</hostname>
+			<port>5432</port>
+			<dbname>testdb2</dbname>
+			<username>test</username>
+			<password>test</password>
+			<options>native_cursors=off</options>
+		</data-source>
+		<data-source type="mysql" index="1">
+			<hostname>192.168.1.171</hostname>
+			<port>3306</port>
+			<dbname>testdb1</dbname>
+			<username>test</username>
+			<password>test</password>
+			<options></options>
+		</data-source>
+		<data-source type="mysql" index="2">
+			<hostname>192.168.1.171</hostname>
+			<port>3306</port>
+			<dbname>testdb2</dbname>
+			<username>test</username>
+			<password>test</password>
+			<options></options>
+		</data-source>
+		<data-source type="oracle" index="1">
+			<hostname>192.168.150.145</hostname>
+			<port>1521</port>
+			<dbname>orcl</dbname>
+			<username>test1</username>
+			<password>test1</password>
+			<options></options>
+		</data-source>
+		<data-source type="oracle" index="2">
+			<hostname>192.168.150.145</hostname>
+			<port>1521</port>
+			<dbname>orcl</dbname>
+			<username>test2</username>
+			<password>test2</password>
+			<options></options>
+		</data-source>
+		<data-source type="sqlite" index="1">
+			<hostname>d:/gix_tmp_test/test_sqlite_1.db</hostname>
+			<port></port>
+			<dbname></dbname>
+			<username></username>
+			<password></password>
+			<options></options>
+		</data-source>
+		<data-source type="sqlite" index="2">
+			<hostname>d:/gix_tmp_test/test_sqlite_2.db</hostname>
+			<port></port>
+			<dbname></dbname>
+			<username></username>
+			<password></password>
+			<options></options>
+		</data-source>
+		<data-source type="odbc" index="1">
+			<hostname>ODBC_TEST1</hostname>
+			<port></port>
+			<dbname></dbname>
+			<username>test</username>
+			<password>test</password>
+			<options></options>
+		</data-source>
+		<data-source type="odbc" index="2">
+			<hostname>ODBC_TEST2</hostname>
+			<port></port>
+			<dbname></dbname>
+			<username>test</username>
+			<password>test</password>
+			<options></options>
+		</data-source>
+	</data-sources>
+	<tests>
+		
+		<test name="TSQL001A" enabled="true">
+			<description>Open connection, cursor</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL001A.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-sql-file data-source-index="1">dbdata.sql</pre-run-sql-file>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>SELECT SQLCODE: +000000000</line>
+				<line>RES: 003</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL002" enabled="true">
+			<description>CONNECT TO :DATASRC USER :DBUSR/:DBPWD</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL002A.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-sql-file data-source-index="1">dbdata.sql</pre-run-sql-file>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>SELECT SQLCODE: +000000000</line>
+				<line>RES: 003</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL003A" enabled="true">
+			<description>CONNECT TO :DATASRC USER :DBUSR/:DBPWD</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL003A.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="2" />
+			<pre-run-drop-table data-source-index="1">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="1">tab2</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab2</pre-run-drop-table>
+
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB1 (FLD1 INT)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="2">CREATE TABLE TAB2 (FLD2 INT)</pre-run-sql-statement>
+
+			<environment>
+				<variable key="DATASRC1" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR1" value="${datasource1-username}.${datasource1-password}" />
+				<variable key="DATASRC2" value="${datasource2-noauth-url}" />
+				<variable key="DATASRC_USR2" value="${datasource2-username}.${datasource2-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>CONNECT SQLCODE(1): +0000000000</line>
+				<line>CONNECT SQLCODE(2): +0000000000</line>
+				<line>T1   : 0009</line>
+				<line>T2   : 0900</line>
+				<line>TOTAL: 0909</line>
+				<line>SQLSTATE FAIL1: OK</line>
+				<line>SQLSTATE FAIL2: OK</line>
+				<line>CRSR01 rec #0001 : [0001]</line>
+				<line>CRSR01 rec #0002 : [0003]</line>
+				<line>CRSR01 rec #0003 : [0005]</line>
+				<line>CRSR02 rec #0001 : [0100]</line>
+				<line>CRSR02 rec #0002 : [0300]</line>
+				<line>CRSR02 rec #0003 : [0500]</line>
+				<line>TOT CRSR01 :0009</line>
+				<line>TOT CRSR02 :0900</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL003B" enabled="true">
+			<description>CONNECT TO :DATASRC USER :DBUSR/:DBPWD</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL003B.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="2" />
+			<pre-run-drop-table data-source-index="1">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="1">tab2</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab2</pre-run-drop-table>
+
+			<environment>
+				<variable key="DATASRC1" value="${datasource1-noauth-url}" />
+				<variable key="DBID1" value="CONN1" />
+				<variable key="DATASRC_USR1" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD1" value="${datasource1-password}" />
+				<variable key="DATASRC2" value="${datasource2-noauth-url}" />
+				<variable key="DATASRC_USR2" value="${datasource2-username}.${datasource2-password}" />
+			</environment>
+
+
+			Environment.SetEnvironmentVariable("DATASRC1", build_data_source_string(false, true, true, 0));
+			Environment.SetEnvironmentVariable("DBID1", "CONN1");
+			Environment.SetEnvironmentVariable("DATASRC_USR1", get_datasource_usr(0));
+			Environment.SetEnvironmentVariable("DATASRC_PWD1", get_datasource_pwd(0));
+			Environment.SetEnvironmentVariable("DATASRC2", build_data_source_string(false, true, true, 1));
+			Environment.SetEnvironmentVariable("DATASRC_USR2", get_datasource_usr(1) + "." + get_datasource_pwd(1));
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>CONNECT SQLCODE(1): +0000000000</line>
+				<line>CONNECT SQLCODE(2): +0000000000</line>
+				<line>T1   : 0009</line>
+				<line>T2   : 0900</line>
+				<line>TOTAL: 0909</line>
+				<line>SQLSTATE FAIL1: OK</line>
+				<line>SQLSTATE FAIL2: OK</line>
+				<line>CRSR01 rec #0001 : [0001]</line>
+				<line>CRSR01 rec #0002 : [0003]</line>
+				<line>CRSR01 rec #0003 : [0005]</line>
+				<line>CRSR02 rec #0001 : [0100]</line>
+				<line>CRSR02 rec #0002 : [0300]</line>
+				<line>CRSR02 rec #0003 : [0500]</line>
+				<line>TOT CRSR01 :0009</line>
+				<line>TOT CRSR02 :0900</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL003C" enabled="true">
+			<description>CONNECT TO :DATASRC USER :DBUSR/:DBPWD</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL003C.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="2" />
+			<pre-run-drop-table data-source-index="1">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="1">tab2</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab2</pre-run-drop-table>
+
+			<environment>
+				<variable key="DATASRC1" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR1" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD1" value="${datasource1-password}" />
+				<variable key="DATASRC2" value="${datasource2-noauth-url}" />
+				<variable key="DATASRC_USR2" value="${datasource2-username}.${datasource2-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>CONNECT SQLCODE(1): +0000000000</line>
+				<line>CONNECT SQLCODE(2): +0000000000</line>
+				<line>T1   : 0009</line>
+				<line>T2   : 0900</line>
+				<line>TOTAL: 0909</line>
+				<line>SQLSTATE FAIL1: OK</line>
+				<line>SQLSTATE FAIL2: OK</line>
+				<line>CRSR01 rec #0001 : [0001]</line>
+				<line>CRSR01 rec #0002 : [0003]</line>
+				<line>CRSR01 rec #0003 : [0005]</line>
+				<line>CRSR02 rec #0001 : [0100]</line>
+				<line>CRSR02 rec #0002 : [0300]</line>
+				<line>CRSR02 rec #0003 : [0500]</line>
+				<line>TOT CRSR01 :0009</line>
+				<line>TOT CRSR02 :0900</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL004A" enabled="true">
+			<description>CURSOR + misc data types</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL004A.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="2" />
+			<pre-run-sql-file>dbdata.sql</pre-run-sql-file>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>employee #: [+0123]</line>
+				<line>last name : [Doe       ]</line>
+				<line>first name: [John      ]</line>
+				<line>street    : [123, Nowhere Lane   ]</line>
+				<line>city      : [Noplace        ]</line>
+				<line>state     : [NA]</line>
+				<line>zip code  : [00100]</line>
+				<line>department: [DEP1]</line>
+				<line>payrate   : [+0000000000200.00]</line>
+				<line>commission: [+1.23]</line>
+				<line>misc      : [abcd1234                                                                                                                        ]</line>
+				<line>misc (len): [0000000008]</line>
+				<line>dnum1     : [+00.00]</line>
+				<line>dnum2     : [+22.33]</line>
+				<line>dnum3     : [+33.44]</line>
+				<line>employee #: [+0456]</line>
+				<line>last name : [Smith     ]</line>
+				<line>first name: [Jane      ]</line>
+				<line>street    : [456, Someplace Rd.  ]</line>
+				<line>city      : [Somewhere      ]</line>
+				<line>state     : [NA]</line>
+				<line>zip code  : [00111]</line>
+				<line>department: [DEP2]</line>
+				<line>payrate   : [+0000000000130.00]</line>
+				<line>commission: [+3.45]</line>
+				<line>misc      : [defg5678hijk                                                                                                                    ]</line>
+				<line>misc (len): [0000000012]</line>
+				<line>dnum1     : [+55.66]</line>
+				<line>dnum2     : [+00.00]</line>
+				<line>dnum3     : [+99.11]</line>
+				<line>employee #: [+0789]</line>
+				<line>last name : [Smith2    ]</line>
+				<line>first name: [Jane2     ]</line>
+				<line>street    : [789, Someplace 2 Rd.]</line>
+				<line>city      : [Someplace Else ]</line>
+				<line>state     : [NA]</line>
+				<line>zip code  : [00123]</line>
+				<line>department: [DEP3]</line>
+				<line>payrate   : [+0000000000230.00]</line>
+				<line>commission: [+4.56]</line>
+				<line>misc      : [98005678hijk                                                                                                                    ]</line>
+				<line>misc (len): [0000000012]</line>
+				<line>dnum1     : [+12.34]</line>
+				<line>dnum2     : [+45.67]</line>
+				<line>dnum3     : [+00.00]</line>
+				<line>fetch 00000100</line>
+				<line>fetch +0000000100</line>
+				<line>All records in this table have been selected</line>
+				<line>reopen code:+0000000000</line>
+				<line>reopen msg :                                                                     </line>
+				<line>refetch +0000000000</line>
+				<line>refetch                                                                      </line>
+				<line>(reopen) employee #: [+0123]</line>
+				<line>(reopen) last name : [Doe       ]</line>
+				<line>(reopen) first name: [John      ]</line>
+				<line>(reopen) street    : [123, Nowhere Lane   ]</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL005A" enabled="true">
+			<description>BINARY/VARBINARY data types</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL005A.cbl" />
+			</cobol-sources>
+
+			<generate-payload id=":p1" type="byte-sequence" length="80" start="33" />
+			<generate-payload id=":p2" type="byte-sequence" length="80" start="33" />
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">bintest</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1" type="pgsql">create table bintest (bfld bytea, vbfld bytea, cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" type="oracle">create table bintest (bfld RAW(100), vbfld LONG RAW, cfld char(100), vcfld varchar(100), num1 number(4,2))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" type="mysql">create table bintest (bfld binary(200), vbfld varbinary(200), cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" type="sqlite">create table bintest (bfld binary(200), vbfld varbinary(200), cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+
+			<pre-run-sql-statement data-source-index="1" type="odbc" comment="For ODBC, we assume PostgreSQL to be the underlying DBMS">create table bintest (bfld bytea, vbfld bytea, cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="pgsql">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (:p1, :p2, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="oracle">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (:p1, :p2, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="sqlite">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (:p1, :p2, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="mysql">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (?, ?, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="odbc">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (?, ?, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>DIGIT1 : +0033</line>
+				<line>DIGIT2 : +0034</line>
+				<line>DIGIT83: +0000</line>
+				<line>BFLD        : [!"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnop</line>
+				<line>BFLD LENGTH: 100</line>
+				<line>VBFLD-ARR  : [!"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnop]</line>
+				<line>VBFLD-LEN: 0000000080</line>
+				<line>CFLD        : [ABCDEFGHIJK                                                                                         ]</line>
+				<line>CFLD LENGTH: 100</line>
+				<line>VCFLD-ARR  : [ABCDEFGHIJK]</line>
+				<line>VCFLD-LEN: 0000000011</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL005B" enabled="true">
+			<description>BINARY/VARBINARY data types</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL005B.cbl" />
+			</cobol-sources>
+
+			<generate-payload id=":p1" type="byte-sequence" length="80" start="33" />
+			<generate-payload id=":p2" type="byte-sequence" length="80" start="33" />
+
+			<data-sources count="2" />
+			<pre-run-drop-table data-source-index="1">bintest</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1" type="pgsql">create table bintest (bfld bytea, vbfld bytea, cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" type="oracle">create table bintest (bfld RAW(100), vbfld LONG RAW, cfld char(100), vcfld varchar(100), num1 number(4,2))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" type="mysql">create table bintest (bfld binary(200), vbfld varbinary(200), cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" type="sqlite">create table bintest (bfld binary(200), vbfld varbinary(200), cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+
+			<pre-run-sql-statement data-source-index="1" type="odbc" comment="For ODBC, we assume PostgreSQL to be the underlying DBMS">create table bintest (bfld bytea, vbfld bytea, cfld char(100), vcfld varchar(100), num1 numeric(4,2))</pre-run-sql-statement>
+
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="pgsql">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (:p1, :p2, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="oracle">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (:p1, :p2, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="sqlite">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (:p1, :p2, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="mysql">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (?, ?, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1" params=":p1,:p2" type="odbc">insert into bintest (bfld, vbfld, cfld, vcfld, num1) values (?, ?, 'ABCDEFGHIJK', 'ABCDEFGHIJK', 12.34)</pre-run-sql-statement>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>DIGIT1 : +0033</line>
+				<line>DIGIT2 : +0034</line>
+				<line>DIGIT83: +0000</line>
+				<line>BFLD        : [!"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnop</line>
+				<line>BFLD LENGTH: 100</line>
+				<line>VBFLD-ARR  : [!"#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnop]</line>
+				<line>VBFLD-LEN: 0000000080</line>
+				<line>CFLD        : [ABCDEFGHIJK                                                                                         ]</line>
+				<line>CFLD LENGTH: 100</line>
+				<line>VCFLD-ARR  : [ABCDEFGHIJK]</line>
+				<line>VCFLD-LEN: 0000000011</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL005C" enabled="true" not-applies-to="sqlite,mysql">
+			<description>BINARY/VARBINARY data types</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL005C.cbl" />
+			</cobol-sources>
+
+			<generate-payload id="@PAYLOAD" type="random-string" length="32" />
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">TAB00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 ( CID INTEGER, VCFLD VARCHAR(100), CFLD CHAR(100) )</pre-run-sql-statement>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+				<variable key="PAYLOAD" value="@{PAYLOAD}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>VCFLD(1): [@{PAYLOAD}]</line>
+				<line>CFLD(1) : [@{PAYLOAD}                                                                    ]</line>
+				<line>VCFLD(2): [@{PAYLOAD}]</line>
+				<line>CFLD(2) : [@{PAYLOAD}                                                                    ]</line>
+				<line>VCFLD(3): [@{PAYLOAD}]</line>
+				<line>CFLD(3) : [@{PAYLOAD}                                                                    ]</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL006A" enabled="true">
+			<description>Prepared statements</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL006A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">tab1</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB1 (FLD1 INT, FLD2 INT)</pre-run-sql-statement>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>PREPARE SQLSTMT1: +0000000000</line>
+				<line>EXECUTE SQLSTMT1(1): +0000000000</line>
+				<line>EXECUTE SQLSTMT1(2): +0000000000</line>
+				<line>EXECUTE IMMEDIATE(1): +0000000000</line>
+				<line>EXECUTE IMMEDIATE(2): +0000000000</line>
+				<line>SUM SQLCODE: +0000000000</line>
+				<line>TOT1: 0406</line>
+				<line>TOT2: 1208</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL006B" enabled="true">
+			<description>Prepared statements - Traps invalid variable for prepared statements</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL006B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<expected-to-fail preprocess="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL006C" enabled="true">
+			<description>Prepared statements - Traps invalid variable for prepared statements (correct format, should succeed)</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL006C.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<expected-to-fail preprocess="false" compile="false" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL007A" enabled="true">
+			<description>Misc SECTIONs</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL007A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<expected-to-fail preprocess="false" compile="false" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL008A" enabled="true">
+			<description>Misc types</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL008A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<expected-to-fail preprocess="false" compile="false" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL009A" enabled="true">
+			<description>SQL syntax error handling</description>
+			<issue-coverage>#000</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL009A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<expected-to-fail preprocess="false" compile="false" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL010A" enabled="true">
+			<description>COBOL TYPEDEF handling - Expected to fail: not implemented</description>
+			<issue-coverage>#000</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL010A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<expected-to-fail preprocess="true" compile="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL011A" enabled="true">
+			<description>ESQL IGNORE</description>
+			<issue-coverage>#000</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL011A.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output>
+				<line>WHATEVER</line>
+				<line>WHATEVER 2</line>
+				<line>HELLO WORLD 1</line>
+				<line>HELLO WORLD 2</line>
+				<line>HELLO WORLD 3</line>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>SELECT SQLCODE: +0000000000</line>
+				<line>RES: 003</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL012A" enabled="true">
+			<description>Subselect</description>
+			<issue-coverage>#066</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL012A.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<pre-run-drop-table data-source-index="1">tab_a</pre-run-drop-table>
+			<pre-run-sql-file>dbdata-012.sql</pre-run-sql-file>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>SELECT SQLCODE: +0000000000</line>
+				<line>RES: 00000219</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL013A" enabled="true">
+			<description>FD parse error</description>
+			<issue-coverage>#065</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL013A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL014A" enabled="true">
+			<description>LOB related syntax issues</description>
+			<issue-coverage>#003</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL014A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL014B" enabled="true">
+			<description>LOB related syntax issues</description>
+			<issue-coverage>#003</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL014B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL014C" enabled="true">
+			<description>LOB related syntax issues</description>
+			<issue-coverage>#3</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL014C.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+
+		<test name="TSQL014D" enabled="true">
+			<description>Parse SELECT.. without INTO</description>
+			<issue-coverage>#FR2</issue-coverage>
+			<group></group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL014D.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL015A" enabled="true">
+			<description>Add OCCURS UNBOUNDED</description>
+			<issue-coverage>#080</issue-coverage>
+			<group>not-implemented</group>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL015A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL016A" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#050</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL016A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-file>dbdata-016.sql</pre-run-sql-file>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>OPEN SQLCODE: +0000000000</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000106]</line>
+				<line>COL2: [000206]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000107]</line>
+				<line>COL2: [000207]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000108]</line>
+				<line>COL2: [000208]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000109]</line>
+				<line>COL2: [000209]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000110]</line>
+				<line>COL2: [000210]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000111]</line>
+				<line>COL2: [000211]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000112]</line>
+				<line>COL2: [000212]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000113]</line>
+				<line>COL2: [000213]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000114]</line>
+				<line>COL2: [000214]</line>
+				<line>FETCH SQLCODE: +0000000100</line>
+				<line>COL1: [000114]</line>
+				<line>COL2: [000214]</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL017A" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#050</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL017A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-statement>CREATE TABLE TAB_A (COL1 INT, COL2 INT, KEY01 INT)</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>PREPARE(1) SQLCODE: +0000000000</line>
+				<line>EXECUTE SQLCODE: 000001+0000000000</line>
+				<line>EXECUTE SQLCODE: 000002+0000000000</line>
+				<line>EXECUTE SQLCODE: 000003+0000000000</line>
+				<line>EXECUTE SQLCODE: 000004+0000000000</line>
+				<line>EXECUTE SQLCODE: 000005+0000000000</line>
+				<line>EXECUTE SQLCODE: 000006+0000000000</line>
+				<line>EXECUTE SQLCODE: 000007+0000000000</line>
+				<line>EXECUTE SQLCODE: 000008+0000000000</line>
+				<line>EXECUTE SQLCODE: 000009+0000000000</line>
+				<line>EXECUTE SQLCODE: 000010+0000000000</line>
+				<line>SUM(1) SQLCODE: +0000000000</line>
+				<line>TOT-KEY01(1): [000055]</line>
+				<line>TOT-COL1 (1): [001055]</line>
+				<line>TOT-COL2 (1): [002055]</line>
+				<line>PREPARE(2) SQLCODE: +0000000000</line>
+				<line>SUM(2) SQLCODE: +0000000000</line>
+				<line>TOT-KEY01(2): [000036]</line>
+				<line>TOT-COL1 (2): [000836]</line>
+				<line>TOT-COL2 (2): [001636]</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL017B" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#050</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL017B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-file>dbdata-017.sql</pre-run-sql-file>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>OPEN SQLCODE: +0000000000</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000106]</line>
+				<line>COL2: [000206]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000107]</line>
+				<line>COL2: [000207]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000108]</line>
+				<line>COL2: [000208]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000109]</line>
+				<line>COL2: [000209]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000110]</line>
+				<line>COL2: [000210]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000111]</line>
+				<line>COL2: [000211]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000112]</line>
+				<line>COL2: [000212]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000113]</line>
+				<line>COL2: [000213]</line>
+				<line>FETCH SQLCODE: +0000000000</line>
+				<line>COL1: [000114]</line>
+				<line>COL2: [000214]</line>
+				<line>FETCH SQLCODE: +0000000100</line>
+				<line>COL1: [000114]</line>
+				<line>COL2: [000214]</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL017C" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#050</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL017C.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-statement>create table tab_a (col1 int, col2 int, key01 int)</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT SQLCODE: +0000000000</line>
+				<line>PREPARE SQLCODE: +0000000000</line>
+				<line>EXECUTE SQLCODE: 000001+0000000000</line>
+				<line>EXECUTE SQLCODE: 000002+0000000000</line>
+				<line>EXECUTE SQLCODE: 000003+0000000000</line>
+				<line>EXECUTE SQLCODE: 000004+0000000000</line>
+				<line>EXECUTE SQLCODE: 000005+0000000000</line>
+				<line>EXECUTE SQLCODE: 000006+0000000000</line>
+				<line>EXECUTE SQLCODE: 000007+0000000000</line>
+				<line>EXECUTE SQLCODE: 000008+0000000000</line>
+				<line>EXECUTE SQLCODE: 000009+0000000000</line>
+				<line>EXECUTE SQLCODE: 000010+0000000000</line>
+				<line>SUM SQLCODE: +0000000000</line>
+				<line>TOT-KEY01: [000055]</line>
+				<line>TOT-COL1: [001055]</line>
+				<line>TOT-COL2: [002055]</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL017D" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#088</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL017D.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<environment>
+			</environment>
+
+			<expected-output>
+			</expected-output>
+		</test>
+
+		<test name="TSQL017E" enabled="true">
+			<description>CursorDeclareParams error</description>
+			<issue-coverage>#088</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL017E.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<environment>
+			</environment>
+
+			<expected-output>
+			</expected-output>
+		</test>
+
+		<test name="TSQL018A-1" enabled="true">
+			<description>Long queries break COBOL compiler (COBOL 85)</description>
+			<issue-coverage>#008</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL018A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<additional-preprocess-params value="--cobol85" />
+			<additional-compile-params value="-std ibm" />
+
+			<expected-output>
+			</expected-output>
+		</test>
+
+		<test name="TSQL018A-2" enabled="true">
+			<description>Long queries break COBOL compiler (COBOL 2002)</description>
+			<issue-coverage>#008</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL018A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output>
+			</expected-output>
+		</test>
+
+		<test name="TSQL018B-1" enabled="true">
+			<description>Long queries break COBOL compiler (COBOL 85)</description>
+			<issue-coverage>#008</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL018B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<additional-preprocess-params value="--cobol85" />
+			<additional-compile-params value="-std ibm" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line regex="true">^LOREM\ IPSUM\ DOLOR\ SIT\ AMET\ ,\ CONSECTETUR\ ADIPISCING\ ELIT</line>
+				<line regex="true">FRINGILLA\ ULLAMCORPER\ EGET\ IN\ MASSA\ \.\ ETIAM\ ET</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL018B-2" enabled="true">
+			<description>Long queries break COBOL compiler (COBOL 2002)</description>
+			<issue-coverage>#008</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL018B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line regex="true">^LOREM\ IPSUM\ DOLOR\ SIT\ AMET\ ,\ CONSECTETUR\ ADIPISCING\ ELIT</line>
+				<line regex="true">FRINGILLA\ ULLAMCORPER\ EGET\ IN\ MASSA\ \.\ ETIAM\ ET</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL019A" enabled="true">
+			<description>Length/power issues with COMP-3</description>
+			<issue-coverage>#092</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL019A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-statement>create table tab_a (id int, tornw numeric(30,12))</pre-run-sql-statement>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>INSERT 1 SQLCODE: +0000000000</line>
+				<line>INSERT 1 DATA   : -000000000000000042.740000000000</line>
+				<line>INSERT 2 SQLCODE: +0000000000</line>
+				<line>INSERT 2 DATA   : -000000000000000112</line>
+				<line>INSERT 3 SQLCODE: +0000000000</line>
+				<line>INSERT 3 DATA   : 000000000000000237</line>
+				<line>INSERT 4 SQLCODE: +0000000000</line>
+				<line>INSERT 4 DATA   : 000000000000000127.220000000000</line>
+				<line>SELECT 1 SQLCODE: +0000000000</line>
+				<line>SELECT 1 DATA   : -000000000000000042.740000000000</line>
+				<line>SELECT 2 SQLCODE: +0000000000</line>
+				<line>SELECT 2 DATA   : -000000000000000112</line>
+				<line>SELECT 3 SQLCODE: +0000000000</line>
+				<line>SELECT 3 DATA   : 000000000000000237</line>
+				<line>SELECT 4 SQLCODE: +0000000000</line>
+				<line>SELECT 4 DATA   : 000000000000000127.220000000000</line>
+				<line>RES 1 : OK</line>
+				<line>RES 2 : OK</line>
+				<line>RES 3 : OK</line>
+				<line>RES 4 : OK</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL019B" enabled="true">
+			<description>Length/power issues with COMP-3</description>
+			<issue-coverage>#092</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL019B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<pre-run-drop-table>tab_a</pre-run-drop-table>
+			<pre-run-sql-statement>create table tab_a (id int, tornw numeric(18,4))</pre-run-sql-statement>
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<expected-output>
+				<line>INSERT 1 SQLCODE: +0000000000</line>
+				<line>INSERT 1 DATA   : -000000000000000042.740000000000</line>
+				<line>INSERT 2 SQLCODE: +0000000000</line>
+				<line>INSERT 2 DATA   : -000000000000000112</line>
+				<line>INSERT 3 SQLCODE: +0000000000</line>
+				<line>INSERT 3 DATA   : 000000000000000237</line>
+				<line>INSERT 4 SQLCODE: +0000000000</line>
+				<line>INSERT 4 DATA   : 000000000000000127.220000000000</line>
+				<line>SELECT 1 SQLCODE: +0000000000</line>
+				<line>SELECT 1 DATA   : -000000000000000042.740000000000</line>
+				<line>SELECT 2 SQLCODE: +0000000000</line>
+				<line>SELECT 2 DATA   : -000000000000000112</line>
+				<line>SELECT 3 SQLCODE: +0000000000</line>
+				<line>SELECT 3 DATA   : 000000000000000237</line>
+				<line>SELECT 4 SQLCODE: +0000000000</line>
+				<line>SELECT 4 DATA   : 000000000000000127.220000000000</line>
+				<line>RES 1 : OK</line>
+				<line>RES 2 : OK</line>
+				<line>RES 3 : OK</line>
+				<line>RES 4 : OK</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL020A" enabled="true">
+			<description>Pass postgres cast operator as token</description>
+			<issue-coverage>#093</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL020A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+		</test>
+
+		<test name="TSQL021A" enabled="true">
+			<description>More formats for connect</description>
+			<issue-coverage>#043</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL021A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_FULL" value="${datasource1-url}" />
+				<variable key="DBUSR" value="${datasource1-username}" />
+				<variable key="DBPWD" value="${datasource1-password}" />
+				<variable key="DBNAME" value="${datasource1-dbname}" />
+				<variable key="DBUSRPWD" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT 1A SQLCODE: +0000000000</line>
+				<line>CONNECT 2A SQLCODE: +0000000000</line>
+				<line>CONNECT 3A SQLCODE: +0000000000</line>
+				<line>CONNECT 4A SQLCODE: -0000000201</line>
+				<line>CONNECT 5A SQLCODE: +0000000000</line>
+				<line>CONNECT 6A SQLCODE: +0000000000</line>
+				<line>CONNECT 1N SQLCODE: +0000000000</line>
+				<line>CONNECT 2N SQLCODE: +0000000000</line>
+				<line>CONNECT 3N SQLCODE: +0000000000</line>
+				<line>CONNECT 4N SQLCODE: -0000000201</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL021B-1" enabled="true">
+			<description>More formats for connect</description>
+			<issue-coverage>#043</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL021B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_FULL" value="${datasource1-url}" />
+				<variable key="DBUSR" value="${datasource1-username}" />
+				<variable key="DBPWD" value="${datasource1-password}" />
+				<variable key="DBNAME" value="${datasource1-dbname}" />
+				<variable key="DBUSRPWD" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT 1A SQLCODE: +0000000000</line>
+				<line>CONNECT 2A SQLCODE: +0000000000</line>
+				<line>CONNECT 3A SQLCODE: +0000000000</line>
+				<line>CONNECT 4A SQLCODE: -0000000201</line>
+				<line>CONNECT 5A SQLCODE: +0000000000</line>
+				<line>CONNECT 6A SQLCODE: +0000000000</line>
+				<line>CONNECT 1N SQLCODE: +0000000000</line>
+				<line>CONNECT 2N SQLCODE: +0000000000</line>
+				<line>CONNECT 3N SQLCODE: +0000000000</line>
+				<line>CONNECT 4N SQLCODE: -0000000201</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL021B-2" enabled="true">
+			<description>More formats for connect</description>
+			<issue-coverage>#043</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL021B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+			<environment>
+				<variable key="DATASRC" value="${datasource1-host}:${datasource1-port}/${datasource1-dbname}" />
+				<variable key="DATASRC_FULL" value="${datasource1-username}.${datasource1-password}@${datasource1-host}:${datasource1-port}/${datasource1-dbname}" />
+				<variable key="DBUSR" value="${datasource1-username}" />
+				<variable key="DBPWD" value="${datasource1-password}" />
+				<variable key="DBNAME" value="${datasource1-dbname}" />
+				<variable key="DBUSRPWD" value="${datasource1-username}.${datasource1-password}" />
+				<variable key="GIXSQL_DEFAULT_DRIVER" value="${datasource1-type}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT 1A SQLCODE: +0000000000</line>
+				<line>CONNECT 2A SQLCODE: +0000000000</line>
+				<line>CONNECT 3A SQLCODE: +0000000000</line>
+				<line>CONNECT 4A SQLCODE: -0000000201</line>
+				<line>CONNECT 5A SQLCODE: +0000000000</line>
+				<line>CONNECT 6A SQLCODE: +0000000000</line>
+				<line>CONNECT 1N SQLCODE: +0000000000</line>
+				<line>CONNECT 2N SQLCODE: +0000000000</line>
+				<line>CONNECT 3N SQLCODE: +0000000000</line>
+				<line>CONNECT 4N SQLCODE: -0000000201</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL021B-3" enabled="true" not-applies-to="odbc">
+			<description>More formats for connect</description>
+			<issue-coverage>#043</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL021B.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+			<environment>
+				<variable key="DATASRC" value="${datasource1-dbname}@${datasource1-host}:${datasource1-port}" />
+				<variable key="DATASRC_FULL" value="" />
+				<variable key="DBUSR" value="${datasource1-username}" />
+				<variable key="DBPWD" value="${datasource1-password}" />
+				<variable key="DBNAME" value="${datasource1-dbname}" />
+				<variable key="DBUSRPWD" value="${datasource1-username}.${datasource1-password}" />
+				<variable key="GIXSQL_DEFAULT_DRIVER" value="${datasource1-type}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT 1A SQLCODE: +0000000000</line>
+				<line>CONNECT 2A SQLCODE: +0000000000</line>
+				<line>CONNECT 3A SQLCODE: +0000000000</line>
+				<line>CONNECT 4A SQLCODE: -0000000201</line>
+				<line comment="embedded authentication, not supported in ocesql-compatible connection strings, expected to fail">CONNECT 5A SQLCODE: -0000000201</line>
+				<line>CONNECT 6A SQLCODE: +0000000000</line>
+				<line>CONNECT 1N SQLCODE: +0000000000</line>
+				<line>CONNECT 2N SQLCODE: +0000000000</line>
+				<line>CONNECT 3N SQLCODE: +0000000000</line>
+				<line>CONNECT 4N SQLCODE: -0000000201</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL021C-1" enabled="true">
+			<description>More formats for connect</description>
+			<issue-coverage>#043</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL021C.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+			<environment>
+				<variable key="DATASRC" value="${datasource1-type}://${datasource1-host}" />
+				<variable key="DBUSR" value="${datasource1-username}" />
+				<variable key="DBPWD" value="${datasource1-password}" />
+				<variable key="DBNAME" value="${datasource1-dbname}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT 6A SQLCODE: +0000000000</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL021C-2" enabled="true">
+			<description>More formats for connect</description>
+			<issue-coverage>#043</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL021C.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+			<environment>
+				<variable key="GIXSQL_DEFAULT_DRIVER" value="${datasource1-type}" />
+				<variable key="DATASRC" value="${datasource1-host}" />
+				<variable key="DBUSR" value="${datasource1-username}" />
+				<variable key="DBPWD" value="${datasource1-password}" />
+				<variable key="DBNAME" value="${datasource1-dbname}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT 6A SQLCODE: +0000000000</line>
+			</expected-output>
+		</test>
+
+		<test name="TSQL022A-1" enabled="true">
+			<description>Add support for VARYING groups</description>
+			<issue-coverage>#038</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL022A.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+
+			<expected-preprocessed-file-content>
+				<line>GIXSQL*    01 VBFLD SQL TYPE IS VARBINARY(100).</line>
+				<line>49 VBFLD-LEN PIC 9(8) COMP-5.</line>
+				<line>49 VBFLD-ARR PIC X(100).</line>
+
+				<line>GIXSQL*    01 VCFLD PIC X(100) VARYING.</line>
+				<line>49 VCFLD-LEN PIC 9(8) COMP-5.</line>
+				<line>49 VCFLD-ARR PIC X(100).</line>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL022A-2" enabled="true">
+			<description>Add support for VARYING groups</description>
+			<issue-coverage>#038</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL022A.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<additional-preprocess-params value="--varying=LLLL,AAAA" />
+
+			<expected-output></expected-output>
+
+			<expected-preprocessed-file-content>
+				<line>GIXSQL*    01 VBFLD SQL TYPE IS VARBINARY(100).</line>
+				<line>49 VBFLD-LLLL PIC 9(8) COMP-5.</line>
+				<line>49 VBFLD-AAAA PIC X(100).</line>
+
+				<line>GIXSQL*    01 VCFLD PIC X(100) VARYING.</line>
+				<line>49 VCFLD-LLLL PIC 9(8) COMP-5.</line>
+				<line>49 VCFLD-AAAA PIC X(100).</line>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL022B" enabled="true">
+			<description>Add support for VARYING groups</description>
+			<issue-coverage>#038</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL022B.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+
+			<expected-preprocessed-file-content>
+				<line>01 BUFFER1.</line>
+				<line>49 BUFFER1-LEN PIC 9(8) COMP-5.</line>
+				<line>49 BUFFER1-ARR PIC X(100).</line>
+
+				<line>01 BUFFER2.</line>
+				<line>49 BUFFER2-LEN PIC 9(8) COMP-5.</line>
+				<line>49 BUFFER2-ARR PIC X(32767).</line>
+
+				<line>01 BUFFER3.</line>
+				<line>49 BUFFER3-LEN PIC 9(8) COMP-5.</line>
+				<line>49 BUFFER3-ARR PIC X(32768).</line>
+
+				<line>01 BUFFER4.</line>
+				<line>49 BUFFER4-LEN PIC 9(8) COMP-5.</line>
+				<line>49 BUFFER4-ARR PIC X(50000).</line>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL022C" enabled="true">
+			<description>Add support for VARYING groups</description>
+			<issue-coverage>#038</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL022C.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+			<expected-preprocessed-file-content></expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL023A" enabled="true">
+			<description>Translation defect in 1.0.12</description>
+			<issue-coverage>#001</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL023A.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+			<expected-preprocessed-file-content></expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL023B" enabled="true">
+			<description>Translation defect in 1.0.12</description>
+			<issue-coverage>#001</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL023B.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output></expected-output>
+			<expected-preprocessed-file-content></expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL024A" enabled="true">
+			<description>EXEC SQL WHENEVER</description>
+			<issue-coverage>#045</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL024A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">TAB1</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB1 (FLD1 INT, FLD2 INT)</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>PREPARE SQLSTMT1: +0000000000</line>
+				<line>EXECUTE SQLSTMT1(1): +0000000000</line>
+				<line>EXECUTE SQLSTMT1(2): +0000000000</line>
+				<line>PRE-SEL-1   , DATA NOT FOUND FOR KEY = 0999</line>
+				<line>PRE-BAD-SELE, ERROR - SQLSTATE  : </line>
+				<line>PRE-SEL-2   , DATA NOT FOUND (2) FOR KEY = 0998</line>
+				<line>PRE-SEL-3   , ERROR (2) - SQLSTATE  : </line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL025A" enabled="true">
+			<description>Type/length calculation incomplete</description>
+			<issue-coverage>#006</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL025A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">TAB00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 ( CID INT, FLD01 INT, FLD02 VARCHAR(255) )</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>INSERT SQLCODE: +0000000000</line>
+				<line>SELECT(*) SQLCODE: +0000000000</line>
+				<line>CID(*)  : 000000000001</line>
+				<line>FLD01(*): -0001</line>
+				<line>FLD02(*): ABCD</line>
+				<line>SELECT(ENUM) SQLCODE: +0000000000</line>
+				<line>CID(ENUM)  : 000000000001</line>
+				<line>FLD01(ENUM): -0001</line>
+				<line>FLD02(ENUM): ABCD</line>
+				<line>01 - INSERT SQLCODE: 01+0000000000</line>
+				<line>02 - INSERT SQLCODE: 02+0000000000</line>
+				<line>03 - INSERT SQLCODE: 03+0000000000</line>
+				<line>04 - INSERT SQLCODE: 04+0000000000</line>
+				<line>05 - INSERT SQLCODE: 05+0000000000</line>
+				<line>06 - INSERT SQLCODE: 06+0000000000</line>
+				<line>07 - INSERT SQLCODE: 07+0000000000</line>
+				<line>08 - INSERT SQLCODE: 08+0000000000</line>
+				<line>09 - INSERT SQLCODE: 09+0000000000</line>
+				<line>10 - INSERT SQLCODE: 10+0000000000</line>
+				<line>SQLCODE OPEN CRSR_TAB00 : +0000000000</line>
+				<line>01 - FETCH SQLCODE: +0000000000</line>
+				<line>01 - CID(FETCH)  : 000000000001</line>
+				<line>01 - FLD01(FETCH): -0001</line>
+				<line>01 - FLD02(FETCH): ABCD</line>
+				<line>02 - FETCH SQLCODE: +0000000000</line>
+				<line>02 - CID(FETCH)  : 000000000001</line>
+				<line>02 - FLD01(FETCH): +0101</line>
+				<line>02 - FLD02(FETCH): 0201</line>
+				<line>03 - FETCH SQLCODE: +0000000000</line>
+				<line>03 - CID(FETCH)  : 000000000002</line>
+				<line>03 - FLD01(FETCH): +0102</line>
+				<line>03 - FLD02(FETCH): 0202</line>
+				<line>04 - FETCH SQLCODE: +0000000000</line>
+				<line>04 - CID(FETCH)  : 000000000003</line>
+				<line>04 - FLD01(FETCH): +0103</line>
+				<line>04 - FLD02(FETCH): 0203</line>
+				<line>05 - FETCH SQLCODE: +0000000000</line>
+				<line>05 - CID(FETCH)  : 000000000004</line>
+				<line>05 - FLD01(FETCH): +0104</line>
+				<line>05 - FLD02(FETCH): 0204</line>
+				<line>06 - FETCH SQLCODE: +0000000000</line>
+				<line>06 - CID(FETCH)  : 000000000005</line>
+				<line>06 - FLD01(FETCH): +0105</line>
+				<line>06 - FLD02(FETCH): 0205</line>
+				<line>07 - FETCH SQLCODE: +0000000000</line>
+				<line>07 - CID(FETCH)  : 000000000006</line>
+				<line>07 - FLD01(FETCH): +0106</line>
+				<line>07 - FLD02(FETCH): 0206</line>
+				<line>08 - FETCH SQLCODE: +0000000000</line>
+				<line>08 - CID(FETCH)  : 000000000007</line>
+				<line>08 - FLD01(FETCH): +0107</line>
+				<line>08 - FLD02(FETCH): 0207</line>
+				<line>09 - FETCH SQLCODE: +0000000000</line>
+				<line>09 - CID(FETCH)  : 000000000008</line>
+				<line>09 - FLD01(FETCH): +0108</line>
+				<line>09 - FLD02(FETCH): 0208</line>
+				<line>10 - FETCH SQLCODE: +0000000000</line>
+				<line>10 - CID(FETCH)  : 000000000009</line>
+				<line>10 - FLD01(FETCH): +0109</line>
+				<line>10 - FLD02(FETCH): 0209</line>
+				<line>11 - FETCH SQLCODE: +0000000000</line>
+				<line>11 - CID(FETCH)  : 000000000010</line>
+				<line>11 - FLD01(FETCH): +0110</line>
+				<line>11 - FLD02(FETCH): 0210</line>
+				<line>12 - FETCH SQLCODE: +0000000100</line>
+				<line>12 - CID(FETCH)  : 000000000010</line>
+				<line>12 - FLD01(FETCH): +0110</line>
+				<line>12 - FLD02(FETCH): 0210</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL026A" enabled="true">
+			<description>CURSOR for prepared statements don't compile</description>
+			<issue-coverage>#081,#099</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL026A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">TAB00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 (VAR INT)</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>VM1 - VAR-RES:00000010</line>
+				<line>VM2 - VAR-RES:00000001</line>
+				<line>VM3 - VAR-RES:00000009</line>
+				<line>VM4 - VAR-RES:00000001</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL027A" enabled="true">
+			<description>CURSOR smart init</description>
+			<issue-coverage>#088</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL027A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">TAB00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 (VAR INT)</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line>VM1 - VAR-RES:00000010</line>
+				<line>VM2 - VAR-RES:00000001</line>
+				<line>VM3 - VAR-RES:00000009</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL028A" enabled="true">
+			<description>Wrong generated COBOL in 1.0.16</description>
+			<issue-coverage>#083</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL028A.cbl" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<expected-output>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL029A" enabled="true">
+			<description>Support for DISCONNECT ALL</description>
+			<issue-coverage>#089</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL029A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="2" />
+			<pre-run-drop-table data-source-index="1">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="1">tab2</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab1</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="2">tab2</pre-run-drop-table>
+
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB1 (FLD1 INT)</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="2">CREATE TABLE TAB2 (FLD2 INT)</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC1" value="${datasource1-url}" />
+				<variable key="DATASRC_USR1" value="${datasource1-username}" />
+				<variable key="DATASRC2" value="${datasource2-url}" />
+				<variable key="DATASRC_USR2" value="${datasource2-username}" />
+			</environment>
+
+			<expected-output>
+				<line>CONNECT SQLCODE(1): +0000000000</line>
+				<line>CONNECT SQLCODE(2): +0000000000</line>
+				<line>T1   : 0009</line>
+				<line>T2   : 0900</line>
+				<line>TOTAL: 0909</line>
+				<line>SQLSTATE FAIL1 (OK IF &lt;&gt; 00000): </line>
+				<line>SQLSTATE FAIL2 (OK IF &lt;&gt; 00000): </line>
+				<line>CRSR01 rec #0001 : [0001]</line>
+				<line>CRSR01 rec #0002 : [0003]</line>
+				<line>CRSR01 rec #0003 : [0005]</line>
+				<line>CRSR02 rec #0001 : [0100]</line>
+				<line>CRSR02 rec #0002 : [0300]</line>
+				<line>CRSR02 rec #0003 : [0500]</line>
+				<line>TOT CRSR01 :0009</line>
+				<line>TOT CRSR02 :0900</line>
+				<line>DISCONNECT ALL SQLCODE: +0000000000</line>
+				<line>SELECT-ERR 1 SQLCODE: -0000000103</line>
+				<line>SELECT-ERR 2 SQLCODE: -0000000103</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL030A" enabled="true" applies-to="pgsql">
+			<description>Show-stopper bug in pgsql_prepare</description>
+			<issue-coverage>#091</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL030A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">TAB00</pre-run-drop-table>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+			</environment>
+
+			<expected-output>
+				<line>SET APPLICATION_NAME TO "Identifier1 Identifier2 Identifier3"</line>
+				<line>SELECT MAX(CID) FROM TAB00 WHERE                VCFLD1 NOT IN (                'AAAAA' ,'BBBBBB' ,'CCCCCCCC' ,'DDDD' ,'EEEEEEEE'                )</line>
+				<line>SELECT MAX(CID) FROM TAB00 WHERE                VCFLD1 NOT IN (                'AAAAA ' ,'BBBBBB  ' ,'CCCCCCCC   ' ,                ' DDDD' ,'  EEEEEEEE    '                )</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL031-1" enabled="true">
+			<description>cursor insert/read-back</description>
+			<issue-coverage>#000</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL031A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">tab00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 ( CID INTEGER, FLD1 CHAR(100), FLD2 CHAR(100) )</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="F_NATIVE_CRSR" value=" " />
+				<variable key="F_REC_CNT" value="100" />
+			</environment>
+
+			<expected-output>
+				<line>CURSORS: EMULATED</line>
+				<line># RECS REQUESTED: 00000100</line>
+				<line># RECS INSERTED : 00000100</line>
+				<line># RECS READ: 00000100</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL031-2" enabled="true" applies-to="pgsql">
+			<description>PGSQL: emulated cursors</description>
+			<issue-coverage>#000</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL031A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">tab00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 ( CID INTEGER, FLD1 CHAR(100), FLD2 CHAR(100) )</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-url}?native_cursors=on" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="F_NATIVE_CRSR" value="X" />
+				<variable key="F_REC_CNT" value="10000" />
+			</environment>
+
+			<expected-output>
+				<line>CURSORS: NATIVE</line>
+				<line># RECS REQUESTED: 00010000</line>
+				<line># RECS INSERTED : 00010000</line>
+				<line># RECS READ: 00010000</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL033-1" enabled="true">
+			<description>FR: allow mapping of "NoRecCode"</description>
+			<issue-coverage>#095</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL033A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">tab00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 ( CID INTEGER, FLD1 CHAR(100), FLD2 CHAR(100) )</pre-run-sql-statement>
+
+			<additional-preprocess-params value="--no-rec-code 998877" />
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+				<variable key="GIXSQL_NOREC_CODE" value="998877" />
+			</environment>
+
+			<expected-output>
+				<line># RECS REQUESTED: 00000010</line>
+				<line># RECS INSERTED : 00000010</line>
+				<line>SEL-ERR*SQLCODE  : +0000998877</line>
+				<line>SEL-ERR SQLCODE  : +0000998877</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL033-2" enabled="true">
+			<description>FR: allow mapping of "NoRecCode"</description>
+			<issue-coverage>#095</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL033A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">tab00</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB00 ( CID INTEGER, FLD1 CHAR(100), FLD2 CHAR(100) )</pre-run-sql-statement>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}.${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+				<line># RECS REQUESTED: 00000010</line>
+				<line># RECS INSERTED : 00000010</line>
+				<line>SEL-ERR*SQLCODE  : +0000000100</line>
+				<line>SEL-ERR SQLCODE  : +0000000100</line>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL034" enabled="true">
+			<description>COPY not possible with quoted filenames</description>
+			<issue-coverage>#102</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL034A.cbl" deps="EMPREC.cpy" />
+			</cobol-sources>
+
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="false" />
+
+			<environment>
+			</environment>
+
+			<expected-output>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+		<test name="TSQL035A" enabled="true">
+			<description>regression: COMMIT and ROLLBACK delete all cursor definitions</description>
+			<issue-coverage>#119</issue-coverage>
+			<architecture>all</architecture>
+			<compiler-type>all</compiler-type>
+
+			<cobol-sources>
+				<src name="TSQL035A.cbl" />
+			</cobol-sources>
+
+			<data-sources count="1" />
+			<pre-run-drop-table data-source-index="1">tab01</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="1">tab02</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="1">tab03</pre-run-drop-table>
+			<pre-run-drop-table data-source-index="1">tab04</pre-run-drop-table>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB01 (CID INTEGER, FLD CHAR(100))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB02 (CID INTEGER, FLD CHAR(100))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB03 (CID INTEGER, FLD CHAR(100))</pre-run-sql-statement>
+			<pre-run-sql-statement data-source-index="1">CREATE TABLE TAB04 (CID INTEGER, FLD CHAR(100))</pre-run-sql-statement>
+			
+			<preprocess value="true" />
+			<compile value="true" />
+			<run value="true" />
+
+			<environment>
+				<variable key="DATASRC" value="${datasource1-noauth-url}" />
+				<variable key="DATASRC_USR" value="${datasource1-username}" />
+				<variable key="DATASRC_PWD" value="${datasource1-password}" />
+			</environment>
+
+			<expected-output>
+			</expected-output>
+
+			<expected-preprocessed-file-content>
+			</expected-preprocessed-file-content>
+		</test>
+
+	</tests>
+</test-data>

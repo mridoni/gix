@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Gix-IDE
+Version=1.1.0dev1
+Exec=gix-ide %u
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Icon=gix-ide
+Categories=Development
+MimeType=
+StartupNotify=true

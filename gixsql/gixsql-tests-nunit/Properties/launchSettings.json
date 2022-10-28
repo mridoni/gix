@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "gixsql-tests-nunit": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "GIXSQL_INSTALL_BASE": "D:\\gix-ide-x64",
+        "KEEP_TEMPS": "1",
+        "TEST_TEMP_DIR": "D:\\gix_tmp_test"
+      }
+    }
+  }
+}

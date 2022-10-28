@@ -49,7 +49,6 @@ class ModuleDebugInfo;
 class SymbolMappingEntry;
 class TPESQLProcessing;
 class CobolModuleMetadata;
-class PreprocessedBlockInfo;
 
 class GIXCOMMON_EXPORT CobolModuleMetadata
 {

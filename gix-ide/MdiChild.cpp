@@ -53,6 +53,7 @@
 typedef unsigned char byte;
 #endif
 #include <QtWidgets>
+#include <stdint.h>
 
 #include "Ide.h"
 #include "IdeTaskManager.h"
@@ -67,6 +68,8 @@ typedef unsigned char byte;
 static const int FOLD_LEVEL_BASE = 0x400;
 
 #define MAX_DOC_LEN 134217728   // 128 MB
+
+#define _TO_RGB(r,g,b) ((uint32_t)(((uint8_t)(r) | ((uint16_t)((uint8_t)(g)) << 8)) | (((uint32_t)(uint8_t)(b)) << 16)))
 
 MdiChild::MdiChild()
 {
@@ -131,14 +134,13 @@ MdiChild::MdiChild()
 
 
         callTipShow(pos, data.toUtf8().constData());     
-        callTipSetForeHlt(RGB(0, 0, 0));
+        callTipSetForeHlt(_TO_RGB(0, 0, 0));
         callTipSetHlt(0, de->name.length());
     });
 
     connect(this, &CodeEditor::handleTooltipOff, this, [this](QString s, int x, int y, sptr_t pos) {
         callTipCancel();
     });
-
 }
 
 void MdiChild::add_fold_level(DataEntry* e, int fold_level)

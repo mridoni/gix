@@ -88,14 +88,16 @@ You might need to add Qt's library path to your PATH variable, in order to launc
 
 ### Linux
 You will need to install some dependencies to build:
-`apt install build-essential qt5-default qtbase5-dev libqt5xmlpatterns5-dev libqtermwidget5-0-dev libdwarf-dev libelfin-dev qttools5-dev qttools5-dev-tools libmysqlclient-dev libpq-dev unixodbc-dev flex`
+`apt install build-essential qtbase5-dev libqt5xmlpatterns5-dev libqtermwidget5-0-dev libdwarf-dev libelfin-dev qttools5-dev qttools5-dev-tools libmysqlclient-dev libpq-dev unixodbc-dev flex libnng-dev libspdlog-dev libfmt-dev`
 
 You will also need a version of bison newer than the one provided by Ubuntu. You can download it from Debian's repositories and install it over the current one: 
 
-    wget    http://ftp.debian.org/debian/pool/main/b/bison/bison_3.7.6+dfsg-1_amd64.deb
+    wget    http://ftp.debian.org/debian/pool/main/b/bison/bison_3.7.5+dfsg-1_amd64.deb
 and
 
-    sudo dpkg -i bison_3.7.6+dfsg-1_amd64.deb
+    sudo apt ./bison_3.7.5+dfsg-1_amd64.deb
+	
+	(the leading `./` **is** important: apt will install from a local file, but honoring dependencies)
 
 Then:
  - Download and install the Qt SDK (same versions as above)

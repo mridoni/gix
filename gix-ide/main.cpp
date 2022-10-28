@@ -24,7 +24,6 @@ USA.
 #ifdef _WIN32
 #include <Windows.h>
 #include <imagehlp.h>
-#include "BufferedStackWalker.h"
 #endif
 
 #include <QApplication>

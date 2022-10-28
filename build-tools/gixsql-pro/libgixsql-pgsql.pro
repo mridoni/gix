@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = gixsql-pgsql
 win32:TARGET = libgixsql-pgsql
 
-INCLUDEPATH += . ../libgixsql /usr/include/postgresql
+INCLUDEPATH += . ../libgixsql ../../libgixpp /usr/include/postgresql
 
 CONFIG(debug,debug|release) DESTDIR = ../../../$$(HOST_PLATFORM)/Debug
 CONFIG(release,debug|release) DESTDIR = ../../../$$(HOST_PLATFORM)/Release

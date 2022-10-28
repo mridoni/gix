@@ -1,7 +1,7 @@
 TEMPLATE = lib
 CONFIG += staticlib
 TARGET = gixpp
-INCLUDEPATH += . .. ../libcpputils
+INCLUDEPATH += . .. ../libcpputils ../../build-tools/grammar-tools
 
 CONFIG(debug,debug|release) DESTDIR = ../../$$(HOST_PLATFORM)/Debug
 CONFIG(release,debug|release) DESTDIR = ../../$$(HOST_PLATFORM)/Release

@@ -27,19 +27,19 @@ LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
 
 1 TEXTINCLUDE
 BEGIN
-"resource.h\0"
+    "resource.h\0"
 END
 
 2 TEXTINCLUDE
 BEGIN
-"#include ""winres.h""\r\n"
-"\0"
+    "#include ""winres.h""\r\n"
+    "\0"
 END
 
 3 TEXTINCLUDE
 BEGIN
-"\r\n"
-"\0"
+    "\r\n"
+    "\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -63,36 +63,36 @@ IDI_ICON_PRJ            ICON                    "..\misc\prj_icon.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 1, 0, 0, 000
-PRODUCTVERSION 1, 0, 0, 000
-FILEFLAGSMASK 0x3fL
+ FILEVERSION 1,1,0dev1,1922
+ PRODUCTVERSION 1,1,0dev1,1922
+ FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
-FILEFLAGS 0x1L
+ FILEFLAGS 0x1L
 #else
-FILEFLAGS 0x0L
+ FILEFLAGS 0x0L
 #endif
-FILEOS 0x40004L
-FILETYPE 0x1L
-FILESUBTYPE 0x0L
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
 BEGIN
-BLOCK "StringFileInfo"
-BEGIN
-BLOCK "040904b0"
-BEGIN
-VALUE "CompanyName", "Marco Ridoni"
-VALUE "FileDescription", "Gix-IDE"
-VALUE "FileVersion", "1.0.0.000"
-VALUE "InternalName", "gix-ide.exe"
-VALUE "LegalCopyright", "Copyright (C) 2021"
-VALUE "OriginalFilename", "gix-ide.exe"
-VALUE "ProductName", "Gix-IDE"
-VALUE "ProductVersion", "1.0.0.200"
-END
-END
-BLOCK "VarFileInfo"
-BEGIN
-VALUE "Translation", 0x409, 1200
-END
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Marco Ridoni"
+            VALUE "FileDescription", "Gix-IDE"
+            VALUE "FileVersion", "1.1.0dev1.1922"
+            VALUE "InternalName", "gix-ide.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2018-2021"
+            VALUE "OriginalFilename", "gix-ide.exe"
+            VALUE "ProductName", "Gix-IDE"
+            VALUE "ProductVersion", "1.1.0dev1.1922"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
 END
 
 #endif    // Italian (Italy) resources

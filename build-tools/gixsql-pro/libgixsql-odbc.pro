@@ -7,11 +7,13 @@ INCLUDEPATH += . ../libgixsql
 CONFIG(debug,debug|release) DESTDIR = ../../../$$(HOST_PLATFORM)/Debug
 CONFIG(release,debug|release) DESTDIR = ../../../$$(HOST_PLATFORM)/Release
 
+INCLUDEPATH += ../../libgixpp
+
 linux:QMAKE_LFLAGS_DEBUG += -rdynamic
-linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17 -I../../libgixpp
+linux:QMAKE_CXXFLAGS_DEBUG += -O0 -std=c++17
 
 linux:QMAKE_LFLAGS_RELEASE+= 
-linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -I../../libgixpp
+linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17
 
 linux:QMAKE_LIBS+= -lodbc
 

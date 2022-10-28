@@ -20,7 +20,7 @@ USA.
 
 #pragma once
 
-#include "DebugDriver.h"
+#include "IDebugDriver.h"
 
 #include <QString>
 #include <QStringList>
@@ -28,8 +28,8 @@ USA.
 #include <QProcessEnvironment>
 
 #include "Project.h"
-#include "GixDebugger.h"
 #include "IdeTaskManager.h"
+#include "gix-debugger-types.h"
 
 class IdeTaskManager;
 
@@ -59,7 +59,7 @@ public:
 	void removeWatchedVar(QString);
 	QStringList getWatchedVarList();
 	QStringList getTranslatedBreakpoints();
-	void setUserInititatedStop(bool b);
+	void setUserInitiatedStop(bool b);
     void writeToProcess(QString s);
 
     void debug_break(QString module_name, QString m, int l);
@@ -88,7 +88,7 @@ private:
 	bool is_debugging_enabled;
 	bool is_user_initiated_stop;
 
-    DebugDriver *debug_driver = nullptr;
+	IDebugDriver *debug_driver = nullptr;
     QThread *debug_driver_thread = nullptr;
 
 	IdeTaskManager *ide_task_manager;
@@ -111,14 +111,6 @@ private:
 
 	QStringList watched_vars;
 
-	//QMap<QString, CobolModuleMetadata *> dbg_metadata_by_module;
-	//QMap<QString, CobolModuleMetadata *> dbg_metadata_by_filename;
-	//QMap<QString, ProjectFile *> dbg_module_srcs;
-
-	//void get_module_sources();
-
-	//CobolModuleMetadata *processDebugMetadata(ProjectFile *pf);
-
 	Project *debugged_prj;
 
 	QMap<QString, ModuleDebugInfo *> modules;
@@ -129,9 +121,5 @@ private:
 	QStringList translateBreakpoints(CobolModuleMetadata *cmm, const QStringList &orig_bkps);
 	bool translateBreakpointReverse(CobolModuleMetadata *cmm, const QString &running_file, int running_ln, QString &orig_file, int *orig_ln);
 
-	char *comp3_to_display(int total_len, int scale, int has_sign, uint8_t *addr);
-	char *comp5_to_display(int total_len, int scale, int has_sign, uint8_t *addr, bool is_native_binary);
-
-	void formatVariable(QString var_path, uint8_t *data, WsEntryType type, WsEntryStorageType storage_type, int storage_size, int display_size, bool is_signed, int decimals, QString &vres);
 };
 

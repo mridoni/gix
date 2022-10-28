@@ -978,6 +978,12 @@ bool TPESQLProcessing::handle_esql_stmt(const ESQL_Command cmd, const cb_exec_sq
 
 			put_whenever_handler(stmt->period);
 		}
+		else {
+			bool is_crsr_startup_item = cpplinq::from(startup_items).where([stmt](cb_exec_sql_stmt_ptr p) { return p->cursorName == stmt->cursorName; }).to_vector().size() > 0;
+			if (!is_crsr_startup_item) {
+				put_smart_cursor_init_check(stmt->cursorName, true);
+			}
+		}
 	}
 	break;
 
@@ -2249,7 +2255,7 @@ void TPESQLProcessing::put_smart_cursor_init_flags()
 	emitted_smart_cursor_init_flags = true;
 }
 
-void TPESQLProcessing::put_smart_cursor_init_check(const std::string& crsr_name)
+void TPESQLProcessing::put_smart_cursor_init_check(const std::string& crsr_name, bool reset_sqlcode)
 {
 	std::string cname = string_replace(crsr_name, "_", "-");
 	std::string crsr_init_var = "GIXSQL-CI-F-" + cname;
@@ -2259,7 +2265,11 @@ void TPESQLProcessing::put_smart_cursor_init_check(const std::string& crsr_name)
 	put_output_line(string_format(AREA_B_CPREFIX "    PERFORM %s", crsr_init_st));
 	put_output_line(string_format(AREA_B_CPREFIX "    IF SQLCODE = 0"));
 	put_output_line(string_format(AREA_B_CPREFIX "      MOVE 'X' TO %s", crsr_init_var));
-	put_output_line(string_format(AREA_B_CPREFIX "   END-IF"));
+	put_output_line(string_format(AREA_B_CPREFIX "    END-IF"));
+	if (reset_sqlcode) {
+		put_output_line(string_format(AREA_B_CPREFIX "ELSE"));
+		put_output_line(string_format(AREA_B_CPREFIX "    MOVE 0 TO SQLCODE"));
+	}
 	put_output_line(string_format(AREA_B_CPREFIX "END-IF"));
 }
 

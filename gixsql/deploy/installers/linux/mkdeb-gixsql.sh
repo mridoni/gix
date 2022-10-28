@@ -68,7 +68,7 @@ if [ "$?" != "0" ] ; then echo "Cannot install build" ; exit 1 ; fi
 
 # ********************************
 
-cp -frv $WORKSPACE/gixsql-tests/data/* $PKGDEBDIR/${INSTALL_PREFIX}/share/gixsql/examples
+cp -frv $WORKSPACE/gixsql-tests-nunit/data/*.cbl $WORKSPACE/gixsql-tests-nunit/data/*.cpy $WORKSPACE/gixsql-tests-nunit/data/*.sql $PKGDEBDIR/${INSTALL_PREFIX}/share/gixsql/examples
 if [ "$?" -ne "0" ] ; then
 	echo "Error while packaging GixSQL examples"; exit 1
 fi  

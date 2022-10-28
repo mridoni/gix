@@ -1,7 +1,7 @@
 QT += widgets network xml xmlpatterns
 TEMPLATE = lib
 TARGET = gix-common
-INCLUDEPATH += . ./buildsystem ./projectsystem ./metadata ../libgixutils ../gixsql/libgixpp ../gixsql/libcpputils
+INCLUDEPATH += . ./buildsystem ./projectsystem ./metadata ../libgixutils ../gixsql/libgixpp ../gixsql/libcpputils ../build-tools/grammar-tools ../gix-debugger-common
 
 CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
 CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug

@@ -20,6 +20,7 @@ USA.
 
 #include "WatchWindow.h"
 #include "UiUtils.h"
+#include "DataEntry.h"
 #include "Ide.h"
 #include "IdeTaskManager.h"
 

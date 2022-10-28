@@ -1,0 +1,25 @@
+#pragma once
+
+#define DBGR_MSG_IN_CMD_STATUS						"status"
+#define DBGR_MSG_IN_CMD_START_SESSION				"start_session"
+#define DBGR_MSG_IN_CMD_STOP_SESSION				"stop_session"
+#define DBGR_MSG_IN_CMD_QUIT						"quit"
+#define DBGR_MSG_IN_CMD_HELLO						"hello"
+#define DBGR_MSG_IN_CMD_STEP						"step"
+#define DBGR_MSG_IN_CMD_CONTINUE					"continue"
+#define DBGR_MSG_IN_CMD_GET_VARS					"get_vars"
+
+#define DBGR_MSG_OUT_TYPE_STATUS					"dbgr_status"
+#define DBGR_MSG_OUT_TYPE_BREAK						"dbgr_break"
+#define DBGR_MSG_OUT_TYPE_GET_BRKPS					"dbgr_get_brkps"
+#define DBGR_MSG_OUT_TYPE_MESSAGE					"dbgr_message"
+#define DBGR_MSG_OUT_TYPE_ERROR						"dbgr_error"
+#define DBGR_MSG_OUT_TYPE_PROC_START				"dbgr_proc_start"
+#define DBGR_MSG_OUT_TYPE_PROC_EXIT					"dbgr_proc_exit"
+#define DBGR_MSG_OUT_TYPE_READY						"dbgr_ready"
+#define DBGR_MSG_OUT_TYPE_STDOUT_AVAILABLE			"dbgr_stdout_available"
+#define DBGR_MSG_OUT_TYPE_STDERR_AVAILABLE			"dbgr_stderr_available"
+
+#define DBGR_STATUS_OK		"OK"
+#define DBGR_STATUS_KO		"KO"
+#define DBGR_STATUS_WARNING	"WARN"

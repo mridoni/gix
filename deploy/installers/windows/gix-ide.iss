@@ -17,7 +17,7 @@
 #define HOST_PLATFORM GetEnv('HOST_PLATFORM')
 
 [Setup]
-AppName=Gix-Ide
+AppName=Gix-IDE
 AppVersion={#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}
 AppCopyright=Marco Ridoni
 DefaultDirName={pf}\Gix-IDE
@@ -52,46 +52,46 @@ Source: "{#QTDIR}\plugins\styles\*"; DestDir: "{app}\bin\styles"; Flags: ignorev
 
 ; compilers
 #if "1" == INCLUDE_COMPILERS
-Source: "W:\deploy\compilers\gcc\pkgs\*"; DestDir: "{localappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_mingw_compilers
-Source: "W:\deploy\compilers\gcc\defs\*.def"; DestDir: "{localappdata}\Gix\compiler-defs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_mingw_compilers
+Source: "{#WORKSPACE}\deploy\compilers\gcc\pkgs\*"; DestDir: "{localappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_mingw_compilers
+Source: "{#WORKSPACE}\deploy\compilers\gcc\defs\*.def"; DestDir: "{localappdata}\Gix\compiler-defs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_mingw_compilers
 
-Source: "W:\deploy\compilers\msvc\pkgs\*"; DestDir: "{localappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_vs_compilers
-Source: "W:\deploy\compilers\msvc\defs\*.def"; DestDir: "{localappdata}\Gix\compiler-defs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_vs_compilers
+Source: "{#WORKSPACE}\deploy\compilers\msvc\pkgs\*"; DestDir: "{localappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_vs_compilers
+Source: "{#WORKSPACE}\deploy\compilers\msvc\defs\*.def"; DestDir: "{localappdata}\Gix\compiler-defs"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: gnucobol_vs_compilers
 #endif
 
 ; examples and docs
-Source: "W:\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs onlyifdoesntexist
-Source: "W:\doc\*"; DestDir: "{userdocs}\Gix\Documentation"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs onlyifdoesntexist
+Source: "{#WORKSPACE}\doc\*"; DestDir: "{userdocs}\Gix\Documentation"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 ; MS runtimes
-Source: "W:\deploy\redist\ms\common\*"; DestDir: "{tmp}\redist\ms\common"; Flags: ignoreversion createallsubdirs recursesubdirs
-Source: "W:\deploy\redist\ms\x86\*"; DestDir: "{tmp}\redist\ms\x86"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\deploy\redist\ms\common\*"; DestDir: "{tmp}\redist\ms\common"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\deploy\redist\ms\x86\*"; DestDir: "{tmp}\redist\ms\x86"; Flags: ignoreversion createallsubdirs recursesubdirs
 #if "x64" == HOST_PLATFORM
-Source: "W:\deploy\redist\ms\x64\*"; DestDir: "{tmp}\redist\ms\x64"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#WORKSPACE}\deploy\redist\ms\x64\*"; DestDir: "{tmp}\redist\ms\x64"; Flags: ignoreversion createallsubdirs recursesubdirs
 #endif
 
 ; dependencies for DB runtime libraries
 #if "x64" == HOST_PLATFORM
-Source: "W:\gixsql\deploy\redist\pgsql\x64\msvc\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "W:\gixsql\deploy\redist\pgsql\x64\gcc\*"; DestDir: "{app}\lib\x64\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x64\msvc\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x64\gcc\*"; DestDir: "{app}\lib\x64\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
 
-Source: "W:\gixsql\deploy\redist\mysql\x64\msvc\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "W:\gixsql\deploy\redist\mysql\x64\gcc\*"; DestDir: "{app}\lib\x64\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x64\msvc\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x64\gcc\*"; DestDir: "{app}\lib\x64\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
 #endif
 
-Source: "W:\gixsql\deploy\redist\pgsql\x86\msvc\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "W:\gixsql\deploy\redist\pgsql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x86\msvc\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
 
-Source: "W:\gixsql\deploy\redist\mysql\x86\msvc\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "W:\gixsql\deploy\redist\mysql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\msvc\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
 
 [Run]
 #if "x64" == HOST_PLATFORM
-Filename: "{tmp}\redist\ms\x64\VC_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x64\"; Flags: waituntilterminated; Description: "Visual C++ 2019 redistributable package (x64)"
+Filename: "{tmp}\redist\ms\x64\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x64\"; Flags: waituntilterminated; Description: "Visual C++ 2022 redistributable package (x64)"
 #endif
-Filename: "{tmp}\redist\ms\x86\VC_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x86\"; Flags: waituntilterminated; Description: "Visual C++ 2019 redistributable package (x86)"
+Filename: "{tmp}\redist\ms\x86\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}\redist\ms\x86\"; Flags: waituntilterminated; Description: "Visual C++ 2022 redistributable package (x86)"
 #if "1" == INCLUDE_COMPILERS
-Filename: "{tmp}\redist\ms\common\vs_buildtools_2019.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CLI.Support --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.19041"; WorkingDir: "{tmp}\redist\ms\common\"; Flags: postinstall; Description: "Visual C++ 2019 build tools"; Check: IsComponentSelected('gnucobol_vs_compilers')
+Filename: "{tmp}\redist\ms\common\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CLI.Support --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.19041"; WorkingDir: "{tmp}\redist\ms\common\"; Flags: postinstall; Description: "Visual C++ 2022 build tools"; Check: IsComponentSelected('gnucobol_vs_compilers')
 #endif
 
 [Registry]
@@ -128,8 +128,8 @@ Name: "{userdocs}\Gix\Documentation"
 Name: "{userdocs}\Gix\Examples"
 
 [Icons]
-Name: "{group}\Gix-IDE"; Filename: "{app}\bin\gix-ide.exe"; WorkingDir: "{app}"
-Name: "{userdesktop}\Gix-IDE"; Filename: "{app}\bin\gix-ide.exe"; WorkingDir: "{app}"
+Name: "{group}\Gix-IDE"; Filename: "{app}\bin\gix-ide.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\bin\gix-ide.exe"
+Name: "{userdesktop}\Gix-IDE"; Filename: "{app}\bin\gix-ide.exe"; WorkingDir: "{app}\bin"; IconFilename: "{app}\bin\gix-ide.exe"
 
 [Components]
 Name: "gix_ide"; Description: "Gix-IDE"; Types: compact custom full; Flags: fixed

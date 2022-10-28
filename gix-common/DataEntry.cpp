@@ -41,7 +41,7 @@ DataEntry::DataEntry()
 	ref_by_child = false;
 	ref_by_parent = false;
 	included = false;
-	type = WsEntryType::Unknown;
+	type = WsEntryType::NotSet;
 	offset_data_section = 0;
 	offset_local = 0;
 	display_size = 0;

@@ -94,7 +94,6 @@ bool string_contains(const std::string &s1, const std::string &s2, bool case_ins
 std::string string_replace(std::string subject, const std::string &search, const std::string &replace);
 std::string string_replace_regex(std::string subject, const std::string &search_rx, const std::string &replace_rx, bool case_insensitive = false);
 
-
 std::string to_lower(const std::string& s);
 std::string to_upper(const std::string& s);
 
@@ -105,7 +104,10 @@ bool ends_with(std::string const& s1, std::string const& s2);
 
 std::vector<std::string> file_read_all_lines(const std::string& filename);
 bool file_write_all_lines(const std::string& filename, const std::vector<std::string>& lines);
+uint8_t *file_read_all_bytes(const std::string& filename);
 bool file_exists(const std::string& filename);
+bool file_remove(const std::string& filename);
+bool dir_exists(const std::string& dir_name);
 
 std::string filename_change_ext(const std::string &filename, const std::string &ext);
 std::string filename_get_name(const std::string &filename);
@@ -115,6 +117,9 @@ std::string filename_absolute_path(const std::filesystem::path &filepath);
 std::string filename_clean_path(const std::string &filepath);
 
 bool file_is_writable(const std::string &filename);
+
+std::string path_combine(std::initializer_list<std::string> a_args);
+std::string path_get_temp_path();
 
 template<typename T>
 auto convert(T &&t)
@@ -200,3 +205,23 @@ void map_remove(std::multimap<TK, TV>& v, TK e)
 }
 
 std::string unquote(const std::string &s);
+
+class byte_array {
+    
+public:
+    
+    byte_array();
+    ~byte_array();
+    bool read_from_file(const std::string& filename);
+    bool allocate(size_t _sz);
+    void deallocate();
+    size_t size();
+    uint8_t *buffer() const;
+    byte_array slice(size_t start, size_t sz = -1);
+    size_t find(uint8_t b, size_t from = 0);
+    
+private:
+
+    uint8_t *bfr = nullptr;
+    size_t sz = 0;
+};

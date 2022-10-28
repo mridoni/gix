@@ -226,9 +226,6 @@ struct cb_field_t
 	int group_levels_count = 0;
 };
 
-
-
-
 // Parser helper
 struct connect_to_info_t
 {
@@ -236,6 +233,12 @@ struct connect_to_info_t
 	hostref_or_literal_t *t1 = nullptr;
 	hostref_or_literal_t *t2 = nullptr;
 };
+
+// This will disappear when the standalone debugger will be the only option
+// For now this quick hack prevents compilation errors and having to 
+// refactor this into an external file
+#ifndef _GIXPP_BLOCK_
+#define _GIXPP_BLOCK_
 
 enum class PreprocessedBlockType {
 	ESQL = 1
@@ -258,3 +261,4 @@ struct PreprocessedBlockInfo {
 	std::string command;
 };
 
+#endif

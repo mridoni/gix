@@ -421,7 +421,7 @@ void IdeTaskManager::debugStop()
 		debug_manager = nullptr;
 		return;
 	}
-	debug_manager->setUserInititatedStop(true);
+	debug_manager->setUserInitiatedStop(true);
 	debug_manager->stop();
 
 }

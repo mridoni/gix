@@ -21,9 +21,6 @@ USA.
 */
 
 
-#include "dpi.h"
-#include "dpiImpl.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -34,6 +31,10 @@ USA.
 #include "IDataSourceInfo.h"
 #include "ISchemaManager.h"
 
+extern "C" {
+#include "dpi.h"
+#include "dpiImpl.h"
+}
 
 #define DECODE_BINARY_ON		1
 #define DECODE_BINARY_OFF		0

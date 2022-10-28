@@ -34,6 +34,7 @@ public:
 
 	Cursor *create();
 	void clearConnectionCursors(int, bool);
+	void closeConnectionCursors(int, bool);
 	
 	//static Cursor *current();
 	int add(Cursor *);

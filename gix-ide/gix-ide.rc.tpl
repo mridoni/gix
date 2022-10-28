@@ -83,7 +83,7 @@ BEGIN
             VALUE "FileDescription", "Gix-IDE"
             VALUE "FileVersion", "{GIXIDEMAJ}.{GIXIDEMIN}.{GIXIDEREL}.{GIXIDEBLD}"
             VALUE "InternalName", "gix-ide.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2018-2021"
+            VALUE "LegalCopyright", "Copyright (C) 2018-2022"
             VALUE "OriginalFilename", "gix-ide.exe"
             VALUE "ProductName", "Gix-IDE"
             VALUE "ProductVersion", "{GIXIDEMAJ}.{GIXIDEMIN}.{GIXIDEREL}.{GIXIDEBLD}"

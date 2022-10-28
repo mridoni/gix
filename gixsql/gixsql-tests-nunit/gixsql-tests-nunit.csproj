@@ -1,0 +1,168 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>gixsql_tests_nunit</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+
+    <StartupObject>gixsql_tests_nunit.Runner</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="data\dbdata-012-oracle.sql" />
+    <None Remove="data\dbdata-012.sql" />
+    <None Remove="data\dbdata-016-oracle.sql" />
+    <None Remove="data\dbdata-016.sql" />
+    <None Remove="data\dbdata-017-oracle.sql" />
+    <None Remove="data\dbdata-017.sql" />
+    <None Remove="data\dbdata-oracle.sql" />
+    <None Remove="data\dbdata.sql" />
+    <None Remove="data\EMPREC.cpy" />
+    <None Remove="data\TEST001.cbl" />
+    <None Remove="data\TSQL001A.cbl" />
+    <None Remove="data\TSQL002A.cbl" />
+    <None Remove="data\TSQL003A.cbl" />
+    <None Remove="data\TSQL003B.cbl" />
+    <None Remove="data\TSQL003C.cbl" />
+    <None Remove="data\TSQL004A.cbl" />
+    <None Remove="data\TSQL005A.cbl" />
+    <None Remove="data\TSQL005B.cbl" />
+    <None Remove="data\TSQL005C.cbl" />
+    <None Remove="data\TSQL006A.cbl" />
+    <None Remove="data\TSQL006B.cbl" />
+    <None Remove="data\TSQL006C.cbl" />
+    <None Remove="data\TSQL007A.cbl" />
+    <None Remove="data\TSQL008A.cbl" />
+    <None Remove="data\TSQL009A.cbl" />
+    <None Remove="data\TSQL010A.cbl" />
+    <None Remove="data\TSQL011A.cbl" />
+    <None Remove="data\TSQL012A.cbl" />
+    <None Remove="data\TSQL013A.cbl" />
+    <None Remove="data\TSQL014A.cbl" />
+    <None Remove="data\TSQL014B.cbl" />
+    <None Remove="data\TSQL014C.cbl" />
+    <None Remove="data\TSQL014D.cbl" />
+    <None Remove="data\TSQL015A.cbl" />
+    <None Remove="data\TSQL016A.cbl" />
+    <None Remove="data\TSQL017A.cbl" />
+    <None Remove="data\TSQL017B.cbl" />
+    <None Remove="data\TSQL017C.cbl" />
+    <None Remove="data\TSQL017D.cbl" />
+    <None Remove="data\TSQL017E.cbl" />
+    <None Remove="data\TSQL018A.cbl" />
+    <None Remove="data\TSQL018B.cbl" />
+    <None Remove="data\TSQL019A.cbl" />
+    <None Remove="data\TSQL019B.cbl" />
+    <None Remove="data\TSQL020A.cbl" />
+    <None Remove="data\TSQL021A.cbl" />
+    <None Remove="data\TSQL021B.cbl" />
+    <None Remove="data\TSQL021C.cbl" />
+    <None Remove="data\TSQL022A.cbl" />
+    <None Remove="data\TSQL022B.cbl" />
+    <None Remove="data\TSQL022C.cbl" />
+    <None Remove="data\TSQL023A.cbl" />
+    <None Remove="data\TSQL023B.cbl" />
+    <None Remove="data\TSQL024A.cbl" />
+    <None Remove="data\TSQL025A.cbl" />
+    <None Remove="data\TSQL026A.cbl" />
+    <None Remove="data\TSQL027A.cbl" />
+    <None Remove="data\TSQL028A.cbl" />
+    <None Remove="data\TSQL029A.cbl" />
+    <None Remove="data\TSQL030A.cbl" />
+    <None Remove="data\TSQL031A.cbl" />
+    <None Remove="data\TSQL033A.cbl" />
+    <None Remove="data\TSQL034A.cbl" />
+    <None Remove="data\TSQL035A.cbl" />
+    <None Remove="gixsql_test_data.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="data\gixsql_test_data.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="data\dbdata-012-oracle.sql" />
+    <EmbeddedResource Include="data\dbdata-012.sql" />
+    <EmbeddedResource Include="data\dbdata-016-oracle.sql" />
+    <EmbeddedResource Include="data\dbdata-016.sql" />
+    <EmbeddedResource Include="data\dbdata-017-oracle.sql" />
+    <EmbeddedResource Include="data\dbdata-017.sql" />
+    <EmbeddedResource Include="data\dbdata-oracle.sql" />
+    <EmbeddedResource Include="data\dbdata.sql" />
+    <EmbeddedResource Include="data\EMPREC.cpy" />
+    <EmbeddedResource Include="data\TEST001.cbl" />
+    <EmbeddedResource Include="data\TSQL001A.cbl" />
+    <EmbeddedResource Include="data\TSQL002A.cbl" />
+    <EmbeddedResource Include="data\TSQL003A.cbl" />
+    <EmbeddedResource Include="data\TSQL003B.cbl" />
+    <EmbeddedResource Include="data\TSQL003C.cbl" />
+    <EmbeddedResource Include="data\TSQL004A.cbl" />
+    <EmbeddedResource Include="data\TSQL005A.cbl" />
+    <EmbeddedResource Include="data\TSQL005B.cbl" />
+    <EmbeddedResource Include="data\TSQL005C.cbl" />
+    <EmbeddedResource Include="data\TSQL006A.cbl" />
+    <EmbeddedResource Include="data\TSQL006B.cbl" />
+    <EmbeddedResource Include="data\TSQL006C.cbl" />
+    <EmbeddedResource Include="data\TSQL007A.cbl" />
+    <EmbeddedResource Include="data\TSQL008A.cbl" />
+    <EmbeddedResource Include="data\TSQL009A.cbl" />
+    <EmbeddedResource Include="data\TSQL010A.cbl" />
+    <EmbeddedResource Include="data\TSQL011A.cbl" />
+    <EmbeddedResource Include="data\TSQL012A.cbl" />
+    <EmbeddedResource Include="data\TSQL013A.cbl" />
+    <EmbeddedResource Include="data\TSQL014A.cbl" />
+    <EmbeddedResource Include="data\TSQL014B.cbl" />
+    <EmbeddedResource Include="data\TSQL014C.cbl" />
+    <EmbeddedResource Include="data\TSQL014D.cbl" />
+    <EmbeddedResource Include="data\TSQL015A.cbl" />
+    <EmbeddedResource Include="data\TSQL016A.cbl" />
+    <EmbeddedResource Include="data\TSQL017A.cbl" />
+    <EmbeddedResource Include="data\TSQL017B.cbl" />
+    <EmbeddedResource Include="data\TSQL017C.cbl" />
+    <EmbeddedResource Include="data\TSQL017D.cbl" />
+    <EmbeddedResource Include="data\TSQL017E.cbl" />
+    <EmbeddedResource Include="data\TSQL018A.cbl" />
+    <EmbeddedResource Include="data\TSQL018B.cbl" />
+    <EmbeddedResource Include="data\TSQL019A.cbl" />
+    <EmbeddedResource Include="data\TSQL019B.cbl" />
+    <EmbeddedResource Include="data\TSQL020A.cbl" />
+    <EmbeddedResource Include="data\TSQL021A.cbl" />
+    <EmbeddedResource Include="data\TSQL021B.cbl" />
+    <EmbeddedResource Include="data\TSQL021C.cbl" />
+    <EmbeddedResource Include="data\TSQL022A.cbl" />
+    <EmbeddedResource Include="data\TSQL022B.cbl" />
+    <EmbeddedResource Include="data\TSQL022C.cbl" />
+    <EmbeddedResource Include="data\TSQL023A.cbl" />
+    <EmbeddedResource Include="data\TSQL023B.cbl" />
+    <EmbeddedResource Include="data\TSQL024A.cbl" />
+    <EmbeddedResource Include="data\TSQL025A.cbl" />
+    <EmbeddedResource Include="data\TSQL026A.cbl" />
+    <EmbeddedResource Include="data\TSQL027A.cbl" />
+    <EmbeddedResource Include="data\TSQL028A.cbl" />
+    <EmbeddedResource Include="data\TSQL029A.cbl" />
+    <EmbeddedResource Include="data\TSQL030A.cbl" />
+    <EmbeddedResource Include="data\TSQL031A.cbl" />
+    <EmbeddedResource Include="data\TSQL033A.cbl" />
+    <EmbeddedResource Include="data\TSQL035A.cbl" />
+    <EmbeddedResource Include="data\TSQL034A.cbl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="MySql.Data" Version="8.0.31" />
+    <PackageReference Include="Npgsql" Version="6.0.7" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2" />
+    <PackageReference Include="Oracle.ManagedDataAccess" Version="21.8.0" />
+    <PackageReference Include="SharpZipLib" Version="1.4.0" />
+    <PackageReference Include="System.Data.Odbc" Version="6.0.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.116" />
+  </ItemGroup>
+
+</Project>

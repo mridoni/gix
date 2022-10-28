@@ -30,12 +30,14 @@ USA.
 #include "GixGlobals.h"
 #include "ESQLConfiguration.h"
 #include "AddCompilerWizard.h"
+#include "DebugDriverFactory.h"
 
 #include <QSettings>
 #include <QFileDialog>
 #include <QMenu>
 #include <QLineEdit>
 #include <QToolButton>
+#include <QHostAddress>
 
 class CompilerOptsWizardPage;
 
@@ -78,6 +80,12 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
 	cbDefaultSourceFormat->addItem("Fixed", "fixed");
 	cbDefaultSourceFormat->addItem("Free", "free");
+
+	cbDebugEngine->addItem("Standard", (int)DebugDriverType::Standard);
+	cbDebugEngine->addItem("Experimental", (int)DebugDriverType::Experimental);
+
+	txtDbgrBindingAddress->setText("0.0.0.0");
+	txtDbgrBindingPort->setText("13009");
 
 	GeneralCfgTab_LoadSettings();
 	GnuCobolCfgTab_LoadSettings();
@@ -304,28 +312,30 @@ bool SettingsDialog::EditorCfgTab_SaveSettings()
 
 void SettingsDialog::DebugCfgTab_LoadSettings()
 {
-	//QSettings settings;
-	//cbDebugStartupBehaviour->setCurrentIndex(settings.value("debugger_startup_behaviour", 1).toInt()-1);
-	//tHostPort->setText(settings.value("host_debugger_port", 13008).toString());
-	//cbSkipCheckPackageVersionCheck->setChecked(settings.value("debugger_skip_package_version_check", false).toBool());
+	QSettings settings;
+	cbDebugEngine->setCurrentIndex(cbDebugEngine->findData(settings.value("debugger_engine", (int)DebugDriverType::Standard).toInt()));
+	txtDbgrBindingAddress->setText(settings.value("debugger_client_addr", "0.0.0.0").toString());
+	txtDbgrBindingPort->setText(settings.value("debugger_client_port", 13009).toString());
+	cbDbgrOpensWindow->setChecked(settings.value("debugger_host_new_window", false).toBool());
 }
 
 bool SettingsDialog::DebugCfgTab_CheckSettings()
 {
-	return true;
-	//bool ok;
-	//int port = tHostPort->text().toInt(&ok, 10);
-	//return (ok && port > 0 && port <= 65535);
+	bool port_ok, addr_ok;
+	QHostAddress addr;
+	int port = txtDbgrBindingPort->text().toInt(&port_ok, 10);
+	addr_ok = addr.setAddress(txtDbgrBindingAddress->text());
+	return (addr_ok && port_ok && port > 0 && port <= 65535);
 }
 
 bool SettingsDialog::DebugCfgTab_SaveSettings()
 {
-	return false;
-	//QSettings settings;
-	//bool changed = settingsSetValue("host_debugger_port", tHostPort->text().toInt());
-	//changed |= settingsSetValue("debugger_startup_behaviour", cbDebugStartupBehaviour->currentIndex() + 1);
-	//changed |= settingsSetValue("debugger_skip_package_version_check", cbSkipCheckPackageVersionCheck->isChecked());
-	//return changed;
+	QSettings settings;
+	bool changed = settingsSetValue("debugger_engine", cbDebugEngine->currentData().toInt());
+	changed |= settingsSetValue("debugger_client_addr", txtDbgrBindingAddress->text());
+	changed |= settingsSetValue("debugger_client_port", txtDbgrBindingPort->text().toInt());
+	changed |= settingsSetValue("debugger_host_new_window", cbDbgrOpensWindow->isChecked());
+	return changed;
 }
 
 void SettingsDialog::ESQLCfgTab_LoadSettings()

@@ -86,3 +86,22 @@ void CursorManager::clearConnectionCursors(int connId, bool clear_held_cursors)
 		remove(c);
 	}
 }
+
+void CursorManager::closeConnectionCursors(int connId, bool clear_held_cursors)
+{
+	std::vector<Cursor*> _cur_to_close;
+	std::vector<Cursor*>::iterator it;
+
+	for (it = _cursor_list.begin(); it != _cursor_list.end(); it++) {
+		IConnection* conn = (*it)->getConnection();
+		if (conn != NULL && (*it)->getConnection()->getId() == connId && (!(*it)->isWithHold() || clear_held_cursors))
+			_cur_to_close.push_back((*it));
+	}
+
+	for (it = _cur_to_close.begin(); it != _cur_to_close.end(); it++) {
+		Cursor* c = (*it);
+		if (c && c->getConnection() && c->getConnection()->getDbInterface())
+			c->getConnection()->getDbInterface()->close_cursor(c);
+	}
+}
+

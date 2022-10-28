@@ -209,6 +209,7 @@ const QList<PreprocessedBlockInfo*> CobolModuleMetadata::getPreprocessedBlocks()
 	return preprocessed_blocks;
 }
 
+
 bool CobolModuleMetadata::runningToOriginal(int running_module_file_id, int running_line, int *orig_file_id, int *orig_line)
 {
 	//if (running_line == 0) {
@@ -924,9 +925,10 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		cmm->running_module_file_id = cmm->reverse_filemap.value(QString::fromStdString(pp->getOutput()));
 		cmm->flags |= FLAG_M_PREPROCD_COPY;
 
-		for (auto b : pp->getPreprocessedBlocks()) {
-			cmm->preprocessed_blocks.append(b);
-		}
+ 
+ 		for (auto b : pp->getPreprocessedBlocks()) {
+ 			cmm->preprocessed_blocks.append(b);
+ 		}
 	}
 	else {
 		// 2nd pass

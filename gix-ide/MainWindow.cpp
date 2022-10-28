@@ -629,7 +629,7 @@ void MainWindow::about()
 	QString license_msg = tr("Gix-IDE is licensed under the GPL 3.0 license.");
 	QString ver = getGixIdePrintableVersion();
 	QMessageBox::about(this, info_msg,
-		"<h1><b>Gix-IDE</h1>v" + ver + "<p>" + main_msg + "</p><p>(c) Marco Ridoni 2021</p><p>" + license_msg + "</p>");
+		"<h1><b>Gix-IDE</h1>v" + ver + "<p>" + main_msg + "</p><p>(c) Marco Ridoni 2021-2022</p><p>" + license_msg + "</p>");
 }
 
 void MainWindow::updateMenus()

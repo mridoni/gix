@@ -7,7 +7,7 @@ CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
 QT += core xml network gui xmlpatterns concurrent
 CONFIG += c++17
 INCLUDEPATH += . ./GeneratedFiles ./GeneratedFiles/build ./http ./templateengine ./logging ../build-tools/grammar-tools \
-				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata \
+				 ../gix-common ../gix-common/projectsystem ../gix-common/buildsystem ../gix-common/metadata ../gix-debugger-common \
 				 ../libgixutils ../gixsql/libgixpp ../gixsql/libcpputils
 
 linux:QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN\'"					 
