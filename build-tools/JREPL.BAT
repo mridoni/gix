@@ -1600,7 +1600,7 @@ call :execute
 exit /b %errorlevel%
 
 :execute
-cscript.exe //E:JScript //nologo %/UTF% "%/SCRIPT%" %/FIND% %/REPL%
+%SystemRoot%\System32\cscript.exe //E:JScript //nologo %/UTF% "%/SCRIPT%" %/FIND% %/REPL%
 if not defined /RTN exit /b %errorlevel%
 
 ::returnVar
