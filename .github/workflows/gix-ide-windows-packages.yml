@@ -12,14 +12,17 @@ env:
   GIXIDEMAJ: 1
   GIXIDEMIN: 1
   GIXIDEREL: 0dev1
+  GIX_REVISION: 1922
+  GIXSQLMAJ: 1
+  GIXSQLMIN: 0
+  GIXSQLREL: 18b
   GIX_REVISION: 1920
-  GIX_SQL_VERSION: 1.0.18
   GIX_IDE_BRANCH: main
   VCPKG_ROOT: C:\vcpkg
-  GIX_IDE_X64_BIN_DIR: archive-gix-ide-windows-msvc-x64-artifacts
-  GIX_IDE_X86_BIN_DIR: archive-gix-ide-windows-msvc-x86-artifacts
-  GIXSQL_MINGW_X86_BIN_DIR: archive-gixsql-windows-mingw-i686-artifacts
-  GIXSQL_MINGW_X64_BIN_DIR: archive-gixsql-windows-mingw-x86_64-artifacts
+  GIX_IDE_X64_BIN_DIR: gix-ide-windows-x64-msvc-artifacts
+  GIX_IDE_X86_BIN_DIR: gix-ide-windows-x86-msvc-artifacts
+  GIXSQL_MINGW_X86_BIN_DIR: gixsql-windows-x64-mingw-artifacts
+  GIXSQL_MINGW_X64_BIN_DIR: gixsql-windows-x86-mingw-artifacts
   GNUCOBOL_BIN_VERSION: 3.1.2
   GNUCOBOL_BIN_RELEASE: 20221018
   MSVC_BUILD_TOOLS: https://aka.ms/vs/17/release/vs_BuildTools.exe
@@ -100,9 +103,8 @@ jobs:
         echo "QTDIR              : ${{env.QTDIR}}"
         echo "JOB                : ${{ github.job }}"
         %EXE_7Z% x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip             
-        echo #define VERSION "${{ env.GIX_SQL_VERSION }}" > gixsql/config.h
         call ${{ github.workspace }}\prepbuild.cmd /E
-        vcpkg integrate install
+        %VCPKG_ROOT%\vcpkg integrate install
         msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
 
     - name: Archive production artifacts
@@ -182,7 +184,7 @@ jobs:
         echo "JOB                : ${{ github.job }}"
         %EXE_7Z% x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip  
         call ${{ github.workspace }}\prepbuild.cmd /E
-        vcpkg integrate install
+        %VCPKG_ROOT%\vcpkg integrate install
         msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
 
     - name: Archive production artifacts
