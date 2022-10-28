@@ -16,7 +16,6 @@ env:
   GIXSQLMAJ: 1
   GIXSQLMIN: 0
   GIXSQLREL: 18b
-  GIX_REVISION: 1920
   GIX_IDE_BRANCH: main
   VCPKG_ROOT: C:\vcpkg
   GIX_IDE_X64_BIN_DIR: gix-ide-windows-x64-msvc-artifacts
@@ -30,7 +29,7 @@ env:
   MSVC_RUNTIME_x64: https://aka.ms/vs/17/release/vc_redist.x64.exe
   WORKSPACE: ${{ github.workspace }}
   DIST_DIR: ${{ github.workspace }}\DIST
-  EXE_7Z: "C:\Program Files\7-Zip\7z.exe"
+  EXE_7Z: "C:/Program Files/7-Zip/7z.exe"
 
 permissions:
   contents: read
