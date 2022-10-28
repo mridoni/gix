@@ -95,15 +95,18 @@ jobs:
           LIBPATH: ${{env.Qt5_Dir}}\lib
           PATH: ${{ env.PATH}};c:\tools
       run: |
-        echo "VCPKG_ROOT         : ${{env.VCPKG_ROOT}}"
-        echo "HOST_PLATFORM      : ${{env.HOST_PLATFORM}}"
-        echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
-        echo "SOLUTION_FILE_PATH : ${{env.SOLUTION_FILE_PATH}}"
-        echo "QTDIR              : ${{env.QTDIR}}"
-        echo "JOB                : ${{ github.job }}"
-        "%EXE_7Z%" x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip             
+        echo VCPKG_ROOT         : ${{env.VCPKG_ROOT}}
+        echo HOST_PLATFORM      : ${{env.HOST_PLATFORM}}
+        echo BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}
+        echo SOLUTION_FILE_PATH : ${{env.SOLUTION_FILE_PATH}}
+        echo QTDIR              : ${{env.QTDIR}}
+        echo JOB                : ${{ github.job }}
+        "%EXE_7Z%" x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip   
+        echo Preparing build (${{ github.workspace }}\prepbuild.cmd)
         call ${{ github.workspace }}\prepbuild.cmd /E
+        echo Initializing vcpkg
         %VCPKG_ROOT%\vcpkg integrate install
+        echo Running MSBuild
         msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
 
     - name: Archive production artifacts
