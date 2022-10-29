@@ -20,8 +20,8 @@ env:
   VCPKG_ROOT: C:\vcpkg
   GIX_IDE_X64_BIN_DIR: gix-ide-windows-x64-msvc-artifacts
   GIX_IDE_X86_BIN_DIR: gix-ide-windows-x86-msvc-artifacts
-  GIXSQL_MINGW_X86_BIN_DIR: gixsql-windows-x64-mingw-artifacts
-  GIXSQL_MINGW_X64_BIN_DIR: gixsql-windows-x86-mingw-artifacts
+  GIXSQL_MINGW_X86_BIN_DIR: gixsql-windows-x86-mingw-artifacts
+  GIXSQL_MINGW_X64_BIN_DIR: gixsql-windows-x64-mingw-artifacts
   GNUCOBOL_BIN_VERSION: 3.1.2
   GNUCOBOL_BIN_RELEASE: 20221018
   MSVC_BUILD_TOOLS: https://aka.ms/vs/17/release/vs_BuildTools.exe
