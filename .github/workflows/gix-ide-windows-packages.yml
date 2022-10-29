@@ -888,10 +888,13 @@ jobs:
         name: gix-ide-installer-windows-${{ env.HOST_PLATFORM }}
         path: ${{ github.workspace }}\deploy\installers\msvc-${{ env.HOST_PLATFORM }}\Gix-IDE-windows-${{ env.HOST_PLATFORM }}-${{ env.GIX_VER }}-installer.exe
 
-  
   build-cleanup:
+    name: build-cleanup
+    needs: [ gix-ide-installer-windows-x64-no-compilers, gix-ide-installer-windows-x64, gix-ide-installer-windows-x86-no-compilers, gix-ide-installer-windows-x86 ]
+    runs-on: windows-latest
+    steps:
+    
     - uses: geekyeggo/delete-artifact@v2
-      needs: [ gix-ide-installer-windows-x64-no-compilers, gix-ide-installer-windows-x64, gix-ide-installer-windows-x86-no-compilers, gix-ide-installer-windows-x86 ]
       with:
           name: |
             gix-ide-windows-x64-msvc-artifacts 
