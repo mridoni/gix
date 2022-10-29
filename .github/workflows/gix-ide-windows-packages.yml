@@ -326,25 +326,25 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: gix-ide-windows-x64-msvc-artifacts
-        path: ${{ github.workspace }}  
+        path: ${{ github.workspace }}/gix-ide-windows-x64-msvc-artifacts
 
     - name: Download Gix-IDE x86
       uses: actions/download-artifact@v3
       with:
         name: gix-ide-windows-x86-msvc-artifacts
-        path: ${{ github.workspace }}        
+        path: ${{ github.workspace }}/gix-ide-windows-x86-msvc-artifacts   
 
     - name: Download GixSQL x64 (MinGW)
       uses: actions/download-artifact@v3
       with:
         name: gixsql-windows-x64-mingw-artifacts
-        path: ${{ github.workspace }}  
+        path: ${{ github.workspace }}/gixsql-windows-x64-mingw-artifacts
 
     - name: Download GixSQL x86 (MinGW)
       uses: actions/download-artifact@v3
       with:
         name: gixsql-windows-x86-mingw-artifacts
-        path: ${{ github.workspace }}           
+        path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts           
 
     - name: Unpack Gix-IDE and GixSQL
       shell: cmd
@@ -476,25 +476,25 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: gix-ide-windows-x64-msvc-artifacts
-        path: ${{ github.workspace }}  
+        path: ${{ github.workspace }}/gix-ide-windows-x64-msvc-artifacts
 
     - name: Download Gix-IDE x86
       uses: actions/download-artifact@v3
       with:
         name: gix-ide-windows-x86-msvc-artifacts
-        path: ${{ github.workspace }}        
+        path: ${{ github.workspace }}/gix-ide-windows-x86-msvc-artifacts   
 
     - name: Download GixSQL x64 (MinGW)
       uses: actions/download-artifact@v3
       with:
         name: gixsql-windows-x64-mingw-artifacts
-        path: ${{ github.workspace }}  
+        path: ${{ github.workspace }}/gixsql-windows-x64-mingw-artifacts
 
     - name: Download GixSQL x86 (MinGW)
       uses: actions/download-artifact@v3
       with:
         name: gixsql-windows-x86-mingw-artifacts
-        path: ${{ github.workspace }}          
+        path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts          
 
     - name: Download GnuCOBOL binaries
       shell: cmd
@@ -644,18 +644,18 @@ jobs:
       with:
           repository: 'mridoni/gix'
           ref: ${{ env.GIX_IDE_BRANCH }}
-          
+
     - name: Download Gix-IDE x86
       uses: actions/download-artifact@v3
       with:
         name: gix-ide-windows-x86-msvc-artifacts
-        path: ${{ github.workspace }}        
+        path: ${{ github.workspace }}/gix-ide-windows-x86-msvc-artifacts   
 
     - name: Download GixSQL x86 (MinGW)
       uses: actions/download-artifact@v3
       with:
         name: gixsql-windows-x86-mingw-artifacts
-        path: ${{ github.workspace }}             
+        path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts             
 
     - name: Unpack Gix-IDE and GixSQL
       shell: cmd
@@ -768,13 +768,13 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: gix-ide-windows-x86-msvc-artifacts
-        path: ${{ github.workspace }}        
+        path: ${{ github.workspace }}/gix-ide-windows-x86-msvc-artifacts   
 
     - name: Download GixSQL x86 (MinGW)
       uses: actions/download-artifact@v3
       with:
         name: gixsql-windows-x86-mingw-artifacts
-        path: ${{ github.workspace }}        
+        path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts     
 
     - name: Download GnuCOBOL binaries
       shell: cmd
