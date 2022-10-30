@@ -23,7 +23,7 @@ env:
   GIXSQL_MINGW_X86_BIN_DIR: gixsql-windows-x86-mingw-artifacts
   GIXSQL_MINGW_X64_BIN_DIR: gixsql-windows-x64-mingw-artifacts
   GNUCOBOL_BIN_VERSION: 3.1.2
-  GNUCOBOL_BIN_RELEASE: 20221018
+  GNUCOBOL_BIN_RELEASE: 20221030
   MSVC_BUILD_TOOLS: https://aka.ms/vs/17/release/vs_BuildTools.exe
   MSVC_RUNTIME_x86: https://aka.ms/vs/17/release/vc_redist.x86.exe
   MSVC_RUNTIME_x64: https://aka.ms/vs/17/release/vc_redist.x64.exe
