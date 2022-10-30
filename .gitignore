@@ -1,5 +1,7 @@
 packages
 .vs
+x64
+Win32
 **/*.bak
 **/*.obj
 gixsql/libgixpp/gix_esql_parser.cc
