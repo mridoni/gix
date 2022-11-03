@@ -194,7 +194,7 @@ private:
 	bool is_vs_based;
 
 private:
-	static CompilerPlatformDefinition *parsePlatform(QDomNode& xn, QString homedir);
+	static CompilerPlatformDefinition* parsePlatform(CompilerDefinition* def, QDomNode& xn);
 
 	bool validate();
 };

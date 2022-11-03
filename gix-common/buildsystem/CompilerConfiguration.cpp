@@ -21,7 +21,6 @@ USA.
 #include "CompilerConfiguration.h"
 #include "PathUtils.h"
 #include "SysUtils.h"
-//#include "Ide.h"
 #include "CompilerManager.h"
 #include "QLogger.h"
 #include "GixGlobals.h"
@@ -275,7 +274,7 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 		builder->log_build_message("Error querying instance (ISetupInstance2 unavailable)", QLogger::LogLevel::Error);
 		return false;
 	}
-
+	
 	std::string vs_version;
 	std::string vs_install_path;
 
