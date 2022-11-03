@@ -240,7 +240,6 @@ bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2> &instance2, 
 
 bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnvironment &env)
 {
-#if 0
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
 	CComPtr<ISetupConfiguration> setupConfig = nullptr;
@@ -275,37 +274,31 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 		builder->log_build_message("Error querying instance (ISetupInstance2 unavailable)", QLogger::LogLevel::Error);
 		return false;
 	}
-#endif
-
-	bool res = false;
-	void* reserved = nullptr;
-	ISetupConfiguration* p;
-	GetSetupConfiguration(&p, reserved);
 	
-	//std::string vs_version;
-	//std::string vs_install_path;
+	std::string vs_version;
+	std::string vs_install_path;
 
-	//if (!GetInstanceData(builder, instance2, setupHelper, vs_version, vs_install_path)) {
-	//	instance = nullptr;
-	//	return false;
-	//}
+	if (!GetInstanceData(builder, instance2, setupHelper, vs_version, vs_install_path)) {
+		instance = nullptr;
+		return false;
+	}
 
-	//instance = nullptr;
+	instance = nullptr;
 
-	//QString host = (host_platform == "x64") ? "x64" : "x86";
-	//QString target = (target_platform == "x64") ? "x64" : "x86";
+	QString host = (host_platform == "x64") ? "x64" : "x86";
+	QString target = (target_platform == "x64") ? "x64" : "x86";
 
-	//bool res = true;
+	bool res = true;
 
-	//res = res && add_bin(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
-	//res = res && add_include(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
-	//res = res && add_lib(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
-	//res = res && add_libpath(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
+	res = res && add_bin(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
+	res = res && add_include(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
+	res = res && add_lib(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
+	res = res && add_libpath(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
 
-	//builder->log_build_message("PATH   : " + env.value("PATH"), QLogger::LogLevel::Debug);
-	//builder->log_build_message("INCLUDE: " + env.value("INCLUDE"), QLogger::LogLevel::Debug);
-	//builder->log_build_message("LIB    : " + env.value("LIB"), QLogger::LogLevel::Debug);
-	//builder->log_build_message("LIBPATH: " + env.value("LIBPATH"), QLogger::LogLevel::Debug);
+	builder->log_build_message("PATH   : " + env.value("PATH"), QLogger::LogLevel::Debug);
+	builder->log_build_message("INCLUDE: " + env.value("INCLUDE"), QLogger::LogLevel::Debug);
+	builder->log_build_message("LIB    : " + env.value("LIB"), QLogger::LogLevel::Debug);
+	builder->log_build_message("LIBPATH: " + env.value("LIBPATH"), QLogger::LogLevel::Debug);
 
 	return res;
 }
