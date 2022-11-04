@@ -497,27 +497,27 @@ jobs:
         name: gixsql-windows-x86-mingw-artifacts
         path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts          
 
-    - name: Download GnuCOBOL binaries
-      shell: cmd
-      working-directory: ${{ github.workspace }}
-      env:
-        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-      run: |
-        mkdir ${{ github.workspace }}\deploy\compilers\gcc\pkgs
-        mkdir ${{ github.workspace }}\deploy\compilers\gcc\defs
-        mkdir ${{ github.workspace }}\deploy\compilers\msvc\pkgs        
-        mkdir ${{ github.workspace }}\deploy\compilers\msvc\defs              
-        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
-        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
-        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
-        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x64.def ${{ github.workspace }}\deploy\compilers\gcc\defs
-        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
+#    - name: Download GnuCOBOL binaries
+#      shell: cmd
+#      working-directory: ${{ github.workspace }}
+#      env:
+#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
+#      run: |
+#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\pkgs
+#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\defs
+#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\pkgs        
+#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\defs              
+#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
+#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+#        curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
+#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+#        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
+#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x64.def ${{ github.workspace }}\deploy\compilers\gcc\defs
+#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
 
 #    - name: Unpack Gix-IDE and GixSQL
 #      shell: cmd
@@ -777,24 +777,24 @@ jobs:
         name: gixsql-windows-x86-mingw-artifacts
         path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts     
 
-    - name: Download GnuCOBOL binaries
-      shell: cmd
-      working-directory: ${{ github.workspace }}
-      env:
-        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-      run: |
-        mkdir ${{ github.workspace }}\deploy\compilers\gcc\pkgs
-        mkdir ${{ github.workspace }}\deploy\compilers\gcc\defs
-        mkdir ${{ github.workspace }}\deploy\compilers\msvc\pkgs        
-        mkdir ${{ github.workspace }}\deploy\compilers\msvc\defs              
-        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
-        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
+#    - name: Download GnuCOBOL binaries
+#      shell: cmd
+#      working-directory: ${{ github.workspace }}
+#      env:
+#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
+#      run: |
+#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\pkgs
+#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\defs
+#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\pkgs        
+#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\defs              
+#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+#        curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
+#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
+#        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
+#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
+#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
 
 #    - name: Unpack Gix-IDE and GixSQL
 #      shell: cmd
