@@ -31,6 +31,7 @@ DefaultGroupName=Gix-IDE
 LicenseFile={#WORKSPACE}\GPL-3.0.txt
 RestartIfNeededByRun=False
 DisableWelcomePage=False
+SetupLogging=yes
 
 [Files]
 ; main binaries
@@ -90,7 +91,6 @@ Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName:
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "treeview_font_name"; ValueData: "MS Shell Dlg 2"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "treeview_font_size"; ValueData: "9"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "default_eol_mode"; ValueData: "0"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
 Root: "HKCR"; Subkey: ".gix"; ValueType: string; ValueData: "GixIdePrjColl"; Flags: createvalueifdoesntexist
