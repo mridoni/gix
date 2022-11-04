@@ -75,7 +75,7 @@ Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\gcc\*"; DestDir: "{app}\lib
 [Run]
 Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x64)"
 Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x86)"
-Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated; Description: "Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Check: IsMSVCCompilerSelected
+Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated postinstall; Description: "Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Check: IsMSVCCompilerSelected
 
 [Registry]
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "1.0.{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
@@ -170,7 +170,7 @@ var
   is_checked : Boolean;
 	release_tag, id, version, host, target, linker, description : String;
 begin
-  if (CurPageID = wpFinished) and (IsMSVCCompilerSelected) then
+  if (CurPageID = wpFinished) and (IsMSVCCompilerSelected) and (WizardForm.RunList.Items.Count > 0) then
   begin
     WizardForm.RunList.ItemEnabled[0] := False;
   end;
