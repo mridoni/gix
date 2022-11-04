@@ -1,20 +1,16 @@
 #define QTDIR GetEnv('QTDIR')
+#define HOST_PLATFORM GetEnv('HOST_PLATFORM')
 #define WORKSPACE GetEnv('WORKSPACE')
 #define GIX_REVISION GetEnv('GIX_REVISION')
 #define VER_GIXIDEMAJ GetEnv('GIXIDEMAJ')
 #define VER_GIXIDEMIN GetEnv('GIXIDEMIN')
 #define VER_GIXIDEREL GetEnv('GIXIDEREL')
-
-;#define REDIST_DIR GetEnv('REDIST_DIR')
-
 #define DIST_DIR GetEnv('DIST_DIR')
-
 #define MSVC_BUILD_TOOLS GetEnv('MSVC_BUILD_TOOLS')
 #define MSVC_RUNTIME_X86 GetEnv('MSVC_RUNTIME_X86')
 #define MSVC_RUNTIME_X64 GetEnv('MSVC_RUNTIME_X64')
 
 #define CONFIG "Release"
-#define HOST_PLATFORM GetEnv('HOST_PLATFORM')
 
 #define COMPILER_PKGS_INDEX "https://raw.githubusercontent.com/mridoni/gnucobol-binaries/main/def/index"
 #define P7ZIP "https://www.7-zip.org/a/7zr.exe"
@@ -79,11 +75,11 @@ Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart";
 Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated postinstall; Description: "Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Check: IsMSVCCompilerSelected
 
 [Registry]
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "1.0.{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{localappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "ReleaseCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DebugCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "ReleaseCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey; Check: HasValidDefaultCompiler
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DebugCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey; Check: HasValidDefaultCompiler
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "editor_font_name"; ValueData: "Courier New"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "editor_font_size"; ValueData: "9"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "grid_font_name"; ValueData: "MS Shell Dlg 2"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
@@ -222,9 +218,28 @@ begin
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
+var
+  release_tag, id, version, host, target, linker, description : String;
 begin
-  if (PageID = DefaultCompilerPage.ID) and (GetArrayLength(SelectedCompilers) = 0) then
-    Result:= True
+  if (PageID = DefaultCompilerPage.ID) then
+    if (GetArrayLength(SelectedCompilers) = 0) then
+    begin
+      Result:= True;
+      Exit;
+    end;
+    
+    if (GetArrayLength(SelectedCompilers) = 1) then
+    begin
+      if not ParseCompilerEntry(SelectedCompilers[0], release_tag, id, version, host, target, linker, description) then 
+      begin
+        Result:= False;
+        Exit;      
+      end;
+      
+      DefaultCompilerId := id;
+      Result:= True;
+      Exit;
+    end
   else
     Result := False;
 end;
@@ -492,6 +507,19 @@ begin
       Result := True;
       Exit;
     end;
+  end;
+  Result := False;
+end;
+
+function HasValidDefaultCompiler : Boolean;
+var
+	i: Integer;
+begin
+
+  if DefaultCompilerId <> '' then
+  begin
+    Result := True;
+    Exit;
   end;
   Result := False;
 end;
