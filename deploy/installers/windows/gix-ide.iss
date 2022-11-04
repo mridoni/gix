@@ -222,8 +222,10 @@ var
   release_tag, id, version, host, target, linker, description : String;
 begin
   if (PageID = DefaultCompilerPage.ID) then
+  begin
     if (GetArrayLength(SelectedCompilers) = 0) then
     begin
+      Log('No compilers selected to be installed, so no default will have to be chosen');
       Result:= True;
       Exit;
     end;
@@ -236,12 +238,13 @@ begin
         Exit;      
       end;
       
+      Log('Only one compiler selected to be installed, so the default will be ' + id);
       DefaultCompilerId := id;
       Result:= True;
       Exit;
     end
-  else
-    Result := False;
+  end;
+  Result := False;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -266,7 +269,8 @@ begin
       Result:= False;
       Exit;
     end;
-    DefaultCompilerId := description;
+    DefaultCompilerId := id;
+    Log('Default compiler selected: ' + id);
     Result := True;
   end;
 
