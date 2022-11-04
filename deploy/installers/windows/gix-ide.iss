@@ -9,10 +9,6 @@
 
 #define DIST_DIR GetEnv('DIST_DIR')
 
-#define INCLUDE_COMPILERS GetEnv('INCLUDE_COMPILERS')
-#define DEFAULT_VS_COMPILER GetEnv('DEFAULT_VS_COMPILER')
-#define DEFAULT_GCC_COMPILER GetEnv('DEFAULT_GCC_COMPILER')
-
 #define MSVC_BUILD_TOOLS GetEnv('MSVC_BUILD_TOOLS')
 #define MSVC_RUNTIME_X86 GetEnv('MSVC_RUNTIME_X86')
 #define MSVC_RUNTIME_X64 GetEnv('MSVC_RUNTIME_X64')
@@ -43,7 +39,6 @@ Source: "{#DIST_DIR}\*"; DestDir: "{app}"; Flags: ignoreversion createallsubdirs
 ; COPY files
 Source: "{#WORKSPACE}\gixsql\copy\SQLCA.cpy"; DestDir: "{app}\lib\copy"; Flags: ignoreversion createallsubdirs recursesubdirs
 
-#if 0
 ; Qt
 Source: "{#QTDIR}\bin\Qt5Core.dll"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs
 Source: "{#QTDIR}\bin\Qt5Gui.dll"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs
@@ -57,20 +52,10 @@ Source: "{#QTDIR}\plugins\imageformats\*"; DestDir: "{app}\bin\imageformats"; Fl
 Source: "{#QTDIR}\plugins\platforms\*"; DestDir: "{app}\bin\platforms"; Flags: ignoreversion createallsubdirs recursesubdirs
 Source: "{#QTDIR}\plugins\styles\*"; DestDir: "{app}\bin\styles"; Flags: ignoreversion createallsubdirs recursesubdirs
 ;Source: "{#QTDIR}\plugins\translations\*"; DestDir: "{app}\bin\translations"; Flags: ignoreversion createallsubdirs recursesubdirs
-#endif
-
-; compilers
-Source: "{tmp}\compiler-pkgs\*"; DestDir: "{localappdata}\Gix\compiler-pkgs"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "{tmp}\compiler-defs\*.def"; DestDir: "{localappdata}\Gix\compiler-defs"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
 
 ; examples and docs
 Source: "{#WORKSPACE}\deploy\examples\*"; DestDir: "{userdocs}\Gix\Examples"; Flags: ignoreversion createallsubdirs recursesubdirs onlyifdoesntexist
 Source: "{#WORKSPACE}\doc\*"; DestDir: "{userdocs}\Gix\Documentation"; Flags: ignoreversion createallsubdirs recursesubdirs
-
-; MS runtimes
-;Source: "{#WORKSPACE}\deploy\redist\ms\common\*"; DestDir: "{tmp}\redist\ms\common"; Flags: ignoreversion createallsubdirs recursesubdirs
-;Source: "{#WORKSPACE}\deploy\redist\ms\x86\*"; DestDir: "{tmp}\redist\ms\x86"; Flags: ignoreversion createallsubdirs recursesubdirs
-;Source: "{#WORKSPACE}\deploy\redist\ms\x64\*"; DestDir: "{tmp}\redist\ms\x64"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 ; dependencies for DB runtime libraries
 #if "x64" == HOST_PLATFORM
@@ -90,16 +75,14 @@ Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\gcc\*"; DestDir: "{app}\lib
 [Run]
 Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x64)"
 Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x86)"
-Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --add Microsoft.VisualStudio.Component.VC.CLI.Support --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.19041"; WorkingDir: "{tmp}"; Flags: skipifdoesntexist; Description: "Visual C++ 2022 build tools"; Check: IsComponentSelected('gnucobol_vs_compilers')
+Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated; Description: "Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Check: IsMSVCCompilerSelected
 
 [Registry]
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "1.0.{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{localappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-#if "1" == INCLUDE_COMPILERS
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "ReleaseCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DebugCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-#endif
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "editor_font_name"; ValueData: "Courier New"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "editor_font_size"; ValueData: "9"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "grid_font_name"; ValueData: "MS Shell Dlg 2"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
@@ -110,10 +93,10 @@ Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName:
 
 Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
-Root: "HKLM"; Subkey: "SOFTWARE\Classes\.gix"; ValueData: "GixIdePrjColl"; Flags: createvalueifdoesntexist deletekey
-Root: "HKLM"; Subkey: "SOFTWARE\Classes\GixIdePrjColl"; ValueData: "{app}\bin\gix-ide.exe,1"; Flags: createvalueifdoesntexist deletekey
-Root: "HKLM"; Subkey: "SOFTWARE\Classes\.gixprj"; ValueData: "GixIdePrj"; Flags: createvalueifdoesntexist deletekey
-Root: "HKLM"; Subkey: "SOFTWARE\Classes\GixIdePrj"; ValueData: "{app}\bin\gix-ide.exe,2"; Flags: createvalueifdoesntexist deletekey
+Root: "HKCR"; Subkey: ".gix"; ValueType: string; ValueData: "GixIdePrjColl"; Flags: createvalueifdoesntexist
+Root: "HKCR"; Subkey: "GixIdePrjColl\DefaultIcon"; ValueType: expandsz; ValueData: "{app}\bin\gix-ide.exe,1"; Flags: createvalueifdoesntexist deletekey
+Root: "HKCR"; Subkey: ".gixprj"; ValueType: string; ValueData: "GixIdePrj"; Flags: createvalueifdoesntexist deletekey
+Root: "HKCR"; Subkey: "GixIdePrj\DefaultIcon"; ValueType: expandsz; ValueData: "{app}\bin\gix-ide.exe,2"; Flags: createvalueifdoesntexist deletekey
 
 [Dirs]
 Name: "{app}\bin"
@@ -143,13 +126,13 @@ var
   
   CompilerListInitialized : Boolean;
   ChooseCompilersPage: TWizardPage;
+  DefaultCompilerPage: TInputOptionWizardPage;
+  DefaultCompilerId: String;
   CheckListBox: TNewCheckListBox;
   cbGCC, cbMSVC : Integer;
   
-  CB1, CB2: Integer;
-  OB1, OB2: Integer;   
-  
 function IsMSVCCompilerSelected : Boolean; forward;
+function IsCompilerSelected(crow : String) : Boolean; forward;
 function ReadCompilerIndex(IndexFile: String) : Boolean; forward;
 function StrSplit(Text: String; Separator: String): TArrayOfString; forward;
 function ParseCompilerEntry(crow : String; var release_tag : String; var id : String; var version : String; var host : String;
@@ -167,12 +150,16 @@ begin
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
   
   ChooseCompilersPage := CreateCustomPage(wpLicense, 'Choose the compilers you want to install (if any)', 'You can select one or more of the available compilers');
-
   CheckListBox := TNewCheckListBox.Create(ChooseCompilersPage);
   CheckListBox.Width := ChooseCompilersPage.SurfaceWidth;
   CheckListBox.Height := ScaleY(150);
   CheckListBox.Flat := True;
   CheckListBox.Parent := ChooseCompilersPage.Surface; 
+
+  DefaultCompilerPage := CreateInputOptionPage(ChooseCompilersPage.ID,
+    'Default compiler', 'Choose a default compiler',
+    'Please choose the default GnuCOBOL that will be used by Gix-IDE. This can be changed later in the Settings menu',
+    True, True);
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
@@ -180,11 +167,23 @@ var
   i: Integer;
 	cbtmp : Integer;
 	crow : String;
+  is_checked : Boolean;
 	release_tag, id, version, host, target, linker, description : String;
 begin
-  if (CurPageID = wpFinished) and (IsComponentSelected('gnucobol_vs_compilers')) then
+  if (CurPageID = wpFinished) and (IsMSVCCompilerSelected) then
   begin
     WizardForm.RunList.ItemEnabled[0] := False;
+  end;
+
+  if CurPageID = DefaultCompilerPage.ID then
+  begin
+    DefaultCompilerPage.CheckListBox.Items.Clear;
+    for i := 0 to GetArrayLength(SelectedCompilers) -1 do
+    begin
+      if not ParseCompilerEntry(SelectedCompilers[i], release_tag, id, version, host, target, linker, description) then continue;
+
+      DefaultCompilerPage.Add(description);
+    end;
   end;
   
   if CurPageID = ChooseCompilersPage.ID then
@@ -198,7 +197,8 @@ begin
       if not ParseCompilerEntry(crow, release_tag, id, version, host, target, linker, description) then continue;
       if linker <> 'msvc' then continue;
       
-      cbtmp := CheckListBox.AddCheckBox(description, '', 1, False, True, False, True, TObject(i));
+      is_checked := IsCompilerSelected(crow);
+      cbtmp := CheckListBox.AddCheckBox(description, '', 1, is_checked, True, False, True, TObject(i));
       Log('Adding compiler: ' + description);
     end;  
         
@@ -208,8 +208,9 @@ begin
       crow := AvailableCompilers[i];
       if not ParseCompilerEntry(crow, release_tag, id, version, host, target, linker, description) then continue;
       if linker <> 'gcc' then continue;
-      
-      cbtmp := CheckListBox.AddCheckBox(description, '', 1, False, True, False, True, TObject(i));
+
+      is_checked := IsCompilerSelected(crow);      
+      cbtmp := CheckListBox.AddCheckBox(description, '', 1, is_checked, True, False, True, TObject(i));
       Log('Adding compiler: ' + description);
     end;  
   end;
@@ -217,10 +218,15 @@ end;
 
 function DefaultCompiler(Param: string) : String;
 begin
-  if IsComponentSelected('gnucobol_vs_compilers') then
-    Result := '{#DEFAULT_VS_COMPILER}'
+   Result := DefaultCompilerId;
+end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  if (PageID = DefaultCompilerPage.ID) and (GetArrayLength(SelectedCompilers) = 0) then
+    Result:= True
   else
-    Result := '{#DEFAULT_GCC_COMPILER}';
+    Result := False;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -229,6 +235,26 @@ var
   crow, curl: String;
   release_tag, id, version, host, target, linker, description : String;
 begin
+
+  if CurPageID = DefaultCompilerPage.ID then
+  begin
+    i := DefaultCompilerPage.SelectedValueIndex;
+    if (i < 0) then 
+    begin
+      MsgBox('Please select a compiler', mbError, MB_OK);
+      Result := False;
+      Exit;
+    end;
+    if not ParseCompilerEntry(SelectedCompilers[i], release_tag, id, version, host, target, linker, description) then 
+    begin
+      MsgBox('Invalid compiler', mbError, MB_OK);
+      Result:= False;
+      Exit;
+    end;
+    DefaultCompilerId := description;
+    Result := True;
+  end;
+
   if CurPageID = wpLicense then begin
 
     DownloadPage.Clear;
@@ -309,11 +335,11 @@ begin
     begin
       if not ParseCompilerEntry(SelectedCompilers[i], release_tag, id, version, host, target, linker, description) then continue;
 
-      curl := 'https://github.com/mridoni/gnucobol-binaries/releases/download/' + release_tag + '/' + id + '.7z';
-      DownloadPage.Add(curl, id + '.7z', '');
-      DownloadPage.Add(curl, id + '.def', '');      
-      DownloadPage.Add(curl, id + '.7z.sig', '');
-      DownloadPage.Add(curl, id + '.def.sig', '');
+      curl := 'https://github.com/mridoni/gnucobol-binaries/releases/download/' + release_tag + '/' + id;
+      DownloadPage.Add(curl + '.7z', id + '.7z', '');
+      DownloadPage.Add(curl + '.def', id + '.def', '');      
+      DownloadPage.Add(curl + '.7z.sig', id + '.7z.sig', '');
+      DownloadPage.Add(curl + '.def.sig', id + '.def.sig', '');
 
     end;
     
@@ -323,15 +349,20 @@ begin
         DownloadPage.Download; 
         // TODO: check signatures        
         
-        CreateDir(ExpandConstant('{tmp}') + '\compiler-pkgs');
-        CreateDir(ExpandConstant('{tmp}') + '\compiler-defs');
+        CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs');
+        CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-defs');
         
         for i := 0 to GetArrayLength(SelectedCompilers) -1 do
         begin
           if not ParseCompilerEntry(SelectedCompilers[i], release_tag, id, version, host, target, linker, description) then continue;
 
-          Unzip(ExpandConstant('{tmp}') + '\' + id + '.7z', ExpandConstant('{tmp}') + '\compiler-pkgs');
-          FileCopy(ExpandConstant('{tmp}') + '\' + id + '.def', ExpandConstant('{tmp}') + '\compiler-defs', False);
+          Log('Uncompressing ' + ExpandConstant('{tmp}') + '\' + id + '.7z');
+          DownloadPage.SetText('Uncompressing', ExpandConstant('{tmp}') + '\' + id + '.7z');
+          Unzip(ExpandConstant('{tmp}') + '\' + id + '.7z', ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs');
+          
+          Log ('Copying ' + ExpandConstant('{tmp}') + '\' + id + '.def to ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def');
+          DownloadPage.SetText('Installing definition file', 'Copying ' + ExpandConstant('{tmp}') + '\' + id + '.def to ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def');
+          FileCopy(ExpandConstant('{tmp}') + '\' + id + '.def', ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def', False);
 
         end;
         
@@ -442,6 +473,21 @@ begin
     if not ParseCompilerEntry(SelectedCompilers[i], release_tag, id, version, host, target, linker, description) then continue;
     
     if linker = 'msvc' then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+  Result := False;
+end;
+
+function IsCompilerSelected(crow : String) : Boolean;
+var
+	i: Integer;
+begin
+  for i := 0 to GetArrayLength(SelectedCompilers) - 1 do
+  begin   
+    if SelectedCompilers[i] = crow then
     begin
       Result := True;
       Exit;
