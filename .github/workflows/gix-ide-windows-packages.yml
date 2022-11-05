@@ -890,7 +890,7 @@ jobs:
 
   build-cleanup:
     name: build-cleanup
-    needs: [ gix-ide-installer-windows-x64-no-compilers, gix-ide-installer-windows-x64, gix-ide-installer-windows-x86-no-compilers, gix-ide-installer-windows-x86 ]
+    needs: [ gix-ide-installer-windows-x64, gix-ide-installer-windows-x86 ]
     runs-on: windows-latest
     steps:
     
