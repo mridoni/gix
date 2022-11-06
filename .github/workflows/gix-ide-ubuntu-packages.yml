@@ -1,4 +1,4 @@
-name: gix-ide-ubuntu-20.04
+name: gix-ide-ubuntu-packages
 
 on:
   workflow_dispatch
