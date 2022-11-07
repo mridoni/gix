@@ -172,8 +172,8 @@ fi;
 	
 mkdir -p /home/\$SUDO_USER/.config/MediumGray
 touch /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
-echo "[General]" > /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
-echo "screen_resolution=72" > /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
+echo "[General]" >> /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
+echo "screen_resolution=72" >> /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
 
 chown -R \$SUDO_USER:\$SUDO_USER /home/\$SUDO_USER/.config/MediumGray/
 chmod -R 775 /home/\$SUDO_USER/.config/MediumGray/
