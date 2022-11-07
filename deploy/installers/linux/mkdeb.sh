@@ -166,16 +166,14 @@ cat $WORKSPACE/deploy/installers/linux/control-${DIST}.tpl | \
 cat <<EOF > $PKGDEBDIR/DEBIAN/postinst
 #!/bin/bash
 
-exit 0
-#mkdir -p /home/\$SUDO_USER/Documents/gix/examples
-#mv /opt/gix-examples/* /home/\$SUDO_USER/Documents/gix/examples
-#rm -fr /opt/gix-examples
+mkdir -p /home/\$SUDO_USER/.config/MediumGray
+touch /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
+echo "[General]" > /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
+echo "screen_resolution=72" > /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
 
-#mkdir -p /home/\$SUDO_USER/Documents/gix/doc
-#mv /opt/gix-doc/* /home/\$SUDO_USER/Documents/gix/doc
-#rm -fr /opt/gix-doc
-#chown -R \$SUDO_USER:\$SUDO_USER /home/\$SUDO_USER/Documents/gix/
-#chmod -R 775 /home/\$SUDO_USER/Documents/gix/
+chown -R \$SUDO_USER:\$SUDO_USER /home/\$SUDO_USER/.config/MediumGray/
+chmod -R 775 /home/\$SUDO_USER/.config/MediumGray/
+chmod 664 /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
 EOF
 
 cd $WORKSPACE
