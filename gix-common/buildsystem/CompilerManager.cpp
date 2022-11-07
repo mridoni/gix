@@ -46,6 +46,14 @@ void CompilerManager::init()
 	if (compiler_defs.size() > 0)
 		cleanup();
 
+#if defined(__linux__)
+	QString compiler_info;
+	CompilerDefinition* cd_default = CompilerManager::tryGetDefault(compiler_info);
+	if (cd_default != nullptr) {
+		logger->logMessage(GIX_CONSOLE_LOG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info) + def_file.absoluteFilePath()", QLogger::LogLevel::Info);
+		compiler_defs[cd_default->getId()] = cd;
+	}
+#endif
 
 	QString cdir = GixGlobals::getCompilerDefsDir();
 	if (cdir.isEmpty()) {
@@ -79,6 +87,33 @@ void CompilerManager::init()
 QMap<QString, CompilerDefinition*> CompilerManager::getCompilers()
 {
 	return compiler_defs;
+}
+
+GIXCOMMON_EXPORT CompilerDefinition* CompilerManager::tryGetDefault(QString& compiler_info)
+{
+#ifdef __linux__
+	QProcess findProcess;
+	QStringList arguments;
+	arguments << "cobc";
+	findProcess.start("which", arguments);
+	findProcess.setReadChannel(QProcess::ProcessChannel::StandardOutput);
+
+	if (!findProcess.waitForFinished())
+		return false; // Not found or which does not work
+
+	QString retStr(findProcess.readAll());
+
+	retStr = retStr.trimmed();
+
+	QFile file(retStr);
+	QFileInfo check_file(file);
+	if (check_file.exists() && check_file.isFile()) {
+
+		// TODO: try to launch and retrieve version info
+
+	}
+#endif
+	return nullptr;
 }
 
 void CompilerManager::cleanup()

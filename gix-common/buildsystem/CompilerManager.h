@@ -36,6 +36,8 @@ public:
 
 	GIXCOMMON_EXPORT QMap<QString, CompilerDefinition*> getCompilers();
 
+	GIXCOMMON_EXPORT static CompilerDefinition* tryGetDefault(QString& compiler_info);
+
 private:
 	QMap<QString, CompilerDefinition*> compiler_defs;
 
