@@ -47,15 +47,6 @@ void CompilerManager::init()
 	if (compiler_defs.size() > 0)
 		cleanup();
 
-#if defined(__linux__)
-	QString compiler_info;
-	CompilerDefinition* cd_default = CompilerManager::tryGetDefault(compiler_info);
-	if (cd_default != nullptr) {
-		logger->logMessage(GIX_CONSOLE_LOG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info), QLogger::LogLevel::Info);
-		compiler_defs[cd_default->getId()] = cd_default;
-	}
-#endif
-
 	QString cdir = GixGlobals::getCompilerDefsDir();
 	if (cdir.isEmpty()) {
 		logger->logMessage(GIX_CONSOLE_LOG, "Compiler definitions directory is not set", QLogger::LogLevel::Error);
@@ -79,9 +70,27 @@ void CompilerManager::init()
 			continue;
 		}
 
-
 		compiler_defs[cd->getId()] = cd;
 	}
+	
+#if defined(__linux__)	
+	if (!compiler_defs.containsKey("system-default")) {
+
+		QString compiler_info;
+		CompilerDefinition* cd_default = CompilerManager::tryGetDefault(compiler_info);
+
+		if (cd_default != nullptr) {
+			QStringList test_info;
+			if (cd_default->testConfiguration(info) && cd_default->save()) {
+				logger->logMessage(GIX_CONSOLE_LOG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info), QLogger::LogLevel::Info);
+				compiler_defs[cd_default->getId()] = cd_default;
+			}
+			else {
+				logger->logMessage(GIX_CONSOLE_LOG, "Cannot add distribution-provided compiler", QLogger::LogLevel::Warning);
+			}
+		}
+	}
+#endif	
 
 }
 
@@ -149,10 +158,13 @@ GIXCOMMON_EXPORT CompilerDefinition* CompilerManager::tryGetDefault(QString& com
                             dist_version = "00";
                         }
                         CompilerDefinition *cd = new CompilerDefinition();
-                        cd->setId("gnucobol-" + dist_name + "-" + dist_version);
+#if 0                        
+						cd->setId("gnucobol-" + dist_name + "-" + dist_version);
+#endif						
+                        cd->setId("system-default");
                         cd->setHomedir("/usr");
                         cd->setHostPlatform(SysUtils::getGixBuildPlatform());
-                        cd->setName("GnuCOBOL " + gc_version);
+                        cd->setName("Default - GnuCOBOL " + gc_version);
                         cd->setIsVsBased(false);
                         cd->setVersion(gc_version);
                         
