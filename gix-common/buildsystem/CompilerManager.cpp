@@ -22,9 +22,10 @@ USA.
 #include "PathUtils.h"
 #include "IGixLogManager.h"
 #include "GixGlobals.h"
-
+#include "SysUtils.h"
 #include <QDir>
 #include <QFile>
+#include <QRegularExpression>
 
 
 CompilerManager::CompilerManager()
@@ -50,8 +51,8 @@ void CompilerManager::init()
 	QString compiler_info;
 	CompilerDefinition* cd_default = CompilerManager::tryGetDefault(compiler_info);
 	if (cd_default != nullptr) {
-		logger->logMessage(GIX_CONSOLE_LOG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info) + def_file.absoluteFilePath()", QLogger::LogLevel::Info);
-		compiler_defs[cd_default->getId()] = cd;
+		logger->logMessage(GIX_CONSOLE_LOG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info), QLogger::LogLevel::Info);
+		compiler_defs[cd_default->getId()] = cd_default;
 	}
 #endif
 
@@ -89,6 +90,29 @@ QMap<QString, CompilerDefinition*> CompilerManager::getCompilers()
 	return compiler_defs;
 }
 
+#ifdef __linux__
+
+bool getDistributionInfo(QString d, QString v)
+{
+    return false;    
+}
+
+QString getInfoValue(QStringList rows, QString k)
+{
+    int idx = rows.indexOf(QRegularExpression("^" + k + " "));  
+    if (idx < 0)
+        return "";
+    
+    QString s = rows[idx];
+    s = s.replace(k, "").trimmed();
+    if (s.startsWith(":"))
+        s = s.mid(1);
+    
+    return s;
+}
+
+#endif
+
 GIXCOMMON_EXPORT CompilerDefinition* CompilerManager::tryGetDefault(QString& compiler_info)
 {
 #ifdef __linux__
@@ -98,20 +122,56 @@ GIXCOMMON_EXPORT CompilerDefinition* CompilerManager::tryGetDefault(QString& com
 	findProcess.start("which", arguments);
 	findProcess.setReadChannel(QProcess::ProcessChannel::StandardOutput);
 
-	if (!findProcess.waitForFinished())
-		return false; // Not found or which does not work
-
-	QString retStr(findProcess.readAll());
-
-	retStr = retStr.trimmed();
-
-	QFile file(retStr);
-	QFileInfo check_file(file);
-	if (check_file.exists() && check_file.isFile()) {
-
-		// TODO: try to launch and retrieve version info
-
-	}
+    if (findProcess.waitForFinished()) {
+    
+        QString retStr(findProcess.readAll());
+    
+        retStr = retStr.trimmed();
+        if (!retStr.isEmpty()) {
+            QFile file(retStr);
+            QFileInfo check_file(file);
+            if (check_file.exists() && check_file.isFile()) {
+        
+                arguments.clear();
+                arguments << "-info";
+                findProcess.start(retStr, arguments);
+                findProcess.setReadChannel(QProcess::ProcessChannel::StandardOutput);
+            
+                if (findProcess.waitForFinished()) {
+                
+                    retStr = findProcess.readAll().trimmed();
+                    if (!retStr.isEmpty()) {
+                        QStringList rows = retStr.split('\n');
+                        QString gc_version = rows.at(0).split(' ').last();
+                        QString dist_name, dist_version;
+                        if (!getDistributionInfo(dist_name, dist_version)) {
+                            dist_name = "linux";
+                            dist_version = "00";
+                        }
+                        CompilerDefinition *cd = new CompilerDefinition();
+                        cd->setId("gnucobol-" + dist_name + "-" + dist_version);
+                        cd->setHomedir("/usr");
+                        cd->setHostPlatform(SysUtils::getGixBuildPlatform());
+                        cd->setName("GnuCOBOL " + gc_version);
+                        cd->setIsVsBased(false);
+                        cd->setVersion(gc_version);
+                        
+                        CompilerPlatformDefinition *p = new CompilerPlatformDefinition();
+                        p->setBinDirPath(check_file.absoluteDir().absolutePath());
+                        p->setConfigDirPath(getInfoValue(rows, "COB_CONFIG_DIR"));
+                        p->setCopyDirPath(getInfoValue(rows, "COB_COPY_DIR"));
+                        p->setIncludeDirPath("/usr/include");
+                        p->setLibDirPath("/usr/lib");
+                        
+                        cd->addPlatform(SysUtils::getGixBuildPlatform(), p);
+                        
+                        return cd;
+                    }
+                }
+        
+            }
+        }
+    }
 #endif
 	return nullptr;
 }
