@@ -166,6 +166,10 @@ cat $WORKSPACE/deploy/installers/linux/control-${DIST}.tpl | \
 cat <<EOF > $PKGDEBDIR/DEBIAN/postinst
 #!/bin/bash
 
+if [ -f "/home/\$SUDO_USER/.config/MediumGray/gix-ide.conf" ] ; then
+	exit 0
+fi;
+	
 mkdir -p /home/\$SUDO_USER/.config/MediumGray
 touch /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
 echo "[General]" > /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
