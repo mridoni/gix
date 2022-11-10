@@ -215,17 +215,36 @@ QString CompilerConfiguration::getLibCobDir()
 
 bool CompilerConfiguration::isVersionGreaterThanOrEqualTo(int major, int minor, int release)
 {
+	bool b;
     QStringList v_items = version.split(".");
+
+	// normalize version string components
+	for (int i = 0; i < v_items.size(); i++) {
+		QString s = v_items[i];
+		QString r;
+		for (int n = 0; n < s.size(); n++) {
+			if (!s[n].isDigit())
+				break;
+
+			r += s[n];
+		}
+		if (r.isEmpty()) r = "0";
+		v_items[i] = r;
+	}
+
     if (v_items.size() == 1) {
         return v_items[0].toInt() >= major;
     }
 
     if (v_items.size() == 2) {
-        return v_items[0].toInt() >= major && v_items[1].toInt() >= minor;
+        return v_items[0].toInt() > major ||
+			(v_items[0].toInt() == major && v_items[1].toInt() >= minor);
     }
 
     if (v_items.size() >= 3) {
-        return v_items[0].toInt() >= major && v_items[1].toInt() >= minor && v_items[2].toInt() >= release;
+		return v_items[0].toInt() > major ||
+			(v_items[0].toInt() == major && v_items[1].toInt() >= minor) ||
+			(v_items[0].toInt() == major && v_items[1].toInt() == minor && v_items[2].toInt() >= release);
     }
 
     return false;
