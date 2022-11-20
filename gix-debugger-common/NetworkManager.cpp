@@ -83,14 +83,14 @@ bool NetworkManager::init()
 				return false;
 			}
 			local_port = lp;
-			local_host = "0.0.0.0";
+			local_host = DBGR_LOCAL_BINDING_DEFAULT_ADDR;
 			spdlog::info("Binding address not set by client, using {}:{}", local_host, local_port);
 		}
 	}
-	//else {
-	//	local_port = lp;
-	//	local_host = "0.0.0.0";	// TODO: make this more restrictive
-	//}
+
+	if (local_host == "0.0.0.0") {
+		local_host = "127.0.0.1";
+	}
 
 	auto local_url = "tcp://" + local_host + ":" + std::to_string(local_port);
 
@@ -193,7 +193,7 @@ bool NetworkManager::disconnect()
 uint16_t NetworkManager::select_local_port()
 {
 	//TODO: make it random
-	return 14009;
+	return DBGR_LOCAL_BINDING_DEFAULT_PORT;
 }
 
 bool NetworkManager::is_initialized()

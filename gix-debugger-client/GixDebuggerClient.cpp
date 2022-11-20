@@ -363,7 +363,7 @@ bool GixDebuggerClient::launch_local_debugger_host()
 
 	std::string host_exe_name = "gix-debugger-" + arch;
 
-	std::string args = string_format("-s %s -p %d", client_config->getHostDebuggerAddr(), client_config->getHostDebuggerPort());
+	std::string args = string_format("-v -s %s -p %d", client_config->getHostDebuggerAddr(), client_config->getHostDebuggerPort());
 
 	if (client_config->dbgr_host_encrypt)
 		args += " --encrypt";
@@ -394,7 +394,19 @@ bool GixDebuggerClient::launch_local_debugger_host()
 	char actual_path[MAX_PATH];
 	strcpy(actual_path, host_exe_name.c_str());
 
-	const char* dirs[] = { ".", NULL };
+	char gix_ide_exe_path[MAX_PATH];
+	int l = 0;
+	if ((l = GetModuleFileName(NULL, gix_ide_exe_path, MAX_PATH)) == 0) {
+		last_error = "Cannot locate current directory";
+		__LOG(last_error, LOG_LEVEL_ERROR);
+		return false;
+	}
+
+	std::filesystem::path p(gix_ide_exe_path);
+	p = p.parent_path();
+	std::string cur_dir = p.make_preferred().string();
+	
+	const char* dirs[] = { cur_dir.c_str(), NULL};
 
 	if (!PathFindOnPath(actual_path, dirs)) {
 		last_error = "Cannot locate host debugger executable\"" + host_exe_name + "\"";

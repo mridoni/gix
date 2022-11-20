@@ -69,9 +69,6 @@
     <ClCompile Include="DbManagerWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DebugManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DependenciesWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -202,6 +199,9 @@
       <Filter>Source Files\debugger</Filter>
     </ClCompile>
     <ClCompile Include="DebugDriverUtils.cpp">
+      <Filter>Source Files\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugManager.cpp">
       <Filter>Source Files\debugger</Filter>
     </ClCompile>
   </ItemGroup>
