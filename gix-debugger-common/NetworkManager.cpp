@@ -100,7 +100,7 @@ bool NetworkManager::init()
 	std::thread nw_thread(NetworkManagerThreadRunnerStub, thread_data);
 	nw_thread.detach();
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
 	// Check if server was spun up successfully
 	if (!_is_network_server_running) {
@@ -168,6 +168,7 @@ void NetworkManager::setEncryptionEnabled(bool b)
 
 bool NetworkManager::connect_to_remote_host()
 {
+    spdlog::trace("Connecting to {}:", remote_host, remote_port);
 	int rv;
 	if ((rv = nng_pair0_open(&this->nw_remote_socket)) != 0) {
 		return false;

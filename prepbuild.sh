@@ -14,7 +14,7 @@ if [ "$1" != "/E" ] ; then
 	GIXIDEMAJ=1
 	GIXIDEMIN=1
 	GIXIDEREL=0dev1
-	GIX_REVISION=1922
+	GIX_REVISION=1923
 	# These indicates the current version of Gix-IDE (end)
 
 	# These indicates the current version of GixSQL included in Gix-IDE
@@ -24,17 +24,26 @@ if [ "$1" != "/E" ] ; then
 	# These indicates the current version of GixSQL included in Gix-IDE (end)
 
 fi
+echo "Configuring version ($GIXIDEMAJ.$GIXIDEMIN.$GIXIDEREL-$GIX_REVISION) in header file"
+rm -f $SCRIPT_DIR/gix-ide/GixVersion.h
+cp $SCRIPT_DIR/gix-ide/GixVersion.h.tpl $SCRIPT_DIR/gix-ide/GixVersion.h
+sed -i "s/{GIXIDEMAJ}/$GIXIDEMAJ/g" $SCRIPT_DIR/gix-ide/GixVersion.h
+sed -i "s/{GIXIDEMIN}/$GIXIDEMIN/g" $SCRIPT_DIR/gix-ide/GixVersion.h
+sed -i "s/{GIXIDEREL}/$GIXIDEREL/g" $SCRIPT_DIR/gix-ide/GixVersion.h
+sed -i "s/{GIXIDEBLD}/$GIX_REVISION/g" $SCRIPT_DIR/gix-ide/GixVersion.h
 
+echo "Configuring version ($GIXSQLMAJ.$GIXSQLMIN.$GIXSQLREL) in header file for GixSQL"
 echo "#define VERSION \"$GIXSQLMAJ.$GIXSQLMIN.$GIXSQLREL\"" > $SCRIPT_DIR/gixsql/config.h
 
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/gixsql.pro ${SCRIPT_DIR}/gixsql/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/gixpp.pro ${SCRIPT_DIR}/gixsql/gixpp/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libcpputils.pro ${SCRIPT_DIR}/gixsql/libcpputils/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixpp.pro ${SCRIPT_DIR}/gixsql/libgixpp/
+echo "Configuring GixSQL for QMake"
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/gixsql.pro ${SCRIPT_DIR}/gixsql/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/gixpp.pro ${SCRIPT_DIR}/gixsql/gixpp/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libcpputils.pro ${SCRIPT_DIR}/gixsql/libcpputils/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixpp.pro ${SCRIPT_DIR}/gixsql/libgixpp/
 
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-mysql.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-mysql/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-odbc.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-odbc/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-oracle.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-oracle/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-pgsql.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-pgsql/
-cp -v ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-sqlite.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-sqlite/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-mysql.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-mysql/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-odbc.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-odbc/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-oracle.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-oracle/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-pgsql.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-pgsql/
+cp ${SCRIPT_DIR}/build-tools/gixsql-pro/libgixsql-sqlite.pro ${SCRIPT_DIR}/gixsql/runtime/libgixsql-sqlite/

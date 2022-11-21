@@ -194,7 +194,7 @@ int GixDebuggerLinux::start()
 
 #if GIX_DBGR_USES_DOUBLEFORK
         if (ptrace(PTRACE_ATTACH, m_pid, NULL, NULL) < 0) {
-            spdlog::trace("Trace error: %s", strerror(errno));
+            spdlog::trace("Trace error: {}", strerror(errno));
             debug_driver->dbgr_client_debuggerError(this, 1, "Cannot attach to process");
             return 1;
         }
@@ -408,7 +408,7 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
             m_entry_breakpoint->uninstall();
             uint64_t new_addr = get_pc() - 1;
             set_pc(new_addr);
-            spdlog::trace("Updated libraries, removed entry_breakpoint, moving PC to %p", new_addr);
+            spdlog::trace("Updated libraries, removed entry_breakpoint, moving PC to {:x}", new_addr);
             return;
         }
     }
@@ -448,7 +448,7 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
                 break;
             }
 
-            spdlog::trace("Breakpoint is at (source): %d@%s", bp->line, bp->source_file.c_str());
+            spdlog::trace("Breakpoint is at (source): {}@{}", bp->line, bp->source_file.c_str());
 
             set_pc(get_pc() - 1);
             bp->uninstall();
@@ -466,12 +466,12 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
         //this will be set if the signal was sent by single stepping
         case TRAP_TRACE:
         {
-            spdlog::trace("Single stepped here (%p)", get_pc());
+            spdlog::trace("Single stepped here ({:x})", get_pc());
 
             is_on_break = true;
 
             if (is_ld_single_stepping) {
-                spdlog::trace("Reinstalling breakpoint at runtime linker (%p)", m_linker_breakpoint->address);
+                spdlog::trace("Reinstalling breakpoint at runtime linker ({})", m_linker_breakpoint->address);
                 m_linker_breakpoint->install();
                 is_on_break = false;
                 is_ld_single_stepping = false;
@@ -487,7 +487,7 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
                     spdlog::trace("User breakpoint: must be processed");
                     if (this->source_lines_by_addr.find(last_bkp->address) != source_lines_by_addr.end()) {
                         SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
-                        spdlog::trace("Found breakpoint at {0:x} ({}:{})",(uint64_t)last_bkp->address,sli->source_file, sli->line);
+                        spdlog::trace("Found breakpoint at 0x{:x} ({}:{})", last_bkp->address, sli->source_file, sli->line);
                         debug_driver->dbgr_client_debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
                     }
                     else {
@@ -551,7 +551,7 @@ bool GixDebuggerLinux::wait_for_signal()
 
     waitpid(m_pid, &wait_status, options);
 
-    spdlog::trace("Got signal: %d", wait_status);
+    spdlog::trace("Got signal: {}", wait_status);
 
 //    if (WIFSTOPPED(wait_status))
 //        kill(m_pid, SIGSTOP);  /* Signal entire child process to stop */
@@ -669,7 +669,7 @@ void GixDebuggerLinux::resolve_rendezvous()
             m_linker_breakpoint->address = (void *)rendezvous.r_brk;
             m_linker_breakpoint->automatic = true;
 
-            spdlog::trace("Linker breakpoint (rendezvous) address is %p", m_linker_breakpoint->address);
+            spdlog::trace("Linker breakpoint (rendezvous) address is {:x}", m_linker_breakpoint->address);
 
             m_linker_breakpoint->install();
 
@@ -735,7 +735,7 @@ void GixDebuggerLinux::handleLibraryLoaded(std::string lib_path, void *lib_addr)
     void *hSymbols = sym_provider->loadSymbols(this, (void *)m_pid, lib_addr, lib_path, NULL, &err);
 
     if (!processImage(lib_addr, hSymbols, lib_path)) {
-        spdlog::trace("Error loading image information for: %s", lib_path.c_str());
+        spdlog::trace("Error loading image information for: {}", lib_path.c_str());
     }
     else {
         m_entry_breakpoint->owner = shared_modules.back();
@@ -792,13 +792,13 @@ void GixDebuggerLinux::update_libraries()
     for (auto &&lib : loaded) {
         std::cerr << "Loaded " << lib.name << " at 0x" << std::hex << lib.addr << std::endl;
         handleLibraryLoaded(lib.name, (void *)lib.addr);
-        spdlog::trace("Loading library %s", lib.name.c_str());
+        spdlog::trace("Loading library {}", lib.name.c_str());
     }
 
     for (auto &&lib : unloaded) {
         std::cerr << "Unloaded " << lib.name << " at 0x" << std::hex << lib.addr << std::endl;
         handleLibraryUnloaded(lib.name, (void *)lib.addr);
-        spdlog::trace("Unloading library %s", lib.name.c_str());
+        spdlog::trace("Unloading library {}", lib.name.c_str());
     }
 
     m_libraries = new_libs;
@@ -887,7 +887,7 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string ima
 bool LinuxUserBreakpoint::install()
 {
     if (isInstalled()) {
-        spdlog::trace("Breakpoint at 0x%p for %d@%s is already installed, skipping", this->address, this->line, this->source_file);
+        spdlog::trace("Breakpoint at {:p} for {}@{} is already installed, skipping", this->address, this->line, this->source_file);
         return true;
     }
 
@@ -898,11 +898,11 @@ bool LinuxUserBreakpoint::install()
 
     uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
     if ((int64_t)data == -1)
-        spdlog::trace("Error (%d) %s", errno, strerror(errno));
+        spdlog::trace("Error ({}) {}", errno, strerror(errno));
     this->orig_instr = static_cast<uint8_t>(data & 0xff); //save bottom byte
     uint64_t int3 = 0xcc;
     uint64_t data_with_int3 = ((data & ~0xff) | int3); //set bottom byte to 0xcc
-    spdlog::trace("Installing breakpoint at %p - old data: %p, new data : %p, saved data: %02x", this->address, data, data_with_int3, this->orig_instr);
+    spdlog::trace("Installing breakpoint at {:x} - old data: {:x}, new data : {:x}, saved data: {:x}", this->address, data, data_with_int3, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, data_with_int3);
     return true;
 }
@@ -910,7 +910,7 @@ bool LinuxUserBreakpoint::install()
 bool LinuxUserBreakpoint::uninstall()
 {
     if (!isInstalled()) {
-        spdlog::trace("Breakpoint at 0x%p for %d@%s is not installed, skipping", this->address, this->line, this->source_file);
+        spdlog::trace("Breakpoint at {:x} for {}@{} is not installed, skipping", this->address, this->line, this->source_file);
         return true;
     }
 
@@ -918,7 +918,7 @@ bool LinuxUserBreakpoint::uninstall()
 
     uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
     uint64_t restored_data = ((data & ~0xff) | this->orig_instr);
-    spdlog::trace("Removing breakpoint at %p - old data: %p, new data : %p, orig_instr: %02x", this->address, data, restored_data, this->orig_instr);
+    spdlog::trace("Removing breakpoint at {:x} - old data: {:x}, new data : {:x}, orig_instr: {:x}", this->address, data, restored_data, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, restored_data);
     this->orig_instr = 0x00;
     return true;

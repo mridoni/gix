@@ -74,14 +74,15 @@ void CompilerManager::init()
 	}
 	
 #if defined(__linux__)	
-	if (!compiler_defs.containsKey("system-default")) {
+	if (!compiler_defs.contains("system-default")) {
 
 		QString compiler_info;
+        QStringList compiler_errs;
 		CompilerDefinition* cd_default = CompilerManager::tryGetDefault(compiler_info);
 
 		if (cd_default != nullptr) {
 			QStringList test_info;
-			if (cd_default->testConfiguration(info) && cd_default->save()) {
+			if (cd_default->testConfiguration(compiler_errs) && cd_default->save()) {
 				logger->logMessage(GIX_CONSOLE_LOG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info), QLogger::LogLevel::Info);
 				compiler_defs[cd_default->getId()] = cd_default;
 			}

@@ -31,7 +31,7 @@ protected:
 
 		std::string s(msg.payload.data(), msg.payload.size());
 
-		if (!network_manager) {
+		if (!network_manager || !network_manager->is_initialized()) {
 			//msg_queue.push(std::pair(fmt::to_string(formatted), (int)msg.level));
 			msg_queue.push(std::pair(s, (int)msg.level));
 			return;
@@ -80,7 +80,7 @@ inline void debugger_host_sink<Mutex>::setNetworkManager(std::shared_ptr<Network
 template<typename Mutex>
 inline bool debugger_host_sink<Mutex>::dbgr_client_debuggerMessage(std::string msg, int level)
 {
-	if (!network_manager) {
+	if (!network_manager || !network_manager->is_initialized()) {
 		return false;
 	}
 
