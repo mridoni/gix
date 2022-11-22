@@ -92,5 +92,7 @@ private:
 #ifdef _WIN32
 	PROCESS_INFORMATION launched_dbgr_host_process_info = {};
 #endif
+
+	bool dbgr_host_process_exists(std::string host_exe_name, uint16_t host_port);
 };
 

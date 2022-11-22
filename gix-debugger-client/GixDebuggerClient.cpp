@@ -8,6 +8,8 @@
 #ifdef _WIN32
 #include "Windows.h"
 #include <Shlwapi.h>
+#include <tlhelp32.h>
+#include <tchar.h>
 
 #pragma comment(lib, "shlwapi.lib")
 
@@ -365,6 +367,11 @@ bool GixDebuggerClient::launch_local_debugger_host()
 
 	std::string host_exe_name = "gix-debugger-" + arch;
 
+	if (dbgr_host_process_exists(host_exe_name, client_config->getHostDebuggerPort())) {
+		last_error = "Another debugger pocess is already active on the same port (" + std::to_string(client_config->getHostDebuggerPort());
+		return false;
+	}
+
 	std::string args = string_format("-v -s %s -p %d", client_config->getHostDebuggerAddr(), client_config->getHostDebuggerPort());
 
 	if (client_config->dbgr_host_encrypt)
@@ -484,12 +491,48 @@ bool GixDebuggerClient::launch_local_debugger_host()
     usleep(500 * 1000);
 #endif
 
-
 	__LOG("Successsfully launched " + host_exe_name, LOG_LEVEL_INFO);    
     
 	last_error = "";
 	launched_dbgr_host_success = true;
 	return true;
+}
+
+bool GixDebuggerClient::dbgr_host_process_exists(std::string host_exe_name, uint16_t host_port)
+{
+	bool process_exists = false;
+
+#ifdef _WIN32
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof(PROCESSENTRY32);
+	
+	if (!ends_with(host_exe_name, ".exe"))
+		host_exe_name += ".exe";
+
+	const auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+	if (!Process32First(snapshot, &entry)) {
+		CloseHandle(snapshot);
+		return false;
+	}
+
+	do {	
+		if (!_tcsicmp(entry.szExeFile, host_exe_name.c_str())) {
+			process_exists = true;
+			break;
+		}
+	} while (Process32Next(snapshot, &entry));
+
+	CloseHandle(snapshot);
+
+	// TODO: check port
+#endif
+
+#ifdef __linux__
+
+#endif
+
+	return process_exists;
 }
 
 std::string GixDebuggerClient::get_arch(std::string p)
