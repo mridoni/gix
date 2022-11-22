@@ -86,6 +86,7 @@ bool DebuggerHostDriver::dbgr_client_debuggerBreak(GixDebugger* gd, std::string 
 	spdlog::trace("Waiting on break (thread id: {})", gettid());
 #endif
 
+    spdlog::trace("Acquiring break wait lock");
 	this->acquireWaitLock();
 
 	spdlog::trace("Resuming from break");

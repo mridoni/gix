@@ -259,6 +259,7 @@ bool GixDebuggerLinux::step()
 {
     spdlog::trace("step invoked");
     single_step = true;
+    debug_driver->releaseWaitLock();
     return true;
 }
 
@@ -266,6 +267,7 @@ bool GixDebuggerLinux::continue_running()
 {
     spdlog::trace("continue_running invoked");
     single_step = false;
+    debug_driver->releaseWaitLock();
     return true;
 }
 
@@ -487,7 +489,7 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
                     spdlog::trace("User breakpoint: must be processed");
                     if (this->source_lines_by_addr.find(last_bkp->address) != source_lines_by_addr.end()) {
                         SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
-                        spdlog::trace("Found breakpoint at 0x{:x} ({}:{})", last_bkp->address, sli->source_file, sli->line);
+                        spdlog::trace("Found breakpoint at 0x{} ({}:{})", last_bkp->address, sli->source_file, sli->line);
                         debug_driver->dbgr_client_debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
                     }
                     else {
