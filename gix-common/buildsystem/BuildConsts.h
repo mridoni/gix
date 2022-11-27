@@ -22,6 +22,8 @@ USA.
 
 #include <QString>
 
+#define LOG_BUILD	1
+
 class BuildConsts {
 
 public:

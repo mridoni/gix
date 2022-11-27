@@ -22,7 +22,6 @@ USA.
 #include "PathUtils.h"
 #include "SysUtils.h"
 #include "CompilerManager.h"
-#include "QLogger.h"
 #include "GixGlobals.h"
 
 #include <QSettings>

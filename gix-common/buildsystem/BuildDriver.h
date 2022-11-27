@@ -29,10 +29,9 @@ USA.
 
 #include "BuildResult.h"
 #include "BuildTarget.h"
-#include "LogOutputType.h"
+#include "IGixLogManager.h"
 #include "CompilerConfiguration.h"
 #include "CopyResolver.h"
-#include "QLogger.h"
 #include "gixcommon_global.h"
 
 class ProjectItem;
@@ -66,7 +65,7 @@ public:
 	void setBuildEnvironment(QMap<QString, QVariant>&);
 	QMap<QString, QVariant>& getBuildEnvironment();
 	
-	void log_build_message(QString msg, QLogger::LogLevel, int status = 0);
+	void log_build_message(QString msg, spdlog::level::level_enum, int status = 0);
 	void log_build_clear();
 	
 	BuildResult getBuildResult();
@@ -77,7 +76,7 @@ public slots:
 	void stopBuild();
 
 signals:
-	void log_output(QString msg, QLogger::LogLevel);
+	void log_output(QString msg, spdlog::level::level_enum level);
 	void log_clear();
 
 protected:
@@ -97,6 +96,5 @@ private:
 	void execute_build(BuildTarget *target);
 
 	void extract_project_base_dirs(BuildTarget *target, QMap<QString, QString> &build_dirs);
-
 };
 

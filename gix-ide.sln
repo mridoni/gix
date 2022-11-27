@@ -110,7 +110,6 @@ Global
 		{84F81324-7647-4D7C-907B-B8E418F88B94}.Debug|Win32.ActiveCfg = Debug|Win32
 		{84F81324-7647-4D7C-907B-B8E418F88B94}.Debug|Win32.Build.0 = Debug|Win32
 		{84F81324-7647-4D7C-907B-B8E418F88B94}.Debug|x64.ActiveCfg = Debug|x64
-		{84F81324-7647-4D7C-907B-B8E418F88B94}.Debug|x64.Build.0 = Debug|x64
 		{84F81324-7647-4D7C-907B-B8E418F88B94}.Release_NoRuntime|Any CPU.ActiveCfg = Test_Release|x64
 		{84F81324-7647-4D7C-907B-B8E418F88B94}.Release_NoRuntime|Any CPU.Build.0 = Test_Release|x64
 		{84F81324-7647-4D7C-907B-B8E418F88B94}.Release_NoRuntime|Win32.ActiveCfg = Release|Win32
@@ -862,7 +861,7 @@ Global
 		{7B513404-5306-4F79-9124-FE588042858C} = {F776960F-269A-4987-BE98-4EA1279F79D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 		Qt5Version = Qt_5.14_msvc64
+		SolutionGuid = {0D846CBC-2353-409E-B512-D9DF7822A67A}
 	EndGlobalSection
 EndGlobal

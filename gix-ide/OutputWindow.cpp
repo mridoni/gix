@@ -36,15 +36,16 @@ OutputWindow::OutputWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent
 	this->addToolBar(toolBar);
 	this->mainWindow = mw;
 
-    this->textArea = new QTextEdit(this);
-	this->textArea->setReadOnly(true);
-	QFont f = this->textArea->font();
-	f.setFamily("Courier New");
-	f.setPointSize(UiUtils::computeFontSize(this, 9));
-	this->textArea->setFont(f);
-	this->setCentralWidget(textArea);
+	//#LOG
+	//   this->textArea = new QTextEdit(this);
+	//this->textArea->setReadOnly(true);
+	//QFont f = this->textArea->font();
+	//f.setFamily("Courier New");
+	//f.setPointSize(UiUtils::computeFontSize(this, 9));
+	//this->textArea->setFont(f);
+	//this->setCentralWidget(textArea);
 
-    connect(Ide::TaskManager(), &IdeTaskManager::print, this, &OutputWindow::print, Qt::ConnectionType::QueuedConnection);
+    //connect(Ide::TaskManager(), &IdeTaskManager::print, this, &OutputWindow::print, Qt::ConnectionType::QueuedConnection);
 
 	Ide::TaskManager()->flushLog();
 }
@@ -54,62 +55,62 @@ OutputWindow::~OutputWindow()
 {
 	delete(toolBar);
 }
-
-void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
-{
-#ifdef WIN32	
-    if (Ide::TaskManager()->getTestHelper()) {
-        QString ide_out_dup_file = Ide::TaskManager()->getIdeOutputDupFile();
-        if (!ide_out_dup_file.isEmpty()) {
-
-            if (!msg.endsWith("\n"))
-                msg += "\n";
-
-            QFile f(ide_out_dup_file);
-            f.open(QIODevice::OpenModeFlag::Append);
-            f.write(msg.toUtf8().constData());
-            f.close();
-        }
-    }
-#endif
-    if (!Ide::TaskManager()->isDebugOutputEnabled() && (log_level == QLogger::LogLevel::Debug || log_level == QLogger::LogLevel::Trace))
-        return;
-
-    QColor textColor(Qt::black);
-
-    switch (log_level) {
-        case QLogger::LogLevel::Trace:
-            textColor = Qt::blue;
-            break;
-
-        case QLogger::LogLevel::Debug:
-            textColor = Qt::darkCyan;
-            break;
-
-        case QLogger::LogLevel::Info:
-            textColor = Qt::darkGray;
-            break;
-
-        case QLogger::LogLevel::Error:
-            textColor = Qt::red;
-            break;
-
-        case QLogger::LogLevel::Success:
-            textColor = Qt::darkGreen;
-            break;
-    }
-    textArea->setTextColor(textColor);
-    textArea->append(msg);
-    textArea->ensureCursorVisible();
-
-}
+//
+//void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
+//{
+//#ifdef WIN32	
+//    if (Ide::TaskManager()->getTestHelper()) {
+//        QString ide_out_dup_file = Ide::TaskManager()->getIdeOutputDupFile();
+//        if (!ide_out_dup_file.isEmpty()) {
+//
+//            if (!msg.endsWith("\n"))
+//                msg += "\n";
+//
+//            QFile f(ide_out_dup_file);
+//            f.open(QIODevice::OpenModeFlag::Append);
+//            f.write(msg.toUtf8().constData());
+//            f.close();
+//        }
+//    }
+//#endif
+//    if (!Ide::TaskManager()->isDebugOutputEnabled() && (log_level == QLogger::LogLevel::Debug || log_level == QLogger::LogLevel::Trace))
+//        return;
+//
+//    QColor textColor(Qt::black);
+//
+//    switch (log_level) {
+//        case QLogger::LogLevel::Trace:
+//            textColor = Qt::blue;
+//            break;
+//
+//        case QLogger::LogLevel::Debug:
+//            textColor = Qt::darkCyan;
+//            break;
+//
+//        case QLogger::LogLevel::Info:
+//            textColor = Qt::darkGray;
+//            break;
+//
+//        case QLogger::LogLevel::Error:
+//            textColor = Qt::red;
+//            break;
+//
+//        case QLogger::LogLevel::Success:
+//            textColor = Qt::darkGreen;
+//            break;
+//    }
+//    textArea->setTextColor(textColor);
+//    textArea->append(msg);
+//    textArea->ensureCursorVisible();
+//
+//}
 
 QString OutputWindow::getTextContent()
 {
-    return textArea->document()->toPlainText();
+    //return textArea->document()->toPlainText();
 }
 
 void OutputWindow::clearAll()
 {
-	textArea->clear();
+	//textArea->clear();
 }

@@ -143,13 +143,13 @@ void ProjectFile::add_copy_deps(const QStringList &copy_dirs, const QStringList 
 	IGixLogManager *logger = GixGlobals::getLogManager();
 	QRegularExpression rxCopy("COPY ([A-Za-z0-9_]+)\\ *\\.");
 	if (!QFile::exists(this->GetFileFullPath())) {
-		logger->logMessage(GIX_CONSOLE_LOG, "File not found: " + GetFileFullPath(), QLogger::LogLevel::Error);
+		logger->error(LOG_METADATA, "File not found: {}", GetFileFullPath());
 		return;
 	}
 
 	QFile f(this->GetFileFullPath());
 	if (!f.open(QIODevice::OpenModeFlag::ReadOnly)) {
-		logger->logMessage(GIX_CONSOLE_LOG, "Cannot open file: " + GetFileFullPath(), QLogger::LogLevel::Error);
+		logger->error(LOG_METADATA, "Cannot open file: {}", GetFileFullPath());
 		return;
 	}
 
@@ -176,7 +176,7 @@ void ProjectFile::add_copy_deps(const QStringList &copy_dirs, const QStringList 
 
 		QString cpy_file = locate_copy_file(cpy_name, copy_dirs, copy_ext_list);
 		if (cpy_file.isEmpty()) {
-			logger->logMessage(GIX_CONSOLE_LOG, "Cannot locate copy: " + cpy_name, QLogger::LogLevel::Error);
+			logger->error(LOG_METADATA, "Cannot locate copy: {}", cpy_name);
 			cpy_file = cpy_name;
 		}
 

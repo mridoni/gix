@@ -21,7 +21,7 @@ USA.
 #pragma once
 
 #include <QObject>
-#include <QLogger.h>
+#include <QMap>
 
 #include "IGixLogManager.h"
 
@@ -32,10 +32,12 @@ class IdeLogManager : public IGixLogManager
 public:
 	IdeLogManager();
 
-	// Inherited via IGixLogManager
-	virtual void logMessage(const QString &destination, const QString &msg, QLogger::LogLevel level) override;
+	void registerLogSource(int source, const std::vector<spdlog::sink_ptr>& sinks);
 
 private:
-	QLogger::QLoggerManager *log_manager;
-};
 
+	static QMap<int, spdlog::logger*> loggers;
+
+	virtual spdlog::logger* get_logger(int source) override;
+
+};

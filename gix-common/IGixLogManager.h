@@ -22,10 +22,87 @@ USA.
 
 
 #include <QString>
-#include <QLogger.h>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/common.h"
+
+#include "QStringFormatter.h"
+
+
+// standard log sources
+#define LOG_DEFAULT		0
+#define LOG_IDE			1
+#define LOG_BUILD		2
+#define LOG_NETWORK		3
+#define LOG_DB			4
+#define LOG_DEBUG		5
+#define LOG_METADATA	6
+
+#define LOG_CUSTOM_BASE	100
 
 class IGixLogManager : public QObject
 {
 public:
-	virtual void logMessage(const QString& destination , const QString &msg, QLogger::LogLevel level) = 0;
-};
+
+	template<typename... Args>
+	inline void log(int source, spdlog::level::level_enum level, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	{
+		spdlog::logger* logger = get_logger();
+		if (logger)
+			logger->log(level, fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void trace(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	{
+		spdlog::logger* logger = get_logger(source);
+		if (logger)
+			logger->trace(fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void debug(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	{
+		spdlog::logger* logger = get_logger();
+		if (logger)
+			logger->debug(fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void info(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	{
+		spdlog::logger* logger = get_logger();
+		if (logger)
+			logger->info(fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void warn(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	{
+		spdlog::logger* logger = get_logger();
+		if (logger)
+			logger->warn(fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void error(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	{
+		spdlog::logger* logger = get_logger();
+		if (logger)
+			logger->error(fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void critical(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	{
+		spdlog::logger* logger = get_logger();
+		if (logger)
+			logger->critical(fmt, std::forward<Args>(args)...);
+	};
+
+
+
+private:
+	virtual spdlog::logger* get_logger(int source) = 0;
+};	
+

@@ -70,7 +70,7 @@ CobolModuleMetadata *MetadataManager::getModuleMetadata(QString module_name)
     for (auto mm : by_module_map.keys()) {
         mmap_list.append("[" + mm + "] -> [" + by_module_map.value(mm)->getModuleName() + "]");
     }
-    GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "MetadataManager: looking for " + module_name + ", module list is: " + mmap_list.join(", "), QLogger::LogLevel::Trace);
+    GixGlobals::getLogManager()->debug(LOG_IDE, "MetadataManager: looking for {}, module list is: {}", module_name, mmap_list.join(", "));
 #endif
     if (by_module_map.contains(module_name))
 		return by_module_map.value(module_name);

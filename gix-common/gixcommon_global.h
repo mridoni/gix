@@ -36,4 +36,4 @@ USA.
 	#endif		
 #endif
 
-#define GIX_CONSOLE_LOG "GIX-CONSOLE"
+//#define GIX_CONSOLE_LOG "GIX-CONSOLE"

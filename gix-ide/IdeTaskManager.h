@@ -27,7 +27,6 @@ USA.
 #include "Project.h"
 #include "DebugManager.h"
 #include "IdeStatus.h"
-#include "QLogger.h"
 
 #include <QQueue>
 
@@ -39,16 +38,16 @@ USA.
 #define DEFAULT_TARGET_CONFIG 1
 
 class DebugManager;
-
-Q_DECLARE_METATYPE(IdeStatus)
-Q_DECLARE_METATYPE(QLogger::LogLevel);
-
-class LogBacklogEntry {
-public:
-	QString module;
-	QString msg;
-	QLogger::LogLevel level;
-};
+//
+//Q_DECLARE_METATYPE(IdeStatus)
+//Q_DECLARE_METATYPE(QLogger::LogLevel);
+//
+//class LogBacklogEntry {
+//public:
+//	QString module;
+//	QString msg;
+//	QLogger::LogLevel level;
+//};
 
 class IdeTaskManager : public QObject
 {
@@ -169,7 +168,7 @@ signals:
 	void stopBuildInvoked();
 	void buildFinished(int);
 
-	void print(QString msg, QLogger::LogLevel log_level);
+	//void print(QString msg, QLogger::LogLevel log_level);
 
 	void fileLoaded(ProjectFile *);
 	void fileSaved(ProjectFile *);
@@ -184,7 +183,7 @@ signals:
 
 
 public slots:
-	void logMessage(QString module, QString message, QLogger::LogLevel);
+	//void logMessage(QString module, QString message, QLogger::LogLevel);
 	void debugStopped();
 	void debugStarted();
 
@@ -202,7 +201,7 @@ private:
 	DebugManager *debug_manager;
 	QMap<QString, QVariant> current_project_collection_data;
 
-	QQueue<LogBacklogEntry *> log_backlog;
+	//QQueue<LogBacklogEntry *> log_backlog;
 
 	void startLoadingMetadata(ProjectItem *pi);
 	MdiChild* openFileNoSignals(QString filename);
