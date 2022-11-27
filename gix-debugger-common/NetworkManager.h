@@ -12,6 +12,9 @@
 #include "DebuggerHostInputMessage.h"
 #include "DebuggerHostOutputMessage.h"
 
+#define DBGR_LOCAL_BINDING_DEFAULT_ADDR	"127.0.0.1"
+#define DBGR_LOCAL_BINDING_DEFAULT_PORT	13010
+
 class GixDebuggerClient;
 
 enum class NetworkManagerMode {

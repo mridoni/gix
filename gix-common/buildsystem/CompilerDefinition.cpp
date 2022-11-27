@@ -255,7 +255,7 @@ bool CompilerDefinition::save()
 
 
 
-bool CompilerDefinition::testConfiguration(QStringList &info)
+bool CompilerDefinition::testConfiguration(QStringList &errs)
 {
 	
 	QString prj_basename = SysUtils::randomString(8);
@@ -265,23 +265,23 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 
 	ProjectCollection *ppj = ProjectCollection::newProjectCollection(ProjectType::SingleBinary, prj_path, QVariantMap());
 	if (!ppj) {
-		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (1)"));
+		errs.append(QCoreApplication::translate("gix", "Cannot create temporary project (1)"));
 		return false;
 	}
 
 	if (!ppj->save()) {
-		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (2)"));
+		errs.append(QCoreApplication::translate("gix", "Cannot create temporary project (2)"));
 		return false;
 	}
 
 	if (!ppj->GetChildren()->size()) {
-		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (3)"));
+		errs.append(QCoreApplication::translate("gix", "Cannot create temporary project (3)"));
 		return false;
 	}
 
 	Project *prj = (Project *)ppj->GetChildren()->at(0);
 	if (!prj->GetChildren()->size()) {
-		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (4)"));
+		errs.append(QCoreApplication::translate("gix", "Cannot create temporary project (4)"));
 		return false;
 	}
 
@@ -293,12 +293,12 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 	QString filepath = pf->GetFileFullPath();
 	QFile prj_file(filepath);
 	if (prj_file.exists()) {
-		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (5)"));
+		errs.append(QCoreApplication::translate("gix", "Cannot create temporary project (5)"));
 		return false;
 	}
 
 	if (!pf->writeSourceTemplate(prj, prj_file, ProjectFileType::Source)) {
-		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (6)"));
+		errs.append(QCoreApplication::translate("gix", "Cannot create temporary project (6)"));
 		return false;
 	}
 
@@ -306,12 +306,12 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 	ppj = new ProjectCollection();
 
 	if (!ppj->load(nullptr, prj_path)) {
-		info.append(QCoreApplication::translate("gix", "Cannot create temporary project (7)"));
+		errs.append(QCoreApplication::translate("gix", "Cannot create temporary project (7)"));
 		return false;
 	}
 
 	if (!this->getTargetPlatforms().size()) {
-		info.append(QCoreApplication::translate("gix", "No platforms found"));
+		errs.append(QCoreApplication::translate("gix", "No platforms found"));
 		return false;
 	}
 
@@ -326,7 +326,7 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 #endif
 		QScopedPointer<CompilerConfiguration> compiler_cfg(CompilerConfiguration::get(this, platform_id));
 		if (compiler_cfg.isNull()) {
-			info.append(QCoreApplication::translate("gix", "Cannot create compiler instance"));
+			errs.append(QCoreApplication::translate("gix", "Cannot create compiler instance"));
 			return false;
 		}
 
@@ -346,7 +346,7 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 		QScopedPointer<BuildTarget> build_target(ppj->getBuildTarget(props, nullptr));
 		if (!build_target) {
 			QString err_msg = QString("Invalid build target");
-			info.append(err_msg);
+			errs.append(err_msg);
 			return false;
 		}
 
@@ -370,17 +370,17 @@ bool CompilerDefinition::testConfiguration(QStringList &info)
 #endif
 
 		if (!res) {
-			info.append("Cannot build test program<br />Build log:</br><pre>" + builder.getBuildResult().buildlog().join("<br />"));
+			errs.append("Cannot build test program<br />Build log:</br><pre>" + builder.getBuildResult().buildlog().join("<br />"));
 			return false;
 		}
 	}
 
-	info.clear();
+	errs.clear();
 
 	QString pid = this->getTargetPlatforms().keys().at(0);
 	QScopedPointer<CompilerConfiguration> info_cfg(CompilerConfiguration::get(this, pid));
-	if (!info_cfg.data()->getInfo(info)) {
-		info.append(QCoreApplication::translate("gix", "Cannot get compiler info"));
+	if (!info_cfg.data()->getInfo(errs)) {
+		errs.append(QCoreApplication::translate("gix", "Cannot get compiler info"));
 		return false;
 	}
 

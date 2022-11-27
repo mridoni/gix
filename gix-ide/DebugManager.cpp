@@ -43,6 +43,7 @@ USA.
 #include "DataEntry.h"
 #include "GixDebuggerSessionConfig.h"
 #include "linq/linq.hpp"
+#include "NetworkManager.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include "windows.h"
@@ -402,12 +403,14 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 
 	int local_log_level = ide_task_manager->isDebugOutputEnabled() ? LOG_LEVEL_TRACE : LOG_LEVEL_WARN;
 	int remote_log_level = ide_task_manager->isDebugOutputEnabled() ? LOG_LEVEL_DEBUG : LOG_LEVEL_WARN;
+
+	dbgr_client_cfg->setHostLocalLogFile(QDir::toNativeSeparators((PathUtils::combine(working_dir, "gix-debugger-host.log"))).toStdString());
 	dbgr_client_cfg->setHostLocalLogLevel(local_log_level);
 	dbgr_client_cfg->setHostRemoteLogLevel(remote_log_level);
 
 	if (t == DebugDriverType::Experimental) {
-		std::string debugger_client_addr = settings.value("debugger_client_addr", DBGR_HOST_DEFAULT_ADDRESS).toString().toStdString();
-		uint16_t debugger_client_port = (uint16_t)settings.value("debugger_client_port", DBGR_HOST_DEFAULT_PORT).toInt();
+		std::string debugger_client_addr = settings.value("debugger_client_addr", DBGR_LOCAL_BINDING_DEFAULT_ADDR).toString().toStdString();
+		uint16_t debugger_client_port = (uint16_t)settings.value("debugger_client_port", DBGR_LOCAL_BINDING_DEFAULT_PORT).toInt();
 		dbgr_client_cfg->setHostDebugger(DBGR_HOST_DEFAULT_ADDRESS, DBGR_HOST_DEFAULT_PORT);
 		dbgr_client_cfg->setBinding(debugger_client_addr, debugger_client_port);
 	}

@@ -31,6 +31,7 @@ USA.
 #include "ESQLConfiguration.h"
 #include "AddCompilerWizard.h"
 #include "DebugDriverFactory.h"
+#include "NetworkManager.h"
 
 #include <QSettings>
 #include <QFileDialog>
@@ -84,8 +85,8 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	cbDebugEngine->addItem("Standard", (int)DebugDriverType::Standard);
 	cbDebugEngine->addItem("Experimental", (int)DebugDriverType::Experimental);
 
-	txtDbgrBindingAddress->setText("0.0.0.0");
-	txtDbgrBindingPort->setText("13009");
+	txtDbgrBindingAddress->setText(DBGR_LOCAL_BINDING_DEFAULT_ADDR);
+	txtDbgrBindingPort->setText(QString::number(DBGR_LOCAL_BINDING_DEFAULT_PORT));
 
 	GeneralCfgTab_LoadSettings();
 	GnuCobolCfgTab_LoadSettings();
@@ -314,8 +315,8 @@ void SettingsDialog::DebugCfgTab_LoadSettings()
 {
 	QSettings settings;
 	cbDebugEngine->setCurrentIndex(cbDebugEngine->findData(settings.value("debugger_engine", (int)DebugDriverType::Standard).toInt()));
-	txtDbgrBindingAddress->setText(settings.value("debugger_client_addr", "0.0.0.0").toString());
-	txtDbgrBindingPort->setText(settings.value("debugger_client_port", 13009).toString());
+	txtDbgrBindingAddress->setText(settings.value("debugger_client_addr", DBGR_LOCAL_BINDING_DEFAULT_ADDR).toString());
+	txtDbgrBindingPort->setText(settings.value("debugger_client_port", DBGR_LOCAL_BINDING_DEFAULT_PORT).toString());
 	cbDbgrOpensWindow->setChecked(settings.value("debugger_host_new_window", false).toBool());
 }
 

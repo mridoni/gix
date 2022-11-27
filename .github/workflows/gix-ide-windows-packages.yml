@@ -11,8 +11,8 @@ on:
 env:
   GIXIDEMAJ: 1
   GIXIDEMIN: 1
-  GIXIDEREL: 0dev1
-  GIX_REVISION: 1922
+  GIXIDEREL: 0dev2
+  GIX_REVISION: 1923
   GIXSQLMAJ: 1
   GIXSQLMIN: 0
   GIXSQLREL: 18b
@@ -46,6 +46,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
           repository: 'mridoni/gix'
+          submodules: true
           ref: ${{ env.GIX_IDE_BRANCH }}
 
     - name: Add MSBuild to PATH
@@ -129,6 +130,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
           repository: 'mridoni/gix'
+          submodules: true
           ref: ${{ env.GIX_IDE_BRANCH }}
 
     - name: Add MSBuild to PATH
@@ -307,157 +309,6 @@ jobs:
          ls -lR $(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")                
 
     
-#  gix-ide-installer-windows-x64-no-compilers:
-#    name: gix-ide-installer-windows-x64-no-compilers
-#    needs: [ gix-ide-windows-x64-msvc, gix-ide-windows-x86-msvc, gixsql-windows-x64-mingw, gixsql-windows-x86-mingw ]
-#    env:
-#      HOST_PLATFORM: x64      
-#      INCLUDE_COMPILERS: 0
-#
-#    runs-on: windows-latest
-#    steps:
-#    
-#    - uses: actions/checkout@v3
-#      with:
-#          repository: 'mridoni/gix'
-#          ref: ${{ env.GIX_IDE_BRANCH }}
-#
-#    - name: Download Gix-IDE x64
-#      uses: actions/download-artifact@v3
-#      with:
-#        name: gix-ide-windows-x64-msvc-artifacts
-#        path: ${{ github.workspace }}/gix-ide-windows-x64-msvc-artifacts
-#
-#    - name: Download Gix-IDE x86
-#      uses: actions/download-artifact@v3
-#      with:
-#        name: gix-ide-windows-x86-msvc-artifacts
-#        path: ${{ github.workspace }}/gix-ide-windows-x86-msvc-artifacts   
-#
-#    - name: Download GixSQL x64 (MinGW)
-#      uses: actions/download-artifact@v3
-#      with:
-#        name: gixsql-windows-x64-mingw-artifacts
-#        path: ${{ github.workspace }}/gixsql-windows-x64-mingw-artifacts
-#
-#    - name: Download GixSQL x86 (MinGW)
-#      uses: actions/download-artifact@v3
-#      with:
-#        name: gixsql-windows-x86-mingw-artifacts
-#        path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts           
-#
-##    - name: Unpack Gix-IDE and GixSQL
-##      shell: cmd
-##      working-directory: ${{ github.workspace }}
-##      run: |          
-##        dir ${{ github.workspace }}
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }}.zip        
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }}.zip   
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }}.zip        
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }}.zip        
-#
-#    - name: Install Qt
-#      uses: jurplel/install-qt-action@v3
-#      with:
-#        version: '5.14.2'
-#        host: 'windows'
-#        target: 'desktop'
-#        arch: 'win64_msvc2017_64'
-#        dir: '${{ github.workspace }}/'
-#        install-deps: 'true'
-#        archives: 'qtbase qttools qtsvg qtwinextras qtxmlpatterns qtwebchannel qtwebsockets'
-#        cache: 'true'
-#        set-env: 'true'
-#        tools-only: 'false'    
-#        
-#    - name: Prepare distribution directory
-#      shell: cmd
-#      working-directory: ${{ github.workspace }}
-#      run: |
-#          mkdir ${{ env.DIST_DIR }}\bin
-#          mkdir ${{ env.DIST_DIR }}\lib
-#          mkdir ${{ env.DIST_DIR }}\lib\x64\msvc
-#          mkdir ${{ env.DIST_DIR }}\lib\x64\gcc
-#          mkdir ${{ env.DIST_DIR }}\lib\x86\msvc
-#          mkdir ${{ env.DIST_DIR }}\lib\x86\gcc        
-#          mkdir ${{ env.DIST_DIR }}\lib\copy    
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gixpp.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gix-http.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gix-ide.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gixdbgr.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gixpp.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gix-common.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\nng.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\ScintillaEdit4.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gix-debugger-x64.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-debugger-x86.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql.lib ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-mysql.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-odbc.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-oracle.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql.lib ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql.dll ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-mysql.dll ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-odbc.dll ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql.lib ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-mysql.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-odbc.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\msvc        
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\lib\libgixsql.a ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-mysql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-odbc.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc        
-#          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\lib\libgixsql.a ${{ env.DIST_DIR }}\lib\x64\gcc
-#          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-mysql.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-#          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-odbc.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-#          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-#          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-#          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\gcc      
-#          
-#    - name: Set up MSVC runtime packages
-#      shell: cmd
-#      env:
-#        WORKSPACE: ${{ github.workspace }}
-#      run: |
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\common
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\x86
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\x64
-#        curl -L -s ${{ env.MSVC_BUILD_TOOLS }} -o ${{ github.workspace }}\deploy\redist\ms\common\vs_buildtools.exe
-#        curl -L -s ${{ env.MSVC_RUNTIME_x86 }} -o ${{ github.workspace }}\deploy\redist\ms\x86\vc_redist.x86.exe
-#        curl -L -s ${{ env.MSVC_RUNTIME_x64 }} -o ${{ github.workspace }}\deploy\redist\ms\x64\vc_redist.x64.exe
-#
-#    - name: Build installer package
-#      shell: cmd
-#      env:
-#        WORKSPACE: ${{ github.workspace }}
-#        QTDIR: ${{ env.Qt5_Dir }}
-#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-#      run: |
-#        dir ${{ env.QTDIR }}\plugins
-#        iscc.exe ${{ github.workspace }}\deploy\installers\windows\gix-ide.iss
-#        ren ${{ github.workspace }}\deploy\installers\msvc-${{ env.HOST_PLATFORM }}\Gix-IDE-${{ env.GIX_VER }}-installer.exe Gix-IDE-windows-${{ env.HOST_PLATFORM }}-${{ env.GIX_VER }}-no-compilers-installer.exe
-#        
-#    - name: Archive production artifacts
-#      uses: actions/upload-artifact@v3
-#      env:
-#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-#      with:
-#        name: gix-ide-installer-windows-${{ env.HOST_PLATFORM }}-no-compilers
-#        path: ${{ github.workspace }}\deploy\installers\msvc-${{ env.HOST_PLATFORM }}\Gix-IDE-windows-${{ env.HOST_PLATFORM }}-${{ env.GIX_VER }}-no-compilers-installer.exe
-
   gix-ide-installer-windows-x64:
     name: gix-ide-installer-windows-x64
     needs: [ gix-ide-windows-x64-msvc, gix-ide-windows-x86-msvc, gixsql-windows-x64-mingw, gixsql-windows-x86-mingw ]
@@ -471,6 +322,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
           repository: 'mridoni/gix'
+          submodules: true
           ref: ${{ env.GIX_IDE_BRANCH }}
           
     - name: Download Gix-IDE x64
@@ -496,37 +348,6 @@ jobs:
       with:
         name: gixsql-windows-x86-mingw-artifacts
         path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts          
-
-#    - name: Download GnuCOBOL binaries
-#      shell: cmd
-#      working-directory: ${{ github.workspace }}
-#      env:
-#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-#      run: |
-#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\pkgs
-#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\defs
-#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\pkgs        
-#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\defs              
-#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
-#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-#        curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86_64.7z
-#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-#        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
-#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x64.def ${{ github.workspace }}\deploy\compilers\gcc\defs
-#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
-
-#    - name: Unpack Gix-IDE and GixSQL
-#      shell: cmd
-#      working-directory: ${{ github.workspace }}
-#      run: |          
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }}.zip        
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }}.zip   
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }}.zip        
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }}.zip        
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
@@ -599,18 +420,6 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x64\gcc
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\gcc      
           
-#    - name: Set up MSVC runtime packages
-#      shell: cmd
-#      env:
-#        WORKSPACE: ${{ github.workspace }}
-#      run: |
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\common
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\x86
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\x64
-#        curl -L -s ${{ env.MSVC_BUILD_TOOLS }} -o ${{ github.workspace }}\deploy\redist\ms\common\vs_buildtools.exe
-#        curl -L -s ${{ env.MSVC_RUNTIME_x86 }} -o ${{ github.workspace }}\deploy\redist\ms\x86\vc_redist.x86.exe
-#        curl -L -s ${{ env.MSVC_RUNTIME_x64 }} -o ${{ github.workspace }}\deploy\redist\ms\x64\vc_redist.x64.exe
-
     - name: Build installer package
       shell: cmd
       env:
@@ -630,126 +439,6 @@ jobs:
         name: gix-ide-installer-windows-${{ env.HOST_PLATFORM }}
         path: ${{ github.workspace }}\deploy\installers\msvc-${{ env.HOST_PLATFORM }}\Gix-IDE-windows-${{ env.HOST_PLATFORM }}-${{ env.GIX_VER }}-installer.exe
 
-  
-#  gix-ide-installer-windows-x86-no-compilers:
-#    name: gix-ide-installer-windows-x86-no-compilers
-#    needs: [ gix-ide-windows-x86-msvc, gixsql-windows-x86-mingw ]
-#    env:
-#      HOST_PLATFORM: x86      
-#      INCLUDE_COMPILERS: 0
-#
-#    runs-on: windows-latest
-#    steps:
-#    
-#    - uses: actions/checkout@v3
-#      with:
-#          repository: 'mridoni/gix'
-#          ref: ${{ env.GIX_IDE_BRANCH }}
-#
-#    - name: Download Gix-IDE x86
-#      uses: actions/download-artifact@v3
-#      with:
-#        name: gix-ide-windows-x86-msvc-artifacts
-#        path: ${{ github.workspace }}/gix-ide-windows-x86-msvc-artifacts   
-#
-#    - name: Download GixSQL x86 (MinGW)
-#      uses: actions/download-artifact@v3
-#      with:
-#        name: gixsql-windows-x86-mingw-artifacts
-#        path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts             
-#
-##    - name: Unpack Gix-IDE and GixSQL
-##      shell: cmd
-##      working-directory: ${{ github.workspace }}
-##      run: |          
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }}.zip        
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }}.zip   
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }}.zip        
-##        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }}.zip                
-#
-#    - name: Install Qt
-#      uses: jurplel/install-qt-action@v3
-#      with:
-#        version: '5.14.2'
-#        host: 'windows'
-#        target: 'desktop'
-#        arch: 'win32_msvc2017'
-#        dir: '${{ github.workspace }}/'
-#        install-deps: 'true'
-#        archives: 'qtbase qttools qtsvg qtwinextras qtxmlpatterns qtwebchannel qtwebsockets'
-#        cache: 'true'
-#        set-env: 'true'
-#        tools-only: 'false'    
-#        
-#    - name: Prepare distribution directory
-#      shell: cmd
-#      working-directory: ${{ github.workspace }}
-#      run: |
-#          mkdir ${{ env.DIST_DIR }}\bin
-#          mkdir ${{ env.DIST_DIR }}\lib
-#          mkdir ${{ env.DIST_DIR }}\lib\x86\msvc
-#          mkdir ${{ env.DIST_DIR }}\lib\x86\gcc        
-#          mkdir ${{ env.DIST_DIR }}\lib\copy    
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gixpp.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-http.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-ide.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gixdbgr.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gixpp.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-common.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\nng.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\ScintillaEdit4.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-debugger-x86.exe ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql.lib ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-mysql.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-odbc.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-oracle.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\bin
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql.lib ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-mysql.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-odbc.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\msvc     
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\lib\libgixsql.a ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-mysql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-odbc.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-#          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc         
-#          
-#    - name: Set up MSVC runtime packages
-#      shell: cmd
-#      env:
-#        WORKSPACE: ${{ github.workspace }}
-#      run: |
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\common
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\x86
-#        curl -L -s ${{ env.MSVC_BUILD_TOOLS }} -o ${{ github.workspace }}\deploy\redist\ms\common\vs_buildtools.exe
-#        curl -L -s ${{ env.MSVC_RUNTIME_x86 }} -o ${{ github.workspace }}\deploy\redist\ms\x86\vc_redist.x86.exe
-#
-#    - name: Build installer package
-#      shell: cmd
-#      env:
-#        WORKSPACE: ${{ github.workspace }}
-#        QTDIR: ${{ env.Qt5_Dir }}
-#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-#      run: |
-#        dir ${{ env.QTDIR }}\plugins
-#        iscc.exe ${{ github.workspace }}\deploy\installers\windows\gix-ide.iss
-#        ren ${{ github.workspace }}\deploy\installers\msvc-${{ env.HOST_PLATFORM }}\Gix-IDE-${{ env.GIX_VER }}-installer.exe Gix-IDE-windows-${{ env.HOST_PLATFORM }}-${{ env.GIX_VER }}-no-compilers-installer.exe
-#        
-#    - name: Archive production artifacts
-#      uses: actions/upload-artifact@v3
-#      env:
-#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-#      with:
-#        name: gix-ide-installer-windows-${{ env.HOST_PLATFORM }}-no-compilers
-#        path: ${{ github.workspace }}\deploy\installers\msvc-${{ env.HOST_PLATFORM }}\Gix-IDE-windows-${{ env.HOST_PLATFORM }}-${{ env.GIX_VER }}-no-compilers-installer.exe
-
   gix-ide-installer-windows-x86:
     name: gix-ide-installer-windows-x86
     needs: [ gix-ide-windows-x86-msvc,  gixsql-windows-x86-mingw ]
@@ -763,6 +452,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
           repository: 'mridoni/gix'
+          submodules: true
           ref: ${{ env.GIX_IDE_BRANCH }}
           
     - name: Download Gix-IDE x86
@@ -776,34 +466,6 @@ jobs:
       with:
         name: gixsql-windows-x86-mingw-artifacts
         path: ${{ github.workspace }}/gixsql-windows-x86-mingw-artifacts     
-
-#    - name: Download GnuCOBOL binaries
-#      shell: cmd
-#      working-directory: ${{ github.workspace }}
-#      env:
-#        GIX_VER: ${{ env.GIXIDEMAJ }}.${{ env.GIXIDEMIN }}.${{ env.GIXIDEREL }}-${{ env.GIX_REVISION }}
-#      run: |
-#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\pkgs
-#        mkdir ${{ github.workspace }}\deploy\compilers\gcc\defs
-#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\pkgs        
-#        mkdir ${{ github.workspace }}\deploy\compilers\msvc\defs              
-#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-#        curl -s -L https://github.com/mridoni/gnucobol-binaries/releases/download/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}/gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z -o gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-#        curl -s -L https://github.com/mridoni/gnucobol-binaries/archive/refs/tags/${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip -o gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\gcc\pkgs gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-i686.7z
-#        "%EXE_7Z%" x -o${{ github.workspace }}\deploy\compilers\msvc\pkgs\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.7z
-#        "%EXE_7Z%" x gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}.zip
-#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-mingw-x86.def ${{ github.workspace }}\deploy\compilers\gcc\defs
-#        copy gnucobol-binaries-${{ env.GNUCOBOL_BIN_VERSION}}-${{ env.GNUCOBOL_BIN_RELEASE}}\def\gnucobol-${{ env.GNUCOBOL_BIN_VERSION}}-windows-msvc-all.def ${{ github.workspace }}\deploy\compilers\msvc\defs
-
-#    - name: Unpack Gix-IDE and GixSQL
-#      shell: cmd
-#      working-directory: ${{ github.workspace }}
-#      run: |          
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X64_BIN_DIR }}.zip        
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIX_IDE_X86_BIN_DIR }}.zip   
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X64_BIN_DIR }}.zip        
-#        "%EXE_7Z%" x -o${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }} ${{ github.workspace }}\${{ env.GIXSQL_MINGW_X86_BIN_DIR }}.zip        
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
@@ -858,16 +520,6 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc          
-          
-#    - name: Set up MSVC runtime packages
-#      shell: cmd
-#      env:
-#        WORKSPACE: ${{ github.workspace }}
-#      run: |
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\common
-#        mkdir ${{ github.workspace }}\deploy\redist\ms\x86
-#        curl -L -s ${{ env.MSVC_BUILD_TOOLS }} -o ${{ github.workspace }}\deploy\redist\ms\common\vs_buildtools.exe
-#        curl -L -s ${{ env.MSVC_RUNTIME_x86 }} -o ${{ github.workspace }}\deploy\redist\ms\x86\vc_redist.x86.exe
 
     - name: Build installer package
       shell: cmd

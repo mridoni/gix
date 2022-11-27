@@ -8,9 +8,17 @@
 #ifdef _WIN32
 #include "Windows.h"
 #include <Shlwapi.h>
+#include <tlhelp32.h>
+#include <tchar.h>
 
 #pragma comment(lib, "shlwapi.lib")
 
+#endif
+
+#ifdef __linux__
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 #endif
 
 #define CHECK_CLIENT_STARTED 	if (!is_started) \
@@ -65,10 +73,6 @@ bool GixDebuggerClient::init()
 
 	network_manager->onDataReceived = [this](NetworkManager* nws, std::string data, bool* response_sent) {
 
-#if _DEBUG
-		OutputDebugStringA(data.c_str());
-		OutputDebugStringA("\n");
-#endif
 		*response_sent = true;
 
 		std::string parse_err;
@@ -363,7 +367,12 @@ bool GixDebuggerClient::launch_local_debugger_host()
 
 	std::string host_exe_name = "gix-debugger-" + arch;
 
-	std::string args = string_format("-s %s -p %d", client_config->getHostDebuggerAddr(), client_config->getHostDebuggerPort());
+	if (dbgr_host_process_exists(host_exe_name, client_config->getHostDebuggerPort())) {
+		last_error = "Another debugger pocess is already active on the same port (" + std::to_string(client_config->getHostDebuggerPort());
+		return false;
+	}
+
+	std::string args = string_format("-v -s %s -p %d", client_config->getHostDebuggerAddr(), client_config->getHostDebuggerPort());
 
 	if (client_config->dbgr_host_encrypt)
 		args += " --encrypt";
@@ -394,7 +403,19 @@ bool GixDebuggerClient::launch_local_debugger_host()
 	char actual_path[MAX_PATH];
 	strcpy(actual_path, host_exe_name.c_str());
 
-	const char* dirs[] = { ".", NULL };
+	char gix_ide_exe_path[MAX_PATH];
+	int l = 0;
+	if ((l = GetModuleFileName(NULL, gix_ide_exe_path, MAX_PATH)) == 0) {
+		last_error = "Cannot locate current directory";
+		__LOG(last_error, LOG_LEVEL_ERROR);
+		return false;
+	}
+
+	std::filesystem::path p(gix_ide_exe_path);
+	p = p.parent_path();
+	std::string cur_dir = p.make_preferred().string();
+	
+	const char* dirs[] = { cur_dir.c_str(), NULL};
 
 	if (!PathFindOnPath(actual_path, dirs)) {
 		last_error = "Cannot locate host debugger executable\"" + host_exe_name + "\"";
@@ -416,15 +437,102 @@ bool GixDebuggerClient::launch_local_debugger_host()
 		return false;
 	}
 
-	// Let's wait a little for the debugger to start listening
-	Sleep(500);
-	__LOG("Successsfully launched " + host_exe_name, LOG_LEVEL_INFO);
-
+    // Let's wait a little for the debugger to start listening   
+    Sleep(500);    
 #endif
 
+#ifdef __linux__
+
+	char gix_ide_exe_path[4096];
+	int l = 0;
+    if (readlink("/proc/self/exe", (char*)&gix_ide_exe_path, sizeof (gix_ide_exe_path)) <= 0) {
+		last_error = "Cannot locate current directory";
+		__LOG(last_error, LOG_LEVEL_ERROR);
+		return false;
+	}
+
+	std::filesystem::path p(gix_ide_exe_path);
+	p = p.parent_path();
+	p = p.make_preferred().append(host_exe_name);
+	
+	if (!std::filesystem::exists(p) || !std::filesystem::is_regular_file(p)) {
+		last_error = "Cannot locate host debugger executable\"" + p.string() + "\"";
+		__LOG(last_error, LOG_LEVEL_ERROR);
+		return false;
+	}
+    
+    std::vector<std::string> cmd_args;
+    split_in_args(cmd_args, args, true);
+    cmd_args.insert(cmd_args.begin(), host_exe_name);
+    
+    char **argv = new char*[cmd_args.size() + 1];
+    for (int i = 0; i < cmd_args.size(); i++)
+        argv[i] = (char *)cmd_args[i].c_str();
+    
+    argv[cmd_args.size()] = 0;
+    
+    std::string cmd_line = p.string();
+    int fork_dbgr = fork();
+    if (!fork_dbgr){
+
+        execv(cmd_line.c_str(), argv);
+    
+        // in case execl fails
+        _exit(1);
+    }
+    else if (fork_dbgr == -1)
+    {
+        last_error = "Cannot launch host debugger executable\"" + p.string() + "\"";
+        __LOG(last_error, LOG_LEVEL_ERROR);
+        return false;
+    }
+    
+    // Let's wait a little for the debugger to start listening   
+    usleep(500 * 1000);
+#endif
+
+	__LOG("Successsfully launched " + host_exe_name, LOG_LEVEL_INFO);    
+    
 	last_error = "";
 	launched_dbgr_host_success = true;
 	return true;
+}
+
+bool GixDebuggerClient::dbgr_host_process_exists(std::string host_exe_name, uint16_t host_port)
+{
+	bool process_exists = false;
+
+#ifdef _WIN32
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof(PROCESSENTRY32);
+	
+	if (!ends_with(host_exe_name, ".exe"))
+		host_exe_name += ".exe";
+
+	const auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+	if (!Process32First(snapshot, &entry)) {
+		CloseHandle(snapshot);
+		return false;
+	}
+
+	do {	
+		if (!_tcsicmp(entry.szExeFile, host_exe_name.c_str())) {
+			process_exists = true;
+			break;
+		}
+	} while (Process32Next(snapshot, &entry));
+
+	CloseHandle(snapshot);
+
+	// TODO: check port
+#endif
+
+#ifdef __linux__
+
+#endif
+
+	return process_exists;
 }
 
 std::string GixDebuggerClient::get_arch(std::string p)
@@ -454,7 +562,25 @@ std::string GixDebuggerClient::get_arch(std::string p)
 #endif
 
 #ifdef __linux__
+    FILE* f = fopen(p.c_str(), "rb");
+	if (f) {
+        if (fseek(f, 0x04, SEEK_SET)) {
+            fclose(f);
+            std::string s = strerror(errno);
+            fprintf(stderr, "%s", s.c_str());
+            return arch;
+        }
+        
+		uint8_t elf_class = 0;
+		fread(&elf_class, sizeof(elf_class), 1, f);
+        fclose(f);
 
+		if (elf_class == 2)
+			arch = "x64";
+
+		if (elf_class == 1)
+			arch = "x86";
+	}
 #endif
 
 	return arch;

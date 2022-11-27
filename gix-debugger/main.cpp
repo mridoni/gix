@@ -115,19 +115,19 @@ int main(int argc, char** argv)
 		}
 	}
 	auto local_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logfile, true);
-	auto remote_sink = std::make_shared<debugger_host_sink_mt>();
-	std::vector<spdlog::sink_ptr> sinks = { local_sink, remote_sink };
-	//std::vector<spdlog::sink_ptr> sinks = { local_sink };
+//	auto remote_sink = std::make_shared<debugger_host_sink_mt>();
+//	std::vector<spdlog::sink_ptr> sinks = { local_sink, remote_sink };
+	std::vector<spdlog::sink_ptr> sinks = { local_sink };
 	auto logger = std::make_shared<spdlog::logger>("gix-debugger-host", begin(sinks), end(sinks));
 	spdlog::set_default_logger(logger);
 	spdlog::set_level(spdlog::level::trace);	// max log level, will be limited by the sink-specific levels
 	local_sink->set_level(local_log_level);
-	remote_sink->set_level(remote_log_level);
+//	remote_sink->set_level(remote_log_level);
 	logger->flush_on(spdlog::level::trace);
 
 	spdlog::info("gix-debugger is starting (thread id: {})", _CUR_THREAD_ID_);
 	spdlog::info("Local log level is set to: {}", spdlog::level::to_string_view(local_log_level));
-	spdlog::info("Remote log level is set to: {}", spdlog::level::to_string_view(remote_log_level));
+//	spdlog::info("Remote log level is set to: {}", spdlog::level::to_string_view(remote_log_level));
 
 	if (opt_host->is_set()) {
 		dbg_host_addr = opt_host->value();
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	remote_sink->setNetworkManager(nm);
+	//remote_sink->setNetworkManager(nm);
 
 	bool keep_running = true;
 	while (keep_running) {

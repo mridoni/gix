@@ -83,14 +83,14 @@ bool NetworkManager::init()
 				return false;
 			}
 			local_port = lp;
-			local_host = "0.0.0.0";
+			local_host = DBGR_LOCAL_BINDING_DEFAULT_ADDR;
 			spdlog::info("Binding address not set by client, using {}:{}", local_host, local_port);
 		}
 	}
-	//else {
-	//	local_port = lp;
-	//	local_host = "0.0.0.0";	// TODO: make this more restrictive
-	//}
+
+	if (local_host == "0.0.0.0") {
+		local_host = "127.0.0.1";
+	}
 
 	auto local_url = "tcp://" + local_host + ":" + std::to_string(local_port);
 
@@ -100,7 +100,7 @@ bool NetworkManager::init()
 	std::thread nw_thread(NetworkManagerThreadRunnerStub, thread_data);
 	nw_thread.detach();
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
 	// Check if server was spun up successfully
 	if (!_is_network_server_running) {
@@ -168,6 +168,7 @@ void NetworkManager::setEncryptionEnabled(bool b)
 
 bool NetworkManager::connect_to_remote_host()
 {
+    spdlog::trace("Connecting to {}:", remote_host, remote_port);
 	int rv;
 	if ((rv = nng_pair0_open(&this->nw_remote_socket)) != 0) {
 		return false;
@@ -193,7 +194,7 @@ bool NetworkManager::disconnect()
 uint16_t NetworkManager::select_local_port()
 {
 	//TODO: make it random
-	return 14009;
+	return DBGR_LOCAL_BINDING_DEFAULT_PORT;
 }
 
 bool NetworkManager::is_initialized()

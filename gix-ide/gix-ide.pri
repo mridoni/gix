@@ -1,5 +1,6 @@
 
 HEADERS += \
+    $$PWD/ide_sink.h \
     ./boolinq.h \
 	./Changeling.h \
 	./CodeEditor.h \

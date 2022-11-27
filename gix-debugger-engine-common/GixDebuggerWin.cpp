@@ -506,11 +506,11 @@ int GixDebuggerWin::start()
  									int actual_line = 0;
 									if (!is_first_line_of_preproc_block(current_cbl_module, sli->source_file, sli->line, &actual_line)) {
 										debug_driver->dbgr_client_debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
-										spdlog::trace("Debugger breaking at: %s:%d", sli->source_file, sli->line);
+										spdlog::trace("Debugger breaking at: {}:{}", sli->source_file, sli->line);
 									}
 									else {
 										debug_driver->dbgr_client_debuggerBreak(this, current_cbl_module->name, sli->source_file, actual_line);
-										spdlog::trace("Debugger breaking at: %s:%d", sli->source_file, actual_line);
+										spdlog::trace("Debugger breaking at: {}:{}", sli->source_file, actual_line);
 									}
 								}
 							}

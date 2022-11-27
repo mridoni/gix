@@ -122,7 +122,7 @@ public:
 
 	bool save();
 
-	bool testConfiguration(QStringList &info);
+	bool testConfiguration(QStringList &errs);
 
 	QString getId() {
 		return id;
