@@ -12,14 +12,14 @@ IF "%1" == "/E" goto :fromenv
 :: These indicates the current version of Gix-IDE
 	set GIXIDEMAJ=1
 	set GIXIDEMIN=1
-	set GIXIDEREL=0dev1
-	set GIX_REVISION=1922
+	set GIXIDEREL=0
+	set GIX_REVISION=1930
 :: These indicates the current version of Gix-IDE (end)
 
 :: These indicates the current version of GixSQL included in Gix-IDE
 	set GIXSQLMAJ=1
 	set GIXSQLMIN=0
-	set GIXSQLREL=18b
+	set GIXSQLREL=19
 :: These indicates the current version of GixSQL included in Gix-IDE (end)
 
 :fromenv
