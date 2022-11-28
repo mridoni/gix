@@ -104,16 +104,16 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 	QString configuration = GixGlobals::getCurrentConfiguration();
 	QString platform = GixGlobals::getCurrentPlatform();
 
-	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Scanning " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+	GixGlobals::getLogManager()->trace(LOG_METADATA, "Scanning {}", pf->GetFileFullPath(), spdlog::level::trace);
 
 	if (!QFile::exists(pf->GetFileFullPath())) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "No such file " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+		GixGlobals::getLogManager()->trace(LOG_METADATA, "No such file {}", pf->GetFileFullPath(), spdlog::level::trace);
 		return nullptr;
 	}
 
 	QString program_id = extract_program_id(pf->GetFileFullPath());
 	if (program_id.isEmpty()) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Invalid program ID in " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+		GixGlobals::getLogManager()->trace(LOG_METADATA, "Invalid program ID in {}", pf->GetFileFullPath(), spdlog::level::trace);
 		return nullptr;
 	}
 
@@ -121,7 +121,7 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 	if (metadata_exists) {
 		CobolModuleMetadata *metadata = GixGlobals::getMetadataManager()->getModuleMetadata(program_id);
 		if (metadata && metadata->isUpToDate()) {
-			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Metadata for module %1 (%2) is up to date").arg(program_id).arg(pf->GetFileFullPath()), QLogger::LogLevel::Trace);
+			GixGlobals::getLogManager()->trace(LOG_METADATA, "Metadata for module {} ({}) is up to date", program_id, pf->GetFileFullPath(), spdlog::level::trace);
 			return metadata;
 		}
 	}	
@@ -136,9 +136,9 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 	ErrorData err_data;
 	CobolModuleMetadata *cmm = CobolModuleMetadata::build(pf, &err_data);
 	if (!cmm) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Error while building or retrieving metadata for module %1 (%2)").arg(program_id).arg(err_data.err_code), QLogger::LogLevel::Trace);
+		GixGlobals::getLogManager()->trace(LOG_METADATA, "Error while building or retrieving metadata for module {} ({})", program_id, err_data.err_code, spdlog::level::trace);
 		for (auto errmsg : err_data.err_messages) {
-			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "   " + QString::fromStdString(errmsg), QLogger::LogLevel::Trace);
+			GixGlobals::getLogManager()->trace(LOG_METADATA, "   {}", errmsg);
 		}
 		return nullptr;
 	}
@@ -149,7 +149,7 @@ CobolModuleMetadata *MetadataWorker::scanCobolModuleInternal(ProjectFile *pf)
 	cmm->dumpToFile(dump_file, true);
 #endif
 
-    GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, "Finished scanning " + pf->GetFileFullPath(), QLogger::LogLevel::Trace);
+    GixGlobals::getLogManager()->trace(LOG_METADATA, "Finished scanning {}", pf->GetFileFullPath(), spdlog::level::trace);
 
 	return cmm;
 }

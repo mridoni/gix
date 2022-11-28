@@ -30,8 +30,9 @@ protected:
 		//spdlog::memory_buf_t formatted;
 		//spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
 
-		std::string s(msg.payload.data(), msg.payload.size());
-        GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString::fromStdString(s), QLogger::LogLevel::Debug);
+		//#LOG
+		// std::string s(msg.payload.data(), msg.payload.size());
+		// GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString::fromStdString(s), QLogger::LogLevel::Debug);
 	}
 
 	void flush_() override

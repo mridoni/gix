@@ -143,7 +143,7 @@ void ProjectFile::add_copy_deps(const QStringList &copy_dirs, const QStringList 
 	IGixLogManager *logger = GixGlobals::getLogManager();
 	QRegularExpression rxCopy("COPY ([A-Za-z0-9_]+)\\ *\\.");
 	if (!QFile::exists(this->GetFileFullPath())) {
-		logger->error(LOG_METADATA, "File not found: {}", GetFileFullPath());
+		logger->error(LOG_METADATA, "File not found: {}", GetFileFullPath().toStdString());
 		return;
 	}
 

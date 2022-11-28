@@ -188,7 +188,7 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 				}
 				items.insert(0, "*");
 				path = items.join(':').replace(".", "");
-				Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(1): %1").arg(word), QLogger::LogLevel::Trace);
+				GixGlobals::getLogManager()->trace(GIX_IDE, "Got(1): {}", word);
 				Ide::TaskManager()->gotoDefinition(this, path, ln);
 			}
 		});
@@ -203,7 +203,7 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 			sptr_t wend = this->wordEndPosition(this->currentPos(), true);
 			sptr_t ln = this->lineFromPosition(this->currentPos());
 			QString s = QString::fromUtf8(this->get_text_range(wstart, wend));
-			Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
+			GixGlobals::getLogManager()->trace(GIX_IDE, "Got(2): {}", s);
 		});
 
 		QShortcut *qs3 = new QShortcut(QKeySequence("Ctrl+K"), this);
@@ -252,7 +252,7 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 				}
 			}
 
-			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
+			//GixGlobals::getLogManager()->trace(GIX_IDE, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
 		});
 
 		// Tooltips
@@ -361,12 +361,12 @@ void CodeEditor::handleBreakPoint(int position, int modifiers)
 
 	if (!Ide::TaskManager()->existsBreakpoint(c->currentFile(), ln)) {
 		Ide::TaskManager()->addBreakpoint(c->currentFile(), ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Set breakpoint at " + c->currentFile() + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Set breakpoint at {}:{}", c->currentFile(), ln);
 		markerAdd(ln - 1, MRKR_BKP);
 	}
 	else {
 		Ide::TaskManager()->removeBreakpoint(c->currentFile(), ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Removed breakpoint at " + c->currentFile() + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Removed breakpoint at {}:{}", c->currentFile(), ln);
 		markerDelete(ln - 1, MRKR_BKP);
 	}
 }
@@ -393,12 +393,12 @@ void CodeEditor::handleBookmark(int position, int modifiers)
 
 	if (!Ide::TaskManager()->existsBookmark(filename, ln)) {
 		Ide::TaskManager()->addBookmark(filename, ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Set bookmark at " + filename + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Set bookmark at {}:{}", filename, ln);
 		markerAdd(ln - 1, MRKR_BOOKMARK);
 	}
 	else {
 		Ide::TaskManager()->removeBookmark(filename, ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Removed bookmark at " + filename + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Removed bookmark at {}:{}", filename, ln);
 		markerDelete(ln - 1, MRKR_BOOKMARK);
 	}
 }

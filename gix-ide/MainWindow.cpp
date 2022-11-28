@@ -174,9 +174,12 @@ MainWindow::MainWindow()
 
 #ifdef WIN32
 	if (Ide::TaskManager()->checkAndSetupTestHelper()) {
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "WARNING! test helper started", QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->trace(LOG_TEST, "WARNING! test helper started");
 	}
 #endif
+
+
+	output_window->addPanes({ "IDE", "Build", "Debug" } );
 
 	emit Ide::TaskManager()->IdeReady();
 }
@@ -705,7 +708,7 @@ void MainWindow::subWindowActivated()
 
 		QString f = this->activeMdiChild()->currentFile();
 
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Activated window for " + f, QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->trace(LOG_TEST, "Activated window for {}", f);
 
 		ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
 		if (ppj != nullptr) {

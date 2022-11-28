@@ -47,7 +47,6 @@ USA.
 #include <QMetaEnum>
 #include <QMdiArea>
 #include <QTimer>
-#include "QLogger.h"
 
 #ifdef WIN32
 #include <Windows.h>
@@ -57,6 +56,8 @@ typedef TestHelperInterface *(*TESTLHPR_INTERFACE_FUNC)();
 
 IdeTaskManager::IdeTaskManager()
 {
+	logger = GixGlobals::getLogManager();
+
 	main_window = nullptr;
 	output_window = nullptr;
 	prjcoll_window = nullptr;
@@ -70,8 +71,9 @@ IdeTaskManager::IdeTaskManager()
 
 	current_bookmark = 0;
 
-	qRegisterMetaType<QLogger::LogLevel>();
-	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");
+	//#LOG
+	/*qRegisterMetaType<QLogger::LogLevel>();
+	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");*/
 
 	connect(this, &IdeTaskManager::fileAddedToProject, this, [this](ProjectFile *pf) { prjcoll_window->refreshContent(); });
 
@@ -161,7 +163,8 @@ void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWin
 
 	});
 
-	connect((QLogger::QLoggerManager *)GixGlobals::getLogManager(), &QLogger::QLoggerManager::logMessage, this, &IdeTaskManager::logMessage);
+	//#LOG
+	//connect((QLogger::QLoggerManager *)GixGlobals::getLogManager(), &QLogger::QLoggerManager::logMessage, this, &IdeTaskManager::logMessage);
 }
 
 void IdeTaskManager::buildAll(QString configuration, QString platform)
@@ -179,7 +182,7 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
 		QString err_msg = QString("Invalid compiler configuration for configuration \"%1\"").arg(configuration);
-		this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
+		logger->error(LOG_BUILD, "{}", tr(err_msg.toLocal8Bit().data()));
 		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
 		setStatus(IdeStatus::Editing);
 		emit buildFinished(build_res);
@@ -202,18 +205,18 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	BuildTarget *build_target = current_project_collection->getBuildTarget(props, nullptr);
 	if (!build_target) {
 		QString err_msg = QString("Invalid build target");
-		this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
+		logger->error(LOG_BUILD, "{}", tr(err_msg.toLocal8Bit().data()));
 		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
 		setStatus(IdeStatus::Editing);
 		emit buildFinished(build_res);
 		return;
 	}
 
-	this->logMessage(GIX_CONSOLE_LOG, build_target->toString(), QLogger::LogLevel::Trace);
+	logger->trace(LOG_BUILD, "{}", build_target->toString());
 
 	BuildDriver builder;
-	connect(&builder, &BuildDriver::log_output, output_window, &OutputWindow::print);
-	connect(&builder, &BuildDriver::log_clear, output_window, &OutputWindow::clearAll);
+	connect(&builder, &BuildDriver::log_output, this, &IdeTaskManager::dispatchBuildLogMessage);
+	connect(&builder, &BuildDriver::log_clear, this, &IdeTaskManager::clearBuildLog);
 
 	connect(this, &IdeTaskManager::stopBuildInvoked, &builder, &BuildDriver::stopBuild);
 
@@ -242,7 +245,7 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 
 	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
-		logMessage(GIX_CONSOLE_LOG, tr("Please check your compiler configuration"), QLogger::LogLevel::Error);
+		logger->error(LOG_IDE, tr("Please check your compiler configuration").toStdString());
 		return;
 	}
 
@@ -258,8 +261,8 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 	BuildTarget *build_target = current_project_collection->getBuildTarget(props, nullptr);
 	BuildDriver builder;
 
-	connect(&builder, &BuildDriver::log_output, output_window, &OutputWindow::print);
-	connect(&builder, &BuildDriver::log_clear, output_window, &OutputWindow::clearAll);
+	connect(&builder, &BuildDriver::log_output, this, &IdeTaskManager::dispatchBuildLogMessage);
+	connect(&builder, &BuildDriver::log_clear, this, &IdeTaskManager::clearBuildLog);
 
 	builder.setBuildEnvironment(props);
 
@@ -662,7 +665,7 @@ void IdeTaskManager::setStatus(IdeStatus s, bool force_signal)
 	if (s != ide_status || force_signal) {
 		ide_status = s;
 		emit IdeStatusChanged(ide_status);
-		logMessage(GIX_CONSOLE_LOG, QString("Ide status set to %1 (%2)").arg((int)s).arg(IdeStatusDescription(s)), QLogger::LogLevel::Debug); //SysUtils::enum_val_to_str<IdeStatus>(s)
+		logger->trace(LOG_IDE, "Ide status set to {} ({})", (int)s, IdeStatusDescription(s));
 
 		switch (s) {
 			case IdeStatus::LoadingOrSaving:
@@ -691,7 +694,7 @@ void IdeTaskManager::addBreakpoint(QString src_file, int line)
 	bkps.append(QString::number(line) + "@" + src_file);
 	current_project_collection_data["breakpoints"] = bkps;
 	
-	logMessage(GIX_CONSOLE_LOG, QString("Adding breakpoint -  file: [%1], line %2 ").arg(src_file).arg(line), QLogger::LogLevel::Trace);
+	logger->trace(LOG_IDE, "Adding breakpoint -  file: [{}], line {}", src_file, line);
 	saveCurrentProjectCollectionState();
 }
 
@@ -742,7 +745,7 @@ void IdeTaskManager::addWatchedVar(QString v)
 	if (!wvs.contains(v)) {
 		wvs.append(v);
 
-		logMessage(GIX_CONSOLE_LOG, QString("Adding watched var: [%1]").arg(v), QLogger::LogLevel::Trace);
+		logger->trace(LOG_IDE, "Adding watched var: [{}]", v);
 
 		current_project_collection_data.insert("watched_vars", wvs);
 	}
@@ -966,14 +969,15 @@ void IdeTaskManager::consoleClear()
 	console_window->clear();
 }
 
-void IdeTaskManager::flushLog()
-{
-	while (!log_backlog.isEmpty()) {
-		LogBacklogEntry *lbl = log_backlog.dequeue();
-		this->logMessage(lbl->module, lbl->msg, lbl->level);
-		//delete lbl;
-	}
-}
+//#LOG
+//void IdeTaskManager::flushLog()
+//{
+//	while (!log_backlog.isEmpty()) {
+//		LogBacklogEntry *lbl = log_backlog.dequeue();
+//		this->logMessage(lbl->module, lbl->msg, lbl->level);
+//		//delete lbl;
+//	}
+//}
 
 
 void IdeTaskManager::setIdeElementInfo(QString k, QVariant v)
@@ -1094,7 +1098,7 @@ void IdeTaskManager::startLoadingMetadata(ProjectItem *pi)
 
 	//MetadataLoader *u = new MetadataLoader();
 	//connect(u, &MetadataLoader::finishedUpdating, this, [this] (bool changed) {
-	//	this->logMessage(GIX_CONSOLE_LOG, "Finished updating project metadata", QLogger::LogLevel::Debug);
+	//	logger->log(LOG_IDE, "Finished updating project metadata", QLogger::LogLevel::Debug);
 	//	emit finishedUpdatingMetadata(changed);
 
 	//});
@@ -1141,19 +1145,28 @@ MdiChild *IdeTaskManager::openFileNoSignals(QString filename)
 	return mdiChild;
 }
 
-void IdeTaskManager::logMessage(QString module, QString msg, QLogger::LogLevel log_level)
+void IdeTaskManager::dispatchBuildLogMessage(const QString& msg, spdlog::level::level_enum)
 {
-	if (this->receivers(SIGNAL(print(QString, QLogger::LogLevel)))) {
-		emit this->print(msg, log_level);
-	}
-	else {
-		LogBacklogEntry *lbl = new LogBacklogEntry();
-		lbl->module = module;
-		lbl->msg = msg;
-		lbl->level = log_level;
-		log_backlog.enqueue(lbl);
-	}
 }
+
+void IdeTaskManager::clearBuildLog()
+{
+}
+
+//#LOG
+//void IdeTaskManager::logMessage(QString module, QString msg, QLogger::LogLevel log_level)
+//{
+//	if (this->receivers(SIGNAL(print(QString, QLogger::LogLevel)))) {
+//		emit this->print(msg, log_level);
+//	}
+//	else {
+//		LogBacklogEntry *lbl = new LogBacklogEntry();
+//		lbl->module = module;
+//		lbl->msg = msg;
+//		lbl->level = log_level;
+//		log_backlog.enqueue(lbl);
+//	}
+//}
 
 void IdeTaskManager::saveCurrentProjectCollectionState()
 {
@@ -1236,8 +1249,8 @@ bool IdeTaskManager::checkAndSetupTestHelper()
 		TestHelperInterface *itf = test_helper_interface();
 
 
-		itf->logMessage = [](QString msg) {
-			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Debug);
+		itf->logMessage = [this](QString msg) {
+			logger->trace(LOG_TEST, "{}", msg);
 		};
 
 		itf->refreshPropertyWindowContent = [this]() {
@@ -1266,7 +1279,7 @@ bool IdeTaskManager::checkAndSetupTestHelper()
 		};
 
 		itf->getOutputWindowContent = [this]() {
-			return output_window->getTextContent();
+			return output_window->getTextContent(999);
 		};
 
 		itf->getConsoleWindowContent = [this]() {

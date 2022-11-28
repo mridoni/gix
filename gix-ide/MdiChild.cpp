@@ -231,8 +231,7 @@ bool MdiChild::loadFile(const QString &fileName)
         if (src_file == fileName)
             markerAdd(ln - 1, MRKR_BKP);
         else
-            GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("Failed to map file %1 against %2").arg(src_file).arg(fileName), QLogger::LogLevel::Debug);
-
+            GixGlobals::getLogManager()->trace(LOG_IDE, "Failed to map file {} against {}", src_file, fileName);
 	}
 
     markerDeleteAll(MRKR_BOOKMARK);

@@ -74,14 +74,14 @@ bool BuildActionPreprocessESQLHandler::startBuild()
 	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
-		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
 	CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
 	QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
 	if (esql_cfg.isNull()) {
-		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -90,7 +90,7 @@ bool BuildActionPreprocessESQLHandler::startBuild()
 	bool res = esql_cfg->run(build_driver, input_file, outfile_path, environment);
 
 	uint64_t elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - t_start;
-	build_driver->log_build_message(QString("Build time for BuildActionPreprocessESQLHandler: %1ms").arg(elapsed), QLogger::LogLevel::Trace);
+	build_driver->log_build_message(QString("Build time for BuildActionPreprocessESQLHandler: %1ms").arg(elapsed), spdlog::level::trace);
 
 	return res;
 }

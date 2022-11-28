@@ -22,6 +22,8 @@ USA.
 #include "Ide.h"
 #include "IdeTaskManager.h"
 
+QMap<int, spdlog::logger*> IdeLogManager::loggers;
+
 IdeLogManager::IdeLogManager()
 {
 

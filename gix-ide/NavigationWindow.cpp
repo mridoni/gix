@@ -87,7 +87,7 @@ void NavigationWindow::refreshContent()
 {
 	dataWidget->clear();
 
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("DataWindow is refreshing"), QLogger::LogLevel::Debug);
+	GixGlobals::getLogManager()->trace(GIX_IDE, "NavigationWindow is refreshing");
 	if (mainWindow->activeMdiChild() != nullptr) {
 		QString f = mainWindow->activeMdiChild()->currentFile();
 
@@ -103,7 +103,7 @@ void NavigationWindow::refreshContent()
 		}
 	}
 	else
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "no window", QLogger::LogLevel::Trace);
+		GixGlobals::getLogManager()->trace(GIX_IDE, "No active editor window, NavigationWindow will not be updated");
 }
 
 void NavigationWindow::setContent(ProjectFile *pf)

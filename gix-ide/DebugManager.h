@@ -29,6 +29,7 @@ USA.
 
 #include "Project.h"
 #include "IdeTaskManager.h"
+#include "IGixLogManager.h"
 #include "gix-debugger-types.h"
 
 class IdeTaskManager;
@@ -80,6 +81,8 @@ private slots:
 	void debuggedProcessStarted();
 
 private:
+	IGixLogManager* logger;
+
 	QString build_configuration;
 	QString target_platform;
 	QString build_dir;

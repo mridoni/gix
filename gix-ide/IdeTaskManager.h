@@ -27,6 +27,7 @@ USA.
 #include "Project.h"
 #include "DebugManager.h"
 #include "IdeStatus.h"
+#include "IGixLogManager.h"
 
 #include <QQueue>
 
@@ -38,6 +39,8 @@ USA.
 #define DEFAULT_TARGET_CONFIG 1
 
 class DebugManager;
+
+//#LOG
 //
 //Q_DECLARE_METATYPE(IdeStatus)
 //Q_DECLARE_METATYPE(QLogger::LogLevel);
@@ -135,7 +138,7 @@ public:
 	void consoleWriteStdErr(QString msg);
 	void consoleClear();
 
-	void flushLog();
+	//#LOG void flushLog();
 
 	void setIdeElementInfo(QString k, QVariant v);
 	QVariant getIdeElementInfo(QString k);
@@ -168,7 +171,7 @@ signals:
 	void stopBuildInvoked();
 	void buildFinished(int);
 
-	//void print(QString msg, QLogger::LogLevel log_level);
+	// //#LOGvoid print(QString msg, QLogger::LogLevel log_level);
 
 	void fileLoaded(ProjectFile *);
 	void fileSaved(ProjectFile *);
@@ -183,11 +186,12 @@ signals:
 
 
 public slots:
-	//void logMessage(QString module, QString message, QLogger::LogLevel);
+	// //#LOG void logMessage(QString module, QString message, QLogger::LogLevel);
 	void debugStopped();
 	void debugStarted();
 
 private:
+	IGixLogManager* logger = nullptr;
 	IdeStatus ide_status;
 
 	MainWindow *main_window;
@@ -217,6 +221,9 @@ private:
 	QMap<QString, QVariant> ide_element_info_map;
 
 	int last_build_result = 0;
+
+	void dispatchBuildLogMessage(const QString& msg, spdlog::level::level_enum);
+	void clearBuildLog();
 
 #ifdef WIN32
 	TestHelper *test_helper = nullptr;

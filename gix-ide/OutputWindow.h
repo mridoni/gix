@@ -22,10 +22,13 @@ USA.
 
 #include <QString>
 #include <QMap>
+#include <QToolBar>
+#include <QFile>
 #include <QTextEdit>
+#include <QComboBox>
+
 
 #include "MainWindow.h"
-#include "LogOutputType.h"
 
 class OutputWindow : public QMainWindow
 {
@@ -34,7 +37,8 @@ public:
 	OutputWindow(QWidget *parent, MainWindow *mw);
 	~OutputWindow();
 
-	QString getTextContent();
+	QString getTextContent(int pane);
+	void addPanes(QStringList names);
 
 public slots:
 	void clearAll();
@@ -43,7 +47,10 @@ public slots:
 private:
 	MainWindow * mainWindow;
 	QToolBar* toolBar;
+	QComboBox* pane_selector;
 
 	QMap<int, QTextEdit *> panes;
+
+	void switchPane(int index);
 };
 

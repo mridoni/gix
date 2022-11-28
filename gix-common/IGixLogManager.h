@@ -37,6 +37,9 @@ USA.
 #define LOG_DB			4
 #define LOG_DEBUG		5
 #define LOG_METADATA	6
+#define LOG_CONFIG		7
+
+#define LOG_TEST		99
 
 #define LOG_CUSTOM_BASE	100
 
@@ -47,7 +50,7 @@ public:
 	template<typename... Args>
 	inline void log(int source, spdlog::level::level_enum level, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger();
+		spdlog::logger* logger = get_logger(source);
 		if (logger)
 			logger->log(level, fmt, std::forward<Args>(args)...);
 	};
@@ -55,52 +58,74 @@ public:
 	template<typename... Args>
 	inline void trace(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger(source);
-		if (logger)
-			logger->trace(fmt, std::forward<Args>(args)...);
+		log(source, spdlog::level::trace, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
 	inline void debug(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger();
-		if (logger)
-			logger->debug(fmt, std::forward<Args>(args)...);
+		log(source, spdlog::level::debug, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
 	inline void info(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger();
-		if (logger)
-			logger->info(fmt, std::forward<Args>(args)...);
+		log(source, spdlog::level::info, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
 	inline void warn(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger();
-		if (logger)
-			logger->warn(fmt, std::forward<Args>(args)...);
+		log(source, spdlog::level::warn, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
 	inline void error(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger();
-		if (logger)
-			logger->error(fmt, std::forward<Args>(args)...);
+		log(source, spdlog::level::err, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
 	inline void critical(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger();
-		if (logger)
-			logger->critical(fmt, std::forward<Args>(args)...);
+		this->log(source, spdlog::level::critical, fmt, std::forward<Args>(args)...);
 	};
 
+	template<typename T>
+	void trace(int source, const T& msg)
+	{
+		log(source, spdlog::level::trace, msg);
+	}
 
+	template<typename T>
+	void debug(int source, const T& msg)
+	{
+		log(source, spdlog::level::debug, msg);
+	}
+
+	template<typename T>
+	void info(int source, const T& msg)
+	{
+		log(source, spdlog::level::info, msg);
+	}
+
+	template<typename T>
+	void warn(int source, const T& msg)
+	{
+		log(source, spdlog::level::warn, msg);
+	}
+
+	template<typename T>
+	void error(int source, T& msg)
+	{
+		log(source, spdlog::level::err, msg);
+	}
+
+	template<typename T>
+	void critical(int source, const T& msg)
+	{
+		log(source, spdlog::level::critical, msg);
+	}
 
 private:
 	virtual spdlog::logger* get_logger(int source) = 0;

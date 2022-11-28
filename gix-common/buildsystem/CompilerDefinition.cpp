@@ -68,12 +68,12 @@ CompilerPlatformDefinition *CompilerDefinition::parsePlatform(CompilerDefinition
 	IGixLogManager* logger = GixGlobals::getLogManager();
 
 	if (!def) {
-		logger->logMessage(GIX_CONSOLE_LOG, "Invalid compiler definition", QLogger::LogLevel::Error);
+		logger->error(LOG_CONFIG, "Invalid compiler definition");
 		return nullptr;
 	}
 
 	QString platform_id = xn.attributes().namedItem("id").nodeValue();
-	logger->logMessage(GIX_CONSOLE_LOG, QString("Parsing compiler definition for [%1], platform: %2").arg(def->id).arg(platform_id), QLogger::LogLevel::Error);
+	logger->trace(LOG_CONFIG, "Parsing compiler definition for [{}], platform: {}", def->id, platform_id);
 
 	QString homedir = def->homedir;
 
@@ -90,12 +90,12 @@ CompilerPlatformDefinition *CompilerDefinition::parsePlatform(CompilerDefinition
 	bool config_dir_path_ok = QDir(cpd->config_dir_path).exists();
 	bool copy_dir_path_ok = QDir(cpd->copy_dir_path).exists();
 
-	logger->logMessage(GIX_CONSOLE_LOG, "Validating plaform " + xn.attributes().namedItem("id").nodeValue(), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" bin_dir_path     (%2): %1").arg(cpd->bin_dir_path).arg(bin_dir_path_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" lib_dir_path     (%2): %1").arg(cpd->lib_dir_path).arg(lib_dir_path_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" include_dir_path (%2): %1").arg(cpd->include_dir_path).arg(include_dir_path_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" config_dir_path  (%2): %1").arg(cpd->config_dir_path).arg(config_dir_path_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" copy_dir_path    (%2): %1").arg(cpd->copy_dir_path).arg(copy_dir_path_ok), QLogger::LogLevel::Debug);
+	logger->trace(LOG_CONFIG, "Validating plaform {}", xn.attributes().namedItem("id").nodeValue());
+	logger->trace(LOG_CONFIG, " bin_dir_path     ({}): {}", cpd->bin_dir_path, bin_dir_path_ok);
+	logger->trace(LOG_CONFIG, " lib_dir_path     ({}): {}", cpd->lib_dir_path, lib_dir_path_ok);
+	logger->trace(LOG_CONFIG, " include_dir_path ({}): {}", cpd->include_dir_path, include_dir_path_ok);
+	logger->trace(LOG_CONFIG, " config_dir_path  ({}): {}", cpd->config_dir_path, config_dir_path_ok);
+	logger->trace(LOG_CONFIG, " copy_dir_path    ({}): {}", cpd->copy_dir_path, copy_dir_path_ok);
 
 	if (!bin_dir_path_ok || !lib_dir_path_ok || !include_dir_path_ok || !config_dir_path_ok || !copy_dir_path_ok) {
 		delete cpd;
@@ -115,12 +115,12 @@ bool CompilerDefinition::validate()
 	bool host_platform_ok = !host_platform.isEmpty();
 	bool homedir_ok = QDir(homedir).exists();
 
-	logger->logMessage(GIX_CONSOLE_LOG, "CompilerManager: validating " + this->def_file + "", QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" id            (%2): %1").arg(this->id).arg(id_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" name          (%2): %1").arg(this->name).arg(name_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" version       (%2): %1").arg(this->version).arg(version_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" host_platform (%2): %1").arg(this->host_platform).arg(host_platform_ok), QLogger::LogLevel::Debug);
-	logger->logMessage(GIX_CONSOLE_LOG, QString(" homedir       (%2): %1").arg(this->homedir).arg(homedir_ok), QLogger::LogLevel::Debug);
+	logger->trace(LOG_CONFIG, "CompilerManager: validating {}", this->def_file);
+	logger->trace(LOG_CONFIG, " id            ({}): {}", this->id, id_ok);
+	logger->trace(LOG_CONFIG, " name          ({}): {}", this->name, name_ok);
+	logger->trace(LOG_CONFIG, " version       ({}): {}", this->version, version_ok);
+	logger->trace(LOG_CONFIG, " host_platform ({}): {}", this->host_platform, host_platform_ok);
+	logger->trace(LOG_CONFIG, " homedir       ({}): {}", this->homedir, homedir_ok);
 	return id_ok && name_ok && version_ok && host_platform_ok && homedir_ok;
 }
 
@@ -130,12 +130,12 @@ CompilerDefinition *CompilerDefinition::load(QString def_path)
 	CompilerDefinition *def = new CompilerDefinition();
 	def->def_file = def_path;
 	
-	logger->logMessage(GIX_CONSOLE_LOG, "*** Parsing compiler definition file: " + def_path, QLogger::LogLevel::Debug);
+	logger->debug(LOG_CONFIG, "*** Parsing compiler definition file: {}", def_path);
 	
 	QDomDocument doc;
 	QFile prj_file(def_path);
 	if (!prj_file.open(QIODevice::ReadOnly) || !doc.setContent(&prj_file)) {
-		logger->logMessage(GIX_CONSOLE_LOG, "Compiler definition is invalid or cannot be found (" + def_path + ")", QLogger::LogLevel::Error);
+		logger->error(LOG_CONFIG, "Compiler definition is invalid or cannot be found ({})", def_path);
 		return nullptr;
 	}
 
@@ -156,7 +156,7 @@ CompilerDefinition *CompilerDefinition::load(QString def_path)
 
 	QStringList target_platforms = root.firstChildElement("target_platforms").text().split(",");
 
-	logger->logMessage(GIX_CONSOLE_LOG, QString("Compiler ID for %1 is [%2]").arg(def_path).arg(def->id), QLogger::LogLevel::Debug);
+	logger->debug(LOG_CONFIG, "Compiler ID for {} is [{}]", def_path, def->id);
 
 	auto xns = root.childNodes();
 	for (int i = 0; i < xns.size(); i++) {
@@ -168,28 +168,28 @@ CompilerDefinition *CompilerDefinition::load(QString def_path)
 		if (xn.attributes().contains("id")) {
 			QString platform = xn.attributes().namedItem("id").nodeValue();
 			if (platform.isEmpty() || !target_platforms.contains(platform)) {
-				logger->logMessage(GIX_CONSOLE_LOG, "Invalid platform entry in " + def_path, QLogger::LogLevel::Error);
+				logger->error(LOG_CONFIG, "Invalid platform entry in {}", def_path);
 				continue;
 			}
 
 			CompilerPlatformDefinition *cpd = parsePlatform(def, xn);
 			if (cpd == nullptr) {
-				logger->logMessage(GIX_CONSOLE_LOG, "Cannot parse platform " + platform + " (" + def_path + ")", QLogger::LogLevel::Error);
+				logger->error(LOG_CONFIG, "Cannot parse platform {} ({})", platform, def_path);
 				continue;
 			}
 
 			def->target_platforms[platform] = cpd;
-			logger->logMessage(GIX_CONSOLE_LOG, QString("Added platform %1 for %2").arg(platform).arg(def->name), QLogger::LogLevel::Info);
+			logger->info(LOG_CONFIG, "Added platform {} for {}", platform, def->name);
 		}
 	}
 
 	if (!def->validate()) {
-		logger->logMessage(GIX_CONSOLE_LOG, "Validation failed (" + def_path + ")", QLogger::LogLevel::Error);
+		logger->error(LOG_CONFIG, "Validation failed ({})", def_path);
 		delete def;
 		return nullptr;
 	}
 
-	logger->logMessage(GIX_CONSOLE_LOG, QString("Added compiler %1").arg(def->name), QLogger::LogLevel::Info);
+	logger->info(LOG_CONFIG, "Added compiler {}", def->name);
 
 	return def;
 }
@@ -350,7 +350,7 @@ bool CompilerDefinition::testConfiguration(QStringList &errs)
 			return false;
 		}
 
-		//this->logMessage(GIX_CONSOLE_LOG, build_target->toString(), QLogger::LogLevel::Trace);
+		//this->logMessage(LOG_CONFIG, build_target->toString(), QLogger::LogLevel::Trace);
 
 		BuildDriver builder;
 		//connect(&builder, &BuildDriver::log_output, output_window, &OutputWindow::print);

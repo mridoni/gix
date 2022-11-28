@@ -65,7 +65,7 @@ void Ide::init()
 
 	if (GixGlobals::getCompilerManager()->getCompilers().size() == 0) {
 		QString msg = QCoreApplication::translate("gix", QString("No configured compilers found in compiler definitions directory %1").arg(GixGlobals::getCompilerDefsDir()).toUtf8().constData());
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		GixGlobals::getLogManager()->error(LOG_IDE, "{}", msg);
 		UiUtils::ErrorDialog(msg);
 	}
     

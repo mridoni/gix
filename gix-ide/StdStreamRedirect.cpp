@@ -24,6 +24,8 @@ USA.
 #include <QDir>
 #include <QTextStream>
 
+#include "GixGlobals.h"
+
 StdStreamRedirect::StdStreamRedirect(FILE *_stream, IdeTaskManager *_ide_task_manager, QObject   *parent)
 	: QObject(parent)
 {
@@ -77,7 +79,7 @@ void StdStreamRedirect::fileChanged(const QString &filename)
 	if (newchars)
 	{
 		//m_errorLog->append(content.right(newchars));
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, content.right(newchars), QLogger::LogLevel::Error);
+		GixGlobals::getLogManager()->error(GIX_IDE, "{}", content.right(newchars));
 		oldContent = content;
 	}
 }

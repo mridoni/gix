@@ -23,10 +23,7 @@ USA.
 #include "Ide.h"
 #include "IdeTaskManager.h"
 
-#include <QToolBar>
-#include <QFile>
-
-OutputWindow::OutputWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
+OutputWindow::OutputWindow(QWidget* parent, MainWindow* mw) : QMainWindow(parent)
 {
 	this->setWindowTitle("Output");
 	this->setMinimumHeight(100);
@@ -36,18 +33,15 @@ OutputWindow::OutputWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent
 	this->addToolBar(toolBar);
 	this->mainWindow = mw;
 
-	//#LOG
-	//   this->textArea = new QTextEdit(this);
-	//this->textArea->setReadOnly(true);
-	//QFont f = this->textArea->font();
-	//f.setFamily("Courier New");
-	//f.setPointSize(UiUtils::computeFontSize(this, 9));
-	//this->textArea->setFont(f);
-	//this->setCentralWidget(textArea);
+	pane_selector = new QComboBox(this);
+	connect(pane_selector, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &OutputWindow::switchPane);
+	toolBar->addWidget(pane_selector);
 
-    //connect(Ide::TaskManager(), &IdeTaskManager::print, this, &OutputWindow::print, Qt::ConnectionType::QueuedConnection);
 
-	Ide::TaskManager()->flushLog();
+
+	//connect(Ide::TaskManager(), &IdeTaskManager::print, this, &OutputWindow::print, Qt::ConnectionType::QueuedConnection);
+
+	//Ide::TaskManager()->flushLog();
 }
 
 
@@ -55,6 +49,7 @@ OutputWindow::~OutputWindow()
 {
 	delete(toolBar);
 }
+
 //
 //void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
 //{
@@ -105,12 +100,48 @@ OutputWindow::~OutputWindow()
 //
 //}
 
-QString OutputWindow::getTextContent()
+QString OutputWindow::getTextContent(int index)
 {
-    //return textArea->document()->toPlainText();
+	if (index >= panes.size() || index < 0)
+		return QString();
+
+	QTextEdit* pane = panes[index];
+	return pane->toPlainText();
+}
+
+void OutputWindow::addPanes(QStringList names)
+{
+	for (int i = 0; i < names.size(); i++) {
+		QTextEdit *pane = new QTextEdit(this);
+		pane->setReadOnly(true);
+		QFont f = pane->font();
+		f.setFamily("Courier New");
+		f.setPointSize(UiUtils::computeFontSize(this, 9));
+		pane->setFont(f);
+		this->setVisible(false);
+
+		this->setCentralWidget(pane);
+
+		pane_selector->addItem(names.at(i));
+
+		panes[i] = pane;
+	}
+
+	pane_selector->setCurrentIndex(0);
+}
+
+void OutputWindow::switchPane(int index)
+{
+	for (int i = 0; i < panes.size(); i++) {
+		QTextEdit* pane = panes[i];
+		pane->setVisible(i == index);
+	}
 }
 
 void OutputWindow::clearAll()
 {
-	//textArea->clear();
+	for (int i = 0; i < panes.size(); i++) {
+		QTextEdit* pane = panes[i];
+		pane->clear();
+	}
 }

@@ -136,7 +136,7 @@ void DataWindow::refreshContent(bool force_refresh)
 
 	dataWidget->clear();
 
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("DataWindow is refreshing"), QLogger::LogLevel::Debug);
+	GixGlobals::getLogManager()->trace(GIX_IDE, "DataWindow is refreshing");
 	if (mainWindow->activeMdiChild() != nullptr) {
 
 		ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
@@ -151,7 +151,7 @@ void DataWindow::refreshContent(bool force_refresh)
 		}
 	}
 	else
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "no window", QLogger::LogLevel::Trace);
+		GixGlobals::getLogManager()->trace(GIX_IDE, "No active editor window, DataWindow will not be updated");
 }
 
 void DataWindow::setContent(ProjectFile *pf)
