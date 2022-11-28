@@ -26,9 +26,10 @@ USA.
 #include <QFile>
 #include <QTextEdit>
 #include <QComboBox>
-
+#include <QHBoxLayout>
 
 #include "MainWindow.h"
+#include "OutputWindowLogger.h"
 
 class OutputWindow : public QMainWindow
 {
@@ -37,8 +38,11 @@ public:
 	OutputWindow(QWidget *parent, MainWindow *mw);
 	~OutputWindow();
 
-	QString getTextContent(int pane);
-	void addPanes(QStringList names);
+	QString getTextContent(OutputWindowPaneType pane);
+	void addLoggerSection(OutputWindowPaneType index, QString name);
+	OutputWindowLogger *getLoggerSection(OutputWindowPaneType index);
+
+	void switchPane(OutputWindowPaneType index);
 
 public slots:
 	void clearAll();
@@ -48,8 +52,9 @@ private:
 	MainWindow * mainWindow;
 	QToolBar* toolBar;
 	QComboBox* pane_selector;
+	QHBoxLayout* layout;
 
-	QMap<int, QTextEdit *> panes;
+	QMap<OutputWindowPaneType, OutputWindowLogger*> panes;
 
 	void switchPane(int index);
 };

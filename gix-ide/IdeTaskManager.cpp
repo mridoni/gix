@@ -1278,8 +1278,8 @@ bool IdeTaskManager::checkAndSetupTestHelper()
 			ide_output_dup_out = out;
 		};
 
-		itf->getOutputWindowContent = [this]() {
-			return output_window->getTextContent(999);
+		itf->getOutputWindowContent = [this](OutputWindowPaneType p) {
+			return output_window->getTextContent(p);
 		};
 
 		itf->getConsoleWindowContent = [this]() {

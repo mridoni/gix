@@ -50,7 +50,7 @@ public:
 	template<typename... Args>
 	inline void log(int source, spdlog::level::level_enum level, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
-		spdlog::logger* logger = get_logger(source);
+		std::shared_ptr<spdlog::logger> logger = get_logger(source);
 		if (logger)
 			logger->log(level, fmt, std::forward<Args>(args)...);
 	};
@@ -128,6 +128,6 @@ public:
 	}
 
 private:
-	virtual spdlog::logger* get_logger(int source) = 0;
+	virtual std::shared_ptr<spdlog::logger> get_logger(int source) = 0;
 };	
 

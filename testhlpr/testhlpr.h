@@ -26,6 +26,7 @@ USA.
 */
 
 #include "testhlpr_global.h"
+#include <OutputWindowLogger.h>
 
 #include <functional>
 #include <QTcpServer>
@@ -47,7 +48,7 @@ struct TESTHLPR_EXPORT TestHelperInterface
 	std::function <ProjectItem *()> getFirstProjectInCurrentProjectCollection;
 	std::function<void(QString out, QString err)> duplicateConsole;
 	std::function<void(QString out)> duplicateIdeOutput;
-	std::function <QString()> getOutputWindowContent;
+	std::function <QString(OutputWindowPaneType p)> getOutputWindowContent;
 	std::function <QString()> getConsoleWindowContent;
 	std::function <ProjectItem *()> getPropertyWindowItem;
 	std::function <void(QStringList)> addBreakpoints;

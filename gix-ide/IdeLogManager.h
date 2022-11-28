@@ -32,12 +32,13 @@ class IdeLogManager : public IGixLogManager
 public:
 	IdeLogManager();
 
-	void registerLogSource(int source, const std::vector<spdlog::sink_ptr>& sinks);
+	void registerLogSource(int source, std::shared_ptr<spdlog::logger> l);
 
 private:
 
-	static QMap<int, spdlog::logger*> loggers;
+	static QMap<int, std::shared_ptr<spdlog::logger>> loggers;
 
-	virtual spdlog::logger* get_logger(int source) override;
+	virtual std::shared_ptr<spdlog::logger> get_logger(int source) override;
 
+	std::shared_ptr<spdlog::logger> default_logger = nullptr;
 };

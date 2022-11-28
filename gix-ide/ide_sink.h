@@ -10,6 +10,7 @@
 #include "NetworkManager.h"
 #include "debugger-msg-defs.h"
 #include "GixGlobals.h"
+#include "OutputWindowLogger.h"
 
 template<typename Mutex>
 class ide_sink : public spdlog::sinks::base_sink <Mutex>
@@ -17,7 +18,7 @@ class ide_sink : public spdlog::sinks::base_sink <Mutex>
 public:
 	ide_sink();
 
-	void setNetworkManager(std::shared_ptr<NetworkManager> nm);
+	void setWindowPane(OutputWindowLogger* p) { pane = p; }
 
 protected:
 	void sink_it_(const spdlog::details::log_msg& msg) override
@@ -33,6 +34,9 @@ protected:
 		//#LOG
 		// std::string s(msg.payload.data(), msg.payload.size());
 		// GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString::fromStdString(s), QLogger::LogLevel::Debug);
+
+		std::string s(msg.payload.data(), msg.payload.size());
+		pane->getWindowPane()->append(QString::fromStdString(s));
 	}
 
 	void flush_() override
@@ -41,7 +45,7 @@ protected:
 	}
 
 private:
-
+	OutputWindowLogger* pane = nullptr;
 };
 
 #include "spdlog/details/null_mutex.h"

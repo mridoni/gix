@@ -22,21 +22,23 @@ USA.
 #include "Ide.h"
 #include "IdeTaskManager.h"
 
-QMap<int, spdlog::logger*> IdeLogManager::loggers;
+QMap<int, std::shared_ptr<spdlog::logger>> IdeLogManager::loggers;
 
 IdeLogManager::IdeLogManager()
 {
-
+	default_logger = spdlog::default_logger();
 }
 
-void IdeLogManager::registerLogSource(int source, const std::vector<spdlog::sink_ptr>& sinks)
+void IdeLogManager::registerLogSource(int source, std::shared_ptr<spdlog::logger> l)
 {
+	loggers[source] = l;
 }
 
-spdlog::logger* IdeLogManager::get_logger(int source)
+
+std::shared_ptr<spdlog::logger> IdeLogManager::get_logger(int source)
 {
 	if (loggers.contains(source))
 		return loggers[source];
 	else
-		return spdlog::default_logger().get();
+		return default_logger;
 }

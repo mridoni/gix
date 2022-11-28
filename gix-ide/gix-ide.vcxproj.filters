@@ -204,6 +204,9 @@
     <ClCompile Include="DebugManager.cpp">
       <Filter>Source Files\debugger</Filter>
     </ClCompile>
+    <ClCompile Include="OutputWindowLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="AddCompilerDialog.h">
@@ -396,6 +399,9 @@
     </ClInclude>
     <ClInclude Include="..\gix-debugger-engine-common\SymbolBufferReader.h">
       <Filter>Header Files\debugger\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputWindowLogger.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -46,6 +46,7 @@
     <ClInclude Include="IPersistableProjectItem.h" />
     <ClInclude Include="NoWheelComboBox.h" />
     <ClInclude Include="OutputWindow.h" />
+    <ClInclude Include="OutputWindowLogger.h" />
     <ClInclude Include="ProtectedLineEdit.h" />
     <ClInclude Include="registers.hpp" />
     <ClInclude Include="resource.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="NavigationWindow.cpp" />
     <ClCompile Include="NewProjectDialog.cpp" />
     <ClCompile Include="OutputWindow.cpp" />
+    <ClCompile Include="OutputWindowLogger.cpp" />
     <ClCompile Include="ProjectCollectionWindow.cpp" />
     <ClCompile Include="ProjectDependencyTracker.cpp" />
     <ClCompile Include="PropertyOptionsDialog.cpp" />

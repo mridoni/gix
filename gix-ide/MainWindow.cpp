@@ -45,6 +45,7 @@ USA.
 #include "NavigationWindow.h"
 #include "GixGlobals.h"
 #include "GixVersion.h"
+#include "IdeLogManager.h"
 
 
 using namespace cpplinq;
@@ -177,10 +178,28 @@ MainWindow::MainWindow()
 		GixGlobals::getLogManager()->trace(LOG_TEST, "WARNING! test helper started");
 	}
 #endif
+	
+	output_window->addLoggerSection(OutputWindowPaneType::Ide, "IDE");
+	output_window->addLoggerSection(OutputWindowPaneType::Build, "Build");
+	output_window->addLoggerSection(OutputWindowPaneType::Debug, "Debug");
 
+	auto ide_logger = output_window->getLoggerSection(OutputWindowPaneType::Ide)->getLogger();
+	auto build_logger = output_window->getLoggerSection(OutputWindowPaneType::Build)->getLogger();
+	auto debug_logger = output_window->getLoggerSection(OutputWindowPaneType::Debug)->getLogger();
 
-	output_window->addPanes({ "IDE", "Build", "Debug" } );
+	IdeLogManager* lm = (IdeLogManager*)GixGlobals::getLogManager();
+	lm->registerLogSource(LOG_DEFAULT, ide_logger);
+	lm->registerLogSource(LOG_IDE, ide_logger);
+	lm->registerLogSource(LOG_BUILD, build_logger);
+	lm->registerLogSource(LOG_NETWORK, ide_logger);
+	lm->registerLogSource(LOG_DB, ide_logger);
+	lm->registerLogSource(LOG_DEBUG, debug_logger);
+	lm->registerLogSource(LOG_METADATA, ide_logger);
+	lm->registerLogSource(LOG_CONFIG, ide_logger);
 
+	output_window->switchPane(OutputWindowPaneType::Build);
+
+#define LOG_TEST		99
 	emit Ide::TaskManager()->IdeReady();
 }
 
