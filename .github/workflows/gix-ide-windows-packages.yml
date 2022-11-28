@@ -201,6 +201,7 @@ jobs:
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe          
+
   gixsql-windows-x64-mingw:
     name: gixsql-windows-x64-mingw
     env:
@@ -236,7 +237,7 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
          echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
-         ls -l
+         chmod 755 prepdist.sh && ./prepdist.sh
          autoreconf --install --force
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
          make
@@ -291,6 +292,7 @@ jobs:
        working-directory: ${{env.GITHUB_WORKSPACE}}
        run: |
          echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
+         chmod 755 prepdist.sh && ./prepdist.sh
          autoreconf --install --force
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
          make
