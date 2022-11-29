@@ -11,11 +11,11 @@ on:
 env:
   GIXIDEMAJ: 1
   GIXIDEMIN: 1
-  GIXIDEREL: 0dev2
-  GIX_REVISION: 1923
+  GIXIDEREL: 0
+  GIX_REVISION: 1930
   GIXSQLMAJ: 1
   GIXSQLMIN: 0
-  GIXSQLREL: 18b
+  GIXSQLREL: 19
   GIX_IDE_BRANCH: main
   VCPKG_ROOT: C:\vcpkg
   GIX_IDE_X64_BIN_DIR: gix-ide-windows-x64-msvc-artifacts
@@ -41,6 +41,7 @@ jobs:
       BUILD_CONFIGURATION: Release
       HOST_PLATFORM: x64      
       PLATFORM_ID: x64    
+      SOLUTION_FILE_PATH: gix-ide.sln
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -125,6 +126,7 @@ jobs:
       BUILD_CONFIGURATION: Release
       HOST_PLATFORM: Win32      
       PLATFORM_ID: x86    
+      SOLUTION_FILE_PATH: gix-ide.sln
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -199,6 +201,7 @@ jobs:
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe          
+
   gixsql-windows-x64-mingw:
     name: gixsql-windows-x64-mingw
     env:
@@ -234,7 +237,7 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
          echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
-         ls -l
+         chmod 755 prepdist.sh && ./prepdist.sh
          autoreconf --install --force
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
          make
@@ -289,6 +292,7 @@ jobs:
        working-directory: ${{env.GITHUB_WORKSPACE}}
        run: |
          echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
+         chmod 755 prepdist.sh && ./prepdist.sh
          autoreconf --install --force
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
          make
@@ -378,7 +382,6 @@ jobs:
           copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gix-http.exe ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gix-ide.exe ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gixdbgr.exe ${{ env.DIST_DIR }}\bin
-          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gixpp.exe ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X64_BIN_DIR }}\gix-common.dll ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X64_BIN_DIR }}\nng.dll ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X64_BIN_DIR }}\ScintillaEdit4.dll ${{ env.DIST_DIR }}\bin
@@ -494,7 +497,6 @@ jobs:
           copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-http.exe ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-ide.exe ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gixdbgr.exe ${{ env.DIST_DIR }}\bin
-          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gixpp.exe ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X86_BIN_DIR }}\gix-common.dll ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X86_BIN_DIR }}\nng.dll ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X86_BIN_DIR }}\ScintillaEdit4.dll ${{ env.DIST_DIR }}\bin
