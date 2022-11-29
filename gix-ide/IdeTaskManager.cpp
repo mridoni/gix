@@ -179,6 +179,8 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	int build_res = 0;
 	QList<QPair<QString, QString>> tl;
 
+	output_window->switchPane(OutputWindowPaneType::Build);
+
 	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
 		QString err_msg = QString("Invalid compiler configuration for configuration \"%1\"").arg(configuration);
@@ -243,9 +245,11 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 	if (current_project_collection == nullptr || !current_project_collection->HasChildren())
 		return;
 
+	output_window->switchPane(OutputWindowPaneType::Build);
+
 	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
-		logger->error(LOG_IDE, tr("Please check your compiler configuration").toStdString());
+		logger->error(LOG_BUILD, tr("Please check your compiler configuration").toStdString());
 		return;
 	}
 
@@ -275,6 +279,8 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 
 void IdeTaskManager::buildStop()
 {
+	output_window->switchPane(OutputWindowPaneType::Build);
+
 	emit stopBuildInvoked();
 }
 

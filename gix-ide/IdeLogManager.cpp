@@ -28,8 +28,8 @@ QMap<int, QList<QPair<spdlog::level::level_enum, QString>>> IdeLogManager::backl
 
 IdeLogManager::IdeLogManager()
 {
-	//auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-	//default_logger = std::make_shared<spdlog::logger>("msvc_logger", sink);
+	// we start with no default logger, so the backlog entries will be stashed and used
+	// when the IDE and the loggers are available
 }
 
 void IdeLogManager::registerLogSource(int source, std::shared_ptr<spdlog::logger> l)

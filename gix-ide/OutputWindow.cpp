@@ -74,9 +74,6 @@ void OutputWindow::addLoggerSection(OutputWindowPaneType pt, QString name)
 	layout->addWidget(p->getWindowPane());
 	pane_selector->addItem(name, (int)pt);
 	panes[pt] = p;
-#if _DEBUG
-	p->getWindowPane()->setPlainText(name);
-#endif
 }
 
 OutputWindowLogger* OutputWindow::getLoggerSection(OutputWindowPaneType index)
@@ -89,10 +86,14 @@ OutputWindowLogger* OutputWindow::getLoggerSection(OutputWindowPaneType index)
 
 void OutputWindow::switchPane(OutputWindowPaneType t)
 {
+	int index = 0;
 	for (auto it = panes.begin(); it != panes.end(); ++it) {
 		OutputWindowLogger* p = it.value();
-		bool is_visible = it.key() == t;
-		p->getWindowPane()->setVisible(is_visible);
+		if (it.key() == t) {
+			pane_selector->setCurrentIndex(index);
+			break;
+		}
+		index++;
 	}
 }
 
@@ -100,8 +101,12 @@ void OutputWindow::switchPane(int index)
 {
 	auto v = pane_selector->itemData(index).toInt();
 	OutputWindowPaneType pt = (OutputWindowPaneType)v;
-	if (panes.contains(pt))
-		switchPane(pt);
+
+	for (auto it = panes.begin(); it != panes.end(); ++it) {
+		OutputWindowLogger* p = it.value();
+		bool is_visible = it.key() == pt;
+		p->getWindowPane()->setVisible(is_visible);
+	}
 }
 
 void OutputWindow::clearAll()
