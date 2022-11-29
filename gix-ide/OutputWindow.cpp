@@ -90,7 +90,7 @@ OutputWindowLogger* OutputWindow::getLoggerSection(OutputWindowPaneType index)
 void OutputWindow::switchPane(OutputWindowPaneType t)
 {
 	for (auto it = panes.begin(); it != panes.end(); ++it) {
-		OutputWindowLogger* p = panes.value(t);
+		OutputWindowLogger* p = it.value();
 		bool is_visible = it.key() == t;
 		p->getWindowPane()->setVisible(is_visible);
 	}
@@ -98,10 +98,10 @@ void OutputWindow::switchPane(OutputWindowPaneType t)
 
 void OutputWindow::switchPane(int index)
 {
-	//auto v = pane_selector->itemData(index).toInt();
-	//OutputWindowPaneType pt = (OutputWindowPaneType)v;
-	//if (panes.contains(pt))
-	//	switchPane(pt);
+	auto v = pane_selector->itemData(index).toInt();
+	OutputWindowPaneType pt = (OutputWindowPaneType)v;
+	if (panes.contains(pt))
+		switchPane(pt);
 }
 
 void OutputWindow::clearAll()

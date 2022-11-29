@@ -230,8 +230,10 @@ bool MdiChild::loadFile(const QString &fileName)
         int ln = bkp.left(bkp.indexOf("@")).toInt();
         if (src_file == fileName)
             markerAdd(ln - 1, MRKR_BKP);
-        else
-            GixGlobals::getLogManager()->trace(LOG_IDE, "Failed to map file {} against {}", src_file, fileName);
+        else {
+            GixGlobals::getLogManager()->trace(LOG_IDE, "Failed to map file {}", src_file);
+            //GixGlobals::getLogManager()->trace(LOG_IDE, "Failed to map file {} against {}", src_file, fileName);
+        }
 	}
 
     markerDeleteAll(MRKR_BOOKMARK);

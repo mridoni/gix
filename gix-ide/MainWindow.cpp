@@ -197,7 +197,8 @@ MainWindow::MainWindow()
 	lm->registerLogSource(LOG_METADATA, ide_logger);
 	lm->registerLogSource(LOG_CONFIG, ide_logger);
 
-	output_window->switchPane(OutputWindowPaneType::Build);
+	//output_window->switchPane(OutputWindowPaneType::Build);
+	output_window->switchPane(0);
 
 #define LOG_TEST		99
 	emit Ide::TaskManager()->IdeReady();

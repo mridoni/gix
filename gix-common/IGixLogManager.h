@@ -51,8 +51,17 @@ public:
 	inline void log(int source, spdlog::level::level_enum level, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
 		std::shared_ptr<spdlog::logger> logger = get_logger(source);
-		if (logger)
+		if (logger.get()) {
+
 			logger->log(level, fmt, std::forward<Args>(args)...);
+		}
+		else {
+			spdlog::memory_buf_t buf;
+			spdlog::string_view_t f = fmt;
+			fmt::detail::vformat_to(buf, f, fmt::make_format_args(std::forward<Args>(args)...));
+			std::string s(buf.data(), buf.size());
+			add_to_backlog(source, level, s);
+		}
 	};
 
 	template<typename... Args>
@@ -129,5 +138,6 @@ public:
 
 private:
 	virtual std::shared_ptr<spdlog::logger> get_logger(int source) = 0;
+	virtual void add_to_backlog(int source, spdlog::level::level_enum, std::string msg) = 0;
 };	
 

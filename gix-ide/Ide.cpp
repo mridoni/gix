@@ -69,13 +69,14 @@ void Ide::init()
 		UiUtils::ErrorDialog(msg);
 	}
     
-	auto i_sink = std::make_shared<ide_sink_mt>();
-	std::vector<spdlog::sink_ptr> sinks = { i_sink };
-	auto logger = std::make_shared<spdlog::logger>("gix-ide", begin(sinks), end(sinks));
-	spdlog::set_default_logger(logger);
-	spdlog::set_level(spdlog::level::trace);	// max log level, will be limited by the sink-specific levels
-	i_sink->set_level(spdlog::level::trace);
-	logger->flush_on(spdlog::level::trace);    
+	//auto i_sink = std::make_shared<ide_sink_mt>();
+	//std::vector<spdlog::sink_ptr> sinks = { i_sink };
+	//auto logger = std::make_shared<spdlog::logger>("gix-ide", begin(sinks), end(sinks));
+
+	//spdlog::set_default_logger(logger);
+	//spdlog::set_level(spdlog::level::trace);	// max log level, will be limited by the sink-specific levels
+	//i_sink->set_level(spdlog::level::trace);
+	//logger->flush_on(spdlog::level::trace);    
 	
 #ifdef WIN32
 	// We copy default settings from Global to User, if missing

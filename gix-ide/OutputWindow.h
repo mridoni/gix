@@ -43,6 +43,7 @@ public:
 	OutputWindowLogger *getLoggerSection(OutputWindowPaneType index);
 
 	void switchPane(OutputWindowPaneType index);
+	void switchPane(int index);
 
 public slots:
 	void clearAll();
@@ -56,6 +57,6 @@ private:
 
 	QMap<OutputWindowPaneType, OutputWindowLogger*> panes;
 
-	void switchPane(int index);
+
 };
 

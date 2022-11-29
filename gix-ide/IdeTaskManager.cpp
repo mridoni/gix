@@ -71,9 +71,9 @@ IdeTaskManager::IdeTaskManager()
 
 	current_bookmark = 0;
 
-	//#LOG
-	/*qRegisterMetaType<QLogger::LogLevel>();
-	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");*/
+	
+	//#LOG qRegisterMetaType<QLogger::LogLevel>();
+	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");
 
 	connect(this, &IdeTaskManager::fileAddedToProject, this, [this](ProjectFile *pf) { prjcoll_window->refreshContent(); });
 
@@ -1145,12 +1145,14 @@ MdiChild *IdeTaskManager::openFileNoSignals(QString filename)
 	return mdiChild;
 }
 
-void IdeTaskManager::dispatchBuildLogMessage(const QString& msg, spdlog::level::level_enum)
+void IdeTaskManager::dispatchBuildLogMessage(const QString& msg, spdlog::level::level_enum level)
 {
+	logger->log(LOG_BUILD, level, "{}", msg);
 }
 
 void IdeTaskManager::clearBuildLog()
 {
+
 }
 
 //#LOG

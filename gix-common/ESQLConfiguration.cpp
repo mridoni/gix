@@ -152,6 +152,8 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 		build_driver->log_build_message("Exit code: " + QString::number(rc), spdlog::level::trace);
 		return false;
 	}
+
+	return true;
 }
 
 QString ESQLConfiguration::getBinPath()
