@@ -12,7 +12,7 @@ env:
   GIXIDEMAJ: 1
   GIXIDEMIN: 1
   GIXIDEREL: 0
-  GIX_REVISION: ${{ github.run_id }}
+  GIX_REVISION: ${{ github.run_attempt }}
   GIXSQLMAJ: 1
   GIXSQLMIN: 0
   GIXSQLREL: 19
