@@ -39,6 +39,8 @@
     <ClInclude Include="DebugDriverUtils.h" />
     <ClInclude Include="DependenciesWindow.h" />
     <ClInclude Include="EolMode.h" />
+    <ClInclude Include="ErrorWarningFilter.h" />
+    <ClInclude Include="ErrorWindow.h" />
     <ClInclude Include="GixVersion.h" />
     <ClInclude Include="Ide.h" />
     <ClInclude Include="IdeStatus.h" />
@@ -114,6 +116,8 @@
     <ClCompile Include="DragDropTableWidget.cpp" />
     <ClCompile Include="DragDropTreeWidget.cpp" />
     <ClCompile Include="ElidedLabel.cpp" />
+    <ClCompile Include="ErrorWarningFilter.cpp" />
+    <ClCompile Include="ErrorWindow.cpp" />
     <ClCompile Include="ExperimentalDebugDriver.cpp" />
     <ClCompile Include="GixVersion.cpp" />
     <ClCompile Include="Ide.cpp" />

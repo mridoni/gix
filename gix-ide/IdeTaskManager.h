@@ -23,11 +23,13 @@ USA.
 #include "MainWindow.h"
 #include "OutputWindow.h"
 #include "WatchWindow.h"
+#include "ErrorWindow.h"
 #include "ProjectCollection.h"
 #include "Project.h"
 #include "DebugManager.h"
 #include "IdeStatus.h"
 #include "IGixLogManager.h"
+#include "BuildResult.h"
 
 #include <QQueue>
 
@@ -39,18 +41,6 @@ USA.
 #define DEFAULT_TARGET_CONFIG 1
 
 class DebugManager;
-
-//#LOG
-//
-//Q_DECLARE_METATYPE(IdeStatus)
-//Q_DECLARE_METATYPE(QLogger::LogLevel);
-//
-//class LogBacklogEntry {
-//public:
-//	QString module;
-//	QString msg;
-//	QLogger::LogLevel level;
-//};
 
 class IdeTaskManager : public QObject
 {
@@ -73,7 +63,7 @@ public:
 	ProjectCollection *getCurrentProjectCollection();
 	Project *getCurrentProject();
 
-	void init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow* ww, NavigationWindow *nw);
+	void init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow* ww, NavigationWindow *nw, ErrorWindow* ew);
 
 	void buildAll(QString configuration, QString platform);
 	void buildClean(QString configuration, QString platform);
@@ -138,8 +128,6 @@ public:
 	void consoleWriteStdErr(QString msg);
 	void consoleClear();
 
-	//#LOG void flushLog();
-
 	void setIdeElementInfo(QString k, QVariant v);
 	QVariant getIdeElementInfo(QString k);
 
@@ -169,9 +157,8 @@ signals:
 	void SettingsChanged();
 
 	void stopBuildInvoked();
-	void buildFinished(int);
-
-	// //#LOGvoid print(QString msg, QLogger::LogLevel log_level);
+	void buildStarted();
+	void buildFinished(const BuildResult& res);
 
 	void fileLoaded(ProjectFile *);
 	void fileSaved(ProjectFile *);
@@ -186,9 +173,9 @@ signals:
 
 
 public slots:
-	// //#LOG void logMessage(QString module, QString message, QLogger::LogLevel);
 	void debugStopped();
 	void debugStarted();
+	void buildFinishedHandler(BuildResult br);
 
 private:
 	IGixLogManager* logger = nullptr;
@@ -201,6 +188,7 @@ private:
 	ConsoleWindow *console_window;
 	WatchWindow * watch_window;
 	NavigationWindow* navigation_window;
+	ErrorWindow* error_window;
 
 	DebugManager *debug_manager;
 	QMap<QString, QVariant> current_project_collection_data;

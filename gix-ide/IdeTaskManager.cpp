@@ -33,6 +33,7 @@ USA.
 #include "DataEntry.h"
 #include "GixGlobals.h"
 #include "IdeStatusSyncSetter.h"
+#include "ErrorWarningFilter.h"
 #include "linq/linq.hpp"
 
 #include <QComboBox>
@@ -64,6 +65,7 @@ IdeTaskManager::IdeTaskManager()
 	console_window = nullptr;
 	watch_window = nullptr;
 	navigation_window = nullptr;
+	error_window = nullptr;
 	debug_manager = nullptr;
 	current_project_collection = nullptr;
 	ide_status = IdeStatus::Started;
@@ -71,8 +73,6 @@ IdeTaskManager::IdeTaskManager()
 
 	current_bookmark = 0;
 
-	
-	//#LOG qRegisterMetaType<QLogger::LogLevel>();
 	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");
 
 	connect(this, &IdeTaskManager::fileAddedToProject, this, [this](ProjectFile *pf) { prjcoll_window->refreshContent(); });
@@ -94,6 +94,11 @@ IdeTaskManager::IdeTaskManager()
 		}
 
 	});*/
+
+	connect(this, &IdeTaskManager::buildFinished, this, &IdeTaskManager::buildFinishedHandler);
+	connect(this, &IdeTaskManager::buildStarted, this, [this]() {
+		error_window->clear();
+	});
 }
 
 DebugManager *IdeTaskManager::getDebugManager()
@@ -140,7 +145,7 @@ Project *IdeTaskManager::getCurrentProject()
 	return prj;
 }
 
-void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow *ww, NavigationWindow *nw)
+void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow *ww, NavigationWindow *nw, ErrorWindow* ew)
 {
 	main_window = mw;
 	output_window = ow;
@@ -148,6 +153,7 @@ void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWin
 	console_window = cw;
 	watch_window = ww;
 	navigation_window = nw;
+	error_window = ew;
 
 	connect(Ide::TaskManager(), &IdeTaskManager::projectCollectionLoaded, this, [this] {
 
@@ -162,23 +168,22 @@ void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWin
 		}
 
 	});
-
-	//#LOG
-	//connect((QLogger::QLoggerManager *)GixGlobals::getLogManager(), &QLogger::QLoggerManager::logMessage, this, &IdeTaskManager::logMessage);
 }
 
 void IdeTaskManager::buildAll(QString configuration, QString platform)
 {
 	QSettings settings;
 
+	emit buildStarted();
+
 	if (current_project_collection == nullptr || !current_project_collection->HasChildren())
 		return;
 
 	setStatus(IdeStatus::Building);
 
-	int build_res = 0;
 	QList<QPair<QString, QString>> tl;
 
+	output_window->clearPane(OutputWindowPaneType::Build);
 	output_window->switchPane(OutputWindowPaneType::Build);
 
 	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
@@ -187,7 +192,7 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 		logger->error(LOG_BUILD, "{}", tr(err_msg.toLocal8Bit().data()));
 		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
 		setStatus(IdeStatus::Editing);
-		emit buildFinished(build_res);
+		emit buildFinished(BuildResult(1, err_msg));
 		return;
 	}
 
@@ -210,11 +215,18 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 		logger->error(LOG_BUILD, "{}", tr(err_msg.toLocal8Bit().data()));
 		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
 		setStatus(IdeStatus::Editing);
-		emit buildFinished(build_res);
+		emit buildFinished(BuildResult(1, err_msg));
 		return;
 	}
 
-	logger->trace(LOG_BUILD, "{}", build_target->toString());
+	logger->trace(LOG_BUILD, "{}", build_target->toString());	
+
+	if (build_target->isUpToDate()) {
+		setStatus(IdeStatus::Editing);
+		logger->log(LOG_BUILD, spdlog::level::info, "{} is up to date", current_project_collection->GetDisplayName());
+		emit buildFinished(BuildResult(0, current_project_collection->GetDisplayName() + " is up to date"));
+		return;
+	}
 
 	BuildDriver builder;
 	connect(&builder, &BuildDriver::log_output, this, &IdeTaskManager::dispatchBuildLogMessage);
@@ -227,8 +239,6 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 
 	builder.execute(build_target, BuildOperation::Build);
 
-	build_res += builder.getBuildResult().getStatus();
-
 	if (builder.getBuildResult().getStatus() != 0) {
 		last_build_result = builder.getBuildResult().getStatus();
 	}
@@ -237,7 +247,7 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 
 	setStatus(IdeStatus::Editing);
 
-	emit buildFinished(build_res);
+	emit buildFinished(builder.getBuildResult());
 }
 
 void IdeTaskManager::buildClean(QString configuration, QString platform)
@@ -245,6 +255,7 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 	if (current_project_collection == nullptr || !current_project_collection->HasChildren())
 		return;
 
+	output_window->clearPane(OutputWindowPaneType::Build);
 	output_window->switchPane(OutputWindowPaneType::Build);
 
 	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
@@ -975,17 +986,6 @@ void IdeTaskManager::consoleClear()
 	console_window->clear();
 }
 
-//#LOG
-//void IdeTaskManager::flushLog()
-//{
-//	while (!log_backlog.isEmpty()) {
-//		LogBacklogEntry *lbl = log_backlog.dequeue();
-//		this->logMessage(lbl->module, lbl->msg, lbl->level);
-//		//delete lbl;
-//	}
-//}
-
-
 void IdeTaskManager::setIdeElementInfo(QString k, QVariant v)
 {
 	ide_element_info_map[k] = v;
@@ -1097,6 +1097,18 @@ void IdeTaskManager::debugStarted()
 	setStatus(IdeStatus::Running);
 }
 
+void IdeTaskManager::buildFinishedHandler(BuildResult br)
+{
+	error_window->updateErrorList();
+
+	if (br.getStatus() == 0) {
+		logger->log(LOG_BUILD, spdlog::level::info,"Build successful");
+	}
+	else {
+		logger->log(LOG_BUILD, spdlog::level::err, "Build error");
+	}	
+}
+
 void IdeTaskManager::startLoadingMetadata(ProjectItem *pi)
 {
 	if (!this->backgroundTasksEnabled())
@@ -1154,27 +1166,18 @@ MdiChild *IdeTaskManager::openFileNoSignals(QString filename)
 void IdeTaskManager::dispatchBuildLogMessage(const QString& msg, spdlog::level::level_enum level)
 {
 	logger->log(LOG_BUILD, level, "{}", msg);
+	if (level >= spdlog::level::warn) {
+		ErrorWarningFilter f;
+		auto entries = f.filter(msg, level);
+		if (entries.size())
+			error_window->addEntries(entries);
+	}
 }
 
 void IdeTaskManager::clearBuildLog()
 {
 
 }
-
-//#LOG
-//void IdeTaskManager::logMessage(QString module, QString msg, QLogger::LogLevel log_level)
-//{
-//	if (this->receivers(SIGNAL(print(QString, QLogger::LogLevel)))) {
-//		emit this->print(msg, log_level);
-//	}
-//	else {
-//		LogBacklogEntry *lbl = new LogBacklogEntry();
-//		lbl->module = module;
-//		lbl->msg = msg;
-//		lbl->level = log_level;
-//		log_backlog.enqueue(lbl);
-//	}
-//}
 
 void IdeTaskManager::saveCurrentProjectCollectionState()
 {

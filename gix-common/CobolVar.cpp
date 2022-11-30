@@ -156,10 +156,9 @@ void CobolVar::createRealData()
 			insert_decimal_point(sv_tmp.realdata, realdata_length, sv_tmp.power);
 		}
 
-#ifdef _DEBUG
-		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
-								sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+#if defined(_DEBUG) && defined(VERBOSE)
+		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length, sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
+		GixGlobals::getLogManager()->log(LOG_METADATA, spdlog::level::trace, log_msg);
 #endif
 		break;
 	}
@@ -196,7 +195,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 	}
@@ -224,7 +223,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 	}
@@ -279,7 +278,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 	}
@@ -343,7 +342,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 	}
@@ -358,7 +357,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 
@@ -410,7 +409,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 
@@ -463,7 +462,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 
@@ -476,7 +475,7 @@ void CobolVar::createRealData()
 #ifdef _DEBUG
 		log_msg.sprintf("%s@%s: %d %d->%d#data:%s#realdata:%s\n", __FILE__, __func__, sv_tmp.type, length,
 			sv_tmp.length, sv_tmp.data, sv_tmp.realdata);
-		// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+		// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 		break;
 	}
@@ -1000,7 +999,7 @@ void CobolVar::createCobolData(char *retstr)
 #ifdef _DEBUG
 	QString log_msg;
 	log_msg.sprintf("%s@%s: %d %d#%s#%s#\n", __FILE__, __func__, type, length, retstr, tmp);
-	// //#LOG QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
+	// QLogger::QLog_Trace(GIX_CONSOLE_LOG, log_msg);
 #endif
 	if (tmp) free(tmp);
 #endif

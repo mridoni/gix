@@ -28,6 +28,7 @@ USA.
 #include "PropertyWindow.h"
 #include "OutputWindow.h"
 #include "WatchWindow.h"
+#include "ErrorWindow.h"
 #include "SettingsDialog.h"
 #include "SearchDialog.h"
 #include "BuildDriver.h"
@@ -113,6 +114,14 @@ MainWindow::MainWindow()
 	navigation_dock->setWidget(navigation_window);
 	addDockWidget(Qt::LeftDockWidgetArea, navigation_dock);
 
+	error_dock = new QDockWidget(tr("Error List"), this);
+	error_window = new ErrorWindow(navigation_dock, this);
+	error_dock-> setWidget(error_window);
+	addDockWidget(Qt::LeftDockWidgetArea, error_dock);
+
+	tabifyDockWidget(output_dock, error_dock);
+	output_dock->raise();
+
 	watch_dock->hide();
 
 	createActions();
@@ -137,7 +146,7 @@ MainWindow::MainWindow()
 
 	connect(prjcoll_window, &ProjectCollectionWindow::selectionChanged, property_window, &PropertyWindow::setContent);
 
-	Ide::TaskManager()->init(this, output_window, prjcoll_window, console_window, watch_window, navigation_window);
+	Ide::TaskManager()->init(this, output_window, prjcoll_window, console_window, watch_window, navigation_window, error_window);
 	Ide::TaskManager()->setCurrentProjectCollection(nullptr);
 
     connect(Ide::TaskManager(), &IdeTaskManager::IdeEditorChangedPosition, this, [this](QString a, int b) { IdeEditorChangedPosition(a, b);  }, Qt::ConnectionType::QueuedConnection);
@@ -197,10 +206,8 @@ MainWindow::MainWindow()
 	lm->registerLogSource(LOG_METADATA, ide_logger);
 	lm->registerLogSource(LOG_CONFIG, ide_logger);
 
-	//output_window->switchPane(OutputWindowPaneType::Build);
-	output_window->switchPane(0);
+	output_window->switchPane(OutputWindowPaneType::Ide);
 
-#define LOG_TEST		99
 	emit Ide::TaskManager()->IdeReady();
 }
 

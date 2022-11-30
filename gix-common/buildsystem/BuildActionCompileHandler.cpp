@@ -131,7 +131,7 @@ bool BuildActionCompileHandler::startBuild()
 	}
 
 #if _DEBUG
-	cobc_opts.append("-v");
+	//cobc_opts.append("-v");
 #endif
 
 	MacroManager mm(environment);

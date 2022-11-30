@@ -31,11 +31,15 @@ class BuildResult {
 	friend class SingleArtifactBuilder;
 
 public:
+	GIXCOMMON_EXPORT BuildResult();
+	GIXCOMMON_EXPORT BuildResult(int st, const QString& msg);
+	GIXCOMMON_EXPORT BuildResult(int st, const QStringList& bl);
+
 	GIXCOMMON_EXPORT bool isSuccess();
 	GIXCOMMON_EXPORT int getStatus();
 	GIXCOMMON_EXPORT QStringList buildlog();
 
 private:
-	int status;
+	int status = 0;
 	QStringList build_log;
 };

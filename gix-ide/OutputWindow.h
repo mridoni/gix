@@ -44,6 +44,7 @@ public:
 
 	void switchPane(OutputWindowPaneType index);
 	void switchPane(int index);
+	void clearPane(OutputWindowPaneType t);
 
 public slots:
 	void clearAll();

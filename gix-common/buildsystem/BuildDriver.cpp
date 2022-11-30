@@ -79,7 +79,7 @@ ProjectItem *BuildDriver::getItem()
 void BuildDriver::execute(BuildTarget *target, BuildOperation op)
 {
 	if (target == nullptr) {
-		//#LOG	log_build_message(tr("Invalid target"), spdlog::level::err, 1);
+		log_build_message(tr("Invalid target"), spdlog::level::err, 1);
 		return;
 	}
 
@@ -163,7 +163,7 @@ void BuildDriver::execute_build(BuildTarget *target)
 			return;
 		}
 	}
-
+	log_build_message("Build finished", spdlog::level::info);
 }
 
 void BuildDriver::extract_project_base_dirs(BuildTarget *target, QMap<QString, QString> &base_dirs)

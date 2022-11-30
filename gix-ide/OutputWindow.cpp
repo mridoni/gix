@@ -84,6 +84,19 @@ OutputWindowLogger* OutputWindow::getLoggerSection(OutputWindowPaneType index)
 	return nullptr;
 }
 
+void OutputWindow::clearPane(OutputWindowPaneType t)
+{
+	int index = 0;
+	for (auto it = panes.begin(); it != panes.end(); ++it) {
+		OutputWindowLogger* p = it.value();
+		if (it.key() == t) {
+			p->getWindowPane()->clear();
+			break;
+		}
+		index++;
+	}
+}
+
 void OutputWindow::switchPane(OutputWindowPaneType t)
 {
 	int index = 0;

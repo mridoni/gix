@@ -20,6 +20,21 @@ USA.
 
 #include "BuildResult.h"
 
+BuildResult::BuildResult()
+{
+}
+
+BuildResult::BuildResult(int st, const QString& msg)
+{
+	this->status = st;
+	this->build_log = QStringList( { msg } );
+}
+
+BuildResult::BuildResult(int st, const QStringList& bl)
+{
+	this->status = st;
+	this->build_log = bl;
+}
 
 bool BuildResult::isSuccess()
 {

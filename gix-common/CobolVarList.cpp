@@ -64,13 +64,12 @@ void CobolVarList::dump()
 	vector<CobolVar *>::iterator it;
 	for (it = vector<CobolVar *>::begin(); it != vector<CobolVar *>::end(); it++) {
 		CobolVar * v = *it;
-#ifdef _DEBUG
-		//#LOG
-		//if (v != NULL) {
-		//	QString msg;
-		//	msg.sprintf("%s@%s: %p %d %d %d %p\n", __FILE__, __func__, v, v->type, v->length, v->power, v->addr);
-		//	QLogger::QLog_Trace(GIX_CONSOLE_LOG, msg);
-		//}
+#if defined(_DEBUG) && defined(VERBOSE)
+		if (v != NULL) {
+			QString msg;
+			msg.sprintf("%s@%s: %p %d %d %d %p", __FILE__, __func__, v, v->type, v->length, v->power, v->addr);
+			GixGlobals::getLogManager()->log(LOG_METADATA, spdlog::level::trace, msg);
+		}
 #endif
 	}
 }

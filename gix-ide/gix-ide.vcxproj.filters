@@ -207,6 +207,10 @@
     <ClCompile Include="OutputWindowLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ErrorWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorWarningFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="AddCompilerDialog.h">
@@ -403,6 +407,10 @@
     <ClInclude Include="OutputWindowLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ErrorWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorWarningFilter.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AddCompilerDialog.ui">
