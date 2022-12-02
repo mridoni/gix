@@ -372,6 +372,13 @@ begin
       try
         DownloadPage.Download; 
         // TODO: check signatures        
+		
+        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix') then 
+		begin
+		    Error := GetLastError;
+			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+			RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix' );
+		end;		
         
         If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs') then 
 		begin
