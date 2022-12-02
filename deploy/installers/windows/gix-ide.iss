@@ -350,7 +350,7 @@ begin
       DownloadPage.Add('{#MSVC_BUILD_TOOLS}', 'vs_BuildTools.exe', '');
     end;
     
-    for i := 0 to GetArrayLength(SelectedCompilers) -1 do<
+    for i := 0 to GetArrayLength(SelectedCompilers) -1 do
     begin
       if not ParseCompilerEntry(SelectedCompilers[i], release_tag, id, version, host, target, linker, description) then continue;
 
