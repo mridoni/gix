@@ -134,6 +134,9 @@ function ReadCompilerIndex(IndexFile: String) : Boolean; forward;
 function StrSplit(Text: String; Separator: String): TArrayOfString; forward;
 function ParseCompilerEntry(crow : String; var release_tag : String; var id : String; var version : String; var host : String;
 								var target : String; var linker : String; var description : String) : Boolean; forward;
+
+function GetLastError: Cardinal;
+  external 'GetLastError@kernel32.dll stdcall';                
   
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
 begin
@@ -253,6 +256,7 @@ var
   i, chk_count, cidx : Integer;
   crow, curl: String;
   release_tag, id, version, host, target, linker, description : String;
+  Error: Cardinal;
 begin
 
   if CurPageID = DefaultCompilerPage.ID then
@@ -369,8 +373,19 @@ begin
         DownloadPage.Download; 
         // TODO: check signatures        
         
-        //If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs') then RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs' );
-        //If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-defs') then RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs' );
+        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs') then 
+		begin
+		    Error := GetLastError;
+			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+			RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs' );
+		end;
+		
+        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-defs') then 
+		begin
+		    Error := GetLastError;
+			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+			RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs' );
+		end;
         
         for i := 0 to GetArrayLength(SelectedCompilers) -1 do
         begin
@@ -382,8 +397,12 @@ begin
           
           Log ('Copying ' + ExpandConstant('{tmp}') + '\' + id + '.def to ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def');
           DownloadPage.SetText('Installing definition file', 'Copying ' + ExpandConstant('{tmp}') + '\' + id + '.def to ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def');
-          if Not FileCopy(ExpandConstant('{tmp}') + '\' + id + '.def', ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def', False) then RaiseException('Cannot copy compiler definition file');
-
+          if Not FileCopy(ExpandConstant('{tmp}') + '\' + id + '.def', ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def', False) then 
+		  begin
+		    Error := GetLastError;
+			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+			RaiseException('Cannot copy compiler definition file');
+		  end;
         end;
         
         Result := True;
