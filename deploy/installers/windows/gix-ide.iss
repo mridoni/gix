@@ -99,8 +99,8 @@ Name: "{app}\bin"
 Name: "{app}\lib\{#HOST_PLATFORM}\msvc"
 Name: "{app}\lib\{#HOST_PLATFORM}\gcc"
 Name: "{app}\copy"
-Name: "{localappdata}\Gix\compiler-pkgs"
-Name: "{localappdata}\Gix\compiler-defs"
+;Name: "{localappdata}\Gix\compiler-pkgs"
+;Name: "{localappdata}\Gix\compiler-defs"
 Name: "{userdocs}\Gix"
 Name: "{userdocs}\Gix\Documentation"
 Name: "{userdocs}\Gix\Examples"
@@ -369,8 +369,8 @@ begin
         DownloadPage.Download; 
         // TODO: check signatures        
         
-        CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs');
-        CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-defs');
+        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs') then RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs' );
+        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-defs') then RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs' );
         
         for i := 0 to GetArrayLength(SelectedCompilers) -1 do
         begin
