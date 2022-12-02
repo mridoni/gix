@@ -70,5 +70,7 @@
         <file>icons/bullet_yellow.png</file>
         <file>icons/key.png</file>
         <file>icons/bullet_refresh.png</file>
+        <file>icons/error.png</file>
+        <file>icons/warning.png</file>
     </qresource>
 </RCC>

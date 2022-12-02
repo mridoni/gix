@@ -1063,7 +1063,7 @@ void IdeTaskManager::gotoDefinition(DataEntry *e)
 	mdiChild->highlightSymbol(lline, e->name);
 }
 
-void IdeTaskManager::gotoFileLine(QString filename, int ln)
+void IdeTaskManager::gotoFileLine(QString filename, int ln, bool move_caret_line)
 {
 	if (!current_project_collection)
 		return;
@@ -1080,6 +1080,10 @@ void IdeTaskManager::gotoFileLine(QString filename, int ln)
 		return;
 
 	mdiChild->gotoLine(ln - 1);
+	if (move_caret_line) {
+		auto p = mdiChild->positionFromLine(ln - 1);
+		mdiChild->setSelection(p, p);
+	}
 }
 
 bool IdeTaskManager::backgroundTasksEnabled()

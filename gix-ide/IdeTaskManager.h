@@ -134,7 +134,7 @@ public:
 	void gotoDefinition(CodeEditor *ce, QString s, int ln);
 	void gotoDefinition(DataEntry *e);
 	void gotoDefinition(Paragraph* p);
-	void gotoFileLine(QString filename, int ln);
+	void gotoFileLine(QString filename, int ln, bool move_caret_line = false);
 
 	bool backgroundTasksEnabled();
 	void setBackgroundTasksEnabled(bool b);
