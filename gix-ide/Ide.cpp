@@ -127,3 +127,18 @@ EolMode Ide::getEolModeFromSettings()
 #error "Unknown platform"
 #endif
 }
+
+QFont Ide::getGridFont()
+{
+	QSettings settings;
+	QTableWidgetItem* tw = new QTableWidgetItem();
+	QString font_name = settings.value("grid_font_name", "").toString();
+	int font_size = settings.value("grid_font_size", 0).toInt();
+	if (font_name.isEmpty() || font_size == 0) {
+		QTableWidgetItem tw;
+		font_name = tw.font().family();
+		font_size = tw.font().pointSize();
+	}
+
+	return QFont(font_name, font_size);
+}

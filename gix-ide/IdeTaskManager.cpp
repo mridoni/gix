@@ -48,6 +48,7 @@ USA.
 #include <QMetaEnum>
 #include <QMdiArea>
 #include <QTimer>
+#include <QDockWidget>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -1169,8 +1170,10 @@ void IdeTaskManager::dispatchBuildLogMessage(const QString& msg, spdlog::level::
 	if (level >= spdlog::level::warn) {
 		ErrorWarningFilter f;
 		auto entries = f.filter(msg, level);
-		if (entries.size())
+		if (entries.size()) {
 			error_window->addEntries(entries);
+			main_window->error_dock->raise();
+		}
 	}
 }
 

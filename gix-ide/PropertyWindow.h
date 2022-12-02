@@ -57,7 +57,5 @@ private:
 	void filePathEditButtonClicked(PropertyDefinition *, QVariant, ProjectItem *pi, QWidget *prop_visual);
 
 	void propertyValueChanged(PropertyDefinition *, QVariant, ProjectItem *pi);
-
-	QFont getGridFont();
 };
 
