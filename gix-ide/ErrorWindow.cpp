@@ -39,7 +39,7 @@ ErrorWindow::ErrorWindow(QWidget* parent, MainWindow* mw) : QMainWindow(parent)
 	this->setWindowTitle("Errors/Warnings");
 	this->setMinimumHeight(100);
 	this->setMinimumWidth(250);
-	this->setWindowFlags(Qt::Widget); // <---------
+	this->setWindowFlags(Qt::Widget);
 	toolBar = new QToolBar(this);
 	this->addToolBar(toolBar);
 	this->mainWindow = mw;
@@ -47,12 +47,6 @@ ErrorWindow::ErrorWindow(QWidget* parent, MainWindow* mw) : QMainWindow(parent)
 	err_grid = new QTableWidget(this);
 	err_grid->setColumnCount(5);
 
-	
-
-	//err_grid->setHorizontalHeaderLabels(QStringList() << "Type" << "Message" << "Filename" << "Line" << "Paragraph/Section");
-
-	auto c0 = new QTableWidgetItem("Type");
-	err_grid->setHorizontalHeaderItem(0, c0);
 	err_grid->verticalHeader()->hide();
 
 	QHeaderView* header = err_grid->horizontalHeader();
@@ -62,6 +56,9 @@ ErrorWindow::ErrorWindow(QWidget* parent, MainWindow* mw) : QMainWindow(parent)
 	header->setSectionResizeMode(COL_FILE, QHeaderView::Stretch);
 	header->setSectionResizeMode(COL_LINE, QHeaderView::Fixed);
 	header->setSectionResizeMode(COL_PAR_SEC, QHeaderView::Stretch);
+	header->setHighlightSections(false);
+
+	err_grid->setStyleSheet("QHeaderView::section { background-color: rgb(220,220,220); border: 1px solid #c0c0c0; padding-left: 6px }");
 
 	err_grid->setColumnWidth(COL_TYPE, 12);
 	err_grid->setColumnWidth(COL_MSG, 300);
@@ -77,7 +74,6 @@ ErrorWindow::ErrorWindow(QWidget* parent, MainWindow* mw) : QMainWindow(parent)
 	});
 
 	this->setCentralWidget(err_grid);
-
 }
 
 ErrorWindow::~ErrorWindow()
@@ -152,26 +148,26 @@ void ErrorWindow::updateErrorList()
 		icon_item->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		err_grid->setCellWidget(i, COL_TYPE, icon_item);
 
-		//QTableWidgetItem* t1 = new QTableWidgetItem(e.message);
-		//QTableWidgetItem* t2 = new QTableWidgetItem(e.filename);
-		//QTableWidgetItem* t3 = new QTableWidgetItem(QString::number(e.line));
-		//QTableWidgetItem* t4 = new QTableWidgetItem(e.section_or_paragraph);
-
 		err_grid->setCellWidget(i, COL_MSG, get_label(e.message, e.message));
 		err_grid->setCellWidget(i, COL_FILE, get_label(e.filename, e.filename));
 		err_grid->setCellWidget(i, COL_LINE, get_label(QString::number(e.line)));
 		err_grid->setCellWidget(i, COL_PAR_SEC, get_label(e.section_or_paragraph, e.section_or_paragraph));
 	
-		//QVariant v;
-		//v.setValue<void*>((void*)&e);
-		//err_grid->cellWidget(i, COL_TYPE)->setProperty("*", v);
-
-		//th->setBackgroundColor(QColor(224, 224, 224));
-		//propertyTable->setItem(table_row, 0, th);
-		//propertyTable->setSpan(table_row, 0, 1, 2);
-		//table_row++;
-		//curr_group = pd->Group;
+		
 	}
+
+	QFont hf = Ide::getGridFont();
+	hf.setPointSizeF(8);
+	QStringList header_titles = { "Type", "Message", "Filename", "Line", "Paragraph/Section" };
+
+	for (int i = 0; i < header_titles.size(); i++) {
+		QTableWidgetItem* th = new QTableWidgetItem(header_titles[i]);
+		th->setFont(hf);
+		th->setBackgroundColor(QColor(255,0,0));
+		th->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+		err_grid->setHorizontalHeaderItem(i, th);
+	}
+
 
 	entries = new_entries;
 

@@ -63,8 +63,8 @@ IDI_ICON_PRJ            ICON                    "..\misc\prj_icon.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0dev1,1922
- PRODUCTVERSION 1,1,0dev1,1922
+ FILEVERSION 1,1,0,9999
+ PRODUCTVERSION 1,1,0,9999
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -81,12 +81,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Marco Ridoni"
             VALUE "FileDescription", "Gix-IDE"
-            VALUE "FileVersion", "1.1.0dev1.1922"
+            VALUE "FileVersion", "1.1.0.9999"
             VALUE "InternalName", "gix-ide.exe"
             VALUE "LegalCopyright", "Copyright (C) 2018-2022"
             VALUE "OriginalFilename", "gix-ide.exe"
             VALUE "ProductName", "Gix-IDE"
-            VALUE "ProductVersion", "1.1.0dev1.1922"
+            VALUE "ProductVersion", "1.1.0.9999"
         END
     END
     BLOCK "VarFileInfo"
