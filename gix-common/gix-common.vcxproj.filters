@@ -136,9 +136,6 @@
     <ClCompile Include="metadata\MetadataWorker.cpp">
       <Filter>Source Files\metadata</Filter>
     </ClCompile>
-    <ClCompile Include="QStringFormatter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gixcommon_global.h" />

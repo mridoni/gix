@@ -414,7 +414,6 @@
     <ClCompile Include="projectsystem\SingleBinaryProject.cpp" />
     <ClCompile Include="projectsystem\WebProject.cpp" />
     <ClCompile Include="PropertyConsts.cpp" />
-    <ClCompile Include="QStringFormatter.cpp" />
     <ClCompile Include="RsrcUtils.cpp" />
     <ClCompile Include="ServerConfig.cpp" />
     <ClCompile Include="SymbolBufferReader.cpp" />
