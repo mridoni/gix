@@ -1,3 +1,13 @@
+=== v1.1.0 =====================================================
+- Integrated "standalone" debugger
+- GixSQL is now a git submodule
+- Debugger engine fixes (Windows and Linux)
+- Added tooltips for field definition and inspection (when debugging) in the editor
+- Completely overhauled build and packaging scripts
+- The Linux version of the standalone debugger is now functional
+- On Linux the distribution-provided compiler can now be used more easily
+- GixSQL upgraded to v1.0.19
+
 === v1.0.18a =====================================================
 - Gix-IDE: Fixed compiler handling for x86-only (Windows)
 - Gix-IDE: Fixed decoration issues on x86/Codeview (Windows)
