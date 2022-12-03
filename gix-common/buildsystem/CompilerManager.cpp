@@ -42,31 +42,31 @@ void CompilerManager::init()
 {
 	IGixLogManager *logger = GixGlobals::getLogManager();
 
-	logger->logMessage(GIX_CONSOLE_LOG, "Initializing compiler manager", QLogger::LogLevel::Info);
+	logger->trace(LOG_CONFIG, "Initializing compiler manager");
 
 	if (compiler_defs.size() > 0)
 		cleanup();
 
 	QString cdir = GixGlobals::getCompilerDefsDir();
 	if (cdir.isEmpty()) {
-		logger->logMessage(GIX_CONSOLE_LOG, "Compiler definitions directory is not set", QLogger::LogLevel::Error);
+		logger->error(LOG_CONFIG, "Compiler definitions directory is not set");
 		return;
 	}
 
 	QDir compiler_defs_dir(QDir::fromNativeSeparators(cdir));
 	if (!compiler_defs_dir.exists()) {
-		logger->logMessage(GIX_CONSOLE_LOG, "Cannot locate compiler definitions directory: " + cdir, QLogger::LogLevel::Error);
+		logger->error(LOG_CONFIG, "Cannot locate compiler definitions directory: {}", cdir);
 		return;
 	}
 
-	logger->logMessage(GIX_CONSOLE_LOG, "Compiler definitions directory is " + cdir, QLogger::LogLevel::Debug);
+	logger->trace(LOG_CONFIG, "Compiler definitions directory is {}", cdir);
 
 	compiler_defs_dir.setNameFilters(QStringList("*.def"));
 
 	for (QFileInfo def_file : compiler_defs_dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files)) {
 		CompilerDefinition* cd = CompilerDefinition::load(def_file.absoluteFilePath());
 		if (cd == nullptr) {
-			logger->logMessage(GIX_CONSOLE_LOG, "Cannot parse compiler definition " + def_file.absoluteFilePath(), QLogger::LogLevel::Error);
+			logger->error(LOG_CONFIG, "Cannot parse compiler definition {}", def_file.absoluteFilePath());
 			continue;
 		}
 
@@ -83,11 +83,11 @@ void CompilerManager::init()
 		if (cd_default != nullptr) {
 			QStringList test_info;
 			if (cd_default->testConfiguration(compiler_errs) && cd_default->save()) {
-				logger->logMessage(GIX_CONSOLE_LOG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info), QLogger::LogLevel::Info);
+				logger->logMessage(LOG_CONFIG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info), QLogger::LogLevel::Info);
 				compiler_defs[cd_default->getId()] = cd_default;
 			}
 			else {
-				logger->logMessage(GIX_CONSOLE_LOG, "Cannot add distribution-provided compiler", QLogger::LogLevel::Warning);
+				logger->logMessage(LOG_CONFIG, "Cannot add distribution-provided compiler", QLogger::LogLevel::Warning);
 			}
 		}
 	}

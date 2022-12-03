@@ -23,6 +23,7 @@ typedef unsigned char byte;
 
 #include "IDebugDriver.h"
 #include "GixDebuggerClient.h"
+#include "IGixLogManager.h"
 
 class GixDebugger;
 class DebugManager;
@@ -60,7 +61,8 @@ protected:
 	virtual bool dbgr_client_debuggerStdErrAvailable(GixDebugger*, std::string) override;
 
 private:
-	
+	IGixLogManager* logger = nullptr;
+
 	GixDebugger* debugger_instance = nullptr;
 
 	QString current_module;

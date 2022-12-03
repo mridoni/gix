@@ -218,15 +218,15 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'">
@@ -238,15 +238,15 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|x64'">
@@ -258,7 +258,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -277,15 +277,15 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalDependencies>libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmt.lib;spdlog.lib;libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'">
@@ -297,7 +297,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -310,33 +310,33 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions);_DEBUG_LOG_ON</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
-      <AdditionalDependencies>libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_DEBUG;GIXCOMMON_LIB;%(PreprocessorDefinitions);_DEBUG_LOG_ON</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
-      <AdditionalDependencies>libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_5.15.2|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions);_DEBUG_LOG_ON</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -349,19 +349,19 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\$(ProjectName).dll</OutputFile>
-      <AdditionalDependencies>libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmt.lib;spdlog.lib;libcpputils.lib;libgixpp.lib;libgixutils.lib;comsuppw.lib;imagehlp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Qt_INCLUDEPATH_);$(ProjectDir);$(ProjectDir)buildsystem;$(ProjectDir)projectsystem;$(ProjectDir)metadata;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;%(AdditionalIncludeDirectories);..\gixsql\libcpputils;..\libgixutils;..\gixsql\libgixpp;..\gix-debugger-common;$(SolutionDir)build-tools\grammar-tools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;GIXCOMMON_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -414,7 +414,6 @@
     <ClCompile Include="projectsystem\SingleBinaryProject.cpp" />
     <ClCompile Include="projectsystem\WebProject.cpp" />
     <ClCompile Include="PropertyConsts.cpp" />
-    <ClCompile Include="QLogger.cpp" />
     <ClCompile Include="RsrcUtils.cpp" />
     <ClCompile Include="ServerConfig.cpp" />
     <ClCompile Include="SymbolBufferReader.cpp" />
@@ -426,6 +425,7 @@
     <ClInclude Include="buildsystem\CompilerEnvironment.h" />
     <QtMoc Include="ESQLConfiguration.h" />
     <ClInclude Include="PropertyConsts.h" />
+    <ClInclude Include="QStringFormatter.h" />
     <ClInclude Include="SourceFileFormat.h" />
     <ClInclude Include="SymbolBufferReader.h" />
     <ClInclude Include="SymbolMappingEntry.h" />
@@ -443,7 +443,6 @@
     <ClInclude Include="buildsystem\CompilerManager.h" />
     <ClInclude Include="buildsystem\IBuildableItem.h" />
     <ClInclude Include="buildsystem\TargetManager.h" />
-    <ClInclude Include="buildsystem\LogOutputType.h" />
     <ClInclude Include="buildsystem\TargetDefinition.h" />
     <ClInclude Include="CobolVar.h" />
     <ClInclude Include="CobolVarList.h" />
@@ -474,7 +473,6 @@
     <ClInclude Include="projectsystem\SingleBinaryProject.h" />
     <ClInclude Include="projectsystem\WebProject.h" />
     <ClInclude Include="RsrcUtils.h" />
-    <QtMoc Include="QLogger.h" />
     <ClInclude Include="ServerConfig.h" />
   </ItemGroup>
   <ItemGroup>

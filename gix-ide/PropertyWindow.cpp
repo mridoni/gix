@@ -118,7 +118,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 		if (pd->Group != curr_group) {
 			QTableWidgetItem* th = new QTableWidgetItem();
 			th->setText(prop_defs.getPropertyGroupName(pd->Group));
-			QFont f = getGridFont();
+			QFont f = Ide::getGridFont();
 			f.setBold(true);
 			th->setFont(f);
 			th->setBackgroundColor(QColor(224, 224, 224));
@@ -133,7 +133,7 @@ void PropertyWindow::setContent(ProjectItem* pi)
 		tw->setText(pd->Description);
 		tw->setFlags(tw->flags() & ~Qt::ItemIsEditable);
 
-		QFont gridFont = getGridFont();
+		QFont gridFont = Ide::getGridFont();
 		tw->setFont(gridFont);
 
 		QWidget* qw = nullptr;
@@ -448,19 +448,3 @@ void PropertyWindow::propertyValueChanged(PropertyDefinition* pd, QVariant value
 
 	emit notifyPropertyValueChanged(pd, value, pi);
 }
-
-QFont PropertyWindow::getGridFont()
-{
-	QSettings settings;
-	QTableWidgetItem* tw = new QTableWidgetItem();
-	QString font_name = settings.value("grid_font_name", "").toString();
-	int font_size = settings.value("grid_font_size", 0).toInt();
-	if (font_name.isEmpty() || font_size == 0) {
-		QTableWidgetItem tw;
-		font_name = tw.font().family();
-		font_size = tw.font().pointSize();
-	}
-
-	return QFont(font_name, font_size);
-}
-

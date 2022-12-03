@@ -91,7 +91,7 @@ DependenciesWindow::DependenciesWindow(QWidget *parent, MainWindow *mw)
 
 DependenciesWindow::~DependenciesWindow()
 {
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Shutting down DependenciesWindow", QLogger::LogLevel::Debug);
+	GixGlobals::getLogManager()->trace(GIX_IDE, "Shutting down DependenciesWindow");
 }
 
 void DependenciesWindow::updateFileDependencies()

@@ -39,6 +39,8 @@
     <ClInclude Include="DebugDriverUtils.h" />
     <ClInclude Include="DependenciesWindow.h" />
     <ClInclude Include="EolMode.h" />
+    <ClInclude Include="ErrorWarningFilter.h" />
+    <ClInclude Include="ErrorWindow.h" />
     <ClInclude Include="GixVersion.h" />
     <ClInclude Include="Ide.h" />
     <ClInclude Include="IdeStatus.h" />
@@ -46,6 +48,7 @@
     <ClInclude Include="IPersistableProjectItem.h" />
     <ClInclude Include="NoWheelComboBox.h" />
     <ClInclude Include="OutputWindow.h" />
+    <ClInclude Include="OutputWindowLogger.h" />
     <ClInclude Include="ProtectedLineEdit.h" />
     <ClInclude Include="registers.hpp" />
     <ClInclude Include="resource.h" />
@@ -113,6 +116,8 @@
     <ClCompile Include="DragDropTableWidget.cpp" />
     <ClCompile Include="DragDropTreeWidget.cpp" />
     <ClCompile Include="ElidedLabel.cpp" />
+    <ClCompile Include="ErrorWarningFilter.cpp" />
+    <ClCompile Include="ErrorWindow.cpp" />
     <ClCompile Include="ExperimentalDebugDriver.cpp" />
     <ClCompile Include="GixVersion.cpp" />
     <ClCompile Include="Ide.cpp" />
@@ -128,6 +133,7 @@
     <ClCompile Include="NavigationWindow.cpp" />
     <ClCompile Include="NewProjectDialog.cpp" />
     <ClCompile Include="OutputWindow.cpp" />
+    <ClCompile Include="OutputWindowLogger.cpp" />
     <ClCompile Include="ProjectCollectionWindow.cpp" />
     <ClCompile Include="ProjectDependencyTracker.cpp" />
     <ClCompile Include="PropertyOptionsDialog.cpp" />
@@ -259,7 +265,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;fmtd.lib;spdlogd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -270,7 +276,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;fmt.lib;spdlog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmt.lib;spdlog.lib;libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;fmt.lib;spdlog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -281,7 +287,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;fmtd.lib;spdlogd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -292,7 +298,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;fmt.lib;spdlog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmt.lib;spdlog.lib;libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;fmt.lib;spdlog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">

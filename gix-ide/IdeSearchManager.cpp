@@ -132,7 +132,7 @@ bool IdeSearchManager::internalFindNext()
 									(params->direction == SearchDirection::Up) ? pp.second : pp.first);
 	
 
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Found %1 at %2-%3, curpos: %4").arg(params->search_spec).arg(pp.first).arg(pp.second).arg(st->current_position), QLogger::LogLevel::Debug);
+	GixGlobals::getLogManager()->trace(GIX_IDE, "Found {} at {}-{}, curpos: {}", params->search_spec, pp.first, pp.second, st->current_position);
 
 	st->last_direction = params->direction;
 	st->last_start = pp.first;

@@ -4,9 +4,6 @@
     <ClCompile Include="ServerConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QLogger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MacroManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -143,151 +140,151 @@
   <ItemGroup>
     <ClInclude Include="gixcommon_global.h" />
     <ClInclude Include="ServerConfig.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CobolVar.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CobolVarList.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataEntry.h">
-      <Filter>Source Files\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="buildsystem\LogOutputType.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MacroManager.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RsrcUtils.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GixGlobals.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IGixLogManager.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SymbolMappingEntry.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildActionCompileHandler.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildActionLinkHandler.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildActionMakeListingHandler.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildActionNoOpHandler.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildActionPreprocessESQLHandler.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildConsts.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildResult.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\BuildTarget.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="metadata\CobolModuleMetadata.h">
-      <Filter>Source Files\Header Files\metadata</Filter>
+      <Filter>Header Files\metadata</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\IBuildableItem.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\Project.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectCollection.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectFile.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectFilePropertyDefinitionCollection.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectFolder.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectFolderPropertyDefinitionCollection.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectItem.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectItemType.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectPropertyDefinitionCollection.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\ProjectType.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\PropertyDefinition.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\PropertyDefinitionCollection.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\PropertySource.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\IPersistableProjectItem.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\PrjCollPropertyDefinitionCollection.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\SingleBinaryProject.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\MultiBinaryProject.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="projectsystem\WebProject.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="metadata\ListingFileParser.h">
-      <Filter>Source Files\Header Files\metadata</Filter>
+      <Filter>Header Files\metadata</Filter>
     </ClInclude>
     <ClInclude Include="metadata\ListingFileParserResult.h">
-      <Filter>Source Files\Header Files\metadata</Filter>
+      <Filter>Header Files\metadata</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\TargetManager.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\TargetDefinition.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="PropertyConsts.h">
-      <Filter>Source Files\Header Files\projectsystem</Filter>
+      <Filter>Header Files\projectsystem</Filter>
     </ClInclude>
     <ClInclude Include="SymbolBufferReader.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\CompilerConfiguration.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\CompilerDefinition.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\CompilerManager.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </ClInclude>
     <ClInclude Include="buildsystem\CompilerEnvironment.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SourceFileFormat.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QStringFormatter.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -313,39 +310,36 @@
     <Filter Include="Source Files\projectsystem\projecttypes">
       <UniqueIdentifier>{18c0c1ed-1b21-4fd5-9cac-31da3a7b0489}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Header Files">
+    <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
       <ParseFiles>true</ParseFiles>
     </Filter>
-    <Filter Include="Source Files\Header Files\buildsystem">
+    <Filter Include="Header Files\buildsystem">
       <UniqueIdentifier>{306289c0-0e8b-446f-b089-8483cf8de586}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Header Files\projectsystem">
+    <Filter Include="Header Files\projectsystem">
       <UniqueIdentifier>{1f6a219f-5cb1-4b6d-a535-55f565cd344e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Header Files\metadata">
+    <Filter Include="Header Files\metadata">
       <UniqueIdentifier>{389aaf77-6bcf-494d-afb7-0c2f264b704e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="QLogger.h">
-      <Filter>Source Files\Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="buildsystem\BuildActionHandler.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </QtMoc>
     <QtMoc Include="buildsystem\BuildDriver.h">
-      <Filter>Source Files\Header Files\buildsystem</Filter>
+      <Filter>Header Files\buildsystem</Filter>
     </QtMoc>
     <QtMoc Include="metadata\MetadataWorker.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="metadata\MetadataManager.h">
-      <Filter>Source Files\Header Files\metadata</Filter>
+      <Filter>Header Files\metadata</Filter>
     </QtMoc>
     <QtMoc Include="ESQLConfiguration.h">
-      <Filter>Source Files\Header Files</Filter>
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

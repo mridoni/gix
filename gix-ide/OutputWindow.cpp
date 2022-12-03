@@ -22,11 +22,10 @@ USA.
 #include "UiUtils.h"
 #include "Ide.h"
 #include "IdeTaskManager.h"
+#include "ide_sink.h"
 
-#include <QToolBar>
-#include <QFile>
 
-OutputWindow::OutputWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent)
+OutputWindow::OutputWindow(QWidget* parent, MainWindow* mw) : QMainWindow(parent)
 {
 	this->setWindowTitle("Output");
 	this->setMinimumHeight(100);
@@ -36,80 +35,98 @@ OutputWindow::OutputWindow(QWidget *parent, MainWindow *mw) : QMainWindow(parent
 	this->addToolBar(toolBar);
 	this->mainWindow = mw;
 
-    this->textArea = new QTextEdit(this);
-	this->textArea->setReadOnly(true);
-	QFont f = this->textArea->font();
-	f.setFamily("Courier New");
+	pane_selector = new QComboBox(this);
+	QFont f = pane_selector->font();
 	f.setPointSize(UiUtils::computeFontSize(this, 9));
-	this->textArea->setFont(f);
-	this->setCentralWidget(textArea);
+	pane_selector->setFont(f);
 
-    connect(Ide::TaskManager(), &IdeTaskManager::print, this, &OutputWindow::print, Qt::ConnectionType::QueuedConnection);
+	connect(pane_selector, QOverload<int>::of(&QComboBox::currentIndexChanged), this, QOverload<int>::of(&OutputWindow::switchPane));
+	toolBar->addWidget(pane_selector);
 
-	Ide::TaskManager()->flushLog();
+	layout = new QHBoxLayout();
+	layout->setStretch(10, 10);
+	QWidget* widget = new QWidget(this);
+	widget->setLayout(layout);
+	this->setCentralWidget(widget);
+
+	//connect(Ide::TaskManager(), &IdeTaskManager::print, this, &OutputWindow::print, Qt::ConnectionType::QueuedConnection);
+
 }
-
 
 OutputWindow::~OutputWindow()
 {
 	delete(toolBar);
 }
 
-void OutputWindow::print(QString msg, QLogger::LogLevel log_level)
+QString OutputWindow::getTextContent(OutputWindowPaneType index)
 {
-#ifdef WIN32	
-    if (Ide::TaskManager()->getTestHelper()) {
-        QString ide_out_dup_file = Ide::TaskManager()->getIdeOutputDupFile();
-        if (!ide_out_dup_file.isEmpty()) {
+	if (!panes.contains(index))
+		return QString();
 
-            if (!msg.endsWith("\n"))
-                msg += "\n";
-
-            QFile f(ide_out_dup_file);
-            f.open(QIODevice::OpenModeFlag::Append);
-            f.write(msg.toUtf8().constData());
-            f.close();
-        }
-    }
-#endif
-    if (!Ide::TaskManager()->isDebugOutputEnabled() && (log_level == QLogger::LogLevel::Debug || log_level == QLogger::LogLevel::Trace))
-        return;
-
-    QColor textColor(Qt::black);
-
-    switch (log_level) {
-        case QLogger::LogLevel::Trace:
-            textColor = Qt::blue;
-            break;
-
-        case QLogger::LogLevel::Debug:
-            textColor = Qt::darkCyan;
-            break;
-
-        case QLogger::LogLevel::Info:
-            textColor = Qt::darkGray;
-            break;
-
-        case QLogger::LogLevel::Error:
-            textColor = Qt::red;
-            break;
-
-        case QLogger::LogLevel::Success:
-            textColor = Qt::darkGreen;
-            break;
-    }
-    textArea->setTextColor(textColor);
-    textArea->append(msg);
-    textArea->ensureCursorVisible();
-
+	QTextEdit* pane = panes[index]->getWindowPane();
+	return pane->toPlainText();
 }
 
-QString OutputWindow::getTextContent()
+void OutputWindow::addLoggerSection(OutputWindowPaneType pt, QString name)
 {
-    return textArea->document()->toPlainText();
+	OutputWindowLogger* p = new OutputWindowLogger(pt, this);
+
+	layout->addWidget(p->getWindowPane());
+	pane_selector->addItem(name, (int)pt);
+	panes[pt] = p;
+}
+
+OutputWindowLogger* OutputWindow::getLoggerSection(OutputWindowPaneType index)
+{
+	if (panes.contains(index))
+		return panes[index];
+
+	return nullptr;
+}
+
+void OutputWindow::clearPane(OutputWindowPaneType t)
+{
+	int index = 0;
+	for (auto it = panes.begin(); it != panes.end(); ++it) {
+		OutputWindowLogger* p = it.value();
+		if (it.key() == t) {
+			p->getWindowPane()->clear();
+			break;
+		}
+		index++;
+	}
+}
+
+void OutputWindow::switchPane(OutputWindowPaneType t)
+{
+	int index = 0;
+	for (auto it = panes.begin(); it != panes.end(); ++it) {
+		OutputWindowLogger* p = it.value();
+		if (it.key() == t) {
+			pane_selector->setCurrentIndex(index);
+			break;
+		}
+		index++;
+	}
+}
+
+void OutputWindow::switchPane(int index)
+{
+	auto v = pane_selector->itemData(index).toInt();
+	OutputWindowPaneType pt = (OutputWindowPaneType)v;
+
+	for (auto it = panes.begin(); it != panes.end(); ++it) {
+		OutputWindowLogger* p = it.value();
+		bool is_visible = it.key() == pt;
+		p->getWindowPane()->setVisible(is_visible);
+	}
 }
 
 void OutputWindow::clearAll()
 {
-	textArea->clear();
+	for (auto it = panes.begin(); it != panes.end(); ++it) {
+		QTextEdit* pane = it.value()->getWindowPane();
+		pane->clear();
+	}
 }
+

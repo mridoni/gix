@@ -36,6 +36,7 @@ USA.
 
 StandardDebugDriver::StandardDebugDriver(DebugManager* mgr)
 {
+	logger = GixGlobals::getLogManager();
 	debug_manager = mgr;
     dbg_status_init();
 }
@@ -63,21 +64,20 @@ void StandardDebugDriver::startDriver()
 
 	ib.debuggerBreak = [this](GixDebugger *gd, QString module_name, QString src_file, int line) {
 
-        fprintf(stderr, "StandardDebugDriver is emitting DebuggerBreak\n");
         emit this->DebuggerBreak(module_name, src_file, line);
 
         while (true) {
             cmd_line = "";
 
             cmd_mutex.lock();
-            Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> StandardDebugDriver is waiting for commands", QLogger::LogLevel::Trace);
+            logger->trace(LOG_DEBUG, "StandardDebugDriver is waiting for commands");
             cmd_available.wait(&cmd_mutex);
             cmd_mutex.unlock();
 
-            Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> StandardDebugDriver received: " + cmd_line, QLogger::LogLevel::Trace);
+            logger->trace(LOG_DEBUG, "StandardDebugDriver received: {}", cmd_line);
             bool stop_processing = processCommand(cmd_line);
             if (stop_processing) {
-                Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> StandardDebugDriver will stop processing commands", QLogger::LogLevel::Trace);
+                logger->trace(LOG_DEBUG, "StandardDebugDriver will stop processing commands");
                 break;
             }
         }
@@ -97,32 +97,32 @@ void StandardDebugDriver::startDriver()
 		return true;
 	};
 
-	ib.debuggerMessage = [](GixDebugger *gd, QString msg, int l) {
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, msg, (QLogger::LogLevel) l);
+	ib.debuggerMessage = [this](GixDebugger *gd, QString msg, int l) {
+		logger->trace(LOG_DEBUG, "{}", msg);
 		return true;
 	};
 
 	ib.debuggerError = [this](GixDebugger *gd, int err_code, QString msg) {
 		QString m1 = msg;
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, msg, (QLogger::LogLevel) 0);
+		logger->error(LOG_DEBUG, "{}", msg);
         emit DebuggerProcessError(m1, err_code);
 		return true;
 	};
 
 	ib.debuggerProcessStarted = [this](GixDebugger *gd, QString msg) {
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Program %1 started").arg(msg), (QLogger::LogLevel) 0);
+		logger->info(LOG_DEBUG, "Program {} started", msg);
 		emit DebuggerProcessStarted(msg);
 		return true;
 	};
 
 	ib.debuggerReady = [this](GixDebugger *gd, QString msg) {
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Debugger has loaded symbols and is ready to run %1").arg(msg), (QLogger::LogLevel) 0);
+		logger->info(LOG_DEBUG, "Debugger has loaded symbols and is ready to run {}}", msg);
 		emit DebuggerReady(msg);
 		return true;
 	};
 
 	ib.debuggerProcessExit = [this](GixDebugger *gd, int rc, QString msg) {
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Program %1 terminated with result code: %2").arg(msg).arg(rc), (QLogger::LogLevel) 0);
+		logger->info(LOG_DEBUG, "Program {} terminated with result code: {}", msg, rc);
 		emit DebuggerProcessFinished(msg, rc);
 		return true;
 	};

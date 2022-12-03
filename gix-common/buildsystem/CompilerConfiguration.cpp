@@ -22,7 +22,6 @@ USA.
 #include "PathUtils.h"
 #include "SysUtils.h"
 #include "CompilerManager.h"
-#include "QLogger.h"
 #include "GixGlobals.h"
 
 #include <QSettings>
@@ -149,7 +148,7 @@ QProcessEnvironment CompilerConfiguration::getEnvironment(BuildDriver *builder)
 		env.insert("COB_LIB_PATHS", "/LIBPATH:\"" + QDir::toNativeSeparators(this->libDirPath) + "\"");
 #if !defined(__MINGW32__) && (defined(_WIN32) || defined(_WIN64))
 		if (!add_vs_environment(builder, env)) {
-			builder->log_build_message("Cannot setup environment for Visual Studio", QLogger::LogLevel::Error);
+			builder->log_build_message("Cannot setup environment for Visual Studio", spdlog::level::err);
 		}
 #endif
 	}
@@ -265,21 +264,21 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 	auto hresult = setupConfig.CoCreateInstance(__uuidof(SetupConfiguration), nullptr, CLSCTX_INPROC_SERVER);
 
 	if (!SUCCEEDED(hresult) || setupConfig == nullptr) 	{
-		builder->log_build_message("Visual Studio may not be installed (Component creation failed)", QLogger::LogLevel::Error);
+		builder->log_build_message("Visual Studio may not be installed (Component creation failed)", spdlog::level::err);
 		return false;
 	}
 
 	CComQIPtr<ISetupConfiguration2> setupConfig2(setupConfig);
 	CComQIPtr<ISetupHelper> setupHelper(setupConfig);
 	if (!setupConfig2 || !setupHelper) 	{
-		builder->log_build_message("Unsupported version of Visual Studio may be installed (ISetupConfiguration2 or ISetupHelper unavailable)", QLogger::LogLevel::Error);
+		builder->log_build_message("Unsupported version of Visual Studio may be installed (ISetupConfiguration2 or ISetupHelper unavailable)", spdlog::level::err);
 		return false;
 	}
 
 	CComPtr<IEnumSetupInstances> enumInstances;
 	setupConfig2->EnumAllInstances(&enumInstances);
 	if (!enumInstances) 	{
-		builder->log_build_message("No VS version is installed (EnumAllInstances returned null)", QLogger::LogLevel::Error);
+		builder->log_build_message("No VS version is installed (EnumAllInstances returned null)", spdlog::level::err);
 		return false;
 	}
 
@@ -290,7 +289,7 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 
 	CComQIPtr<ISetupInstance2> instance2(instance);
 	if (!instance2) {
-		builder->log_build_message("Error querying instance (ISetupInstance2 unavailable)", QLogger::LogLevel::Error);
+		builder->log_build_message("Error querying instance (ISetupInstance2 unavailable)", spdlog::level::err);
 		return false;
 	}
 	
@@ -314,10 +313,10 @@ bool CompilerConfiguration::add_vs_environment(BuildDriver *builder, QProcessEnv
 	res = res && add_lib(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
 	res = res && add_libpath(env, host, target, QString::fromStdString(vs_install_path), QString::fromStdString(vs_version), builder);
 
-	builder->log_build_message("PATH   : " + env.value("PATH"), QLogger::LogLevel::Debug);
-	builder->log_build_message("INCLUDE: " + env.value("INCLUDE"), QLogger::LogLevel::Debug);
-	builder->log_build_message("LIB    : " + env.value("LIB"), QLogger::LogLevel::Debug);
-	builder->log_build_message("LIBPATH: " + env.value("LIBPATH"), QLogger::LogLevel::Debug);
+	builder->log_build_message("PATH   : " + env.value("PATH"), spdlog::level::trace);
+	builder->log_build_message("INCLUDE: " + env.value("INCLUDE"), spdlog::level::trace);
+	builder->log_build_message("LIB    : " + env.value("LIB"), spdlog::level::trace);
+	builder->log_build_message("LIBPATH: " + env.value("LIBPATH"), spdlog::level::trace);
 
 	return res;
 }
@@ -410,12 +409,12 @@ bool CompilerConfiguration::add_bin(QProcessEnvironment &env, QString host, QStr
 	QString vctools_bin_dir = PathUtils::combine(msvc_home, "Tools\\MSVC\\" + vctools_version + "\\bin\\Host" + msvc_target_platform + "\\" + msvc_target_platform);
 
 	if (!QDir(vctools_bin_dir).exists()) {
-		builder->log_build_message("No such directory: " + vctools_bin_dir, QLogger::LogLevel::Error);
+		builder->log_build_message("No such directory: " + vctools_bin_dir, spdlog::level::err);
 		return false;
 	}
 
 	if (!QFile(PathUtils::combine(vctools_bin_dir, "cl.exe")).exists()) {
-		builder->log_build_message("Cannot find cl.exe", QLogger::LogLevel::Error);
+		builder->log_build_message("Cannot find cl.exe", spdlog::level::err);
 		return false;
 	}
 
@@ -486,36 +485,36 @@ bool GetInstanceData(BuildDriver *builder, CComPtr<ISetupInstance2> &instance2, 
 	CComBSTR	bstrId;
 
 	if (FAILED(instance2->GetInstanceId(&bstrId))) {
-		builder->log_build_message("Error reading instance id", QLogger::LogLevel::Error);
+		builder->log_build_message("Error reading instance id", spdlog::level::err);
 		return false;
 	}
 	vcInstance = bstrId.Copy();
 	InstanceState state;
 	if (FAILED(instance2->GetState(&state))) {
-		builder->log_build_message("Error reading instance state", QLogger::LogLevel::Error);
+		builder->log_build_message("Error reading instance state", spdlog::level::err);
 		return false;
 	}
 
 	CComBSTR	bstrVersion;
 	if (FAILED(instance2->GetInstallationVersion(&bstrVersion))) {
-		builder->log_build_message("Error reading version", QLogger::LogLevel::Error);
+		builder->log_build_message("Error reading version", spdlog::level::err);
 		return false;
 	}
 	else 	{
 		out_version = bstr_to_str(bstrVersion);
-		builder->log_build_message("Visual Studio version: " + QString(out_version.c_str()), QLogger::LogLevel::Trace);
+		builder->log_build_message("Visual Studio version: " + QString(out_version.c_str()), spdlog::level::trace);
 	}
 
 	// Reboot may have been required before the installation path was created.
 	if ((eLocal & state) == eLocal) 	{
 		CComBSTR bstrInstallationPath;
 		if (FAILED(instance2->GetInstallationPath(&bstrInstallationPath))) {
-			builder->log_build_message("Error getting installation path", QLogger::LogLevel::Error);
+			builder->log_build_message("Error getting installation path", spdlog::level::err);
 			return false;
 		}
 
 		out_installation_path = bstr_to_str(bstrInstallationPath);
-		builder->log_build_message("Visual Studio installation path: " + QString::fromStdString(out_installation_path), QLogger::LogLevel::Trace);
+		builder->log_build_message("Visual Studio installation path: " + QString::fromStdString(out_installation_path), spdlog::level::trace);
 		return true;
 	}
 

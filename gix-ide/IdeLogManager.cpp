@@ -21,16 +21,55 @@ USA.
 #include "IdeLogManager.h"
 #include "Ide.h"
 #include "IdeTaskManager.h"
+#include <spdlog/sinks/msvc_sink.h>
+
+QMap<int, std::shared_ptr<spdlog::logger>> IdeLogManager::loggers;
+QMap<int, QList<QPair<spdlog::level::level_enum, QString>>> IdeLogManager::backlog;
 
 IdeLogManager::IdeLogManager()
 {
-	log_manager = QLogger::QLoggerManager::getInstance();
-	log_manager->addDestination("virtual://", GIX_CONSOLE_LOG, QLogger::LogLevel::Debug);
-	
-//	connect(log_manager, &QLogger::QLoggerManager::logMessage, Ide::TaskManager(), &IdeTaskManager::logMessage);
+	// we start with no default logger, so the backlog entries will be stashed and used
+	// when the IDE and the loggers are available
 }
 
-void IdeLogManager::logMessage(const QString &destination, const QString &msg, QLogger::LogLevel level)
+void IdeLogManager::registerLogSource(int source, std::shared_ptr<spdlog::logger> l)
 {
-	Ide::TaskManager()->logMessage(destination, msg, level);
+	loggers[source] = l;
+	handleBackLog(source);
+}
+
+
+std::shared_ptr<spdlog::logger> IdeLogManager::get_logger(int source)
+{
+	if (loggers.contains(source))
+		return loggers[source];
+	else
+		return default_logger;
+}
+
+void IdeLogManager::add_to_backlog(int source, spdlog::level::level_enum level, std::string msg)
+{
+	if (!backlog.contains(source)) {
+		backlog[source] = QList<QPair<spdlog::level::level_enum, QString>>();
+	}
+	backlog[source].append(QPair<spdlog::level::level_enum, QString>(level, QString::fromStdString(msg)));
+}
+
+void IdeLogManager::handleBackLog(int source)
+{
+	if (!backlog.contains(source) || !loggers.contains(source))
+		return;
+
+	std::shared_ptr<spdlog::logger> l = loggers[source];
+
+	QList<QPair<spdlog::level::level_enum, QString>> backlog_entries = backlog.value(source);
+
+	for (auto e : backlog_entries) {
+		spdlog::level::level_enum level = e.first;
+		QString msg = e.second;
+
+		l->log(level, msg);
+	}
+
+	backlog.remove(source);
 }

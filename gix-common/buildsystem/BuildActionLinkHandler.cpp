@@ -76,7 +76,7 @@ bool BuildActionLinkHandler::startBuild()
 	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
-		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -84,7 +84,7 @@ bool BuildActionLinkHandler::startBuild()
 	CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
 	QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
 	if (esql_cfg.isNull()) {
-		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -92,7 +92,7 @@ bool BuildActionLinkHandler::startBuild()
 
 	QStringList cobc_opts;
 	QString cobc = compiler_cfg->executablePath;
-	build_driver->log_build_message(QString(tr("Using compiler %1")).arg(cobc), QLogger::LogLevel::Trace);
+	build_driver->log_build_message(QString(tr("Using compiler %1")).arg(cobc), spdlog::level::trace);
 
 	QStringList link_dirs = retrieve_link_dirs(esql_cfg.get());
 	if (SysUtils::isLinux()) {
@@ -207,11 +207,11 @@ bool BuildActionLinkHandler::startBuild()
 		if (generateDebugHelperObj(mod_src_list, target_final_path, build_dir, dbg_helper_obj))
 			cobc_opts.append(dbg_helper_obj);
 		else {
-			build_driver->log_build_message(QString(tr("Cannot build debug helper")), QLogger::LogLevel::Warning);
+			build_driver->log_build_message(QString(tr("Cannot build debug helper")), spdlog::level::warn);
 		}
 	}
 
-	build_driver->log_build_message(cobc + " " + cobc_opts.join(" "), QLogger::LogLevel::Info);
+	build_driver->log_build_message(cobc + " " + cobc_opts.join(" "), spdlog::level::info);
 
 	QProcess *p = new QProcess();
 
@@ -232,14 +232,14 @@ bool BuildActionLinkHandler::startBuild()
 
 	connect(p, &QProcess::readyReadStandardError, this, [this, p] { readStdErr(p); });
 	connect(p, &QProcess::readyReadStandardOutput, this, [this, p] { readStdOut(p); });
-	connect(p, &QProcess::errorOccurred, this, [this, &p, ps_err](QProcess::ProcessError _err) mutable { build_driver->log_build_message(p->errorString(), QLogger::LogLevel::Error); ps_err = true; });
+	connect(p, &QProcess::errorOccurred, this, [this, &p, ps_err](QProcess::ProcessError _err) mutable { build_driver->log_build_message(p->errorString(), spdlog::level::err); ps_err = true; });
 
 	connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
 		[this, &loop, p](int exitCode, QProcess::ExitStatus exitStatus) { readStdErr(p); readStdOut(p); loop.quit(); });
 
 	p->start();
 	if (!p->waitForStarted()) {
-		build_driver->log_build_message("ERROR: " + p->errorString(), QLogger::LogLevel::Error);
+		build_driver->log_build_message("ERROR: " + p->errorString(), spdlog::level::err);
 		return false;
 	}
 
@@ -248,11 +248,11 @@ bool BuildActionLinkHandler::startBuild()
 	int rc = p->exitCode();
 	bool res = ((!rc)); // && QFile::exists(target_final_path)
 	if (res) {
-		build_driver->log_build_message(tr("Build successful") + ": " + target_final_path, QLogger::LogLevel::Success);
+		build_driver->log_build_message(tr("Build successful") + ": " + target_final_path, spdlog::level::info);
 	}
 	else {
-		build_driver->log_build_message(tr("Build error"), QLogger::LogLevel::Error);
-		build_driver->log_build_message("Exit code: " + QString::number(rc), QLogger::LogLevel::Trace);
+		build_driver->log_build_message(tr("Build error"), spdlog::level::err);
+		build_driver->log_build_message("Exit code: " + QString::number(rc), spdlog::level::trace);
 		return false;
 	}
 
@@ -301,7 +301,7 @@ bool BuildActionLinkHandler::generateDebugHelperObj(QStringList srclist, QString
 	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration* compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
-		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -574,7 +574,7 @@ bool BuildActionLinkHandler::compileDebugHelperObj(QString build_dir, QString c_
 	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
-		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -607,14 +607,14 @@ bool BuildActionLinkHandler::compileDebugHelperObj(QString build_dir, QString c_
 
 	connect(p, &QProcess::readyReadStandardError, this, [this, p] { readStdErr(p); });
 	connect(p, &QProcess::readyReadStandardOutput, this, [this, p] { readStdOut(p); });
-	connect(p, &QProcess::errorOccurred, this, [this, &p, ps_err](QProcess::ProcessError _err) mutable { build_driver->log_build_message(p->errorString(), QLogger::LogLevel::Error); ps_err = true; });
+	connect(p, &QProcess::errorOccurred, this, [this, &p, ps_err](QProcess::ProcessError _err) mutable { build_driver->log_build_message(p->errorString(), spdlog::level::err); ps_err = true; });
 
 	connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
 		[this, &loop, p](int exitCode, QProcess::ExitStatus exitStatus) { readStdErr(p); readStdOut(p); loop.quit(); });
 
 	p->start();
 	if (!p->waitForStarted()) {
-		build_driver->log_build_message("ERROR: " + p->errorString(), QLogger::LogLevel::Error);
+		build_driver->log_build_message("ERROR: " + p->errorString(), spdlog::level::err);
 		return false;
 	}
 
@@ -623,12 +623,12 @@ bool BuildActionLinkHandler::compileDebugHelperObj(QString build_dir, QString c_
 	int rc = p->exitCode();
 	bool res = ((!rc)); // && QFile::exists(target_final_path)
 	if (res) {
-		//build_driver->log_build_message(tr("Build successful") + ": " + target_final_path, QLogger::LogLevel::Success);
+		//build_driver->log_build_message(tr("Build successful") + ": " + target_final_path, spdlog::level::info);
 		return true;
 	}
 	else {
-		build_driver->log_build_message(tr("Build error"), QLogger::LogLevel::Error);
-		build_driver->log_build_message("Exit code: " + QString::number(rc), QLogger::LogLevel::Trace);
+		build_driver->log_build_message(tr("Build error"), spdlog::level::err);
+		build_driver->log_build_message("Exit code: " + QString::number(rc), spdlog::level::trace);
 		return false;
 	}
 }

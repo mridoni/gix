@@ -325,7 +325,7 @@ void CobolModuleMetadata::assign_file_ids(QList<DataEntry *> &entries)
 			e->fileid = reverse_filemap[e->filename];
 		else {
 			e->fileid = 0;
-			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "%1: cannot locate file %2 in filemap").arg(e->path).arg(e->filename.isEmpty() ? "(N/A)" : e->filename), QLogger::LogLevel::Warning);
+			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "%1: cannot locate file %2 in filemap").arg(e->path).arg(e->filename.isEmpty() ? "(N/A)" : e->filename), spdlog::level::warn);
 		}
 	}
 }
@@ -340,7 +340,7 @@ void CobolModuleMetadata::assign_file_names(QList<DataEntry *> &entries, const Q
 			e->filename = filemap[e->fileid];
 		else {
 			e->filename = QString();
-			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "%1: cannot locate file id %2 in filemap").arg(e->path).arg(e->fileid), QLogger::LogLevel::Warning);
+			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "%1: cannot locate file id %2 in filemap").arg(e->path).arg(e->fileid), spdlog::level::warn);
 		}
 	}
 }
@@ -553,7 +553,7 @@ void CobolModuleMetadata::load_data_entries(const CobolModuleMetadata *cmm, QLis
 
 	for (DataEntry *e : f_entries) {
 		if (!e || e->path.isEmpty() || !relation_map.contains(e->path) || relation_map.size() == 0) {
-			logger->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "Warning: bad entry in symbol file"), QLogger::LogLevel::Warning);
+			logger->warn(LOG_METADATA, QCoreApplication::translate("gix", "Warning: bad entry in symbol file").toStdString());
 			continue;
 		}
 
@@ -1029,7 +1029,7 @@ GIXCOMMON_EXPORT CobolModuleMetadata *CobolModuleMetadata::build(ProjectFile *pf
 		QString ls_file = PathUtils::changeExtension(pf->GetFilename(), ".c.l.h");
 		ls_file = PathUtils::combine(build_dir, ls_file);
 		if (!QFile::exists(ls_file)) {
-			//logger->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "Warning: cannot locate C header file for module %1, variable inspection during debug will not be available").arg(cmm->module_name), QLogger::LogLevel::Warning);
+			//logger->logMessage(GIX_CONSOLE_LOG, QCoreApplication::translate("gix", "Warning: cannot locate C header file for module %1, variable inspection during debug will not be available").arg(cmm->module_name), spdlog::level::warn);
 		}
 		else {
 			QStringList lines = SysUtils::FileReadAllLines(ls_file);

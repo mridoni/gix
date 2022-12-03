@@ -3,24 +3,22 @@
 :: This script should only to be used to test the InnoSetup script
 :: It does not include the MinGW version(s) of GixSQL
 
-set PATH=%PATH%;C:\Program Files (x86)\Inno Setup 6
-
 set DIST_DIR=%TEMP%\gix-dist
 set INCLUDE_COMPILERS=0
 set HOST_PLATFORM=x64
 set MSBUILD_PLATFORM=x64
-set WORKSPACE=C:\Users\%USERNAME%\source\repos\gix-ide
+set WORKSPACE=C:\Users\%USERNAME%\source\repos\gix-ide@github-main
 set QTDIR=C:\Qt\5.14.2\msvc2017_64
 set MSVC_BUILD_TOOLS=https://aka.ms/vs/17/release/vs_BuildTools.exe
 set MSVC_RUNTIME_X86=https://aka.ms/vs/17/release/vc_redist.x86.exe
 set MSVC_RUNTIME_X64=https://aka.ms/vs/17/release/vc_redist.x64.exe
 set GIXIDEMAJ=1
 set GIXIDEMIN=1
-set GIXIDEREL=0
-set GIX_REVISION=999
+set GIXIDEREL=0dev1
+set GIX_REVISION=1922
 set GIXSQLMAJ=1
 set GIXSQLMIN=0
-set GIXSQLREL=19
+set GIXSQLREL=18b
 set DEFAULT_VS_COMPILER=
 set DEFAULT_GCC_COMPILER=
 

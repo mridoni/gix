@@ -23,11 +23,13 @@ USA.
 #include "MainWindow.h"
 #include "OutputWindow.h"
 #include "WatchWindow.h"
+#include "ErrorWindow.h"
 #include "ProjectCollection.h"
 #include "Project.h"
 #include "DebugManager.h"
 #include "IdeStatus.h"
-#include "QLogger.h"
+#include "IGixLogManager.h"
+#include "BuildResult.h"
 
 #include <QQueue>
 
@@ -39,16 +41,6 @@ USA.
 #define DEFAULT_TARGET_CONFIG 1
 
 class DebugManager;
-
-Q_DECLARE_METATYPE(IdeStatus)
-Q_DECLARE_METATYPE(QLogger::LogLevel);
-
-class LogBacklogEntry {
-public:
-	QString module;
-	QString msg;
-	QLogger::LogLevel level;
-};
 
 class IdeTaskManager : public QObject
 {
@@ -71,7 +63,7 @@ public:
 	ProjectCollection *getCurrentProjectCollection();
 	Project *getCurrentProject();
 
-	void init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow* ww, NavigationWindow *nw);
+	void init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow* ww, NavigationWindow *nw, ErrorWindow* ew);
 
 	void buildAll(QString configuration, QString platform);
 	void buildClean(QString configuration, QString platform);
@@ -136,15 +128,13 @@ public:
 	void consoleWriteStdErr(QString msg);
 	void consoleClear();
 
-	void flushLog();
-
 	void setIdeElementInfo(QString k, QVariant v);
 	QVariant getIdeElementInfo(QString k);
 
 	void gotoDefinition(CodeEditor *ce, QString s, int ln);
 	void gotoDefinition(DataEntry *e);
 	void gotoDefinition(Paragraph* p);
-	void gotoFileLine(QString filename, int ln);
+	void gotoFileLine(QString filename, int ln, bool move_caret_line = false);
 
 	bool backgroundTasksEnabled();
 	void setBackgroundTasksEnabled(bool b);
@@ -167,9 +157,8 @@ signals:
 	void SettingsChanged();
 
 	void stopBuildInvoked();
-	void buildFinished(int);
-
-	void print(QString msg, QLogger::LogLevel log_level);
+	void buildStarted();
+	void buildFinished(const BuildResult& res);
 
 	void fileLoaded(ProjectFile *);
 	void fileSaved(ProjectFile *);
@@ -184,11 +173,12 @@ signals:
 
 
 public slots:
-	void logMessage(QString module, QString message, QLogger::LogLevel);
 	void debugStopped();
 	void debugStarted();
+	void buildFinishedHandler(BuildResult br);
 
 private:
+	IGixLogManager* logger = nullptr;
 	IdeStatus ide_status;
 
 	MainWindow *main_window;
@@ -198,11 +188,12 @@ private:
 	ConsoleWindow *console_window;
 	WatchWindow * watch_window;
 	NavigationWindow* navigation_window;
+	ErrorWindow* error_window;
 
 	DebugManager *debug_manager;
 	QMap<QString, QVariant> current_project_collection_data;
 
-	QQueue<LogBacklogEntry *> log_backlog;
+	//QQueue<LogBacklogEntry *> log_backlog;
 
 	void startLoadingMetadata(ProjectItem *pi);
 	MdiChild* openFileNoSignals(QString filename);
@@ -218,6 +209,9 @@ private:
 	QMap<QString, QVariant> ide_element_info_map;
 
 	int last_build_result = 0;
+
+	void dispatchBuildLogMessage(const QString& msg, spdlog::level::level_enum);
+	void clearBuildLog();
 
 #ifdef WIN32
 	TestHelper *test_helper = nullptr;

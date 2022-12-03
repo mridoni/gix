@@ -21,11 +21,15 @@ USA.
 #pragma once
 
 #include <QString>
+#include <QMap>
+#include <QToolBar>
+#include <QFile>
 #include <QTextEdit>
+#include <QComboBox>
+#include <QHBoxLayout>
 
 #include "MainWindow.h"
-#include "LogOutputType.h"
-#include "QLogger.h"
+#include "OutputWindowLogger.h"
 
 class OutputWindow : public QMainWindow
 {
@@ -34,8 +38,13 @@ public:
 	OutputWindow(QWidget *parent, MainWindow *mw);
 	~OutputWindow();
 
-	void print(QString msg, QLogger::LogLevel log_level);
-	QString getTextContent();
+	QString getTextContent(OutputWindowPaneType pane);
+	void addLoggerSection(OutputWindowPaneType index, QString name);
+	OutputWindowLogger *getLoggerSection(OutputWindowPaneType index);
+
+	void switchPane(OutputWindowPaneType index);
+	void switchPane(int index);
+	void clearPane(OutputWindowPaneType t);
 
 public slots:
 	void clearAll();
@@ -43,7 +52,12 @@ public slots:
 
 private:
 	MainWindow * mainWindow;
-    QTextEdit *textArea;
 	QToolBar* toolBar;
+	QComboBox* pane_selector;
+	QHBoxLayout* layout;
+
+	QMap<OutputWindowPaneType, OutputWindowLogger*> panes;
+
+
 };
 

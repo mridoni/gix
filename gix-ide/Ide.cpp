@@ -65,17 +65,18 @@ void Ide::init()
 
 	if (GixGlobals::getCompilerManager()->getCompilers().size() == 0) {
 		QString msg = QCoreApplication::translate("gix", QString("No configured compilers found in compiler definitions directory %1").arg(GixGlobals::getCompilerDefsDir()).toUtf8().constData());
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		GixGlobals::getLogManager()->error(LOG_IDE, "{}", msg);
 		UiUtils::ErrorDialog(msg);
 	}
     
-	auto i_sink = std::make_shared<ide_sink_mt>();
-	std::vector<spdlog::sink_ptr> sinks = { i_sink };
-	auto logger = std::make_shared<spdlog::logger>("gix-ide", begin(sinks), end(sinks));
-	spdlog::set_default_logger(logger);
-	spdlog::set_level(spdlog::level::trace);	// max log level, will be limited by the sink-specific levels
-	i_sink->set_level(spdlog::level::trace);
-	logger->flush_on(spdlog::level::trace);    
+	//auto i_sink = std::make_shared<ide_sink_mt>();
+	//std::vector<spdlog::sink_ptr> sinks = { i_sink };
+	//auto logger = std::make_shared<spdlog::logger>("gix-ide", begin(sinks), end(sinks));
+
+	//spdlog::set_default_logger(logger);
+	//spdlog::set_level(spdlog::level::trace);	// max log level, will be limited by the sink-specific levels
+	//i_sink->set_level(spdlog::level::trace);
+	//logger->flush_on(spdlog::level::trace);    
 	
 #ifdef WIN32
 	// We copy default settings from Global to User, if missing
@@ -125,4 +126,19 @@ EolMode Ide::getEolModeFromSettings()
 #else
 #error "Unknown platform"
 #endif
+}
+
+QFont Ide::getGridFont()
+{
+	QSettings settings;
+	QTableWidgetItem* tw = new QTableWidgetItem();
+	QString font_name = settings.value("grid_font_name", "").toString();
+	int font_size = settings.value("grid_font_size", 0).toInt();
+	if (font_name.isEmpty() || font_size == 0) {
+		QTableWidgetItem tw;
+		font_name = tw.font().family();
+		font_size = tw.font().pointSize();
+	}
+
+	return QFont(font_name, font_size);
 }

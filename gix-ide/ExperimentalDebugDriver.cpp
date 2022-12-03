@@ -39,9 +39,8 @@ void ExperimentalDebugDriver::startDriver()
 		return dbgr_client_getBreakpoints(nullptr, bps);
 	};
 
-	debugger_client_instance.debuggerMessage = [](GixDebuggerClient* gd, std::string msg, int l) {
-		QString qmsg = QString("[DebuggerHost]: %1").arg(QString::fromStdString(msg));
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, qmsg, (QLogger::LogLevel)0);
+	debugger_client_instance.debuggerMessage = [this](GixDebuggerClient* gd, std::string msg, int l) {
+		logger->trace(LOG_DEBUG,"[DebuggerHost]: {}", msg);
 		return true;
 	};
 
@@ -71,20 +70,18 @@ void ExperimentalDebugDriver::startDriver()
 
 #if 1
 	debugger_client_instance.debuggerClientLog = [this](GixDebuggerClient* gd, std::string msg, int level) {
-		QString qmsg = QString("[DebuggerClient]: %1").arg(QString::fromStdString(msg));
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, qmsg, (QLogger::LogLevel)0);
+		logger->trace(LOG_DEBUG, "[DebuggerClient]: {}", msg);
 		return true;
 	};
 #endif
 
 	debugger_client_instance.debuggerHostLog = [this](GixDebuggerClient* gd, std::string msg, int level) {
-		QString qmsg = QString("[DebuggerHost]: %1").arg(QString::fromStdString(msg));
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, qmsg, (QLogger::LogLevel)0);
+		logger->trace(LOG_DEBUG, "[DebuggerHost]: {}", msg);
 		return true;
 	};
 
 	if (!debugger_client_instance.init()) {
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Cannot start debugger client", QLogger::LogLevel::Error);
+		logger->error(LOG_DEBUG, "Cannot start debugger client");
 		emit DebuggerProcessError("Cannot start debug driver or debugger client: " + QString::fromStdString(debugger_client_instance.get_last_error()), -1);
 		return;
 	}
@@ -95,6 +92,7 @@ void ExperimentalDebugDriver::startDriver()
 ExperimentalDebugDriver::ExperimentalDebugDriver(DebugManager *dm)
 {
 	debug_manager = dm;
+	logger = GixGlobals::getLogManager();
 }
 
 ExperimentalDebugDriver::~ExperimentalDebugDriver()
@@ -200,14 +198,14 @@ bool ExperimentalDebugDriver::dbgr_client_debuggerBreak(GixDebugger* gd, std::st
 		cmd_line = "";
 
 		cmd_mutex.lock();
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver is waiting for commands", QLogger::LogLevel::Trace);
+		logger->trace(LOG_DEBUG, "DebugDriver is waiting for commands");
 		cmd_available.wait(&cmd_mutex);
 		cmd_mutex.unlock();
 
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver received: " + cmd_line, QLogger::LogLevel::Trace);
+		logger->trace(LOG_DEBUG, "DebugDriver received: {}", cmd_line);
 		bool stop_processing = processCommand(cmd_line);
 		if (stop_processing) {
-			Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, ">> DebugDriver will stop processing commands", QLogger::LogLevel::Trace);
+			logger->trace(LOG_DEBUG, "DebugDriver will stop processing commands");
 			break;
 		}
 	}
@@ -218,7 +216,7 @@ bool ExperimentalDebugDriver::dbgr_client_debuggerBreak(GixDebugger* gd, std::st
 bool ExperimentalDebugDriver::dbgr_client_debuggerError(GixDebugger* gd, int err_code, std::string msg)
 {
 	QString qmsg = QString::fromStdString(msg);
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, qmsg, (QLogger::LogLevel)0);
+	logger->error(LOG_DEBUG, "{}", qmsg);
 	emit DebuggerProcessError(qmsg, err_code);
 	return true;
 }
@@ -226,7 +224,7 @@ bool ExperimentalDebugDriver::dbgr_client_debuggerError(GixDebugger* gd, int err
 bool ExperimentalDebugDriver::dbgr_client_debuggerProcessExit(GixDebugger*, int rc, std::string exe_path)
 {
 	QString qmsg = QString::fromStdString(exe_path);
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Program %1 terminated with result code: %2").arg(qmsg).arg(rc), (QLogger::LogLevel)0);
+	logger->debug(LOG_DEBUG, "Program {} terminated with result code: {}", qmsg, rc);
 	emit DebuggerProcessFinished(qmsg, rc);
 	return true;
 }
@@ -234,7 +232,7 @@ bool ExperimentalDebugDriver::dbgr_client_debuggerProcessExit(GixDebugger*, int 
 bool ExperimentalDebugDriver::dbgr_client_debuggerProcessStarted(GixDebugger*, std::string exe_path)
 {
 	QString qmsg = QString::fromStdString(exe_path);
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Program %1 started").arg(qmsg), (QLogger::LogLevel)0);
+	logger->debug(LOG_DEBUG, "Program {} started", qmsg);
 	emit DebuggerProcessStarted(qmsg);
 	return true;
 }
@@ -242,7 +240,7 @@ bool ExperimentalDebugDriver::dbgr_client_debuggerProcessStarted(GixDebugger*, s
 bool ExperimentalDebugDriver::dbgr_client_debuggerReady(GixDebugger*, std::string exe_path)
 {
 	QString qmsg = QString::fromStdString(exe_path);
-	Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Debugger has loaded symbols and is ready to run %1").arg(qmsg), (QLogger::LogLevel)0);
+	logger->debug(LOG_DEBUG, "Debugger has loaded symbols and is ready to run {}", qmsg);
 	is_started = true;
 	emit DebuggerReady(qmsg);
 	return true;

@@ -46,6 +46,7 @@ class SettingsDialog;
 class NewProjectDialog;
 class SearchDialog;
 class DataWindow;
+class ErrorWindow;
 class DependenciesWindow;
 class DbManagerWindow;
 class ConsoleWindow;
@@ -240,10 +241,12 @@ private:
 	QDockWidget* dbmanager_dock;
 	QDockWidget* console_dock;
 	QDockWidget* navigation_dock;
+	QDockWidget* error_dock;
 
 	ProjectCollectionWindow* prjcoll_window;
 	PropertyWindow* property_window;
 	OutputWindow* output_window;
+	ErrorWindow* error_window;
 	WatchWindow* watch_window;
 	DataWindow* working_storage_window;
 	DependenciesWindow* deps_window;

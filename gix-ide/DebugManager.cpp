@@ -65,6 +65,7 @@ USA.
 
 DebugManager::DebugManager(IdeTaskManager *_ide_task_manager)
 {
+	logger = GixGlobals::getLogManager();
 	debug_driver = nullptr;
 	ide_task_manager = _ide_task_manager;
 	is_debugging_enabled = true;
@@ -76,7 +77,7 @@ DebugManager::DebugManager(IdeTaskManager *_ide_task_manager)
 
 DebugManager::~DebugManager()
 {
-	ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Stopping debug driver", QLogger::LogLevel::Debug);
+	 GixGlobals::getLogManager()->debug(LOG_DEBUG, "Stopping debug driver");
 	if (debug_driver) {
 		debug_driver->stop();
 	}
@@ -105,10 +106,11 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 {
 	QSettings settings;
 
+
 #if defined (__linux__)
 	if (prj->getType() == ProjectType::Web) {
 		QString msg = QString(tr("Debugging of Web Projects under Linux is not currently supported"));
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -125,7 +127,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 	QString gix_build_platform = SysUtils::getGixBuildPlatform();
 	if (is_debugging_enabled && target_platform != gix_build_platform) {
 		QString msg = QString(tr("Architecture mismatch. Only projects for the following platforms can be debugged: %1")).arg(gix_build_platform);
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		logger->error(LOG_DEBUG, "{}", msg);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -133,7 +135,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 	CompilerConfiguration* compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform, QVariantMap());
 	if (compiler_cfg == nullptr) {
 		QString msg(tr("Invalid compiler configuration"));
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		logger->error(LOG_DEBUG, "{}", msg);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -171,7 +173,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 	else {
 		if (prj->getType() == ProjectType::MultipleBinaries) {
 			QString msg = tr("Multi-binaries projects need a startup item to be set in order to be run or debugged");
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+			logger->error(LOG_DEBUG, "{}", msg);
 			UiUtils::ErrorDialog(msg);
 			return false;
 		}
@@ -192,7 +194,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 		CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
 		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
 
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Using ESQL driver: %1")).arg(esql_cfg_id), QLogger::LogLevel::Trace);
+		logger->trace(LOG_DEBUG, "Using ESQL driver: {}", esql_cfg_id);
 
 		QString esql_driver_type = "*";	// placeholder
 		QMap<QString, QString> esql_env = esql_cfg->getEnvironment("*");
@@ -202,7 +204,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 		}
 
 		for (QString v : esql_cfg->getRuntimeLibPathList(esql_driver_type)) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Loading ESQL runtime libraries from %1")).arg(v), QLogger::LogLevel::Debug);
+			logger->trace(LOG_DEBUG, "Loading ESQL runtime libraries from {}", v);
 #if defined(_WIN32)
 			SysUtils::mergeEnvironmentVariable(env, "PATH", v);
 #else
@@ -211,26 +213,24 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 		}
 
 		if (esql_cfg_id == ESQLConfigurationType::GixInternal || esql_cfg_id == ESQLConfigurationType::GixExternal) {
-			// Not needed anymore
-			// ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg(esql_env.value("GIXSQL_DB_MODE")), QLogger::LogLevel::Debug);
 
 			bool esql_debug_log_on = prj->PropertyGetValue("esql_debug_log_on").toBool();
 			if (esql_debug_log_on) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Enabling GixSQL debug log")), QLogger::LogLevel::Debug);
+				logger->trace(LOG_DEBUG, "Enabling GixSQL debug log");
 				env.insert("GIXSQL_DEBUG_LOG_ON", "1");
 				QString esql_debug_log_file = prj->PropertyGetValue("esql_debug_log_file").toString();
 				if (!esql_debug_log_file.isEmpty()) {
-					ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting GixSQL debug log file to %1").arg(esql_debug_log_file)), QLogger::LogLevel::Debug);
+					logger->trace(LOG_DEBUG, "Setting GixSQL debug log file to {}", esql_debug_log_file);
 					env.insert("GIXSQL_DEBUG_LOG", esql_debug_log_file);
 				}
 			}
 			else {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("GixSQL debug log is disabled")), QLogger::LogLevel::Debug);
+				logger->trace(LOG_DEBUG, "GixSQL debug log is disabled");
 			}
 
 			QString esql_error_log_file = prj->PropertyGetValue("esql_error_log_file").toString();
 			if (!esql_error_log_file.isEmpty()) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting GixSQL error log file to %1").arg(esql_error_log_file)), QLogger::LogLevel::Debug);
+				logger->trace(LOG_DEBUG, "Setting GixSQL error log file to {}", esql_error_log_file);
 				env.insert("GIXSQL_ERR_LOG", esql_error_log_file);
 			}
 		}
@@ -248,8 +248,8 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 	QString target_full_path = mm.translate(target);
 
 	if (!QFile::exists(target_full_path)) {
-		QString msg = QString(tr("Invalid target path (%1), please (re)build your project before running or debugging")).arg(target_full_path);
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		QString msg = QString("Invalid target path (%1), please (re)build your project before running or debugging").arg(target_full_path);
+		logger->error(LOG_DEBUG, "{}", msg);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -293,9 +293,8 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 
 		QString program_id = CobolUtils::extractProgramId(main_module_obj->GetFileFullPath());
 		if (program_id.isEmpty()) {
-			QString msg = tr("Invalid project configuration");
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
-			UiUtils::ErrorDialog(msg);
+			logger->error(LOG_DEBUG, "Invalid project configuration");
+			UiUtils::ErrorDialog("Invalid project configuration");
 			return false;
 		}
 
@@ -325,14 +324,14 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 
 			QString itf_in_fld = main_module_obj->getSubProperty("is_rest_ws", "interface_in_field").toString();
 			if (itf_in_fld.isEmpty()) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Invalid input field", QLogger::LogLevel::Error);
+				logger->error(LOG_DEBUG, "Invalid input field");
 				return false;
 			}
 			svc_rest->setInterfaceInFieldName(itf_in_fld);
 
 			QString itf_out_fld = main_module_obj->getSubProperty("is_rest_ws", "interface_out_field").toString();
 			if (itf_out_fld.isEmpty()) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Invalid output field", QLogger::LogLevel::Error);
+				logger->error(LOG_DEBUG, "Invalid output field");
 				return false;
 			}
 			svc_rest->setInterfaceOutFieldName(itf_out_fld);
@@ -343,7 +342,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 		}
 
 		if (main_module_obj->isSoapService()) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Unsupported function", QLogger::LogLevel::Error);
+			logger->error(LOG_DEBUG, "Unsupported function");
 			return false;
 			//svc_soap = ServiceConfig::ofType("soap");
 			//svc_soap->setName(startup_item_name);
@@ -360,7 +359,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 		}
 
 		if (!svr.write(tmp_cfg_path)) {
-			QLogger::QLog_Error(GIX_CONSOLE_LOG, "Cannot write configuration file " + tmp_cfg_path);
+			logger->error(LOG_DEBUG, "Cannot write configuration file {}", tmp_cfg_path);
 			return false;
 		}
 
@@ -390,7 +389,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 	debug_driver = DebugDriverFactory::get(t, this);
 	if (debug_driver == nullptr) {
 		QString msg = tr("Cannot create a debug driver instance");
-		QLogger::QLog_Error(GIX_CONSOLE_LOG, msg);
+		logger->error(LOG_DEBUG, "{}", msg);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -421,7 +420,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 		std::string v = env.value(k).toStdString();
 		dbg_env[k.toStdString()] = v;
 		if (ide_task_manager->isDebugOutputEnabled()) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString("%1=%2").arg(k).arg(QString::fromStdString(v)), QLogger::LogLevel::Trace);
+			logger->trace(LOG_DEBUG, "{}={}", k, v);
 		}
 	}
 
@@ -442,7 +441,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 	if (!stdin_file.isEmpty()) {
 		if (!QFile::exists(stdin_file)) {
 			QString msg = tr("The file specified as stdin input does not exist or is not accessible");
-			QLogger::QLog_Error(GIX_CONSOLE_LOG, msg);
+			logger->error(LOG_DEBUG, "{}", msg);
 			UiUtils::ErrorDialog(msg);
 			if (debug_driver) delete debug_driver;
 			return false;
@@ -501,7 +500,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 #if defined (__linux__)
     if (prj->getType() == ProjectType::Web) {
         QString msg = QString(tr("Debugging of Web Projects under Linux is not currently supported"));
-        ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+        logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
         UiUtils::ErrorDialog(msg);
         return false;
     }
@@ -518,7 +517,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	QString gix_build_platform = SysUtils::getGixBuildPlatform();
 	if (is_debugging_enabled && target_platform != gix_build_platform) {
 		QString msg = QString(tr("Architecture mismatch. Only projects for the following platforms can be debugged: %1")).arg(gix_build_platform);
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -526,7 +525,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(build_configuration, target_platform, QVariantMap());
 	if (compiler_cfg == nullptr) {
 		QString msg(tr("Invalid compiler configuration"));
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -564,7 +563,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	else {
 		if (prj->getType() == ProjectType::MultipleBinaries) {
 			QString msg = tr("Multi-binaries projects need a startup item to be set in order to be run or debugged");
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+			logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
 			UiUtils::ErrorDialog(msg);
 			return false;
 		}
@@ -585,7 +584,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
 		QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
 
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Using ESQL driver: %1")).arg(esql_cfg_id), QLogger::LogLevel::Trace);
+		logger->logMessage(LOG_DEBUG, QString(tr("Using ESQL driver: %1")).arg(esql_cfg_id), QLogger::LogLevel::Trace);
 
 		QString esql_driver_type = "*";	// placeholder
 		QMap<QString, QString> esql_env = esql_cfg->getEnvironment("*");
@@ -595,7 +594,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		}
 
 		for (QString v : esql_cfg->getRuntimeLibPathList(esql_driver_type)) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Loading ESQL runtime libraries from %1")).arg(v), QLogger::LogLevel::Debug);
+			logger->logMessage(LOG_DEBUG, QString(tr("Loading ESQL runtime libraries from %1")).arg(v), QLogger::LogLevel::Debug);
 #if defined(_WIN32)
 			SysUtils::mergeEnvironmentVariable(env, "PATH", v);
 #else
@@ -605,25 +604,25 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 
 		if (esql_cfg_id == ESQLConfigurationType::GixInternal || esql_cfg_id == ESQLConfigurationType::GixExternal) {
 			// Not needed anymore
-			// ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg(esql_env.value("GIXSQL_DB_MODE")), QLogger::LogLevel::Debug);
+			// logger->logMessage(LOG_DEBUG, QString(tr("Setting ESQL driver in GIXSQL_DB_MODE: %1")).arg(esql_env.value("GIXSQL_DB_MODE")), QLogger::LogLevel::Debug);
 
 			bool esql_debug_log_on = prj->PropertyGetValue("esql_debug_log_on").toBool();
 			if (esql_debug_log_on) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Enabling GixSQL debug log")), QLogger::LogLevel::Debug);
+				logger->logMessage(LOG_DEBUG, QString(tr("Enabling GixSQL debug log")), QLogger::LogLevel::Debug);
 				env.insert("GIXSQL_DEBUG_LOG_ON", "1");
 				QString esql_debug_log_file = prj->PropertyGetValue("esql_debug_log_file").toString();
 				if (!esql_debug_log_file.isEmpty()) {
-					ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting GixSQL debug log file to %1").arg(esql_debug_log_file)), QLogger::LogLevel::Debug);
+					logger->logMessage(LOG_DEBUG, QString(tr("Setting GixSQL debug log file to %1").arg(esql_debug_log_file)), QLogger::LogLevel::Debug);
 					env.insert("GIXSQL_DEBUG_LOG", esql_debug_log_file);
 				}
 			}
 			else {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("GixSQL debug log is disabled")), QLogger::LogLevel::Debug);
+				logger->logMessage(LOG_DEBUG, QString(tr("GixSQL debug log is disabled")), QLogger::LogLevel::Debug);
 			}
 
 			QString esql_error_log_file = prj->PropertyGetValue("esql_error_log_file").toString();
 			if (!esql_error_log_file.isEmpty()) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, QString(tr("Setting GixSQL error log file to %1").arg(esql_error_log_file)), QLogger::LogLevel::Debug);
+				logger->logMessage(LOG_DEBUG, QString(tr("Setting GixSQL error log file to %1").arg(esql_error_log_file)), QLogger::LogLevel::Debug);
 				env.insert("GIXSQL_ERR_LOG", esql_error_log_file);
 			}
 		}
@@ -642,7 +641,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 
 	if (!QFile::exists(target_full_path)) {
 		QString msg = QString(tr("Invalid target path (%1), please (re)build your project before running or debugging")).arg(target_full_path);
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+		logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -687,7 +686,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		QString program_id = CobolUtils::extractProgramId(main_module_obj->GetFileFullPath());
 		if (program_id.isEmpty()) {
 			QString msg = tr("Invalid project configuration");
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+			logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
 			UiUtils::ErrorDialog(msg);
 			return false;
 		}
@@ -718,14 +717,14 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 
 			QString itf_in_fld = main_module_obj->getSubProperty("is_rest_ws", "interface_in_field").toString();
 			if (itf_in_fld.isEmpty()) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Invalid input field", QLogger::LogLevel::Error);
+				logger->logMessage(LOG_DEBUG, "Invalid input field", QLogger::LogLevel::Error);
 				return false;
 			}
 			svc_rest->setInterfaceInFieldName(itf_in_fld);
 
 			QString itf_out_fld = main_module_obj->getSubProperty("is_rest_ws", "interface_out_field").toString();
 			if (itf_out_fld.isEmpty()) {
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Invalid output field", QLogger::LogLevel::Error);
+				logger->logMessage(LOG_DEBUG, "Invalid output field", QLogger::LogLevel::Error);
 				return false;
 			}
 			svc_rest->setInterfaceOutFieldName(itf_out_fld);
@@ -736,7 +735,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		}
 
 		if (main_module_obj->isSoapService()) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Unsupported function", QLogger::LogLevel::Error);
+			logger->logMessage(LOG_DEBUG, "Unsupported function", QLogger::LogLevel::Error);
 			return false;
 			//svc_soap = ServiceConfig::ofType("soap");
 			//svc_soap->setName(startup_item_name);
@@ -753,7 +752,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		}
 
 		if (!svr.write(tmp_cfg_path)) {
-			QLogger::QLog_Error(GIX_CONSOLE_LOG, "Cannot write configuration file " + tmp_cfg_path);
+			QLogger::QLog_Error(LOG_DEBUG, "Cannot write configuration file " + tmp_cfg_path);
 			return false;
 		}
 
@@ -782,7 +781,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	GixDebugger *gd = GixDebugger::get();
 	if (!gd) {
 		QString msg = tr("Cannot create a debugger instance. Unsupported platform?");
-		QLogger::QLog_Error(GIX_CONSOLE_LOG, msg);
+		QLogger::QLog_Error(LOG_DEBUG, msg);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -794,7 +793,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 		QString v = env.value(k);
 		dbg_env[k] = v;
 #if _DEBUG
-		//ide_task_manager->logMessage(GIX_CONSOLE_LOG, k + "=" + v, QLogger::LogLevel::Trace);
+		//logger->logMessage(LOG_DEBUG, k + "=" + v, QLogger::LogLevel::Trace);
 #endif
 	}
 
@@ -812,7 +811,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	if (!stdin_file.isEmpty()) {
 		if (!QFile::exists(stdin_file)) {
 			QString msg = tr("The file specified as stdin input does not exist or is not accessible");
-			QLogger::QLog_Error(GIX_CONSOLE_LOG, msg);
+			QLogger::QLog_Error(LOG_DEBUG, msg);
 			UiUtils::ErrorDialog(msg);
 			return false;
 		}
@@ -823,7 +822,7 @@ bool DebugManager::start(Project *prj, QString _build_configuration, QString _ta
 	debug_driver = DebugDriverFactory::get(t);
 	if (debug_driver == nullptr) {
 		QString msg = tr("Cannot create a debug driver instance");
-		QLogger::QLog_Error(GIX_CONSOLE_LOG, msg);
+		QLogger::QLog_Error(LOG_DEBUG, msg);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}
@@ -878,7 +877,7 @@ void DebugManager::readStdErr()
 	QProcess *p = (QProcess *)sender();
 	p->setReadChannel(QProcess::ProcessChannel::StandardError);
 	QString s = p->readAll();
-	ide_task_manager->logMessage(GIX_CONSOLE_LOG, s, QLogger::LogLevel::Error);
+	logger->error(LOG_DEBUG, "{}", s);
 }
 
 void DebugManager::readStdOut()
@@ -886,7 +885,7 @@ void DebugManager::readStdOut()
 	QProcess *p = (QProcess *)sender();
 	p->setReadChannel(QProcess::ProcessChannel::StandardOutput);
 	QString s = p->readAll();
-	ide_task_manager->logMessage(GIX_CONSOLE_LOG, s, QLogger::LogLevel::Info);
+	logger->info(LOG_DEBUG, "{}", s);
 }
 
 void DebugManager::debuggedProcessFinished(int rc, QString s)
@@ -895,7 +894,7 @@ void DebugManager::debuggedProcessFinished(int rc, QString s)
 	hexCode.setNum((unsigned int)rc, 16);
 	hexCode = "0x" + hexCode.rightJustified(8, '0');
 	QString msg = QString(tr("Process finished with exit code %1 (%2)")).arg(rc).arg(hexCode);
-	ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Info);
+	logger->info(LOG_DEBUG, "{}", msg);
 	if (rc) {
 		UiUtils::ErrorDialog(msg);
 	}
@@ -908,8 +907,7 @@ void DebugManager::debuggedProcessError(int errcode, QString errmsg)
 {
 
 	QString msg = QString(tr("The process stopped with an error (%1): %2")).arg(errcode).arg(errmsg);
-	ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
-	//ide_task_manager->logMessage(GIX_CONSOLE_LOG, launched_process->errorString(), QLogger::LogLevel::Info);
+	logger->error(LOG_DEBUG, "{}", msg);
 	if (!is_user_initiated_stop) {
 		UiUtils::ErrorDialog(msg);
 	}
@@ -926,7 +924,7 @@ void DebugManager::debuggedProcessStarted()
 
 void DebugManager::debug_module_changed(QString module, int ln)
 {
-	ide_task_manager->logMessage(GIX_CONSOLE_LOG, "DBG: MODULE CHANGED @" + module + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+	logger->trace(LOG_DEBUG, "DBG: MODULE CHANGED @{}:{}", module, ln);
 }
 
 void DebugManager::debug_program_exit(QString m, int l)
@@ -937,12 +935,10 @@ void DebugManager::debug_program_exit(QString m, int l)
 
 void DebugManager::debug_break(QString module_name, QString src_file, int ln)
 {
-	//fprintf(stderr, "DBG BREAK\n");
-	ide_task_manager->logMessage(GIX_CONSOLE_LOG, "DBG: BREAK @" + src_file + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+	logger->trace(LOG_DEBUG, "DBG: BREAK @{}:{}", src_file, ln);
 
 	bool bkp_located = false;
 
-	//CobolModuleMetadata *cmm = dbg_metadata_by_module.contains(module_name) ? dbg_metadata_by_module[module_name] : nullptr;
 	CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
 	if (cmm) {
 		if (!cmm->isPreprocessedESQL()) {	// Type 1
@@ -955,19 +951,19 @@ void DebugManager::debug_break(QString module_name, QString src_file, int ln)
 		}
 
 		if (bkp_located) {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Located line " + QString::number(ln) + " for file " + src_file, QLogger::LogLevel::Trace);
+			logger->trace(LOG_DEBUG, "Located line {} for file {}", ln, src_file);
 			ide_task_manager->setStatus(IdeStatus::DebuggingOnBreak);
 
 			emit ide_task_manager->IdeDebuggerBreak();
 			emit ide_task_manager->IdeEditorChangedPosition(cur_src_file, cur_line);
 		}
 		else {
-			ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Cannot locate line " + QString::number(ln) + " for file " + src_file, QLogger::LogLevel::Error);
+			logger->error(LOG_DEBUG, "Cannot locate line {} for file {}", ln, src_file);
 
 		}
 	}
 	else {
-		ide_task_manager->logMessage(GIX_CONSOLE_LOG, "Cannot locate module for file " + src_file, QLogger::LogLevel::Error);
+		logger->error(LOG_DEBUG, "Cannot locate module for file {}", src_file);
 	}
 }
 
@@ -1174,7 +1170,7 @@ QStringList DebugManager::getTranslatedBreakpoints()
 			CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadata(module_name);
 			if (!cmm) {
 				QString msg = QString(tr("Cannot resolve data for module %1")).arg(module_name);
-				ide_task_manager->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Error);
+				logger->error(LOG_DEBUG, "{}", msg);
 				continue;
 			}
 

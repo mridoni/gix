@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
+#include "BuildConsts.h"
 #include "BuildTarget.h"
 #include "PathUtils.h"
 #include "IBuildableItem.h"
@@ -41,32 +42,38 @@ bool BuildTarget::isUpToDate()
 
 	QString cd = QDir::currentPath();
 	if (!QFile(filename()).exists()) {
-		logger->logMessage(GIX_CONSOLE_LOG, filename() + " IS NOT UP TO DATE (0)", QLogger::LogLevel::Trace);
+		logger->trace(LOG_BUILD, "{} IS NOT UP TO DATE (0)", filename());
 		return false;
 	}
 
 	QDateTime target_mtime = QFileInfo(filename()).lastModified();
 	for (BuildTarget *dep : *target_dependencies) {
 		if (!dep->isUpToDate()) {
-			logger->logMessage(GIX_CONSOLE_LOG, dep->filename() + " IS NOT UP TO DATE (1)", QLogger::LogLevel::Trace);
+			logger->trace(LOG_BUILD, "{} IS NOT UP TO DATE (1)", filename());
 			return false;
 		}
 	}
 
 	for (BuildTarget *dep : *target_dependencies) {
 		if (!QFile(dep->filename()).exists()) {
-			logger->logMessage(GIX_CONSOLE_LOG, dep->filename() + " IS NOT UP TO DATE (2)", QLogger::LogLevel::Trace);
+			logger->trace(LOG_BUILD, "{} IS NOT UP TO DATE (2)", filename());
 			return false;
 		}
 
 		QDateTime dep_mtime = QFileInfo(dep->filename()).lastModified();
 		if (dep_mtime > target_mtime) {
-			logger->logMessage(GIX_CONSOLE_LOG, QString("IS NOT UP TO DATE (3): T(%1): %2, D(%3): %4").arg(QFileInfo(this->filename()).fileName()).arg(target_mtime.toString()).arg(QFileInfo(dep->filename()).fileName()).arg(dep_mtime.toString()), QLogger::LogLevel::Error);
+			
+			logger->trace(LOG_BUILD, "IS NOT UP TO DATE (3): T({}): {%2}, D({}): {}", 
+							QFileInfo(this->filename()).fileName(), 
+							target_mtime.toString(), 
+							QFileInfo(dep->filename()).fileName(),
+							dep_mtime.toString());
+
 			return false;
 		}
 	}
 
-	logger->logMessage(GIX_CONSOLE_LOG, filename() + " IS UP TO DATE", QLogger::LogLevel::Trace);
+	logger->trace(LOG_BUILD, "{} IS UP TO DATE", filename());
 	return true;
 }
 

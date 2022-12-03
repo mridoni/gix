@@ -100,7 +100,7 @@ void BuildActionHandler::readStdOut(QProcess *p)
 	QByteArray qba = p->readAll();
 	QString s(qba);
 	if (!s.isEmpty())
-		build_driver->log_build_message(s, QLogger::LogLevel::Info);
+		build_driver->log_build_message(s, spdlog::level::info);
 }
 
 void BuildActionHandler::readStdErr(QProcess *p)
@@ -109,7 +109,7 @@ void BuildActionHandler::readStdErr(QProcess *p)
 	QByteArray qba = p->readAll();
 	QString s(qba);
 	if (!s.isEmpty())
-		build_driver->log_build_message(s, QLogger::LogLevel::Error);
+		build_driver->log_build_message(s, spdlog::level::err);
 }
 
 QString BuildActionHandler::getBuildDirectory()

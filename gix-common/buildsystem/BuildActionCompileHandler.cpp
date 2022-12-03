@@ -65,7 +65,7 @@ bool BuildActionCompileHandler::startBuild()
 	QString input_file = compilable_deps.at(0)->filename();
 	QString input_file_dir = PathUtils::getDirectory(input_file);
 
-	build_driver->log_build_message(tr("Building") + input_file, QLogger::LogLevel::Info);
+	build_driver->log_build_message(tr("Building") + input_file, spdlog::level::info);
 
 	QString build_configuration = build_driver->getBuildEnvironment()["configuration"].toString();
 	QString target_platform = build_driver->getBuildEnvironment()["platform"].toString();
@@ -75,7 +75,7 @@ bool BuildActionCompileHandler::startBuild()
 	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(build_configuration, target_platform, environment));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
-		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid compiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -83,7 +83,7 @@ bool BuildActionCompileHandler::startBuild()
 	CompilerEnvironment esql_cfg_env = compiler_cfg->getCompilerEnvironment();
 	QScopedPointer<ESQLConfiguration> esql_cfg(ESQLConfiguration::get(esql_cfg_id, esql_cfg_env, build_configuration, target_platform));
 	if (esql_cfg.isNull()) {
-		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(tr("Invalid ESQL precompiler configuration for target ")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -91,7 +91,7 @@ bool BuildActionCompileHandler::startBuild()
 
 	QStringList cobc_opts;
 	QString cobc = compiler_cfg->executablePath;
-	build_driver->log_build_message(QString(tr("Using compiler %1")).arg(cobc), QLogger::LogLevel::Trace);
+	build_driver->log_build_message(QString(tr("Using compiler %1")).arg(cobc), spdlog::level::trace);
 
 	if (environment.contains("compiler_dialect")) {
 		cobc_opts.append("-std");
@@ -131,7 +131,7 @@ bool BuildActionCompileHandler::startBuild()
 	}
 
 #if _DEBUG
-	cobc_opts.append("-v");
+	//cobc_opts.append("-v");
 #endif
 
 	MacroManager mm(environment);
@@ -195,7 +195,7 @@ bool BuildActionCompileHandler::startBuild()
 
 	cobc_opts.append(input_file);
 
-	build_driver->log_build_message(cobc + " " + cobc_opts.join(" "), QLogger::LogLevel::Info);
+	build_driver->log_build_message(cobc + " " + cobc_opts.join(" "), spdlog::level::info);
 
 	QProcess p;
 
@@ -218,7 +218,7 @@ bool BuildActionCompileHandler::startBuild()
 	connect(&p, &QProcess::readyReadStandardError, this, [this, &p] { readStdErr(&p); });
 	connect(&p, &QProcess::readyReadStandardOutput, this, [this, &p] { readStdOut(&p); });
 	connect(&p, &QProcess::errorOccurred, this, [this, &p, ps_err](QProcess::ProcessError _err) mutable { 
-		build_driver->log_build_message(p.errorString(), QLogger::LogLevel::Info); ps_err = true; 
+		build_driver->log_build_message(p.errorString(), spdlog::level::info); ps_err = true; 
 	});
 
 	connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -226,7 +226,7 @@ bool BuildActionCompileHandler::startBuild()
 
 	p.start();
 	if (!p.waitForStarted()) {
-		build_driver->log_build_message("ERROR: " + p.errorString(), QLogger::LogLevel::Error);
+		build_driver->log_build_message("ERROR: " + p.errorString(), spdlog::level::err);
 		return false;
 	}
 
@@ -235,11 +235,11 @@ bool BuildActionCompileHandler::startBuild()
 	int rc = p.exitCode();
 	bool res = ((!rc) && (!ps_err));
 	if (res) {
-		build_driver->log_build_message(tr("Build successful") + ": " + target_final_path, QLogger::LogLevel::Success);
+		build_driver->log_build_message(tr("Build successful") + ": " + target_final_path, spdlog::level::info);
 	}
 	else {
-		build_driver->log_build_message(tr("Build error"), QLogger::LogLevel::Error);
-		build_driver->log_build_message("Exit code: " + QString::number(rc), QLogger::LogLevel::Trace);
+		build_driver->log_build_message(tr("Build error"), spdlog::level::err);
+		build_driver->log_build_message("Exit code: " + QString::number(rc), spdlog::level::trace);
 		return false;
 	}
 

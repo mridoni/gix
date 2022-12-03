@@ -107,12 +107,12 @@ bool BuildActionMakeListingHandler::startBuild()
 
 	p.start();
 	if (!p.waitForStarted()) {
-		build_driver->log_build_message("ERROR: " + p.errorString(), QLogger::LogLevel::Error);
+		build_driver->log_build_message("ERROR: :" + p.errorString(), spdlog::level::err);
 		return false;
 	}
 
 	if (!p.waitForFinished()) {
-		build_driver->log_build_message("ERROR: " + p.errorString(), QLogger::LogLevel::Error);
+		build_driver->log_build_message("ERROR: " + p.errorString(), spdlog::level::err);
 		return false;
 	}
 

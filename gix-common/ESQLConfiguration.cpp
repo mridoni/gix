@@ -3,7 +3,6 @@
 #include "TPESQLProcessing.h"
 #include "BuildDriver.h"
 #include "PathUtils.h"
-#include "QLogger.h"
 #include "GixGlobals.h"
 #include "SysUtils.h"
 
@@ -75,7 +74,7 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 	QScopedPointer<CompilerConfiguration> ccfg(CompilerConfiguration::get(configuration, platform, QVariantMap()));
 	CompilerConfiguration *compiler_cfg = ccfg.data();
 	if (compiler_cfg == nullptr) {
-		build_driver->log_build_message(QString(QCoreApplication::translate("gix", "Invalid compiler configuration for target %1")).arg(target_type), QLogger::LogLevel::Error, 1);
+		build_driver->log_build_message(QString(QCoreApplication::translate("gix", "Invalid compiler configuration for target %1")).arg(target_type), spdlog::level::err, 1);
 		return false;
 	}
 
@@ -110,7 +109,7 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 		SysUtils::mergeEnvironmentVariable(env, it.key(), it.value());
 	}
 
-	build_driver->log_build_message(QString(QCoreApplication::translate("gix", "ESQL: running %1")).arg(cmd_line), QLogger::LogLevel::Info);
+	build_driver->log_build_message(QString(QCoreApplication::translate("gix", "ESQL: running %1")).arg(cmd_line), spdlog::level::info);
 
 	QProcess p;
 
@@ -129,7 +128,7 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 	connect(&p, &QProcess::readyReadStandardError, this, [this, &p, build_driver] { readStdErr(build_driver, &p); });
 	connect(&p, &QProcess::readyReadStandardOutput, this, [this, &p, build_driver] { readStdOut(build_driver, &p); });
 	connect(&p, &QProcess::errorOccurred, this, [this, &p, ps_err, build_driver](QProcess::ProcessError _err) mutable {
-		build_driver->log_build_message(p.errorString(), QLogger::LogLevel::Info); ps_err = true;
+		build_driver->log_build_message(p.errorString(), spdlog::level::info); ps_err = true;
 	});
 
 	connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -137,7 +136,7 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 
 	p.start();
 	if (!p.waitForStarted()) {
-		build_driver->log_build_message("ERROR: " + p.errorString(), QLogger::LogLevel::Error);
+		build_driver->log_build_message("ERROR: " + p.errorString(), spdlog::level::err);
 		return false;
 	}
 
@@ -146,13 +145,15 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 	int rc = p.exitCode();
 	bool res = ((!rc) && (!ps_err) && QFile::exists(output_file));
 	if (res) {
-		build_driver->log_build_message(tr("ESQL build successful") + ": " + output_file, QLogger::LogLevel::Success);
+		build_driver->log_build_message(tr("ESQL build successful") + ": " + output_file, spdlog::level::info);
 	}
 	else {
-		build_driver->log_build_message(tr("ESQL build error"), QLogger::LogLevel::Error);
-		build_driver->log_build_message("Exit code: " + QString::number(rc), QLogger::LogLevel::Trace);
+		build_driver->log_build_message(tr("ESQL build error"), spdlog::level::err);
+		build_driver->log_build_message("Exit code: " + QString::number(rc), spdlog::level::trace);
 		return false;
 	}
+
+	return true;
 }
 
 QString ESQLConfiguration::getBinPath()
@@ -276,25 +277,25 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 	gp.setInputFile(input_file.toStdString());
 	gp.setOutputFile(output_file.toStdString());
 
-	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Input file: %1").arg(input_file), QLogger::LogLevel::Debug);
-	GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Output file: %1").arg(output_file), QLogger::LogLevel::Debug);
+	GixGlobals::getLogManager()->debug(LOG_BUILD, "ESQL: Input file: {}", input_file);
+	GixGlobals::getLogManager()->debug(LOG_BUILD, "ESQL: Output file: {}", output_file);
 	for (std::string cd : cr.getCopyDirs()) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Copy dir: %1").arg(QString::fromStdString(cd)), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(LOG_BUILD, "ESQL: Copy dir: {}", cd);
 	}
 	for (std::string ce : cr.getExtensions()) {
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Copy extension: %1").arg(QString::fromStdString(ce)), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(LOG_BUILD, "ESQL: Copy extension: {}", ce);
 	}
 	for (auto it = gp.getOpts().begin(); it != gp.getOpts().end(); ++it) {
 		QString k = QString::fromStdString(it->first);
 		QString v = QString::fromStdString(variant_to_string(it->second));
-		GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, QString("ESQL: Option [%1] : [%2]").arg(k).arg(v), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(LOG_BUILD, "ESQL: Option [{}] : [{}]", k, v);
 	}
 
 	bool b = gp.process();
 
 	if (!b || !QFile(output_file).exists()) {
 		for (std::string m : gp.err_data.err_messages)
-			build_driver->log_build_message("ERROR: " + QString::fromStdString(m), QLogger::LogLevel::Error);
+			build_driver->log_build_message("ERROR: " + QString::fromStdString(m), spdlog::level::err);
 		return false;
 	}
 
@@ -308,7 +309,7 @@ void ESQLConfiguration::readStdOut(BuildDriver *build_driver, QProcess *p)
 	QByteArray qba = p->readAll();
 	QString s(qba);
 	if (!s.isEmpty())
-		build_driver->log_build_message(s, QLogger::LogLevel::Info);
+		build_driver->log_build_message(s, spdlog::level::info);
 }
 
 void ESQLConfiguration::readStdErr(BuildDriver *build_driver, QProcess *p)
@@ -317,5 +318,5 @@ void ESQLConfiguration::readStdErr(BuildDriver *build_driver, QProcess *p)
 	QByteArray qba = p->readAll();
 	QString s(qba);
 	if (!s.isEmpty())
-		build_driver->log_build_message(s, QLogger::LogLevel::Error);
+		build_driver->log_build_message(s, spdlog::level::err);
 }

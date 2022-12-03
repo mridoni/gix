@@ -33,6 +33,7 @@ USA.
 #include "DataEntry.h"
 #include "GixGlobals.h"
 #include "IdeStatusSyncSetter.h"
+#include "ErrorWarningFilter.h"
 #include "linq/linq.hpp"
 
 #include <QComboBox>
@@ -47,7 +48,7 @@ USA.
 #include <QMetaEnum>
 #include <QMdiArea>
 #include <QTimer>
-#include "QLogger.h"
+#include <QDockWidget>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -57,12 +58,15 @@ typedef TestHelperInterface *(*TESTLHPR_INTERFACE_FUNC)();
 
 IdeTaskManager::IdeTaskManager()
 {
+	logger = GixGlobals::getLogManager();
+
 	main_window = nullptr;
 	output_window = nullptr;
 	prjcoll_window = nullptr;
 	console_window = nullptr;
 	watch_window = nullptr;
 	navigation_window = nullptr;
+	error_window = nullptr;
 	debug_manager = nullptr;
 	current_project_collection = nullptr;
 	ide_status = IdeStatus::Started;
@@ -70,7 +74,6 @@ IdeTaskManager::IdeTaskManager()
 
 	current_bookmark = 0;
 
-	qRegisterMetaType<QLogger::LogLevel>();
 	qRegisterMetaType<QList<ProjectFile *>>("QList<ProjectFile *>");
 
 	connect(this, &IdeTaskManager::fileAddedToProject, this, [this](ProjectFile *pf) { prjcoll_window->refreshContent(); });
@@ -92,6 +95,11 @@ IdeTaskManager::IdeTaskManager()
 		}
 
 	});*/
+
+	connect(this, &IdeTaskManager::buildFinished, this, &IdeTaskManager::buildFinishedHandler);
+	connect(this, &IdeTaskManager::buildStarted, this, [this]() {
+		error_window->clear();
+	});
 }
 
 DebugManager *IdeTaskManager::getDebugManager()
@@ -138,7 +146,7 @@ Project *IdeTaskManager::getCurrentProject()
 	return prj;
 }
 
-void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow *ww, NavigationWindow *nw)
+void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWindow *pcw, ConsoleWindow *cw, WatchWindow *ww, NavigationWindow *nw, ErrorWindow* ew)
 {
 	main_window = mw;
 	output_window = ow;
@@ -146,6 +154,7 @@ void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWin
 	console_window = cw;
 	watch_window = ww;
 	navigation_window = nw;
+	error_window = ew;
 
 	connect(Ide::TaskManager(), &IdeTaskManager::projectCollectionLoaded, this, [this] {
 
@@ -160,29 +169,31 @@ void IdeTaskManager::init(MainWindow *mw, OutputWindow *ow, ProjectCollectionWin
 		}
 
 	});
-
-	connect((QLogger::QLoggerManager *)GixGlobals::getLogManager(), &QLogger::QLoggerManager::logMessage, this, &IdeTaskManager::logMessage);
 }
 
 void IdeTaskManager::buildAll(QString configuration, QString platform)
 {
 	QSettings settings;
 
+	emit buildStarted();
+
 	if (current_project_collection == nullptr || !current_project_collection->HasChildren())
 		return;
 
 	setStatus(IdeStatus::Building);
 
-	int build_res = 0;
 	QList<QPair<QString, QString>> tl;
+
+	output_window->clearPane(OutputWindowPaneType::Build);
+	output_window->switchPane(OutputWindowPaneType::Build);
 
 	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
 		QString err_msg = QString("Invalid compiler configuration for configuration \"%1\"").arg(configuration);
-		this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
+		logger->error(LOG_BUILD, "{}", tr(err_msg.toLocal8Bit().data()));
 		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
 		setStatus(IdeStatus::Editing);
-		emit buildFinished(build_res);
+		emit buildFinished(BuildResult(1, err_msg));
 		return;
 	}
 
@@ -202,18 +213,25 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	BuildTarget *build_target = current_project_collection->getBuildTarget(props, nullptr);
 	if (!build_target) {
 		QString err_msg = QString("Invalid build target");
-		this->logMessage(GIX_CONSOLE_LOG, tr(err_msg.toLocal8Bit().data()), QLogger::LogLevel::Error);
+		logger->error(LOG_BUILD, "{}", tr(err_msg.toLocal8Bit().data()));
 		UiUtils::ErrorDialog(tr(err_msg.toLocal8Bit().data()));
 		setStatus(IdeStatus::Editing);
-		emit buildFinished(build_res);
+		emit buildFinished(BuildResult(1, err_msg));
 		return;
 	}
 
-	this->logMessage(GIX_CONSOLE_LOG, build_target->toString(), QLogger::LogLevel::Trace);
+	logger->trace(LOG_BUILD, "{}", build_target->toString());	
+
+	if (build_target->isUpToDate()) {
+		setStatus(IdeStatus::Editing);
+		logger->log(LOG_BUILD, spdlog::level::info, "{} is up to date", current_project_collection->GetDisplayName());
+		emit buildFinished(BuildResult(0, current_project_collection->GetDisplayName() + " is up to date"));
+		return;
+	}
 
 	BuildDriver builder;
-	connect(&builder, &BuildDriver::log_output, output_window, &OutputWindow::print);
-	connect(&builder, &BuildDriver::log_clear, output_window, &OutputWindow::clearAll);
+	connect(&builder, &BuildDriver::log_output, this, &IdeTaskManager::dispatchBuildLogMessage);
+	connect(&builder, &BuildDriver::log_clear, this, &IdeTaskManager::clearBuildLog);
 
 	connect(this, &IdeTaskManager::stopBuildInvoked, &builder, &BuildDriver::stopBuild);
 
@@ -221,8 +239,6 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 	last_build_result = 0;
 
 	builder.execute(build_target, BuildOperation::Build);
-
-	build_res += builder.getBuildResult().getStatus();
 
 	if (builder.getBuildResult().getStatus() != 0) {
 		last_build_result = builder.getBuildResult().getStatus();
@@ -232,7 +248,7 @@ void IdeTaskManager::buildAll(QString configuration, QString platform)
 
 	setStatus(IdeStatus::Editing);
 
-	emit buildFinished(build_res);
+	emit buildFinished(builder.getBuildResult());
 }
 
 void IdeTaskManager::buildClean(QString configuration, QString platform)
@@ -240,9 +256,12 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 	if (current_project_collection == nullptr || !current_project_collection->HasChildren())
 		return;
 
+	output_window->clearPane(OutputWindowPaneType::Build);
+	output_window->switchPane(OutputWindowPaneType::Build);
+
 	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
-		logMessage(GIX_CONSOLE_LOG, tr("Please check your compiler configuration"), QLogger::LogLevel::Error);
+		logger->error(LOG_BUILD, tr("Please check your compiler configuration").toStdString());
 		return;
 	}
 
@@ -258,8 +277,8 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 	BuildTarget *build_target = current_project_collection->getBuildTarget(props, nullptr);
 	BuildDriver builder;
 
-	connect(&builder, &BuildDriver::log_output, output_window, &OutputWindow::print);
-	connect(&builder, &BuildDriver::log_clear, output_window, &OutputWindow::clearAll);
+	connect(&builder, &BuildDriver::log_output, this, &IdeTaskManager::dispatchBuildLogMessage);
+	connect(&builder, &BuildDriver::log_clear, this, &IdeTaskManager::clearBuildLog);
 
 	builder.setBuildEnvironment(props);
 
@@ -272,6 +291,8 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 
 void IdeTaskManager::buildStop()
 {
+	output_window->switchPane(OutputWindowPaneType::Build);
+
 	emit stopBuildInvoked();
 }
 
@@ -662,7 +683,7 @@ void IdeTaskManager::setStatus(IdeStatus s, bool force_signal)
 	if (s != ide_status || force_signal) {
 		ide_status = s;
 		emit IdeStatusChanged(ide_status);
-		logMessage(GIX_CONSOLE_LOG, QString("Ide status set to %1 (%2)").arg((int)s).arg(IdeStatusDescription(s)), QLogger::LogLevel::Debug); //SysUtils::enum_val_to_str<IdeStatus>(s)
+		logger->trace(LOG_IDE, "Ide status set to {} ({})", (int)s, IdeStatusDescription(s));
 
 		switch (s) {
 			case IdeStatus::LoadingOrSaving:
@@ -691,7 +712,7 @@ void IdeTaskManager::addBreakpoint(QString src_file, int line)
 	bkps.append(QString::number(line) + "@" + src_file);
 	current_project_collection_data["breakpoints"] = bkps;
 	
-	logMessage(GIX_CONSOLE_LOG, QString("Adding breakpoint -  file: [%1], line %2 ").arg(src_file).arg(line), QLogger::LogLevel::Trace);
+	logger->trace(LOG_IDE, "Adding breakpoint -  file: [{}], line {}", src_file, line);
 	saveCurrentProjectCollectionState();
 }
 
@@ -742,7 +763,7 @@ void IdeTaskManager::addWatchedVar(QString v)
 	if (!wvs.contains(v)) {
 		wvs.append(v);
 
-		logMessage(GIX_CONSOLE_LOG, QString("Adding watched var: [%1]").arg(v), QLogger::LogLevel::Trace);
+		logger->trace(LOG_IDE, "Adding watched var: [{}]", v);
 
 		current_project_collection_data.insert("watched_vars", wvs);
 	}
@@ -966,16 +987,6 @@ void IdeTaskManager::consoleClear()
 	console_window->clear();
 }
 
-void IdeTaskManager::flushLog()
-{
-	while (!log_backlog.isEmpty()) {
-		LogBacklogEntry *lbl = log_backlog.dequeue();
-		this->logMessage(lbl->module, lbl->msg, lbl->level);
-		//delete lbl;
-	}
-}
-
-
 void IdeTaskManager::setIdeElementInfo(QString k, QVariant v)
 {
 	ide_element_info_map[k] = v;
@@ -1052,7 +1063,7 @@ void IdeTaskManager::gotoDefinition(DataEntry *e)
 	mdiChild->highlightSymbol(lline, e->name);
 }
 
-void IdeTaskManager::gotoFileLine(QString filename, int ln)
+void IdeTaskManager::gotoFileLine(QString filename, int ln, bool move_caret_line)
 {
 	if (!current_project_collection)
 		return;
@@ -1069,6 +1080,10 @@ void IdeTaskManager::gotoFileLine(QString filename, int ln)
 		return;
 
 	mdiChild->gotoLine(ln - 1);
+	if (move_caret_line) {
+		auto p = mdiChild->positionFromLine(ln - 1);
+		mdiChild->setSelection(p, p);
+	}
 }
 
 bool IdeTaskManager::backgroundTasksEnabled()
@@ -1087,6 +1102,18 @@ void IdeTaskManager::debugStarted()
 	setStatus(IdeStatus::Running);
 }
 
+void IdeTaskManager::buildFinishedHandler(BuildResult br)
+{
+	error_window->updateErrorList();
+
+	if (br.getStatus() == 0) {
+		logger->log(LOG_BUILD, spdlog::level::info,"Build successful");
+	}
+	else {
+		logger->log(LOG_BUILD, spdlog::level::err, "Build error");
+	}	
+}
+
 void IdeTaskManager::startLoadingMetadata(ProjectItem *pi)
 {
 	if (!this->backgroundTasksEnabled())
@@ -1094,7 +1121,7 @@ void IdeTaskManager::startLoadingMetadata(ProjectItem *pi)
 
 	//MetadataLoader *u = new MetadataLoader();
 	//connect(u, &MetadataLoader::finishedUpdating, this, [this] (bool changed) {
-	//	this->logMessage(GIX_CONSOLE_LOG, "Finished updating project metadata", QLogger::LogLevel::Debug);
+	//	logger->log(LOG_IDE, "Finished updating project metadata", QLogger::LogLevel::Debug);
 	//	emit finishedUpdatingMetadata(changed);
 
 	//});
@@ -1141,18 +1168,22 @@ MdiChild *IdeTaskManager::openFileNoSignals(QString filename)
 	return mdiChild;
 }
 
-void IdeTaskManager::logMessage(QString module, QString msg, QLogger::LogLevel log_level)
+void IdeTaskManager::dispatchBuildLogMessage(const QString& msg, spdlog::level::level_enum level)
 {
-	if (this->receivers(SIGNAL(print(QString, QLogger::LogLevel)))) {
-		emit this->print(msg, log_level);
+	logger->log(LOG_BUILD, level, "{}", msg);
+	if (level >= spdlog::level::warn) {
+		ErrorWarningFilter f;
+		auto entries = f.filter(msg, level);
+		if (entries.size()) {
+			error_window->addEntries(entries);
+			main_window->error_dock->raise();
+		}
 	}
-	else {
-		LogBacklogEntry *lbl = new LogBacklogEntry();
-		lbl->module = module;
-		lbl->msg = msg;
-		lbl->level = log_level;
-		log_backlog.enqueue(lbl);
-	}
+}
+
+void IdeTaskManager::clearBuildLog()
+{
+
 }
 
 void IdeTaskManager::saveCurrentProjectCollectionState()
@@ -1236,8 +1267,8 @@ bool IdeTaskManager::checkAndSetupTestHelper()
 		TestHelperInterface *itf = test_helper_interface();
 
 
-		itf->logMessage = [](QString msg) {
-			GixGlobals::getLogManager()->logMessage(GIX_CONSOLE_LOG, msg, QLogger::LogLevel::Debug);
+		itf->logMessage = [this](QString msg) {
+			logger->trace(LOG_TEST, "{}", msg);
 		};
 
 		itf->refreshPropertyWindowContent = [this]() {
@@ -1265,8 +1296,8 @@ bool IdeTaskManager::checkAndSetupTestHelper()
 			ide_output_dup_out = out;
 		};
 
-		itf->getOutputWindowContent = [this]() {
-			return output_window->getTextContent();
+		itf->getOutputWindowContent = [this](OutputWindowPaneType p) {
+			return output_window->getTextContent(p);
 		};
 
 		itf->getConsoleWindowContent = [this]() {

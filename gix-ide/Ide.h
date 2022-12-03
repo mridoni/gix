@@ -44,6 +44,9 @@ public:
 
 	static EolMode getEolModeFromSettings();
 
+	static QFont getGridFont();
+
+
 private:
 	static GixGlobalsCallbacks ide_callbacks;
 };

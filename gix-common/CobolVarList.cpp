@@ -19,9 +19,7 @@ USA.
 */
 
 #include "CobolVarList.h"
-#include "QLogger.h"
-
-
+#include "GixGlobals.h"
 
 CobolVarList::CobolVarList()
 {
@@ -61,14 +59,16 @@ void CobolVarList::clear()
 
 void CobolVarList::dump()
 {
+	auto logger = GixGlobals::getLogManager();
+
 	vector<CobolVar *>::iterator it;
 	for (it = vector<CobolVar *>::begin(); it != vector<CobolVar *>::end(); it++) {
 		CobolVar * v = *it;
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(VERBOSE)
 		if (v != NULL) {
 			QString msg;
-			msg.sprintf("%s@%s: %p %d %d %d %p\n", __FILE__, __func__, v, v->type, v->length, v->power, v->addr);
-			QLogger::QLog_Trace(GIX_CONSOLE_LOG, msg);
+			msg.sprintf("%s@%s: %p %d %d %d %p", __FILE__, __func__, v, v->type, v->length, v->power, v->addr);
+			GixGlobals::getLogManager()->log(LOG_METADATA, spdlog::level::trace, msg);
 		}
 #endif
 	}

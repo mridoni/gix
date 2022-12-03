@@ -59,8 +59,8 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 
 		QColor lc = QColor(Qt::yellow).lighter(160);
 		setCaretLineBack(RGB(lc.red(), lc.green(), lc.blue()));
-
 		setCaretLineVisible(true);
+		setCaretLineVisibleAlways(true);
 		setLexer(SCLEX_COBOL);
 
 		setKeyWords(0, "accept access add address advancing after all alphabet alphabetic alphabetic-lower alphabetic-upper alphanumeric alphanumeric-edited also alter alternate and any apply are area areas ascending assign at author basis before beginning binary blank block bottom by call cancel cbl cd cf ch character characters class class-id clock-units close cobol code code-set collating column com-reg comma common communication comp comp-1 comp-2 comp-3 comp-4 comp-5 computational computational-1 computational-2 computational-3 computational-4 computational-5 compute configuration contains content continue control controls converting copy corr corresponding count currency data date-compiled date-written day day-of-week dbcs de debug-contents debug-item debug-line debug-name debug-sub-1 debug-sub-2 debug-sub-3 debugging decimal-point declaratives delete delimited delimiter depending descending destination detail display display-1 divide division down duplicates dynamic egcs egi eject else emi enable end end-add end-call end-compute end-delete end-divide end-evaluate end-if end-invoke end-multiply end-of-page end-perform end-read end-receive end-return end-rewrite end-search end-start end-string end-subtract end-unstring end-write ending enter entry environment eop equal error esi evaluate every exception exit extend external false fd file file-control filler final first footing for from function generate giving global go goback greater group headinhigh-valuhigh-values i-o i-o-control id identification if in index indexed indicate inherits initial initialize initiate input input-output insert inspect installation into invalid invoke is jusjustifie kanjke label last leading left length less limit limits linage linage-counter line line-counter lines linkage local-storage lock low-value low-values memory merge message metaclass method method-id mode modules more-labels move multiple multiply native native_binary negative next no not null nulls number numeric numeric-edited object object-computer occurs of off omitted on open optional or order organization other output overflow override packed-decimal padding page page-counter password perform pf ph pic picture plus pointer position positive printing procedure procedure-pointer procedures proceed processing program program-id purge queuquotquotes random rd read ready receive record recording records recursive redefines reel reference references relative release reload remainder removal renames replace replacing report reporting reports repository rerun reserve reset return return-code returning reversed rewind rewrite rf rh right rounded run same sd search section security segment segment-limit select self send sentence separate sequence sequential service set shift-in shift-out sign size skip1 skip2 skip3 sort sort-control sort-core-size sort-file-size sort-merge sort-message sort-mode-size sort-return source source-computer space spaces special-names standard standard-1 standard-2 start status stop string sub-queue-1 sub-queue-2 sub-queue-3 subtract sum super suppress symbolic sync synchronized table tally tallying tape terminal terminate test text than then through thru time times title to top trace trailing true type unit unstring until up upon usage use using valuvalue varying when when-compiled with words working-storage write write-only zero zeros");
@@ -188,7 +188,7 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 				}
 				items.insert(0, "*");
 				path = items.join(':').replace(".", "");
-				Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(1): %1").arg(word), QLogger::LogLevel::Trace);
+				GixGlobals::getLogManager()->trace(GIX_IDE, "Got(1): {}", word);
 				Ide::TaskManager()->gotoDefinition(this, path, ln);
 			}
 		});
@@ -203,7 +203,7 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 			sptr_t wend = this->wordEndPosition(this->currentPos(), true);
 			sptr_t ln = this->lineFromPosition(this->currentPos());
 			QString s = QString::fromUtf8(this->get_text_range(wstart, wend));
-			Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
+			GixGlobals::getLogManager()->trace(GIX_IDE, "Got(2): {}", s);
 		});
 
 		QShortcut *qs3 = new QShortcut(QKeySequence("Ctrl+K"), this);
@@ -252,7 +252,7 @@ CodeEditor::CodeEditor(QWidget* parent, int default_initialization) : ScintillaE
 				}
 			}
 
-			//Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
+			//GixGlobals::getLogManager()->trace(GIX_IDE, QString("Got(2): %1").arg(s), QLogger::LogLevel::Trace);
 		});
 
 		// Tooltips
@@ -361,12 +361,12 @@ void CodeEditor::handleBreakPoint(int position, int modifiers)
 
 	if (!Ide::TaskManager()->existsBreakpoint(c->currentFile(), ln)) {
 		Ide::TaskManager()->addBreakpoint(c->currentFile(), ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Set breakpoint at " + c->currentFile() + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Set breakpoint at {}:{}", c->currentFile(), ln);
 		markerAdd(ln - 1, MRKR_BKP);
 	}
 	else {
 		Ide::TaskManager()->removeBreakpoint(c->currentFile(), ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Removed breakpoint at " + c->currentFile() + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Removed breakpoint at {}:{}", c->currentFile(), ln);
 		markerDelete(ln - 1, MRKR_BKP);
 	}
 }
@@ -393,12 +393,12 @@ void CodeEditor::handleBookmark(int position, int modifiers)
 
 	if (!Ide::TaskManager()->existsBookmark(filename, ln)) {
 		Ide::TaskManager()->addBookmark(filename, ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Set bookmark at " + filename + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Set bookmark at {}:{}", filename, ln);
 		markerAdd(ln - 1, MRKR_BOOKMARK);
 	}
 	else {
 		Ide::TaskManager()->removeBookmark(filename, ln);
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Removed bookmark at " + filename + ":" + QString::number(ln), QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->debug(GIX_IDE, "Removed bookmark at {}:{}", filename, ln);
 		markerDelete(ln - 1, MRKR_BOOKMARK);
 	}
 }

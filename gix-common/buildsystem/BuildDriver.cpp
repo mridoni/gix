@@ -50,14 +50,13 @@ QMap<QString, QVariant> &BuildDriver::getBuildEnvironment()
 	return build_environment;
 }
 
-void BuildDriver::log_build_message(QString msg, QLogger::LogLevel log_output_type, int status)
+void BuildDriver::log_build_message(QString msg, spdlog::level::level_enum level, int status)
 {
 	QSettings settings;
 
 	build_result.build_log.append(msg);
-	emit log_output(msg, log_output_type);
+	emit log_output(msg, level);
 	build_result.status = status;
-
 }
 
 void BuildDriver::log_build_clear()
@@ -80,7 +79,7 @@ ProjectItem *BuildDriver::getItem()
 void BuildDriver::execute(BuildTarget *target, BuildOperation op)
 {
 	if (target == nullptr) {
-		log_build_message(tr("Invalid target"), QLogger::LogLevel::Error, 1);
+		log_build_message(tr("Invalid target"), spdlog::level::err, 1);
 		return;
 	}
 
@@ -109,7 +108,7 @@ void BuildDriver::execute_clean(BuildTarget *target)
 
 	if (!build_environment.contains("configuration") || !build_environment.contains("platform") || !build_environment.contains("prj.build_dir")) {
 		msg = QString(tr("Invalid build environment for target %1")).arg(target->filename());
-		log_build_message(msg, QLogger::LogLevel::Error);
+		log_build_message(msg, spdlog::level::err);
 		return;
 	}
 
@@ -131,11 +130,11 @@ void BuildDriver::execute_clean(BuildTarget *target)
 			if (dir.exists()) {
 				if (!dir.removeRecursively()) {
 					msg = QString(tr("Cannot remove directory %1")).arg(build_dir);
-					log_build_message(msg, QLogger::LogLevel::Error);
+					log_build_message(msg, spdlog::level::err);
 				}
 			}
 			msg = QString(tr("Successfully cleaned project %1 (removed %2)")).arg(prj_name).arg(build_dir);
-			log_build_message(msg, QLogger::LogLevel::Trace, 1);
+			log_build_message(msg, spdlog::level::trace, 1);
 		}
 	}
 
@@ -147,14 +146,14 @@ void BuildDriver::execute_build(BuildTarget *target)
 	ProjectItem *pi = dynamic_cast<ProjectItem *>(target->getItem());
 
 	if (!this->getBuildEnvironment().contains("configuration") || !this->getBuildEnvironment().contains("platform")) {
-		log_build_message(tr("Invalid target"), QLogger::LogLevel::Error, 1);
+		log_build_message(tr("Invalid target"), spdlog::level::err, 1);
 		return;
 	}
 
 	QString target_type = this->getBuildEnvironment()["configuration"].toString() + "/" + this->getBuildEnvironment()["platform"].toString();
 
 	log_build_clear();
-	log_build_message(QString(tr("Starting to build %1 for target %2")).arg(pi->GetDisplayName()).arg(target_type), QLogger::LogLevel::Info);
+	log_build_message(QString(tr("Starting to build %1 for target %2")).arg(pi->GetDisplayName()).arg(target_type), spdlog::level::info);
 
 	for (QString provides_item : target->provides()) {
 
@@ -164,7 +163,7 @@ void BuildDriver::execute_build(BuildTarget *target)
 			return;
 		}
 	}
-
+	log_build_message("Build finished", spdlog::level::info);
 }
 
 void BuildDriver::extract_project_base_dirs(BuildTarget *target, QMap<QString, QString> &base_dirs)
@@ -199,7 +198,7 @@ bool BuildDriver::handle_single_target(BuildTarget *target, QString &provides_it
 		if (dep->isVirtual() || !dep->isUpToDate()) {
 			ProjectItem *dpi = dynamic_cast<ProjectItem *>(dep->getItem());
 			if (!handle_single_target(dep, provides_item, dpi) && !dep->isOptional()) {
-				log_build_message(QString(tr("An error occurred while handling target %1").arg(dep->filename())), QLogger::LogLevel::Error);
+				log_build_message(QString(tr("An error occurred while handling target %1").arg(dep->filename())), spdlog::level::err);
 				build_result.status = 1;
 				return false;
 			}
@@ -208,12 +207,12 @@ bool BuildDriver::handle_single_target(BuildTarget *target, QString &provides_it
 
 	QScopedPointer<BuildActionHandler> bah(BuildActionHandler::get(target));
 	if (!bah) {
-		log_build_message(QString(tr("Cannot instantiate builder for %1").arg(pi->GetFilename())), QLogger::LogLevel::Error);
+		log_build_message(QString(tr("Cannot instantiate builder for %1").arg(pi->GetFilename())), spdlog::level::err);
 		build_result.status = 1;
 		return false;
 	}
 
-	log_build_message(QString(tr("Building %1").arg(target->filename())), QLogger::LogLevel::Trace);
+	log_build_message(QString(tr("Building %1").arg(target->filename())), spdlog::level::trace);
 
 	bah->setMainBuilder(this);
 	bah->addEnvironment(this->build_environment);

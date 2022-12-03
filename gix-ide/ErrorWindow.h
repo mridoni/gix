@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 This file is part of Gix-IDE, an IDE and platform for GnuCOBOL
 Copyright (C) 2021 Marco Ridoni
@@ -18,12 +20,41 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 USA.
 */
 
-#pragma once
+#include <QString>
+#include <QList>
+#include <QMap>
+#include <QToolBar>
+#include <QFile>
+#include <QTextEdit>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QTableWidget>
 
-//enum LogOutputType {
-//	LogInternal = 1,
-//	LogSuccess = 4,
-//	LogInfo = 2,
-//	LogError = 3,
-//	LogDebug = 10
-//};
+#include "MainWindow.h"
+#include "ErrorWarningFilter.h"
+
+class ErrorWindow : public QMainWindow
+{
+
+public:
+	ErrorWindow(QWidget* parent, MainWindow* mw);
+	~ErrorWindow();
+
+	void clear();
+	void addEntries(QList<ErrorWarningFilterEntry> entries);
+	void updateErrorList();
+
+public slots:
+	void errorListDoubleClicked(const QModelIndex& mi);
+
+
+private:
+	MainWindow* mainWindow;
+	QToolBar* toolBar;
+	QHBoxLayout* layout;
+	QTableWidget* err_grid = nullptr;
+
+	QList<ErrorWarningFilterEntry> entries;
+	QLabel* get_label(QString t, QString tt = QString());
+};
+

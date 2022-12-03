@@ -28,6 +28,7 @@ USA.
 #include "PropertyWindow.h"
 #include "OutputWindow.h"
 #include "WatchWindow.h"
+#include "ErrorWindow.h"
 #include "SettingsDialog.h"
 #include "SearchDialog.h"
 #include "BuildDriver.h"
@@ -45,6 +46,7 @@ USA.
 #include "NavigationWindow.h"
 #include "GixGlobals.h"
 #include "GixVersion.h"
+#include "IdeLogManager.h"
 
 
 using namespace cpplinq;
@@ -112,6 +114,14 @@ MainWindow::MainWindow()
 	navigation_dock->setWidget(navigation_window);
 	addDockWidget(Qt::LeftDockWidgetArea, navigation_dock);
 
+	error_dock = new QDockWidget(tr("Error List"), this);
+	error_window = new ErrorWindow(navigation_dock, this);
+	error_dock-> setWidget(error_window);
+	addDockWidget(Qt::LeftDockWidgetArea, error_dock);
+
+	tabifyDockWidget(output_dock, error_dock);
+	output_dock->raise();
+
 	watch_dock->hide();
 
 	createActions();
@@ -136,7 +146,7 @@ MainWindow::MainWindow()
 
 	connect(prjcoll_window, &ProjectCollectionWindow::selectionChanged, property_window, &PropertyWindow::setContent);
 
-	Ide::TaskManager()->init(this, output_window, prjcoll_window, console_window, watch_window, navigation_window);
+	Ide::TaskManager()->init(this, output_window, prjcoll_window, console_window, watch_window, navigation_window, error_window);
 	Ide::TaskManager()->setCurrentProjectCollection(nullptr);
 
     connect(Ide::TaskManager(), &IdeTaskManager::IdeEditorChangedPosition, this, [this](QString a, int b) { IdeEditorChangedPosition(a, b);  }, Qt::ConnectionType::QueuedConnection);
@@ -174,9 +184,29 @@ MainWindow::MainWindow()
 
 #ifdef WIN32
 	if (Ide::TaskManager()->checkAndSetupTestHelper()) {
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "WARNING! test helper started", QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->trace(LOG_TEST, "WARNING! test helper started");
 	}
 #endif
+	
+	output_window->addLoggerSection(OutputWindowPaneType::Ide, "IDE");
+	output_window->addLoggerSection(OutputWindowPaneType::Build, "Build");
+	output_window->addLoggerSection(OutputWindowPaneType::Debug, "Debug");
+
+	auto ide_logger = output_window->getLoggerSection(OutputWindowPaneType::Ide)->getLogger();
+	auto build_logger = output_window->getLoggerSection(OutputWindowPaneType::Build)->getLogger();
+	auto debug_logger = output_window->getLoggerSection(OutputWindowPaneType::Debug)->getLogger();
+
+	IdeLogManager* lm = (IdeLogManager*)GixGlobals::getLogManager();
+	lm->registerLogSource(LOG_DEFAULT, ide_logger);
+	lm->registerLogSource(LOG_IDE, ide_logger);
+	lm->registerLogSource(LOG_BUILD, build_logger);
+	lm->registerLogSource(LOG_NETWORK, ide_logger);
+	lm->registerLogSource(LOG_DB, ide_logger);
+	lm->registerLogSource(LOG_DEBUG, debug_logger);
+	lm->registerLogSource(LOG_METADATA, ide_logger);
+	lm->registerLogSource(LOG_CONFIG, ide_logger);
+
+	output_window->switchPane(OutputWindowPaneType::Ide);
 
 	emit Ide::TaskManager()->IdeReady();
 }
@@ -705,7 +735,7 @@ void MainWindow::subWindowActivated()
 
 		QString f = this->activeMdiChild()->currentFile();
 
-		Ide::TaskManager()->logMessage(GIX_CONSOLE_LOG, "Activated window for " + f, QLogger::LogLevel::Debug);
+		GixGlobals::getLogManager()->trace(LOG_TEST, "Activated window for {}", f);
 
 		ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
 		if (ppj != nullptr) {
