@@ -244,6 +244,8 @@ int main(int argc, char *argv[])
 						   Qt::WindowCloseButtonHint | 
 						   Qt::WindowSystemMenuHint);
 
+    mainWin.setDockOptions(QMainWindow::AllowNestedDocks | QMainWindow::QMainWindow::AllowTabbedDocks);
+
 	foreach(const QString &fileName, parser.positionalArguments())
 		mainWin.openFile(fileName);
 
