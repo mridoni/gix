@@ -179,6 +179,7 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Test_Debug|Win32'">
     <QtModules>core;network;xml;xmlpatterns</QtModules>
+    <QtInstall>msvc2017</QtInstall>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Test_Release|Win32'">
     <QtModules>core;network;xml;xmlpatterns</QtModules>
@@ -188,6 +189,7 @@
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Test_Debug|x64'">
     <QtModules>core;network;xml;xmlpatterns</QtModules>
+    <QtInstall>msvc2017_64</QtInstall>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Test_Release|x64'">
     <QtModules>core;network;xml;xmlpatterns</QtModules>
@@ -414,6 +416,7 @@
     <ClCompile Include="http\staticfilecontroller.cpp" />
     <ClCompile Include="JsonManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="QLogger.cpp" />
     <ClCompile Include="requestmapper.cpp" />
     <ClCompile Include="controller\schemacontroller.cpp" />
     <ClCompile Include="RuntimeHelper.cpp" />
@@ -445,6 +448,7 @@
     <ClInclude Include="ExternalInterfaceData.h" />
     <ClInclude Include="HttpDataManager.h" />
     <ClInclude Include="JsonManager.h" />
+    <QtMoc Include="QLogger.h" />
     <ClInclude Include="RuntimeHelper.h" />
     <ClInclude Include="ServiceModuleInfo.h" />
     <ClInclude Include="utils.h" />

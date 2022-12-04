@@ -92,6 +92,9 @@
     <ClCompile Include="ExternalInterfaceData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -170,6 +173,9 @@
     </QtMoc>
     <QtMoc Include="http\staticfilecontroller.h">
       <Filter>Header Files\controller</Filter>
+    </QtMoc>
+    <QtMoc Include="QLogger.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
