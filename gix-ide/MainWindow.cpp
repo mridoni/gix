@@ -182,12 +182,6 @@ MainWindow::MainWindow()
 		}
 	});
 
-#ifdef WIN32
-	if (Ide::TaskManager()->checkAndSetupTestHelper()) {
-		GixGlobals::getLogManager()->trace(LOG_TEST, "WARNING! test helper started");
-	}
-#endif
-	
 	output_window->addLoggerSection(OutputWindowPaneType::Ide, "IDE");
 	output_window->addLoggerSection(OutputWindowPaneType::Build, "Build");
 	output_window->addLoggerSection(OutputWindowPaneType::Debug, "Debug");

@@ -33,10 +33,6 @@ USA.
 
 #include <QQueue>
 
-#ifdef WIN32
-#include "testhlpr.h"
-#endif
-
 // 0 = Release, 1 = Debug
 #define DEFAULT_TARGET_CONFIG 1
 
@@ -138,15 +134,6 @@ public:
 
 	bool backgroundTasksEnabled();
 	void setBackgroundTasksEnabled(bool b);
-
-#ifdef WIN32
-	// Automated test support
-	bool checkAndSetupTestHelper();
-	TestHelper *getTestHelper();
-	QString getIdeOutputDupFile();
-	QString getConsoleOutDupFile();
-	QString getConsoleErrDupFile();
-#endif
 
 signals:
 	void IdeReady();

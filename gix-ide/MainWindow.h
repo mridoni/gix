@@ -33,10 +33,6 @@ USA.
 
 #include "IdeStatus.h"
 
-#ifdef WIN32
-#include "testhlpr.h"
-#endif
-
 class MdiChild;
 class ProjectCollectionWindow;
 class OutputWindow;
