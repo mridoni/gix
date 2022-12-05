@@ -41,6 +41,7 @@ public:
 
     CobolModuleMetadata *getModuleMetadata(QString module_name);
     CobolModuleMetadata *getModuleMetadataBySource(QString src_filename);
+    CobolModuleMetadata *getModuleMetadataByRunningSource(QString src_filename, bool ignore_project_path);
     bool removeModuleMetadata(QString module_name);
     bool addModuleMetadata(CobolModuleMetadata *cmm);
     bool existsMetadata(const QString& module_name);

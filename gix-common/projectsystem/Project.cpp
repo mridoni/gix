@@ -659,7 +659,7 @@ void Project::add_compilable_children(QList<ProjectFile*>& res, ProjectItem* pi,
 		if (child->GetItemType() == ProjectItemType::TFolder) {
 			ProjectFolder* pff = (ProjectFolder*)child;
 			if (!pff->isVirtual())
-				add_compilable_children(res, child);
+				add_compilable_children(res, child, include_copy_files);
 		}
 	}
 }

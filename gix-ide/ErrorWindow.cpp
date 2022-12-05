@@ -24,6 +24,7 @@ USA.
 #include "IdeTaskManager.h"
 #include "ide_sink.h"
 
+#include <QDir>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPixmap>
@@ -141,19 +142,37 @@ void ErrorWindow::updateErrorList()
 
 	err_grid->setRowCount(new_entries.size());
 	for (int i = 0; i < new_entries.size(); i++) {
-		auto e = new_entries[i];
+		auto e = &new_entries[i];
+
+		QString display_filename = QDir::cleanPath(e->filename);
+		int display_line = e->line;
+
+		if (e->filename.endsWith(".cbsql")) {
+			CobolModuleMetadata *cmm = GixGlobals::getMetadataManager()->getModuleMetadataByRunningSource(e->filename, true);
+			if (cmm) {
+				QString orig_file;
+				int orig_file_id, orig_line;
+				if (cmm->runningToOriginal(cmm->runningFileId(), e->line, &orig_file_id, &orig_line)) {
+					if (cmm->getFileById(orig_file_id, orig_file)) {
+						display_filename = QDir::cleanPath(orig_file);
+						display_line = orig_line;
+						e->is_preprocessed = true;
+						e->orig_filename = display_filename;
+						e->orig_line = display_line;
+					}
+				}
+			}
+		}
 
 		QLabel* icon_item = new QLabel();
-		icon_item->setPixmap(QPixmap(e.type == ErrorWarningFilterType::Error ? ":/icons/error.png" : ":/icons/warning.png"));
+		icon_item->setPixmap(QPixmap(e->type == ErrorWarningFilterType::Error ? ":/icons/error.png" : ":/icons/warning.png"));
 		icon_item->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		err_grid->setCellWidget(i, COL_TYPE, icon_item);
 
-		err_grid->setCellWidget(i, COL_MSG, get_label(e.message, e.message));
-		err_grid->setCellWidget(i, COL_FILE, get_label(e.filename, e.filename));
-		err_grid->setCellWidget(i, COL_LINE, get_label(QString::number(e.line)));
-		err_grid->setCellWidget(i, COL_PAR_SEC, get_label(e.section_or_paragraph, e.section_or_paragraph));
-	
-		
+		err_grid->setCellWidget(i, COL_MSG, get_label(e->message, e->message));
+		err_grid->setCellWidget(i, COL_FILE, get_label(display_filename, display_filename));
+		err_grid->setCellWidget(i, COL_LINE, get_label(QString::number(display_line)));
+		err_grid->setCellWidget(i, COL_PAR_SEC, get_label(e->section_or_paragraph, e->section_or_paragraph));
 	}
 
 	QFont hf = Ide::getGridFont();
@@ -176,5 +195,8 @@ void ErrorWindow::updateErrorList()
 void ErrorWindow::errorListDoubleClicked(const QModelIndex& mi)
 {
 	auto e = entries.at(mi.row());
-	Ide::TaskManager()->gotoFileLine(e.filename, e.line, true);
+	QString filename = !e.is_preprocessed ? e.filename : e.orig_filename;
+	int line = !e.is_preprocessed ? e.line : e.orig_line;
+
+	Ide::TaskManager()->gotoFileLine(filename, line, true);
 }

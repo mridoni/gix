@@ -256,7 +256,7 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 {
 	GixPreProcessor gp;
 	bool opt_esql_preprocess_copy_files = opts["esql_preprocess_copy_files"].toBool();
-	bool opt_anonymous_params = opts["esql_anon_params"].toBool();
+	QString opt_params_style = opts["esql_params_style"].toString();
 
 	gp.verbose = isVerbose();
 	gp.verbose_debug = isVerboseDebug();
@@ -269,7 +269,7 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 	gp.setOpt("emit_debug_info", true);
 	gp.setOpt("emit_static_calls", true);
 
-	gp.setOpt("anonymous_params", opt_anonymous_params);
+	gp.setOpt("params_style", opt_params_style.toStdString());
 	gp.setOpt("consolidated_map", true);	// we need this to generate a map against the full program listing
 	gp.setOpt("preprocess_copy_files", opt_esql_preprocess_copy_files);
 

@@ -1065,6 +1065,7 @@ void IdeTaskManager::gotoFileLine(QString filename, int ln, bool move_caret_line
 	if (filename.isEmpty() || !ln)
 		return;
 
+	filename = QDir::cleanPath(filename);
 	ProjectFile *pf = current_project_collection->locateProjectFileByPath(filename, true);
 	if (!pf)
 		return;

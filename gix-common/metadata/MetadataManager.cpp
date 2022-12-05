@@ -92,6 +92,27 @@ CobolModuleMetadata *MetadataManager::getModuleMetadataBySource(QString src_file
 #endif
 }
 
+CobolModuleMetadata *MetadataManager::getModuleMetadataByRunningSource(QString src_filename, bool ignore_project_path)
+{
+	QString f = QDir::cleanPath(src_filename);
+	if (ignore_project_path) {
+		f = PathUtils::getFilename(f);
+	}
+	for (auto mm : by_module_map) {
+		QString r = mm->runningFile();
+		if (ignore_project_path) {
+			r = PathUtils::getFilename(r);
+			if (r.startsWith("#") && r.size() > 1)
+				r = r.mid(1);
+		}
+
+		if (r == f) {
+			return mm;
+		}
+	}
+	return nullptr;
+}
+
 bool MetadataManager::removeModuleMetadata(QString module_name)
 {
 	if (!by_module_map.contains(module_name))

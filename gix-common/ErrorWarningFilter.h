@@ -23,10 +23,14 @@ struct GIXCOMMON_EXPORT ErrorWarningFilterEntry {
 
 	QString filename;
 	int line = 0;
-	
+
+	bool is_preprocessed = false;
+	QString orig_filename;
+	int orig_line;
+
 	QString section_or_paragraph;
 
-	QString message;
+	QString message;	
 };
 
 class GIXCOMMON_EXPORT ErrorWarningFilter

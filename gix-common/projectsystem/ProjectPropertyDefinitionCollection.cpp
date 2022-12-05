@@ -97,7 +97,7 @@ ProjectPropertyDefinitionCollection::ProjectPropertyDefinitionCollection() : Pro
 	defs.append(new PropertyDefinition("dbg_merge_env", "Merge environment", PropertyType::PropertyTypeBoolean, true, false, nullptr, "debug"));
 
 	defs.append(new PropertyDefinition("esql_preprocess_copy_files", "Preprocess COPY files", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
-	defs.append(new PropertyDefinition("esql_anon_params", "Use anonymous parameters", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
+	defs.append(new PropertyDefinition("esql_params_style", "Parameter style", PropertyType::PropertyTypeOption, "a", false, new QMap<QString, QVariant>({ { "a", "Anonymous" },{ "d", "Dollar" },{ "c", "Colon" } }), "esql"));
 	defs.append(new PropertyDefinition("esql_static_calls", "Emit static calls", PropertyType::PropertyTypeBoolean, true, false, nullptr, "esql"));
 	defs.append(new PropertyDefinition("esql_debug_log_on", "Enable debug log", PropertyType::PropertyTypeBoolean, false, false, nullptr, "esql"));
 	defs.append(new PropertyDefinition("esql_debug_log_file", "Debug log path", PropertyType::PropertyTypeFilePath, "", false, nullptr, "esql"));
