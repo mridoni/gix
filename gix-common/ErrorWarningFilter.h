@@ -5,7 +5,9 @@
 
 #include <spdlog/spdlog.h>
 
-enum class ErrorWarningFilterType {
+#include "gixcommon_global.h"
+
+enum class GIXCOMMON_EXPORT ErrorWarningFilterType {
 	Notice = 1,
 	Warning = 2,
 	Error = 3,
@@ -15,7 +17,7 @@ enum class ErrorWarningFilterType {
 };
 
 
-struct ErrorWarningFilterEntry {
+struct GIXCOMMON_EXPORT ErrorWarningFilterEntry {
 
 	ErrorWarningFilterType type;
 
@@ -27,10 +29,13 @@ struct ErrorWarningFilterEntry {
 	QString message;
 };
 
-class ErrorWarningFilter
+class GIXCOMMON_EXPORT ErrorWarningFilter
 {
 public:
 
 	QList<ErrorWarningFilterEntry> filter(QString payload, spdlog::level::level_enum level);
+
+	static bool isWarning(const QString& msg);
+	static bool isError(const QString& msg);
 };
 

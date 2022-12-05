@@ -136,6 +136,9 @@
     <ClCompile Include="metadata\MetadataWorker.cpp">
       <Filter>Source Files\metadata</Filter>
     </ClCompile>
+    <ClCompile Include="ErrorWarningFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gixcommon_global.h" />
@@ -284,6 +287,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="QStringFormatter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorWarningFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

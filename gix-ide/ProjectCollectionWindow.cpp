@@ -170,6 +170,20 @@ void ProjectCollectionWindow::itemDropped(QTreeWidgetItem *item, const QMimeData
 				bool res = addExistingFiles(filenames, prj->GetBaseDir(), prj, item);
 			}
 		}
+
+		if (pi && pi->GetItemType() == ProjectItemType::TFolder) {
+			ProjectFolder* folder = static_cast<ProjectFolder*>(p);
+			if (md->hasUrls()) {
+				auto urls = md->urls();
+
+				QStringList filenames;
+				for (auto url : urls) {
+					filenames.append(url.toLocalFile());
+				}
+
+				bool res = addExistingFiles(filenames, folder->GetBaseDir(), folder, item);
+			}
+		}
 	}
 }
 
@@ -505,13 +519,13 @@ bool isValidExtension(const QString &ext, const QStringList &ext_list)
 	return false;
 }
 
-bool ProjectCollectionWindow::addExistingFiles(const QStringList &fileNames, const QString &project_dir, ProjectItem *parent, QTreeWidgetItem *item)
+bool ProjectCollectionWindow::addExistingFiles(const QStringList &fileNames, const QString &dest_dir, ProjectItem *parent, QTreeWidgetItem *item)
 {
 	bool copy_files = false;
 
 	QFileInfo f(fileNames.at(0));
-	if (f.absoluteDir() != project_dir) {
-		QString msg = QString(tr("You can only add existing files under the directory of the project you are adding files to.\n\nWould you like to copy these files to the project directory (%1)?").arg(project_dir));
+	if (f.absoluteDir() != dest_dir) {
+		QString msg = QString(tr("You can only add existing files under the directory of the project you are adding files to.\n\nWould you like to copy these files to the directory (%1)?").arg(dest_dir));
 		copy_files = UiUtils::YesNoDialog(msg);
 		if (!copy_files)
 			return false;
@@ -534,9 +548,9 @@ bool ProjectCollectionWindow::addExistingFiles(const QStringList &fileNames, con
 
 	if (copy_files) {
 		for (const QString &fileName : fileNames) {
-			QString filetoAdd = PathUtils::combine(project_dir, QFileInfo(fileName).fileName());
+			QString filetoAdd = PathUtils::combine(dest_dir, QFileInfo(fileName).fileName());
 			if (QFile::exists(filetoAdd)) {
-				if (!UiUtils::YesNoDialog(QString(tr("A file named %1 already exists in the project directory (%2). Do you want to replace it?")).arg(filetoAdd).arg(project_dir)))
+				if (!UiUtils::YesNoDialog(QString(tr("A file named %1 already exists in the project directory (%2). Do you want to replace it?")).arg(filetoAdd).arg(dest_dir)))
 					continue;
 
 				QFile::remove(filetoAdd);

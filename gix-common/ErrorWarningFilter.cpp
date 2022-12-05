@@ -68,3 +68,13 @@ QList<ErrorWarningFilterEntry> ErrorWarningFilter::filter(QString payload, spdlo
 	}
 	return res;
 }
+
+bool ErrorWarningFilter::isWarning(const QString& msg)
+{
+	return rxWarning.match(msg).hasMatch();
+}
+
+bool ErrorWarningFilter::isError(const QString& msg)
+{
+	return rxError.match(msg).hasMatch();
+}

@@ -177,6 +177,7 @@
     <ClCompile Include="CobolVar.cpp" />
     <ClCompile Include="CobolVarList.cpp" />
     <ClCompile Include="DataEntry.cpp" />
+    <ClCompile Include="ErrorWarningFilter.cpp" />
     <ClCompile Include="ESQLConfiguration.cpp" />
     <ClCompile Include="GixGlobals.cpp" />
     <ClCompile Include="MacroManager.cpp" />
@@ -211,6 +212,7 @@
     <QtMoc Include="metadata\MetadataWorker.h" />
     <ClInclude Include="buildsystem\CompilerEnvironment.h" />
     <QtMoc Include="ESQLConfiguration.h" />
+    <ClInclude Include="ErrorWarningFilter.h" />
     <ClInclude Include="PropertyConsts.h" />
     <ClInclude Include="QStringFormatter.h" />
     <ClInclude Include="SourceFileFormat.h" />

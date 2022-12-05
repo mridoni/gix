@@ -5,6 +5,7 @@
 #include "PathUtils.h"
 #include "GixGlobals.h"
 #include "SysUtils.h"
+#include "ErrorWarningFilter.h"
 
 #include <QFile>
 #include <QSettings>
@@ -294,8 +295,13 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 	bool b = gp.process();
 
 	if (!b || !QFile(output_file).exists()) {
-		for (std::string m : gp.err_data.err_messages)
-			build_driver->log_build_message("ERROR: " + QString::fromStdString(m), spdlog::level::err);
+		for (std::string m : gp.err_data.err_messages) {
+			QString qm = QString::fromStdString(m);
+			if (ErrorWarningFilter::isWarning(qm))
+				build_driver->log_build_message(qm, spdlog::level::warn);
+			else
+				build_driver->log_build_message(qm, spdlog::level::err);
+		}
 		return false;
 	}
 
