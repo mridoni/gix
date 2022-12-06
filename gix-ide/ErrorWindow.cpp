@@ -84,6 +84,7 @@ ErrorWindow::~ErrorWindow()
 void ErrorWindow::clear()
 {
 	err_grid->clearContents();
+	err_grid->setRowCount(0);
 	entries.clear();
 }
 void ErrorWindow::addEntries(QList<ErrorWarningFilterEntry> _entries)

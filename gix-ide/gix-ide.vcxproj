@@ -5,6 +5,14 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="LocalDeploy|Win32">
+      <Configuration>LocalDeploy</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="LocalDeploy|x64">
+      <Configuration>LocalDeploy</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -171,13 +179,20 @@
     <ProjectGuid>{644161BD-57C3-43A8-92F4-7545799C1CD4}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|x64'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|Win32'">10.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -197,11 +212,21 @@
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;gui;widgets;xml;xmlpatterns</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|x64'" Label="QtSettings">
     <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;gui;widgets;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
@@ -221,12 +246,21 @@
     <QtModules>core;gui;widgets;xml;xmlpatterns</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|Win32'" Label="QtSettings">
+    <QtInstall>msvc2017</QtInstall>
+    <QtModules>core;gui;widgets;xml;xmlpatterns</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
@@ -239,6 +273,10 @@
     <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
@@ -255,7 +293,25 @@
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|Win32'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;$(ProjectDir);$(SolutionDir)gix-common;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)\libgixutils;$(SolutionDir)\libgixpp;$(SolutionDir)\gixsql\libcpputils;$(SolutionDir)\gixsql\runtime\libgixsql;$(SolutionDir)\gixsql\libgixpp;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)testhlpr;$(SolutionDir)gix-debugger;$(SolutionDir)gix-debugger-common;$(SolutionDir)gix-debugger-engine-common;$(SolutionDir)gix-debugger-client;$(SolutionDir)libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>GIX_IDE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;$(ProjectDir);$(SolutionDir)gix-common;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)\libgixutils;$(SolutionDir)\libgixpp;$(SolutionDir)\gixsql\libcpputils;$(SolutionDir)\gixsql\runtime\libgixsql;$(SolutionDir)\gixsql\libgixpp;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)testhlpr;$(SolutionDir)gix-debugger;$(SolutionDir)gix-debugger-common;$(SolutionDir)gix-debugger-engine-common;$(SolutionDir)gix-debugger-client;$(SolutionDir)libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -288,6 +344,17 @@
       <AdditionalDependencies>fmtd.lib;spdlogd.lib;libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;$(ProjectDir);$(SolutionDir)gix-common;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)\libgixutils;$(SolutionDir)\libgixpp;$(SolutionDir)\gixsql\libcpputils;$(SolutionDir)\gixsql\runtime\libgixsql;$(SolutionDir)\gixsql\libgixpp;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)testhlpr;$(SolutionDir)gix-debugger;$(SolutionDir)gix-debugger-common;$(SolutionDir)gix-debugger-engine-common;$(SolutionDir)gix-debugger-client;$(SolutionDir)libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>GIX_IDE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;$(Qt_DEFINES_);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\debug\lib;$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmtd.lib;spdlogd.lib;libgixutils.lib;libgixsql.lib;libcpputils.lib;gix-common.lib;gix-debugger-client.lib;gix-debugger-common.lib;nng.lib;ScintillaEdit4.lib;dwarf.lib;imagehlp.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(VCPKG_ROOT)\installed\$(PlatformShortName)-windows\include;$(VCPKG_ROOT)\packages\spdlog_$(PlatformShortName)-windows-static-md\include;$(VCPKG_ROOT)\packages\fmt_$(PlatformShortName)-windows-static-md\include;$(ProjectDir);$(SolutionDir)gix-common;$(SolutionDir)gix-common\buildsystem;$(SolutionDir)gix-common\metadata;$(SolutionDir)gix-common\projectsystem;$(SolutionDir)\libgixutils;$(SolutionDir)\libgixpp;$(SolutionDir)\gixsql\libcpputils;$(SolutionDir)\gixsql\runtime\libgixsql;$(SolutionDir)\gixsql\libgixpp;$(SolutionDir)libs\scintilla\include;$(SolutionDir)libs\scintilla\qt\ScintillaEdit;$(SolutionDir)libs\scintilla\qt\ScintillaEditBase;$(SolutionDir)testhlpr;$(SolutionDir)gix-debugger;$(SolutionDir)gix-debugger-common;$(SolutionDir)gix-debugger-engine-common;$(SolutionDir)gix-debugger-client;$(SolutionDir)libs\libdwarf\libdwarf;$(SolutionDir)build-tools\grammar-tools;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -300,6 +367,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|x64'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -339,6 +419,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LocalDeploy|Win32'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
