@@ -22,8 +22,9 @@ OutputWindowLogger::OutputWindowLogger(OutputWindowPaneType index, QWidget* w)
 	std::vector<spdlog::sink_ptr> sinks = { sink };
 	std::string logger_name = "gix-ide-" + (names.at((int)index));
 	logger = std::make_shared<spdlog::logger>(logger_name, begin(sinks), end(sinks));
-
+	logger->set_level(spdlog::level::trace);
 	sink->set_level(spdlog::level::trace);
+
 	spdlog::set_level(spdlog::level::trace);	// max log level, will be limited by the sink-specific levels
 
 	logger->flush_on(spdlog::level::trace);

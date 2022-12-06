@@ -32,6 +32,7 @@ protected:
 		//spdlog::memory_buf_t formatted;
 		//spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
 
+		// TODO: check if IDE is shutting down to prevent crashes
 		std::string s(msg.payload.data(), msg.payload.size());
 		if (output_window_logger) {
 			QTextEdit* p = output_window_logger->getWindowPane();

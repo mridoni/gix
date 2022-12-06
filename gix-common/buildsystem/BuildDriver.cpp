@@ -178,6 +178,14 @@ void BuildDriver::extract_project_base_dirs(BuildTarget *target, QMap<QString, Q
 
 bool BuildDriver::handle_single_target(BuildTarget *target, QString &provides_item, ProjectItem *pi)
 {
+	if (target->isUpToDate()) {
+		log_build_message(QString("Target %1 is up to date").arg(target->filename()), spdlog::level::trace);
+		return true;
+	}
+	else {
+		log_build_message(QString("Target %1 is NOT up to date").arg(target->filename()), spdlog::level::trace);
+	}
+
 	if (pi->GetItemType() == ProjectItemType::TProject) {
 		PropertySource *ps = dynamic_cast<PropertySource *>(pi);
 		Project *prj = dynamic_cast<Project *>(pi);

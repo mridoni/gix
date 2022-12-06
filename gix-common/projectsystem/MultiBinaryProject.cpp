@@ -98,7 +98,7 @@ QList<IBuildableItem *> MultiBinaryProject::splitProject()
 			ext = SysUtils::isWindows() ? ".dll" : ".so";
 		}
 
-		pm->PropertySetValue("target_name", module_name + "." + ext);
+		pm->PropertySetValue("target_name", module_name + ext);
 
 		res.append(pm);
 	}
