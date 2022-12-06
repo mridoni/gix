@@ -90,6 +90,7 @@ QList<IBuildableItem *> MultiBinaryProject::splitProject()
 		}
 
 		QString module_name = CobolUtils::extractProgramId(pf->GetFileFullPath());
+#if 0
 		QString ext;
 		if (this->PropertyGetValue("build_type").toString() == BuildConsts::MODULE_EXECUTABLE) {
 			ext = SysUtils::isWindows() ? ".exe" : "";
@@ -99,6 +100,9 @@ QList<IBuildableItem *> MultiBinaryProject::splitProject()
 		}
 
 		pm->PropertySetValue("target_name", module_name + ext);
+#else
+		pm->PropertySetValue("target_name", module_name);
+#endif
 
 		res.append(pm);
 	}
