@@ -116,7 +116,7 @@ MainWindow::MainWindow()
 
 	error_dock = new QDockWidget(tr("Error List"), this);
 	error_window = new ErrorWindow(navigation_dock, this);
-	error_dock-> setWidget(error_window);
+	error_dock->setWidget(error_window);
 	addDockWidget(Qt::LeftDockWidgetArea, error_dock);
 
 	tabifyDockWidget(output_dock, error_dock);
@@ -133,8 +133,8 @@ MainWindow::MainWindow()
 	setWindowTitle(tr("Gix-IDE"));
 	setUnifiedTitleAndToolBarOnMac(true);
 
-	QList<QTabBar *> tabBarList = mdiArea->findChildren<QTabBar*>();
-	QTabBar *tabBar = tabBarList.at(0);
+	QList<QTabBar*> tabBarList = mdiArea->findChildren<QTabBar*>();
+	QTabBar* tabBar = tabBarList.at(0);
 	if (tabBar) {
 		tabBar->setExpanding(false);
 	}
@@ -149,7 +149,7 @@ MainWindow::MainWindow()
 	Ide::TaskManager()->init(this, output_window, prjcoll_window, console_window, watch_window, navigation_window, error_window);
 	Ide::TaskManager()->setCurrentProjectCollection(nullptr);
 
-    connect(Ide::TaskManager(), &IdeTaskManager::IdeEditorChangedPosition, this, [this](QString a, int b) { IdeEditorChangedPosition(a, b);  }, Qt::ConnectionType::QueuedConnection);
+	connect(Ide::TaskManager(), &IdeTaskManager::IdeEditorChangedPosition, this, [this](QString a, int b) { IdeEditorChangedPosition(a, b);  }, Qt::ConnectionType::QueuedConnection);
 
 	status_label = new QLabel();
 	statusBar()->addPermanentWidget(status_label);
@@ -165,22 +165,22 @@ MainWindow::MainWindow()
 
 	connect(property_window, &PropertyWindow::notifyPropertyValueChanged, prjcoll_window, [this](PropertyDefinition* pd, QVariant value, ProjectItem* pi) {
 		prjcoll_window->notifyPropertyValueChanged(pd, value, pi);
-	});
+		});
 
 	connect(Ide::TaskManager(), &IdeTaskManager::SettingsChanged, this, [this] {
 		QString cur_platform = cbPlatform->currentData().toString();
 
-		this->cbPlatform->clear();
-		QStringList available_platforms = this->getPlatformsForConfiguration(cbConfiguration->itemData(DEFAULT_TARGET_CONFIG).toString());
-		for (QString p : available_platforms)
-			cbPlatform->addItem(p, p);
+	this->cbPlatform->clear();
+	QStringList available_platforms = this->getPlatformsForConfiguration(cbConfiguration->itemData(DEFAULT_TARGET_CONFIG).toString());
+	for (QString p : available_platforms)
+		cbPlatform->addItem(p, p);
 
-		if (cur_platform != "" && this->cbPlatform->findData(cur_platform) >= 0)
-			this->cbPlatform->setCurrentIndex(this->cbPlatform->findData(cur_platform));
-		else {
-			this->cbPlatform->setCurrentIndex(0);
-		}
-	});
+	if (cur_platform != "" && this->cbPlatform->findData(cur_platform) >= 0)
+		this->cbPlatform->setCurrentIndex(this->cbPlatform->findData(cur_platform));
+	else {
+		this->cbPlatform->setCurrentIndex(0);
+	}
+		});
 
 	output_window->addLoggerSection(OutputWindowPaneType::Ide, "IDE");
 	output_window->addLoggerSection(OutputWindowPaneType::Build, "Build");
@@ -205,7 +205,7 @@ MainWindow::MainWindow()
 	emit Ide::TaskManager()->IdeReady();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent* event)
 {
 	Ide::TaskManager()->setShuttingDown(true);
 	Ide::TaskManager()->setBackgroundTasksEnabled(false);
@@ -225,7 +225,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile()
 {
-	MdiChild *child = createMdiChild();
+	MdiChild* child = createMdiChild();
 	child->newFile();
 	child->show();
 }
@@ -289,9 +289,9 @@ void MainWindow::closePrjCollection()
 	updateMenus();
 }
 
-bool MainWindow::openFile(const QString &fileName)
+bool MainWindow::openFile(const QString& fileName)
 {
-	if (QMdiSubWindow *existing = findMdiChild(fileName)) {
+	if (QMdiSubWindow* existing = findMdiChild(fileName)) {
 		mdiArea->setActiveSubWindow(existing);
 		return true;
 	}
@@ -317,8 +317,8 @@ QVariant MainWindow::getCurrentPlatform()
 
 void MainWindow::setAllMdiChildrenReadOnly(bool b)
 {
-	foreach(QMdiSubWindow *window, mdiArea->subWindowList()) {
-		MdiChild *mdiChild = qobject_cast<MdiChild *>(window->widget());
+	foreach(QMdiSubWindow * window, mdiArea->subWindowList()) {
+		MdiChild* mdiChild = qobject_cast<MdiChild*>(window->widget());
 		mdiChild->setReadOnly(b);
 	}
 }
@@ -327,8 +327,8 @@ QStringList MainWindow::getCurrentOpenFileList()
 {
 	QStringList res;
 
-	foreach(QMdiSubWindow *window, mdiArea->subWindowList()) {
-		MdiChild *mdiChild = qobject_cast<MdiChild *>(window->widget());
+	foreach(QMdiSubWindow * window, mdiArea->subWindowList()) {
+		MdiChild* mdiChild = qobject_cast<MdiChild*>(window->widget());
 		if (mdiChild)
 			res.append(mdiChild->currentFile());
 	}
@@ -336,20 +336,32 @@ QStringList MainWindow::getCurrentOpenFileList()
 	return res;
 }
 
-bool MainWindow::loadFile(const QString &fileName)
+bool MainWindow::loadFile(const QString& fileName)
 {
-	MdiChild *child = createMdiChild();
+	QMdiSubWindow* sw = nullptr;
+	MdiChild* child = createMdiChild(&sw);
 	const bool succeeded = child->loadFile(fileName);
 	if (succeeded) {
 		child->show();
 		MainWindow::prependToRecentFiles(fileName);
+
+		if (sw != nullptr && mdiArea->subWindowList().size()) {
+			QList<QTabBar*> tabBarList = mdiArea->findChildren<QTabBar*>();
+			if (tabBarList.size() > 0) {
+				int i = mdiArea->subWindowList().indexOf(sw);
+				if (i >= 0) {
+					QTabBar* tabBar = tabBarList.at(0);
+					tabBar->setTabToolTip(i, QDir::toNativeSeparators(fileName));
+				}
+			}
+		}
 	}
 	else {
 		child->close();
-		mdiArea->removeSubWindow((QWidget *) child->parent());
+		mdiArea->removeSubWindow((QWidget*)child->parent());
 		delete child;
 	}
-	
+
 	return succeeded;
 }
 
@@ -358,7 +370,7 @@ static inline QString recentProjectsKey() { return QStringLiteral("recentProject
 static inline QString fileKey() { return QStringLiteral("file"); }
 static inline QString projectKey() { return QStringLiteral("project"); }
 
-static QStringList readRecentFiles(QSettings &settings)
+static QStringList readRecentFiles(QSettings& settings)
 {
 	QStringList result;
 	const int count = settings.beginReadArray(recentFilesKey());
@@ -370,7 +382,7 @@ static QStringList readRecentFiles(QSettings &settings)
 	return result;
 }
 
-static QStringList readRecentProjects(QSettings &settings)
+static QStringList readRecentProjects(QSettings& settings)
 {
 	QStringList result;
 	const int count = settings.beginReadArray(recentProjectsKey());
@@ -382,7 +394,7 @@ static QStringList readRecentProjects(QSettings &settings)
 	return result;
 }
 
-static void writeRecentFiles(const QStringList &files, QSettings &settings)
+static void writeRecentFiles(const QStringList& files, QSettings& settings)
 {
 	const int count = files.size();
 	settings.beginWriteArray(recentFilesKey());
@@ -393,7 +405,7 @@ static void writeRecentFiles(const QStringList &files, QSettings &settings)
 	settings.endArray();
 }
 
-static void writeRecentProjects(const QStringList &projects, QSettings &settings)
+static void writeRecentProjects(const QStringList& projects, QSettings& settings)
 {
 	const int count = projects.size();
 	settings.beginWriteArray(recentProjectsKey());
@@ -420,7 +432,7 @@ bool MainWindow::hasRecentProjects()
 	return count > 0;
 }
 
-void MainWindow::prependToRecentProjects(const QString & fileName)
+void MainWindow::prependToRecentProjects(const QString& fileName)
 {
 	QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
 
@@ -440,23 +452,23 @@ void MainWindow::setRecentProjectsVisible(bool visible)
 	recentProjectsSeparator->setVisible(visible);
 }
 
-Project * MainWindow::get_runnable_project()
+Project* MainWindow::get_runnable_project()
 {
-	Project *prj = nullptr;
-	ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
-	auto prjs = from(*(ppj->GetChildren())).where([](ProjectItem *a) { return a->GetItemType() == ProjectItemType::TProject;  }).to_vector();
+	Project* prj = nullptr;
+	ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
+	auto prjs = from(*(ppj->GetChildren())).where([](ProjectItem* a) { return a->GetItemType() == ProjectItemType::TProject;  }).to_vector();
 	if (prjs.size() == 1) {
-		prj = static_cast<Project *>(prjs.at(0));
+		prj = static_cast<Project*>(prjs.at(0));
 	}
 	else {
-		ProjectItem *pi = prjcoll_window->getCurrentSelection();
-		prj = dynamic_cast<Project *>(pi);
+		ProjectItem* pi = prjcoll_window->getCurrentSelection();
+		prj = dynamic_cast<Project*>(pi);
 	}
 	return prj;
 }
 
 
-void MainWindow::prependToRecentFiles(const QString &fileName)
+void MainWindow::prependToRecentFiles(const QString& fileName)
 {
 	QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
 
@@ -512,13 +524,13 @@ void MainWindow::updateRecentProjectsActions()
 
 void MainWindow::openRecentFile()
 {
-	if (const QAction *action = qobject_cast<const QAction *>(sender()))
+	if (const QAction* action = qobject_cast<const QAction*>(sender()))
 		openFile(action->data().toString());
 }
 
 void MainWindow::openRecentProject()
 {
-	if (const QAction *action = qobject_cast<const QAction *>(sender()))
+	if (const QAction* action = qobject_cast<const QAction*>(sender()))
 		openPrj(action->data().toString());
 }
 
@@ -530,7 +542,7 @@ void MainWindow::save()
 
 void MainWindow::run(bool run_detached)
 {
-	Project *prj = get_runnable_project();
+	Project* prj = get_runnable_project();
 	if (prj == nullptr) {
 		UiUtils::ErrorDialog(tr("Select a project to be run"));
 		return;
@@ -546,7 +558,7 @@ void MainWindow::debug()
 		return;
 	}
 
-	Project *prj = get_runnable_project();
+	Project* prj = get_runnable_project();
 	if (prj == nullptr) {
 		UiUtils::ErrorDialog(tr("Select a project to be debugged"));
 		return;
@@ -586,7 +598,7 @@ void MainWindow::saveAll()
 
 void MainWindow::saveAs()
 {
-	MdiChild *child = activeMdiChild();
+	MdiChild* child = activeMdiChild();
 	if (child && child->saveAs()) {
 		statusBar()->showMessage(tr("File saved"), 2000);
 		MainWindow::prependToRecentFiles(child->currentFile());
@@ -636,7 +648,7 @@ void MainWindow::showSpecialChars()
 
 void MainWindow::setupEolMenu()
 {
-	MdiChild *c = activeMdiChild();
+	MdiChild* c = activeMdiChild();
 	if (!c)
 		return;
 
@@ -732,9 +744,9 @@ void MainWindow::subWindowActivated()
 
 		GixGlobals::getLogManager()->trace(LOG_TEST, "Activated window for {}", f);
 
-		ProjectCollection *ppj = Ide::TaskManager()->getCurrentProjectCollection();
+		ProjectCollection* ppj = Ide::TaskManager()->getCurrentProjectCollection();
 		if (ppj != nullptr) {
-			ProjectFile *pf = ppj->locateProjectFileByPath(f, true);
+			ProjectFile* pf = ppj->locateProjectFileByPath(f, true);
 			if (subwindow_changed)
 				emit Ide::TaskManager()->fileActivated(pf);
 		}
@@ -782,12 +794,12 @@ void MainWindow::updateWindowMenu()
 	windowMenu->addAction(previousAct);
 	windowMenu->addAction(windowMenuSeparatorAct);
 
-	QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+	QList<QMdiSubWindow*> windows = mdiArea->subWindowList();
 	windowMenuSeparatorAct->setVisible(!windows.isEmpty());
 
 	for (int i = 0; i < windows.size(); ++i) {
-		QMdiSubWindow *mdiSubWindow = windows.at(i);
-		MdiChild *child = qobject_cast<MdiChild *>(mdiSubWindow->widget());
+		QMdiSubWindow* mdiSubWindow = windows.at(i);
+		MdiChild* child = qobject_cast<MdiChild*>(mdiSubWindow->widget());
 
 		QString text;
 		if (i < 9) {
@@ -798,45 +810,31 @@ void MainWindow::updateWindowMenu()
 			text = tr("%1 %2").arg(i + 1)
 				.arg(child->userFriendlyCurrentFile());
 		}
-		QAction *action = windowMenu->addAction(text, mdiSubWindow, [this, mdiSubWindow]() {
+		QAction* action = windowMenu->addAction(text, mdiSubWindow, [this, mdiSubWindow]() {
 			mdiArea->setActiveSubWindow(mdiSubWindow);
-		});
+			});
 		action->setCheckable(true);
 		action->setChecked(child == activeMdiChild());
 	}
 }
 
-MdiChild *MainWindow::createMdiChild()
+MdiChild* MainWindow::createMdiChild(QMdiSubWindow** res_sw)
 {
-	QMdiArea *mda = mdiArea;
-	MdiChild *child = new MdiChild();
-	QMdiSubWindow *sw = mdiArea->addSubWindow(child);
-	QList<QTabBar *> tabBarList = mdiArea->findChildren<QTabBar*>();
-	//if (tabBarList.size() > 0) {
-	//	int i = mdiArea->subWindowList().indexOf(sw);
-	//	if (i >= 0) {
-	//		QTabBar *tabBar = tabBarList.at(0);
-	//		QPushButton *b = new QPushButton();
-	//		b->setIcon(QIcon(":/icons/bullet_cross.png"));
-	//		b->setFixedSize(8, 8);
-	//		b->setFlat(true);
-	//		connect(b, &QPushButton::clicked, tabBar, [sw, mda] { 
-	//			if (sw->isVisible())
-	//				sw->close(); 
-	//		});
-	//		//connect(child, &MdiChild::windowClosed, this, &MainWindow::subWindowClosed);
-	//		tabBar->setTabButton(i, QTabBar::ButtonPosition::RightSide, b);
-	//	}
-	//}
+	QMdiArea* mda = mdiArea;
+	MdiChild* child = new MdiChild();
+	QMdiSubWindow* sw = mdiArea->addSubWindow(child);
 
 #ifndef QT_NO_CLIPBOARD
-	connect(child, &CodeEditor::updateUi, this, [this, child] (int p){ 
-		updateClipboardActions(child, p); 
-		if (p & SC_UPDATE_SELECTION) {
-			emit child->caretPositionChanged();
-		}
-	});
+	connect(child, &CodeEditor::updateUi, this, [this, child](int p) {
+		updateClipboardActions(child, p);
+	if (p & SC_UPDATE_SELECTION) {
+		emit child->caretPositionChanged();
+	}
+		});
 #endif
+
+	if (res_sw)
+		*res_sw = sw;
 
 	return child;
 }
@@ -847,7 +845,7 @@ void MainWindow::IdeStatusChanged(IdeStatus s)
 	watch_dock->setVisible(s == IdeStatus::Debugging || s == IdeStatus::DebuggingOnBreak);
 
 	if (s != IdeStatus::DebuggingOnBreak) {
-		MdiChild *cur = this->activeMdiChild();
+		MdiChild* cur = this->activeMdiChild();
 		if (cur)
 			cur->markerDeleteAll(MRKR_DBG_CURLINE);
 	}
@@ -855,42 +853,42 @@ void MainWindow::IdeStatusChanged(IdeStatus s)
 
 void MainWindow::IdeEditorChangedPosition(QString src, int ln)
 {
-    MdiChild* cur = this->activeMdiChild();
-    if (cur)
-        cur->markerDeleteAll(MRKR_DBG_CURLINE);
+	MdiChild* cur = this->activeMdiChild();
+	if (cur)
+		cur->markerDeleteAll(MRKR_DBG_CURLINE);
 
-    if (QFile(src).exists()) {
-        QMdiSubWindow *win = findMdiChild(src);
-        if (!win) {
-            if (loadFile(src)) {
-                win = findMdiChild(src);
-            }
-        }
+	if (QFile(src).exists()) {
+		QMdiSubWindow* win = findMdiChild(src);
+		if (!win) {
+			if (loadFile(src)) {
+				win = findMdiChild(src);
+			}
+		}
 
-        if (win) {
-            MdiChild *mdiChild = qobject_cast<MdiChild *>(win->widget());
-            mdiChild->highlightDebuggedLine(ln);
-            mdiChild->ensureLineVisible(ln);
-            mdiArea->setActiveSubWindow(win);
-            if (Ide::TaskManager()->getStatus() == IdeStatus::Debugging || Ide::TaskManager()->getStatus() == IdeStatus::DebuggingOnBreak)
-                mdiChild->setReadOnly(true);
-        }
-    }
+		if (win) {
+			MdiChild* mdiChild = qobject_cast<MdiChild*>(win->widget());
+			mdiChild->highlightDebuggedLine(ln);
+			mdiChild->ensureLineVisible(ln);
+			mdiArea->setActiveSubWindow(win);
+			if (Ide::TaskManager()->getStatus() == IdeStatus::Debugging || Ide::TaskManager()->getStatus() == IdeStatus::DebuggingOnBreak)
+				mdiChild->setReadOnly(true);
+		}
+	}
 }
 
 void MainWindow::createActions()
 {
-	QMenu *fileMenu = mainMenuBar->addMenu(tr("&File"));
-	QToolBar *fileToolBar = addToolBar(tr("File"));
-	QToolBar *buildToolBar = addToolBar(tr("Build"));
-	QToolBar *runDebugToolBar = addToolBar(tr("Run/Debug"));
+	QMenu* fileMenu = mainMenuBar->addMenu(tr("&File"));
+	QToolBar* fileToolBar = addToolBar(tr("File"));
+	QToolBar* buildToolBar = addToolBar(tr("Build"));
+	QToolBar* runDebugToolBar = addToolBar(tr("Run/Debug"));
 
 	fileToolBar->setStyleSheet("QToolButton{margin:0px;spacing:0px;padding:0px;}");
 	buildToolBar->setStyleSheet("QToolButton{margin:0px;spacing:0px;padding:0px;}");
 	runDebugToolBar->setStyleSheet("QToolButton{margin:0px;spacing:0px;padding:0px;}");
 
-	QToolButton *btnNew = new QToolButton(this);
-	QToolButton *btnOpen = new QToolButton(this);
+	QToolButton* btnNew = new QToolButton(this);
+	QToolButton* btnOpen = new QToolButton(this);
 
 	const QIcon newPrjIcon = QIcon(":/icons/new_prj.png");
 	newPrjAct = new QAction(newPrjIcon, tr("&New Project/Project Collection"), this);
@@ -906,7 +904,7 @@ void MainWindow::createActions()
 	connect(newFileAct, &QAction::triggered, this, &MainWindow::newFile);
 	fileMenu->addAction(newFileAct);
 
-	QMenu *menuNew = new QMenu(this);
+	QMenu* menuNew = new QMenu(this);
 	menuNew->addAction(newPrjAct);
 	menuNew->addAction(newFileAct);
 	btnNew->setPopupMode(QToolButton::ToolButtonPopupMode::DelayedPopup);
@@ -915,20 +913,20 @@ void MainWindow::createActions()
 	fileToolBar->addWidget(btnNew);
 
 	const QIcon openPrjIcon = QIcon(":/icons/open_prj.png");
-	QAction *openPrjAct = new QAction(openPrjIcon, tr("&Open Project/Project Collection..."), this);
+	QAction* openPrjAct = new QAction(openPrjIcon, tr("&Open Project/Project Collection..."), this);
 	openPrjAct->setShortcuts(QKeySequence::Open);
 	openPrjAct->setStatusTip(tr("Open an existing Project/Project Collection"));
 	connect(openPrjAct, &QAction::triggered, this, [this] { openPrj(); });
 	fileMenu->addAction(openPrjAct);
 
 	const QIcon openFileIcon = QIcon(":/icons/open.png");
-	QAction *openFileAct = new QAction(openFileIcon, tr("&Open..."), this);
+	QAction* openFileAct = new QAction(openFileIcon, tr("&Open..."), this);
 	openFileAct->setShortcuts(QKeySequence::Open);
 	openFileAct->setStatusTip(tr("Open an existing file"));
 	connect(openFileAct, &QAction::triggered, this, &MainWindow::open);
 	fileMenu->addAction(openFileAct);
 
-	QMenu *menuOpen = new QMenu(this);
+	QMenu* menuOpen = new QMenu(this);
 	menuOpen->addAction(openPrjAct);
 	menuOpen->addAction(openFileAct);
 	btnOpen->setPopupMode(QToolButton::ToolButtonPopupMode::DelayedPopup);
@@ -970,11 +968,11 @@ void MainWindow::createActions()
 	fileMenu->addAction(closePrjCollAct);
 	fileMenu->addSeparator();
 
-	QMenu *recentMenu = fileMenu->addMenu(tr("Recent..."));
+	QMenu* recentMenu = fileMenu->addMenu(tr("Recent..."));
 	connect(recentMenu, &QMenu::aboutToShow, this, &MainWindow::updateRecentFileActions);
 	recentFileSubMenuAct = recentMenu->menuAction();
 
-	QMenu *recentPrjsMenu = fileMenu->addMenu(tr("Recent projects..."));
+	QMenu* recentPrjsMenu = fileMenu->addMenu(tr("Recent projects..."));
 	connect(recentPrjsMenu, &QMenu::aboutToShow, this, &MainWindow::updateRecentProjectsActions);
 	recentProjectsSubMenuAct = recentPrjsMenu->menuAction();
 
@@ -1011,14 +1009,14 @@ void MainWindow::createActions()
 
 	//! [0]
 	const QIcon exitIcon = QIcon(":/icons/exit.png");
-	QAction *exitAct = fileMenu->addAction(exitIcon, tr("E&xit"), qApp, &QApplication::closeAllWindows);
+	QAction* exitAct = fileMenu->addAction(exitIcon, tr("E&xit"), qApp, &QApplication::closeAllWindows);
 	exitAct->setShortcuts(QKeySequence::Quit);
 	exitAct->setStatusTip(tr("Exit the application"));
 	fileMenu->addAction(exitAct);
 	//! [0]
 
-	QMenu *editMenu = mainMenuBar->addMenu(tr("&Edit"));
-	QToolBar *editToolBar = addToolBar(tr("Edit"));
+	QMenu* editMenu = mainMenuBar->addMenu(tr("&Edit"));
+	QToolBar* editToolBar = addToolBar(tr("Edit"));
 	editToolBar->setStyleSheet("QToolButton{margin:0px;spacing:0px;padding:0px;}");
 
 #ifndef QT_NO_CLIPBOARD
@@ -1064,7 +1062,7 @@ void MainWindow::createActions()
 
 	//const QIcon showScIcon = QIcon(":/icons/pilcrow.png");
 	submenuEolOps = editMenu->addMenu(tr("EOL operations"));
-	eol_win_act = submenuEolOps->addAction("Windows (CR+LF)"); 
+	eol_win_act = submenuEolOps->addAction("Windows (CR+LF)");
 	eol_win_act->setData((int)EolMode::Windows);
 	eol_linux_act = submenuEolOps->addAction("Linux/Unix (LF)");
 	eol_linux_act->setData((int)EolMode::Unix);
@@ -1157,8 +1155,8 @@ void MainWindow::createActions()
 
 	connect(cbConfiguration, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i) {
 		if (Ide::TaskManager()->getStatus() != IdeStatus::LoadingOrSaving)
-			Ide::TaskManager()->saveCurrentProjectCollectionState();
-	});
+		Ide::TaskManager()->saveCurrentProjectCollectionState();
+		});
 
 	cbPlatform = new QComboBox(this);
 
@@ -1166,12 +1164,12 @@ void MainWindow::createActions()
 
 	connect(cbPlatform, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int i) {
 		if (Ide::TaskManager()->getStatus() != IdeStatus::LoadingOrSaving)
-			Ide::TaskManager()->saveCurrentProjectCollectionState();
-	});
+		Ide::TaskManager()->saveCurrentProjectCollectionState();
+		});
 
 	buildToolBar->addWidget(cbPlatform);
 
-	QMenu *buildMenu = mainMenuBar->addMenu(tr("Build"));
+	QMenu* buildMenu = mainMenuBar->addMenu(tr("Build"));
 
 	const QIcon bulldAllIcon = QIcon(":/icons/build.png");
 	buildAllAct = new QAction(bulldAllIcon, tr("&Build"), this);
@@ -1197,7 +1195,7 @@ void MainWindow::createActions()
 	buildToolBar->addAction(buildStopAct);
 	buildMenu->addAction(buildStopAct);
 
-	QMenu *debugMenu = mainMenuBar->addMenu(tr("Run/Debug"));
+	QMenu* debugMenu = mainMenuBar->addMenu(tr("Run/Debug"));
 
 	const QIcon runIcon = QIcon(":/icons/run.png");
 	runAct = new QAction(runIcon, tr("&Run"), this);
@@ -1205,7 +1203,7 @@ void MainWindow::createActions()
 	runAct->setStatusTip(tr("Run"));
 	connect(runAct, &QAction::triggered, this, [this]() {
 		this->run(false);
-	});
+		});
 	runDebugToolBar->addAction(runAct);
 	debugMenu->addAction(runAct);
 
@@ -1214,7 +1212,7 @@ void MainWindow::createActions()
 	runDetachedAct->setStatusTip(tr("Run (detached)"));
 	connect(runDetachedAct, &QAction::triggered, this, [this]() {
 		this->run(true);
-	});
+		});
 	debugMenu->addAction(runDetachedAct);
 
 	const QIcon debugIcon = QIcon(":/icons/debug.png");
@@ -1299,29 +1297,29 @@ void MainWindow::createActions()
 
 	mainMenuBar->addSeparator();
 
-	QMenu *helpMenu = mainMenuBar->addMenu(tr("&Help"));
+	QMenu* helpMenu = mainMenuBar->addMenu(tr("&Help"));
 
-	QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
+	QAction* aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
 	aboutAct->setStatusTip(tr("Show the application's About box"));
 
-	QAction *aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+	QAction* aboutQtAct = helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 	aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
 
-	connect(Ide::TaskManager(), &IdeTaskManager::IdeStatusChanged, this, [this](IdeStatus s) { 
-		IdeStatusChanged(s); 
-	});
+	connect(Ide::TaskManager(), &IdeTaskManager::IdeStatusChanged, this, [this](IdeStatus s) {
+		IdeStatusChanged(s);
+		});
 
-	connect(Ide::TaskManager(), &IdeTaskManager::IdeStatusChanged, this, [this](IdeStatus s) { 
-		watch_window->IdeStatusChanged(s); 
-	});
+	connect(Ide::TaskManager(), &IdeTaskManager::IdeStatusChanged, this, [this](IdeStatus s) {
+		watch_window->IdeStatusChanged(s);
+		});
 	connect(Ide::TaskManager(), &IdeTaskManager::IdeDebuggerBreak, this, [this] {
 		QApplication::alert(this);
-		watch_window->onDebuggerBreak(); 
-	});
+	watch_window->onDebuggerBreak();
+		});
 
-	connect(Ide::TaskManager(), &IdeTaskManager::IdeStatusChanged, this, [this](IdeStatus s) { 
-		working_storage_window->IdeStatusChanged(s); 
-	});
+	connect(Ide::TaskManager(), &IdeTaskManager::IdeStatusChanged, this, [this](IdeStatus s) {
+		working_storage_window->IdeStatusChanged(s);
+		});
 }
 
 void MainWindow::setAvailablePlatformsForConfiguration()
@@ -1340,16 +1338,16 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-    const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
-    if (geometry.isEmpty()) {
+	QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+	const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
+	if (geometry.isEmpty()) {
 		const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
 		resize(availableGeometry.width(), availableGeometry.height());
 		showMaximized();
-    }
-    else {
-        restoreGeometry(geometry);
-    }
+	}
+	else {
+		restoreGeometry(geometry);
+	}
 }
 
 void MainWindow::writeSettings()
@@ -1366,10 +1364,10 @@ void MainWindow::removeAllDebugMarkers()
 	}
 }
 
-MdiChild *MainWindow::activeMdiChild() const
+MdiChild* MainWindow::activeMdiChild() const
 {
-	if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
-		return qobject_cast<MdiChild *>(activeSubWindow->widget());
+	if (QMdiSubWindow* activeSubWindow = mdiArea->activeSubWindow())
+		return qobject_cast<MdiChild*>(activeSubWindow->widget());
 	return 0;
 }
 
@@ -1378,7 +1376,7 @@ void MainWindow::blockMdiSignals(bool f)
 	mdiArea->blockSignals(f);
 }
 
-PropertyWindow *MainWindow::getPropertyWindow()
+PropertyWindow* MainWindow::getPropertyWindow()
 {
 	return property_window;
 }
@@ -1386,7 +1384,7 @@ PropertyWindow *MainWindow::getPropertyWindow()
 void MainWindow::openSearch(SearchType search_type)
 {
 	QString search_spec = "";
-	search_dlg = new SearchDialog(this); 
+	search_dlg = new SearchDialog(this);
 	//MdiChild* cur_win = activeMdiChild();
 	//if (cur_win) {
 	//	search_spec = cur_win->selectedText();
@@ -1400,9 +1398,9 @@ void MainWindow::openSearch(SearchType search_type)
 QStringList MainWindow::getPlatformsForConfiguration(QString config)
 {
 	QSettings settings;
-	QString key = (config.toLower() == "debug") ? "DebugCompilerId": "ReleaseCompilerId";
+	QString key = (config.toLower() == "debug") ? "DebugCompilerId" : "ReleaseCompilerId";
 	QString compiler_id = settings.value(key).toString();
-	QMap<QString, CompilerDefinition *> compilers = GixGlobals::getCompilerManager()->getCompilers();
+	QMap<QString, CompilerDefinition*> compilers = GixGlobals::getCompilerManager()->getCompilers();
 	if (!compilers.contains(compiler_id))
 		return QStringList() << "x86" << "x64" << "ARM";
 
@@ -1410,12 +1408,12 @@ QStringList MainWindow::getPlatformsForConfiguration(QString config)
 	return c->getTargetPlatforms().keys();
 }
 
-QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName) const
+QMdiSubWindow* MainWindow::findMdiChild(const QString& fileName) const
 {
 	QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
-	foreach(QMdiSubWindow *window, mdiArea->subWindowList()) {
-		MdiChild *mdiChild = qobject_cast<MdiChild *>(window->widget());
+	foreach(QMdiSubWindow * window, mdiArea->subWindowList()) {
+		MdiChild* mdiChild = qobject_cast<MdiChild*>(window->widget());
 		if (mdiChild) {
 			if (mdiChild->currentFile() == canonicalFilePath)
 				return window;
@@ -1432,7 +1430,7 @@ void MainWindow::switchLayoutDirection()
 		QGuiApplication::setLayoutDirection(Qt::LeftToRight);
 }
 
-void MainWindow::updateClipboardActions(MdiChild *c, int p)
+void MainWindow::updateClipboardActions(MdiChild* c, int p)
 {
 	if (p & SC_UPDATE_SELECTION) {
 		cutAct->setEnabled(c->getSelText().size() > 0);

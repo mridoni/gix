@@ -122,7 +122,7 @@ private slots:
 	void subWindowActivated();
 	void subWindowClosed(MdiChild* w);
     void updateWindowMenu();
-    MdiChild *createMdiChild();
+    MdiChild *createMdiChild(QMdiSubWindow** res_sw = nullptr);
     void switchLayoutDirection();
     void updateClipboardActions(MdiChild* c, int p);
 	void setupEolMenu();
