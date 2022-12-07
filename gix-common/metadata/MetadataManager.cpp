@@ -45,7 +45,7 @@ MetadataManager::~MetadataManager()
 	thread->wait();
 }
 
-void MetadataManager::get_module_sources()
+void MetadataManager::get_module_sources(QString module_name_filter)
 {
 	ProjectCollection *prj_coll = GixGlobals::getCurrentProjectCollection();
 	if (!prj_coll)
@@ -57,7 +57,7 @@ void MetadataManager::get_module_sources()
 
 		for (ProjectFile *pf : prj->getAllCompilableFiles()) {
 			QString program_id = CobolUtils::extractProgramId(pf->GetFileFullPath());
-			if (!program_id.isEmpty())
+			if (!program_id.isEmpty() && (module_name_filter.isEmpty() || module_name_filter == program_id))
 				module_srcs.insert(program_id, pf);
 		}
 	}
@@ -181,8 +181,7 @@ void MetadataManager::reset()
 	get_module_sources();
 }
 
-//bool MetadataManager::rebuildMetadata(const QStringList &mod_files_src_list)
-bool MetadataManager::rebuildMetadata()
+bool MetadataManager::rebuildMetadata(QString module_name)
 {
 	ProjectCollection *prj_coll = GixGlobals::getCurrentProjectCollection();
 	QList<ProjectFile *> pfiles;
@@ -190,7 +189,7 @@ bool MetadataManager::rebuildMetadata()
 	if (!prj_coll)
 		return false;
 
-	get_module_sources();
+	get_module_sources(module_name);
 	if (!module_srcs.values().size())
 		return true;
 
@@ -203,11 +202,15 @@ bool MetadataManager::rebuildMetadata()
 		res = b;
 	}, Qt::ConnectionType::QueuedConnection);
 
+	auto logger = GixGlobals::getLogManager();
+
+	logger->trace(LOG_METADATA, "Starting to rebuild metadata");
 	emit GixGlobals::getMetadataManager()->scanModulesBatch(module_srcs.values());
 
 	loop->exec();
 	
 	disconnect(c);
+	logger->trace(LOG_METADATA, "Finished rebuilding metadata");
 
 	return res;
 

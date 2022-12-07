@@ -1,6 +1,7 @@
 #include "ESQLConfiguration.h"
 #include "GixPreProcessor.h"
 #include "TPESQLProcessing.h"
+#include "TPSourceConsolidation.h"
 #include "BuildDriver.h"
 #include "PathUtils.h"
 #include "GixGlobals.h"
@@ -97,7 +98,10 @@ bool ESQLConfiguration::run(BuildDriver *build_driver, QString input_file, QStri
 	if (id == ESQLConfigurationType::GixExternal) {
 
 		if (opts.value("esql_preprocess_copy_files", false).toBool())
-			esql_opts.append("-p");
+			esql_opts.append("-p");		
+		
+		if (opts.value("esql_consolidate_source", false).toBool())
+			esql_opts.append("-c");
 
 		if (opts.value("esql_anon_params", false).toBool())
 			esql_opts.append("-a");
@@ -256,6 +260,7 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 {
 	GixPreProcessor gp;
 	bool opt_esql_preprocess_copy_files = opts["esql_preprocess_copy_files"].toBool();
+	bool opt_consolidate = opts["esql_consolidate_source"].toBool();
 	QString opt_params_style = opts["esql_params_style"].toString();
 
 	gp.verbose = isVerbose();
@@ -265,6 +270,9 @@ bool ESQLConfiguration::runGixSqlInternal(BuildDriver *build_driver, QString inp
 	cr.addCopyDir(GixGlobals::getGixCopyDir().toStdString());
 
 	gp.setCopyResolver(&cr);
+
+	if (opt_consolidate)
+		gp.addStep(new TPSourceConsolidation(&gp));
 
 	gp.setOpt("emit_debug_info", true);
 	gp.setOpt("emit_static_calls", true);

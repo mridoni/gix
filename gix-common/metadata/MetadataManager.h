@@ -46,7 +46,7 @@ public:
     bool addModuleMetadata(CobolModuleMetadata *cmm);
     bool existsMetadata(const QString& module_name);
     //bool rebuildMetadata(const QStringList &mod_src_list);
-    bool rebuildMetadata();
+    bool rebuildMetadata(QString module_name = QString());
 
     const QMap<QString, ProjectFile *> &getModulesSourceMap();
 
@@ -71,6 +71,6 @@ private:
 
     QMap<QString, ProjectFile *> module_srcs;
 
-    void get_module_sources();
+    void get_module_sources(QString module_name_filter = QString());
 };
 
