@@ -207,6 +207,7 @@ MainWindow::MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+	Ide::TaskManager()->setShuttingDown(true);
 	Ide::TaskManager()->setBackgroundTasksEnabled(false);
 
 	if (!Ide::TaskManager()->closeCurrentProjectCollection())

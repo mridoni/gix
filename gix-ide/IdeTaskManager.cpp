@@ -1081,6 +1081,17 @@ void IdeTaskManager::gotoFileLine(QString filename, int ln, bool move_caret_line
 	}
 }
 
+bool IdeTaskManager::isShuttingDown()
+{
+	return is_shutting_down;
+}
+
+void IdeTaskManager::setShuttingDown(bool b)
+{
+	is_shutting_down = b;
+}
+
+
 bool IdeTaskManager::backgroundTasksEnabled()
 {
 	return background_tasks_enabled;
@@ -1171,7 +1182,6 @@ void IdeTaskManager::dispatchBuildLogMessage(const QString& msg, spdlog::level::
 		auto entries = f.filter(msg, level);
 		if (entries.size()) {
 			error_window->addEntries(entries);
-			main_window->error_dock->raise();
 		}
 	}
 }

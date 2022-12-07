@@ -135,6 +135,9 @@ public:
 	bool backgroundTasksEnabled();
 	void setBackgroundTasksEnabled(bool b);
 
+	bool isShuttingDown();
+	void setShuttingDown(bool b);
+
 signals:
 	void IdeReady();
 	void IdeStatusChanged(IdeStatus);
@@ -180,8 +183,6 @@ private:
 	DebugManager *debug_manager;
 	QMap<QString, QVariant> current_project_collection_data;
 
-	//QQueue<LogBacklogEntry *> log_backlog;
-
 	void startLoadingMetadata(ProjectItem *pi);
 	MdiChild* openFileNoSignals(QString filename);
 
@@ -190,6 +191,7 @@ private:
 
 	int current_bookmark;
 	bool background_tasks_enabled;
+	bool is_shutting_down = false;
 
 	BuildTarget *current_debug_target = nullptr;
 
