@@ -30,6 +30,8 @@ env:
   WORKSPACE: ${{ github.workspace }}
   DIST_DIR: ${{ github.workspace }}\DIST
   EXE_7Z: C:/Program Files/7-Zip/7z.exe
+  VCRTVER: 14.34.31931
+  VCTOOLSVER: 143 
 
 permissions:
   contents: read
@@ -318,7 +320,6 @@ jobs:
     needs: [ gix-ide-windows-x64-msvc, gix-ide-windows-x86-msvc, gixsql-windows-x64-mingw, gixsql-windows-x86-mingw ]
     env:
       HOST_PLATFORM: x64      
-      INCLUDE_COMPILERS: 1
 
     runs-on: windows-latest
     steps:
@@ -371,6 +372,8 @@ jobs:
       shell: cmd
       working-directory: ${{ github.workspace }}
       run: |
+          FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
+          echo VSPATH: %VSPATH%      
           mkdir ${{ env.DIST_DIR }}\bin
           mkdir ${{ env.DIST_DIR }}\lib
           mkdir ${{ env.DIST_DIR }}\lib\x64\msvc
@@ -422,6 +425,11 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x64\gcc
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x64\gcc
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\gcc      
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin
           
     - name: Build installer package
       shell: cmd
@@ -447,7 +455,6 @@ jobs:
     needs: [ gix-ide-windows-x86-msvc,  gixsql-windows-x86-mingw ]
     env:
       HOST_PLATFORM: x86      
-      INCLUDE_COMPILERS: 1
 
     runs-on: windows-latest
     steps:
@@ -488,6 +495,8 @@ jobs:
       shell: cmd
       working-directory: ${{ github.workspace }}
       run: |
+          FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
+          echo VSPATH: %VSPATH%            
           mkdir ${{ env.DIST_DIR }}\bin
           mkdir ${{ env.DIST_DIR }}\lib
           mkdir ${{ env.DIST_DIR }}\lib\x86\msvc
@@ -522,6 +531,11 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc          
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin          
 
     - name: Build installer package
       shell: cmd

@@ -19,7 +19,7 @@
 AppName=Gix-IDE
 AppVersion={#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}
 AppCopyright=Marco Ridoni
-DefaultDirName={pf}\Gix-IDE
+DefaultDirName={autopf}\Gix-IDE
 OutputDir={#WORKSPACE}\deploy\installers\msvc-{#HOST_PLATFORM}
 OutputBaseFilename=Gix-IDE-{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}-installer
 ArchitecturesInstallIn64BitMode=x64
@@ -28,6 +28,7 @@ LicenseFile={#WORKSPACE}\GPL-3.0.txt
 RestartIfNeededByRun=False
 DisableWelcomePage=False
 SetupLogging=yes
+PrivilegesRequired=lowest
 
 [Files]
 ; main binaries
@@ -70,13 +71,13 @@ Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\msvc\*"; DestDir: "{app}\li
 Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
 
 [Run]
-Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x64)"
-Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x86)"
-Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated postinstall; Description: "Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Check: IsMSVCCompilerSelected
+;Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x64)"
+;Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x86)"
+Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated postinstall runascurrentuser shellexec; Description: "Intall Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Verb: "runas"; Check: IsMSVCCompilerSelected
 
 [Registry]
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "HomeDir"; ValueData: "{app}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DataDir"; ValueData: "{localappdata}\Gix"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "ReleaseCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey; Check: HasValidDefaultCompiler
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "DebugCompilerId"; ValueData: "{code:DefaultCompiler}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey; Check: HasValidDefaultCompiler
@@ -87,12 +88,12 @@ Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName:
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "treeview_font_name"; ValueData: "MS Shell Dlg 2"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "treeview_font_size"; ValueData: "9"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: dword; ValueName: "default_eol_mode"; ValueData: "0"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
-Root: "HKLM"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
-Root: "HKCR"; Subkey: ".gix"; ValueType: string; ValueData: "GixIdePrjColl"; Flags: createvalueifdoesntexist
-Root: "HKCR"; Subkey: "GixIdePrjColl\DefaultIcon"; ValueType: expandsz; ValueData: "{app}\bin\gix-ide.exe,1"; Flags: createvalueifdoesntexist deletekey
-Root: "HKCR"; Subkey: ".gixprj"; ValueType: string; ValueData: "GixIdePrj"; Flags: createvalueifdoesntexist deletekey
-Root: "HKCR"; Subkey: "GixIdePrj\DefaultIcon"; ValueType: expandsz; ValueData: "{app}\bin\gix-ide.exe,2"; Flags: createvalueifdoesntexist deletekey
+Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; Flags: uninsdeletekey
+Root: "HKA"; Subkey: "Software\Classes\.gix"; ValueType: string; ValueData: "GixIdePrjColl"; Flags: createvalueifdoesntexist
+Root: "HKA"; Subkey: "Software\Classes\GixIdePrjColl\DefaultIcon"; ValueType: expandsz; ValueData: "{app}\bin\gix-ide.exe,1"; Flags: createvalueifdoesntexist deletekey
+Root: "HKA"; Subkey: "Software\Classes\.gixprj"; ValueType: string; ValueData: "GixIdePrj"; Flags: createvalueifdoesntexist deletekey
+Root: "HKA"; Subkey: "Software\Classes\GixIdePrj\DefaultIcon"; ValueType: expandsz; ValueData: "{app}\bin\gix-ide.exe,2"; Flags: createvalueifdoesntexist deletekey
 
 [Dirs]
 Name: "{app}\bin"
@@ -133,7 +134,7 @@ function IsCompilerSelected(crow : String) : Boolean; forward;
 function ReadCompilerIndex(IndexFile: String) : Boolean; forward;
 function StrSplit(Text: String; Separator: String): TArrayOfString; forward;
 function ParseCompilerEntry(crow : String; var release_tag : String; var id : String; var version : String; var host : String;
-								var target : String; var linker : String; var description : String) : Boolean; forward;
+                                var target : String; var linker : String; var description : String) : Boolean; forward;
 
 function GetLastError: Cardinal;
   external 'GetLastError@kernel32.dll stdcall';                
@@ -165,10 +166,10 @@ end;
 procedure CurPageChanged(CurPageID: Integer);
 var
   i: Integer;
-	cbtmp : Integer;
-	crow : String;
+    cbtmp : Integer;
+    crow : String;
   is_checked : Boolean;
-	release_tag, id, version, host, target, linker, description : String;
+    release_tag, id, version, host, target, linker, description : String;
 begin
   if (CurPageID = wpFinished) and (IsMSVCCompilerSelected) and (WizardForm.RunList.Items.Count > 0) then
   begin
@@ -254,6 +255,7 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
   i, chk_count, cidx : Integer;
+  has_msvc: Boolean;
   crow, curl: String;
   release_tag, id, version, host, target, linker, description : String;
   Error: Cardinal;
@@ -284,7 +286,7 @@ begin
     DownloadPage.Clear;
     DownloadPage.Add('{#COMPILER_PKGS_INDEX}', 'compiler-pkgs.idx', '');
     DownloadPage.Show;
-	
+    
     try
       try
         DownloadPage.Download; // This downloads the files to {tmp}
@@ -300,8 +302,8 @@ begin
     finally
       DownloadPage.Hide;
     end;
-   end else	 
-	 Result := True;
+   end else     
+     Result := True;
 
    if CurPageID = ChooseCompilersPage.ID then
    begin
@@ -321,6 +323,7 @@ begin
           SetArrayLength(SelectedCompilers, GetArrayLength(SelectedCompilers) + 1);
           SelectedCompilers[chk_count] := crow;
           chk_count := chk_count + 1;
+          if linker = 'msvc' then has_msvc := True;
         end
         else
           Log(AvailableCompilers[cidx] + ': NOT selected');
@@ -329,26 +332,35 @@ begin
       if chk_count = 0 then
       begin
         if MsgBox('You have not selected any compiler to be installed. Are you sure?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
-        begin
-          Result := True;
-        end
+          Result := True
         else
           Result := False;
       end
       else
-        Result := True;
-
+      begin
+        if Not IsAdmin and has_msvc then
+        begin
+            if MsgBox('You have selected an MSVC-based compiler to be installed. This means that at the end of this install you will be prompted to install or upgrade the Visual Studio 2022 C++Build Tools, that require administrator privileges, which could not be available to you. Are you sure?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
+              Result := True
+            else
+              Result := False;        
+            end
+        else
+        begin
+          Result := True;
+        end;
+      end;
    end; 
    
   if CurPageID = wpReady then begin
     DownloadPage.Clear;
     
     DownloadPage.Add('{#P7ZIP}', '7zr.exe', '');
-    DownloadPage.Add('{#MSVC_RUNTIME_X86}', 'vc_redist.x86.exe', '');
-    if '{#HOST_PLATFORM}' = 'x64' then
-    begin
-      DownloadPage.Add('{#MSVC_RUNTIME_X64}', 'vc_redist.x64.exe', '');
-    end;
+    // DownloadPage.Add('{#MSVC_RUNTIME_X86}', 'vc_redist.x86.exe', '');
+    // if '{#HOST_PLATFORM}' = 'x64' then
+    // begin
+    //   DownloadPage.Add('{#MSVC_RUNTIME_X64}', 'vc_redist.x64.exe', '');
+    // end;
     
     if IsMSVCCompilerSelected then
     begin
@@ -372,27 +384,36 @@ begin
       try
         DownloadPage.Download; 
         // TODO: check signatures        
-		
-        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix') then 
-		begin
-		    Error := GetLastError;
-			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
-			RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix' );
-		end;		
         
-        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs') then 
-		begin
-		    Error := GetLastError;
-			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
-			RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs' );
-		end;
-		
-        If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-defs') then 
-		begin
-		    Error := GetLastError;
-			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
-			RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs' );
-		end;
+        If Not DirExists(ExpandConstant('{localappdata}') + '\Gix') then
+        begin
+            If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix') then 
+            begin
+              Error := GetLastError;
+                Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+                RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix' );
+            end;        
+        end;
+        
+        If Not DirExists(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs') then
+        begin
+            If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs') then 
+            begin
+                Error := GetLastError;
+                Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+                RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-pkgs' );
+            end;
+        end;
+            
+        If Not DirExists(ExpandConstant('{localappdata}') + '\Gix\compiler-defs') then
+        begin
+            If Not CreateDir(ExpandConstant('{localappdata}') + '\Gix\compiler-defs') then 
+            begin
+                Error := GetLastError;
+                Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+                RaiseException('Cannot create directory ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs' );
+            end;
+        end;
         
         for i := 0 to GetArrayLength(SelectedCompilers) -1 do
         begin
@@ -405,11 +426,11 @@ begin
           Log ('Copying ' + ExpandConstant('{tmp}') + '\' + id + '.def to ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def');
           DownloadPage.SetText('Installing definition file', 'Copying ' + ExpandConstant('{tmp}') + '\' + id + '.def to ' + ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def');
           if Not FileCopy(ExpandConstant('{tmp}') + '\' + id + '.def', ExpandConstant('{localappdata}') + '\Gix\compiler-defs\' + id + '.def', False) then 
-		  begin
-		    Error := GetLastError;
-			Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
-			RaiseException('Cannot copy compiler definition file');
-		  end;
+          begin
+            Error := GetLastError;
+            Log(Format('Failed with code %d (0x%x) - %s', [ Error, Error, SysErrorMessage(Error) ]));
+            RaiseException('Cannot copy compiler definition file');
+          end;
         end;
         
         Result := True;
@@ -425,43 +446,43 @@ begin
     end;
   end else
     Result := True;
-	
+    
 end;
 
 function ReadCompilerIndex(IndexFile: String) : Boolean;
 var
-	clist : TArrayOfString;
-	crow : String;
-	centry : TArrayOfString;
-	res : Boolean;
-	i, cidx : Integer;
-	release_tag, id, version, host, target, linker, description : String;
+    clist : TArrayOfString;
+    crow : String;
+    centry : TArrayOfString;
+    res : Boolean;
+    i, cidx : Integer;
+    release_tag, id, version, host, target, linker, description : String;
 begin
   Log('Index File: ' + IndexFile);
   CompilerListInitialized := False;
-	res := LoadStringsFromFile(IndexFile, clist);
-	if not Res Then 
-	begin
-		Result := False;
-		Exit;
-	end;
-	
+    res := LoadStringsFromFile(IndexFile, clist);
+    if not Res Then 
+    begin
+        Result := False;
+        Exit;
+    end;
+    
   for i := 0 to GetArrayLength(clist) - 1 do
   begin
     crow := clist[I];
-	if not ParseCompilerEntry(crow, release_tag, id, version, host, target, linker, description) then continue;
-	
-	if (host <> '{#HOST_PLATFORM}') then continue;
-	
-	cidx := GetArrayLength(AvailableCompilers);
-	SetArrayLength(AvailableCompilers, cidx + 1);
-	AvailableCompilers[cidx] := crow;
+    if not ParseCompilerEntry(crow, release_tag, id, version, host, target, linker, description) then continue;
+    
+    if (host <> '{#HOST_PLATFORM}') then continue;
+    
+    cidx := GetArrayLength(AvailableCompilers);
+    SetArrayLength(AvailableCompilers, cidx + 1);
+    AvailableCompilers[cidx] := crow;
   Log ('Adding compiler: ' + id);
-	cidx := cidx + 1;
+    cidx := cidx + 1;
   end;
-	
+    
   CompilerListInitialized := True;
-	Result := True;
+    Result := True;
 end;
 
 function StrSplit(Text: String; Separator: String): TArrayOfString;
@@ -486,33 +507,33 @@ begin
 end;
 
 function ParseCompilerEntry(crow : String; var release_tag : String; var id : String; var version : String; var host : String;
-								var target : String; var linker : String; var description : String) : Boolean;
+                                var target : String; var linker : String; var description : String) : Boolean;
 var
-	centry : TArrayOfString;
+    centry : TArrayOfString;
 begin
-	centry := StrSplit(crow, ';');
-	if GetArrayLength(centry) <> 7 then 
-	begin
-		Result := False;
-		Exit;
-	end;
-	
-	release_tag := centry[0];
-	id := centry[1];
-	version := centry[2];
-	host := centry[3];
-	target := centry[4];
-	linker := centry[5];
-	description := centry[6];
-	
-	Result := True;
-end;								
+    centry := StrSplit(crow, ';');
+    if GetArrayLength(centry) <> 7 then 
+    begin
+        Result := False;
+        Exit;
+    end;
+    
+    release_tag := centry[0];
+    id := centry[1];
+    version := centry[2];
+    host := centry[3];
+    target := centry[4];
+    linker := centry[5];
+    description := centry[6];
+    
+    Result := True;
+end;                                
 
 function IsMSVCCompilerSelected : Boolean;
 var
-	crow : String;
-	i: Integer;
-	release_tag, id, version, host, target, linker, description : String;
+    crow : String;
+    i: Integer;
+    release_tag, id, version, host, target, linker, description : String;
 begin
   for i := 0 to GetArrayLength(SelectedCompilers) - 1 do
   begin
@@ -529,7 +550,7 @@ end;
 
 function IsCompilerSelected(crow : String) : Boolean;
 var
-	i: Integer;
+    i: Integer;
 begin
   for i := 0 to GetArrayLength(SelectedCompilers) - 1 do
   begin   
@@ -544,7 +565,7 @@ end;
 
 function HasValidDefaultCompiler : Boolean;
 var
-	i: Integer;
+    i: Integer;
 begin
 
   if DefaultCompilerId <> '' then

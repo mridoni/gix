@@ -7,18 +7,18 @@ set DIST_DIR=%TEMP%\gix-dist
 set INCLUDE_COMPILERS=0
 set HOST_PLATFORM=x64
 set MSBUILD_PLATFORM=x64
-set WORKSPACE=C:\Users\%USERNAME%\source\repos\gix-ide@github-main
+set WORKSPACE=C:\Users\%USERNAME%\source\repos\gix-ide-noadmin-installer
 set QTDIR=C:\Qt\5.14.2\msvc2017_64
 set MSVC_BUILD_TOOLS=https://aka.ms/vs/17/release/vs_BuildTools.exe
 set MSVC_RUNTIME_X86=https://aka.ms/vs/17/release/vc_redist.x86.exe
 set MSVC_RUNTIME_X64=https://aka.ms/vs/17/release/vc_redist.x64.exe
 set GIXIDEMAJ=1
 set GIXIDEMIN=1
-set GIXIDEREL=0dev1
-set GIX_REVISION=1922
+set GIXIDEREL=1
+set GIX_REVISION=9999
 set GIXSQLMAJ=1
 set GIXSQLMIN=0
-set GIXSQLREL=18b
+set GIXSQLREL=19
 set DEFAULT_VS_COMPILER=
 set DEFAULT_GCC_COMPILER=
 
@@ -77,3 +77,5 @@ copy %GIX_IDE_X64_BIN_DIR%\libgixsql-sqlite.dll %DIST_DIR%\lib\x64\msvc
 :: copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-pgsql.dll %DIST_DIR%\lib\x64\gcc
 :: copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-oracle.dll %DIST_DIR%\lib\x64\gcc
 :: copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll %DIST_DIR%\lib\x64\gcc      
+
+echo "C:\Program Files (x86)\Inno Script Studio\ISStudio.exe"
