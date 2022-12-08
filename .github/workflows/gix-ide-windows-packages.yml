@@ -430,6 +430,16 @@ jobs:
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\lib\x64\msvc         
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\lib\x86\msvc              
           
     - name: Build installer package
       shell: cmd
@@ -536,6 +546,11 @@ jobs:
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin          
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\lib\x86\msvc                
 
     - name: Build installer package
       shell: cmd
