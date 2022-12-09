@@ -33,6 +33,7 @@ public:
 	IdeLogManager();
 
 	void registerLogSource(int source, std::shared_ptr<spdlog::logger> l);
+	std::shared_ptr<spdlog::logger> getLogger(int source);
 
 private:
 

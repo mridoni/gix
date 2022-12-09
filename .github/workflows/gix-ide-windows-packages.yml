@@ -373,7 +373,8 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: |
           FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
-          echo VSPATH: %VSPATH%      
+          mkdir ${{ github.workspace }}\redist\msvc\x86
+          mkdir ${{ github.workspace }}\redist\msvc\x64
           mkdir ${{ env.DIST_DIR }}\bin
           mkdir ${{ env.DIST_DIR }}\lib
           mkdir ${{ env.DIST_DIR }}\lib\x64\msvc
@@ -430,16 +431,17 @@ jobs:
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\lib\x64\msvc         
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\lib\x86\msvc              
+          copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x64\dbghelp.dll" ${{ env.DIST_DIR }}\bin
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x64
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x64
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x64
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x64
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x64       
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x86             
           
     - name: Build installer package
       shell: cmd
@@ -506,7 +508,7 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: |
           FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
-          echo VSPATH: %VSPATH%            
+          mkdir ${{ github.workspace }}\redist\msvc\x86
           mkdir ${{ env.DIST_DIR }}\bin
           mkdir ${{ env.DIST_DIR }}\lib
           mkdir ${{ env.DIST_DIR }}\lib\x86\msvc
@@ -545,12 +547,13 @@ jobs:
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin          
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-#          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\lib\x86\msvc                
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin       
+          copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x86\dbghelp.dll" ${{ env.DIST_DIR }}\bin       
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x86
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x86               
 
     - name: Build installer package
       shell: cmd

@@ -100,7 +100,7 @@ protected:
 
 private:
 
-	IGixLogManager* logger = nullptr;
+	IGixLogManager* driver_logger = nullptr;
 
 	virtual bool dbgr_client_getBreakpoints(GixDebugger*, std::vector<std::pair<std::string, int>>&) override;
 	virtual bool dbgr_client_debuggerBreak(GixDebugger* gd, std::string module_name, std::string source_file, int line)  override;

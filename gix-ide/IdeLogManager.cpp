@@ -38,6 +38,11 @@ void IdeLogManager::registerLogSource(int source, std::shared_ptr<spdlog::logger
 	handleBackLog(source);
 }
 
+std::shared_ptr<spdlog::logger> IdeLogManager::getLogger(int source)
+{
+	return get_logger(source);
+}
+
 
 std::shared_ptr<spdlog::logger> IdeLogManager::get_logger(int source)
 {

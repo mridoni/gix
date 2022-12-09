@@ -33,6 +33,12 @@ PrivilegesRequired=lowest
 [Files]
 ; main binaries
 Source: "{#DIST_DIR}\*"; DestDir: "{app}"; Flags: ignoreversion createallsubdirs recursesubdirs
+#if "x64" == HOST_PLATFORM
+Source: "{#WORKSPACE}\redist\msvc\x64\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
+Source: "{#WORKSPACE}\redist\msvc\x64\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
+#endif
+Source: "{#WORKSPACE}\redist\msvc\x86\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
+Source: "{#WORKSPACE}\redist\msvc\x86\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
 
 ; COPY files
 Source: "{#WORKSPACE}\gixsql\copy\SQLCA.cpy"; DestDir: "{app}\lib\copy"; Flags: ignoreversion createallsubdirs recursesubdirs
@@ -71,8 +77,10 @@ Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\msvc\*"; DestDir: "{app}\li
 Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
 
 [Run]
-;Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x64)"
-;Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x86)"
+#if "x64" == HOST_PLATFORM
+Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated runascurrentuser shellexec skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x64)"; Verb: "runas"; Check: UseDownloadedMSVCRT
+#endif
+Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated runascurrentuser shellexec skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x86)"; Verb: "runas"; Check: UseDownloadedMSVCRT
 Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated postinstall runascurrentuser shellexec; Description: "Intall Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Verb: "runas"; Check: IsMSVCCompilerSelected
 
 [Registry]
@@ -116,7 +124,11 @@ Name: "{userdesktop}\Gix-IDE"; Filename: "{app}\bin\gix-ide.exe"; WorkingDir: "{
 [Code]
 
 #include "7zip.iss.inc"
-
+const
+  MSVCRT_LOCAL = 0;
+  MSVCRT_DOWNLOAD = 1;
+  MSVCRT_NOINSTALL = 2;
+  
 var
   DownloadPage: TDownloadWizardPage;
   AvailableCompilers: TArrayOfString;
@@ -125,9 +137,12 @@ var
   CompilerListInitialized : Boolean;
   ChooseCompilersPage: TWizardPage;
   DefaultCompilerPage: TInputOptionWizardPage;
+  MsvcRtOptPage: TInputOptionWizardPage;
   DefaultCompilerId: String;
-  CheckListBox: TNewCheckListBox;
+  ChooseCompCheckListBox: TNewCheckListBox;
+  MsvcRtOptCheckListBox: TNewCheckListBox;
   cbGCC, cbMSVC : Integer;
+  optMsvcRuntime : Integer;
   
 function IsMSVCCompilerSelected : Boolean; forward;
 function IsCompilerSelected(crow : String) : Boolean; forward;
@@ -151,16 +166,28 @@ begin
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
   
   ChooseCompilersPage := CreateCustomPage(wpLicense, 'Choose the compilers you want to install (if any)', 'You can select one or more of the available compilers');
-  CheckListBox := TNewCheckListBox.Create(ChooseCompilersPage);
-  CheckListBox.Width := ChooseCompilersPage.SurfaceWidth;
-  CheckListBox.Height := ScaleY(150);
-  CheckListBox.Flat := True;
-  CheckListBox.Parent := ChooseCompilersPage.Surface; 
-
+ 
   DefaultCompilerPage := CreateInputOptionPage(ChooseCompilersPage.ID,
     'Default compiler', 'Choose a default compiler',
     'Please choose the default GnuCOBOL that will be used by Gix-IDE. This can be changed later in the Settings menu',
+    True, True); 
+  
+  MsvcRtOptPage := CreateInputOptionPage(DefaultCompilerPage.ID, 
+    'VC++ runtime', 'Choose how you want to install the Microsoft VC++ runtime', 
+    'The Microsoft VC++ runtime is needed for Gix-IDE and for the runtime libraries of GixSQL. You can choose how you want to perform the install.',
     True, True);
+  
+  ChooseCompCheckListBox := TNewCheckListBox.Create(ChooseCompilersPage);
+  ChooseCompCheckListBox.Width := ChooseCompilersPage.SurfaceWidth;
+  ChooseCompCheckListBox.Height := ScaleY(150);
+  ChooseCompCheckListBox.Flat := True;
+  ChooseCompCheckListBox.Parent := ChooseCompilersPage.Surface; 
+
+  MsvcRtOptPage.Add('Use the embedded version and install for Gix-IDE/GixSQL only');
+  MsvcRtOptPage.Add('Download and install for all applications (requires administrative rights)');
+  MsvcRtOptPage.Add('Do not install');
+  MsvcRtOptPage.Values[0] := True;
+ 
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
@@ -188,10 +215,10 @@ begin
   end;
   
   if CurPageID = ChooseCompilersPage.ID then
-    begin
+  begin
     
-    CheckListBox.Items.Clear;
-    cbMSVC := CheckListBox.AddCheckBox('GnuCOBOL - Linker type: MSVC', '', 0, False, True, False, True, nil);
+    ChooseCompCheckListBox.Items.Clear;
+    cbMSVC := ChooseCompCheckListBox.AddCheckBox('GnuCOBOL - Linker type: MSVC', '', 0, False, True, False, True, nil);
     for i := 0 to GetArrayLength(AvailableCompilers) - 1 do 
     begin
       crow := AvailableCompilers[i];
@@ -199,11 +226,11 @@ begin
       if linker <> 'msvc' then continue;
       
       is_checked := IsCompilerSelected(crow);
-      cbtmp := CheckListBox.AddCheckBox(description, '', 1, is_checked, True, False, True, TObject(i));
+      cbtmp := ChooseCompCheckListBox.AddCheckBox(description, '', 1, is_checked, True, False, True, TObject(i));
       Log('Adding compiler: ' + description);
     end;  
         
-    cbGCC := CheckListBox.AddCheckBox('GnuCOBOL - Linker type: GCC/MinGW', '', 0, False, True, False, True, nil);    
+    cbGCC := ChooseCompCheckListBox.AddCheckBox('GnuCOBOL - Linker type: GCC/MinGW', '', 0, False, True, False, True, nil);    
     for i := 0 to GetArrayLength(AvailableCompilers) - 1 do 
     begin
       crow := AvailableCompilers[i];
@@ -211,10 +238,11 @@ begin
       if linker <> 'gcc' then continue;
 
       is_checked := IsCompilerSelected(crow);      
-      cbtmp := CheckListBox.AddCheckBox(description, '', 1, is_checked, True, False, True, TObject(i));
+      cbtmp := ChooseCompCheckListBox.AddCheckBox(description, '', 1, is_checked, True, False, True, TObject(i));
       Log('Adding compiler: ' + description);
     end;  
   end;
+    
 end;
 
 function DefaultCompiler(Param: string) : String;
@@ -309,12 +337,12 @@ begin
    begin
       chk_count := 0;
       SetArrayLength(SelectedCompilers, 0);
-      for i := 0 to CheckListBox.Items.Count - 1 do
+      for i := 0 to ChooseCompCheckListBox.Items.Count - 1 do
       begin
-        if CheckListBox.ItemLevel[i] <> 1 then continue;
+        if ChooseCompCheckListBox.ItemLevel[i] <> 1 then continue;
         
-        cidx := Integer(CheckListBox.ItemObject[i]);
-        if CheckListBox.Checked[i] then
+        cidx := Integer(ChooseCompCheckListBox.ItemObject[i]);
+        if ChooseCompCheckListBox.Checked[i] then
         begin
           crow := AvailableCompilers[cidx];
           if not ParseCompilerEntry(crow, release_tag, id, version, host, target, linker, description) then continue;
@@ -340,7 +368,7 @@ begin
       begin
         if Not IsAdmin and has_msvc then
         begin
-            if MsgBox('You have selected an MSVC-based compiler to be installed. This means that at the end of this install you will be prompted to install or upgrade the Visual Studio 2022 C++Build Tools, that require administrator privileges, which could not be available to you. Are you sure?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
+            if MsgBox('You have selected an MSVC-based compiler to be installed. This means that at the end of this install you will be prompted to install or upgrade the Visual Studio 2022 C++Build Tools, that require administrator privileges, which might not be available to you. Are you sure?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
               Result := True
             else
               Result := False;        
@@ -356,11 +384,14 @@ begin
     DownloadPage.Clear;
     
     DownloadPage.Add('{#P7ZIP}', '7zr.exe', '');
-    // DownloadPage.Add('{#MSVC_RUNTIME_X86}', 'vc_redist.x86.exe', '');
-    // if '{#HOST_PLATFORM}' = 'x64' then
-    // begin
-    //   DownloadPage.Add('{#MSVC_RUNTIME_X64}', 'vc_redist.x64.exe', '');
-    // end;
+    if optMsvcRuntime = MSVCRT_DOWNLOAD then
+    begin
+        DownloadPage.Add('{#MSVC_RUNTIME_X86}', 'vc_redist.x86.exe', '');
+        if '{#HOST_PLATFORM}' = 'x64' then
+        begin
+        DownloadPage.Add('{#MSVC_RUNTIME_X64}', 'vc_redist.x64.exe', '');
+        end;
+    end;
     
     if IsMSVCCompilerSelected then
     begin
@@ -444,9 +475,19 @@ begin
     finally
       DownloadPage.Hide;
     end;
-  end else
-    Result := True;
-    
+  end;
+  
+  if CurPageID = MsvcRtOptPage.ID then
+  begin
+    optMsvcRuntime := MsvcRtOptPage.SelectedValueIndex;
+    Log('MSVCRT install option: ' + IntToStr(optMsvcRuntime));
+  end;
+  
+  
+  if (Result) then
+    Log('NextButtonClick (CurPageID: ' + IntToStr(CurPageID) + ', Result is True')
+  else
+    Log('NextButtonClick (CurPageID: ' + IntToStr(CurPageID) + ', Result is False')
 end;
 
 function ReadCompilerIndex(IndexFile: String) : Boolean;
@@ -574,4 +615,15 @@ begin
     Exit;
   end;
   Result := False;
+end;
+
+function UseDownloadedMSVCRT : Boolean;
+begin
+  Result := optMsvcRuntime = MSVCRT_DOWNLOAD;
+end;
+
+function UseLocalMSVCRT : Boolean;
+begin
+  // Visual Studio Build Tools will install the VC++ runtime anyway
+  Result := (optMsvcRuntime = MSVCRT_LOCAL) and not IsMSVCCompilerSelected;
 end;

@@ -35,3 +35,8 @@ void IDebugDriver::setSessionConfiguration(GixDebuggerSessionConfig* cfg)
 {
 	debug_session_config = cfg;
 }
+
+void IDebugDriver::setLogger(std::shared_ptr<spdlog::logger> l)
+{
+	logger = l;
+}

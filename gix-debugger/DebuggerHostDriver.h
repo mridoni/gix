@@ -53,13 +53,6 @@ public:
 	void setSessionConfiguration(GixDebuggerSessionConfig* cfg);
 	GixDebugger* getDebuggerInstance();
 
-	//virtual bool stop();
-	//virtual std::string getLastResponse();
-	//virtual void write(std::string);
-	//virtual void writeToProcess(std::string);
-	//virtual bool isStarted();
-	//virtual bool getVariables(const std::vector<std::string>& var_names, std::map<std::string, struct VariableDisplayData>& var_data_req);
-
 	// Debugger client interface (debugger messages are handled by a specialized spdlog sink)
 	bool dbgr_client_getBreakpoints(GixDebugger*, std::vector<std::pair<std::string, int>>&);
 	bool dbgr_client_debuggerBreak(GixDebugger* gd, std::string module_name, std::string source_file, int line);

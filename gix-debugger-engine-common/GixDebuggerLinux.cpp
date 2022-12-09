@@ -87,6 +87,10 @@ int GixDebuggerLinux::start()
 {
     dbgr_instance = this;
 
+    if (logger.get() == nullptr) {
+        logger = spdlog::default_logger;
+    }
+
     LinuxProcessRunner process(this);
     std::string strEventMessage;
 
@@ -112,7 +116,7 @@ int GixDebuggerLinux::start()
     // There is no "external console" on Linux
     use_external_console = false;
 
-    spdlog::trace("Setting up console");
+    logger->trace("Setting up console");
     if (!use_external_console) {
         srand(time(0));
         int t = rand();
@@ -120,7 +124,7 @@ int GixDebuggerLinux::start()
         
         outname = path_combine({ path_get_temp_path(), "gix_t_out_" + std::to_string(t) });
         if (mkfifo(outname.c_str(), 0666)) {
-            spdlog::error("cannot create output pipe");
+            logger->error("cannot create output pipe");
             return false;
         }
         fd_out = open(outname.c_str(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
@@ -128,7 +132,7 @@ int GixDebuggerLinux::start()
 
         errname = path_combine({ path_get_temp_path(), "gix_t_err_" + std::to_string(t) });
         if (mkfifo(errname.c_str(), 0666)) {
-            spdlog::error("cannot create error pipe");
+            logger->error("cannot create error pipe");
             return false;
         }
         fd_err = open(errname.c_str(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
@@ -136,7 +140,7 @@ int GixDebuggerLinux::start()
 
         inname = path_combine({ path_get_temp_path(), "gix_t_in_" + std::to_string(t) });
         if (mkfifo(inname.c_str(), 0666)) {
-            spdlog::error("cannot create input pipe");
+            logger->error("cannot create input pipe");
             return false;
         }
         fd_in = open(inname.c_str(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
@@ -170,7 +174,7 @@ int GixDebuggerLinux::start()
     }
 
     uint64_t pid;
-    spdlog::trace("Starting process");
+    logger->trace("Starting process");
     
     if (is_debugging_enabled()) {
         auto fd = open(this->exepath.c_str(), O_RDONLY);
@@ -179,8 +183,8 @@ int GixDebuggerLinux::start()
         sym_provider = new DwarfSymbolProvider();
         sym_provider->initialize(this, NULL, NULL);
     
-        spdlog::trace("Symbols loaded");
-        spdlog::trace("Symbols loaded");
+        logger->trace("Symbols loaded");
+        logger->trace("Symbols loaded");
     }
     
     if (process.start(&pid)) {
@@ -194,13 +198,13 @@ int GixDebuggerLinux::start()
 
 #if GIX_DBGR_USES_DOUBLEFORK
         if (ptrace(PTRACE_ATTACH, m_pid, NULL, NULL) < 0) {
-            spdlog::trace("Trace error: {}", strerror(errno));
+            logger->trace("Trace error: {}", strerror(errno));
             debug_driver->dbgr_client_debuggerError(this, 1, "Cannot attach to process");
             return 1;
         }
 #endif
 
-        spdlog::trace("Process started ({})", m_pid);
+        logger->trace("Process started ({})", m_pid);
 
         if (is_debugging_enabled()) {
 
@@ -212,7 +216,7 @@ int GixDebuggerLinux::start()
 //                void *hSymbols = sym_provider->loadSymbols(this, (void *)m_pid, (void *)m_load_address, exepath, NULL, &err);
 
 //                if (!processImage((void *)m_load_address, hSymbols, exepath)) {
-//                    spdlog::trace("Error loading image information for: %s", exepath.c_str());
+//                    logger->trace("Error loading image information for: %s", exepath.c_str());
 //                }
 //            }
         }
@@ -229,7 +233,7 @@ int GixDebuggerLinux::start()
         }
     }
     else {
-        spdlog::trace("Cannot start process");
+        logger->trace("Cannot start process");
         debug_driver->dbgr_client_debuggerError(this, 1, "Cannot start process");
         printLastError();
         deinit_console();
@@ -239,14 +243,14 @@ int GixDebuggerLinux::start()
 
     deinit_console();
 
-    spdlog::trace("GixDebuggerLinux is exiting");
+    logger->trace("GixDebuggerLinux is exiting");
 
     return 0;
 }
 
 int GixDebuggerLinux::stop()
 {
-    spdlog::trace("Stop requested");
+    logger->trace("Stop requested");
     if (!kill(m_pid, 0)) {
         exit_code = 0xDEAD;
         kill(m_pid, SIGKILL);
@@ -257,7 +261,7 @@ int GixDebuggerLinux::stop()
 
 bool GixDebuggerLinux::step()
 {
-    spdlog::trace("step invoked");
+    logger->trace("step invoked");
     single_step = true;
     debug_driver->releaseWaitLock();
     return true;
@@ -265,7 +269,7 @@ bool GixDebuggerLinux::step()
 
 bool GixDebuggerLinux::continue_running()
 {
-    spdlog::trace("continue_running invoked");
+    logger->trace("continue_running invoked");
     single_step = false;
     debug_driver->releaseWaitLock();
     return true;
@@ -275,7 +279,7 @@ bool GixDebuggerLinux::continue_running()
 void GixDebuggerLinux::deinit_console()
 {
     if (!use_external_console) {
-        spdlog::trace("Stopping reader threads");
+        logger->trace("Stopping reader threads");
 
         stopReaderThreads();
         
@@ -284,7 +288,7 @@ void GixDebuggerLinux::deinit_console()
 
         unlink(outname.c_str());
         unlink(errname.c_str());
-        spdlog::trace("Reader threads stopped");
+        logger->trace("Reader threads stopped");
     }
 }
 
@@ -298,7 +302,7 @@ bool GixDebuggerLinux::getVariables(const std::vector<std::string>& var_names, s
         return true;
 
     for (std::string var_name : var_names) {
-        spdlog::trace("GixDebuggerWin is trying to resolve variable [{}]", var_name);
+        logger->trace("GixDebuggerWin is trying to resolve variable [{}]", var_name);
 
         // Resolve COBOL variable name to a local symbol in the current stack frame + offset
         if (map_contains(current_cbl_module->locals, var_name)) {
@@ -321,7 +325,7 @@ bool GixDebuggerLinux::getVariables(const std::vector<std::string>& var_names, s
                 }
 
                 if (!this->buildVariableDisplayData(vd, raw_data)) {
-					spdlog::warn("Cannot build displayable data for variable {}", var_name);
+					logger->warn("Cannot build displayable data for variable {}", var_name);
 				}
 
 				var_list[vd.var_name] = vd;
@@ -345,9 +349,9 @@ std::string GixDebuggerLinux::getCurrentCobolModuleName()
 void GixDebuggerLinux::printLastError()
 {
     if (!errno)
-        spdlog::trace("No error");
+        logger->trace("No error");
     else
-        spdlog::trace("Error ({}): {}", errno, strerror(errno));
+        logger->trace("Error ({}): {}", errno, strerror(errno));
 }
 
 bool GixDebuggerLinux::readProcessMemory(void *src_addr, void *dest_addr, int sz)
@@ -355,7 +359,7 @@ bool GixDebuggerLinux::readProcessMemory(void *src_addr, void *dest_addr, int sz
     iovec local_iov{ dest_addr, (unsigned long)sz };
     iovec remote_iov{ src_addr, (unsigned long)sz };
     if (process_vm_readv(m_pid, &local_iov, 1, &remote_iov, 1, 0) < 0) {
-        spdlog::trace("Cannot read memory: ({}) {}", errno, strerror(errno));
+        logger->trace("Cannot read memory: ({}) {}", errno, strerror(errno));
         return false;
     }
 
@@ -410,7 +414,7 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
             m_entry_breakpoint->uninstall();
             uint64_t new_addr = get_pc() - 1;
             set_pc(new_addr);
-            spdlog::trace("Updated libraries, removed entry_breakpoint, moving PC to {:x}", new_addr);
+            logger->trace("Updated libraries, removed entry_breakpoint, moving PC to {:x}", new_addr);
             return;
         }
     }
@@ -420,12 +424,12 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
         case SI_KERNEL:
         case TRAP_BRKPT:
         {
-            spdlog::trace("(2) Received TRAP_BRKPT");
+            logger->trace("(2) Received TRAP_BRKPT");
 
             is_ld_single_stepping = false;
 
             if (get_pc() == ((uint64_t)m_linker_breakpoint->address) + 1) {
-                spdlog::trace("Reached breakpoint at runtime linker ({})", m_linker_breakpoint->address);
+                logger->trace("Reached breakpoint at runtime linker ({})", m_linker_breakpoint->address);
                 update_libraries();
 
                 set_pc(get_pc() - 1);
@@ -438,7 +442,7 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
                 return;
             }
 
-            spdlog::trace("Hit breakpoint at address {}", get_pc());
+            logger->trace("Hit breakpoint at address {}", get_pc());
 
             bool is_cbl_entry_point = isCblEntryPoint((void *)(get_pc() - 1), &current_cbl_module);
 
@@ -446,11 +450,11 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
 
             UserBreakpoint *bp = findBreakpointByAddress((void *)(get_pc() - 1));
             if (!bp) {	// This will probably lead to a crash
-                spdlog::trace("Breakpoint not found");
+                logger->trace("Breakpoint not found");
                 break;
             }
 
-            spdlog::trace("Breakpoint is at (source): {}@{}", bp->line, bp->source_file.c_str());
+            logger->trace("Breakpoint is at (source): {}@{}", bp->line, bp->source_file.c_str());
 
             set_pc(get_pc() - 1);
             bp->uninstall();
@@ -468,12 +472,12 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
         //this will be set if the signal was sent by single stepping
         case TRAP_TRACE:
         {
-            spdlog::trace("Single stepped here ({:x})", get_pc());
+            logger->trace("Single stepped here ({:x})", get_pc());
 
             is_on_break = true;
 
             if (is_ld_single_stepping) {
-                spdlog::trace("Reinstalling breakpoint at runtime linker ({})", m_linker_breakpoint->address);
+                logger->trace("Reinstalling breakpoint at runtime linker ({})", m_linker_breakpoint->address);
                 m_linker_breakpoint->install();
                 is_on_break = false;
                 is_ld_single_stepping = false;
@@ -486,14 +490,14 @@ void GixDebuggerLinux::handle_sigtrap(siginfo_t info)
 
 
                 if (!last_bkp->automatic || single_step) {
-                    spdlog::trace("User breakpoint: must be processed");
+                    logger->trace("User breakpoint: must be processed");
                     if (this->source_lines_by_addr.find(last_bkp->address) != source_lines_by_addr.end()) {
                         SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
-                        spdlog::trace("Found breakpoint at 0x{} ({}:{})", last_bkp->address, sli->source_file, sli->line);
+                        logger->trace("Found breakpoint at 0x{} ({}:{})", last_bkp->address, sli->source_file, sli->line);
                         debug_driver->dbgr_client_debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
                     }
                     else {
-                        spdlog::trace("Cannot find SourceLineInfo record");
+                        logger->trace("Cannot find SourceLineInfo record");
                     }
                 }
             }
@@ -532,7 +536,7 @@ void GixDebuggerLinux::initialise_load_address()
         std::string addr;
         std::getline(map, addr, '-');
         m_load_address = strtoull(addr.c_str(), nullptr, 16);
-        spdlog::trace("Load address for PID {}: {:x} (raw: {})", m_pid, m_load_address, addr);
+        logger->trace("Load address for PID {}: {:x} (raw: {})", m_pid, m_load_address, addr);
     }
 }
 
@@ -549,23 +553,23 @@ bool GixDebuggerLinux::wait_for_signal()
     int wait_status;
     auto options = 0;
 
-    spdlog::trace("Waiting for signal");
+    logger->trace("Waiting for signal");
 
     waitpid(m_pid, &wait_status, options);
 
-    spdlog::trace("Got signal: {}", wait_status);
+    logger->trace("Got signal: {}", wait_status);
 
 //    if (WIFSTOPPED(wait_status))
 //        kill(m_pid, SIGSTOP);  /* Signal entire child process to stop */
 
     if (WIFEXITED(wait_status) || WIFSIGNALED(wait_status)) {
-        spdlog::trace("Process exited");
+        logger->trace("Process exited");
 
         if (WIFEXITED(wait_status))
             exit_code = WEXITSTATUS(wait_status);
 
         debug_driver->dbgr_client_debuggerProcessExit(this, exit_code, exepath);
-        spdlog::trace(":: EXIT CODE: {}", exit_code);
+        logger->trace(":: EXIT CODE: {}", exit_code);
 
         return false;
     }
@@ -579,8 +583,8 @@ bool GixDebuggerLinux::wait_for_signal()
     if (is_debugging_enabled() && !__breakpoint_0_hit && siginfo.si_signo == SIGTRAP) {
 #endif
 
-        spdlog::trace("Got signal {} ({})", siginfo.si_signo), strsignal(siginfo.si_signo);
-        spdlog::trace("Breakpoint 0 hit");
+        logger->trace("Got signal {} ({})", siginfo.si_signo), strsignal(siginfo.si_signo);
+        logger->trace("Breakpoint 0 hit");
 
         initialise_load_address();
 
@@ -597,7 +601,7 @@ bool GixDebuggerLinux::wait_for_signal()
             void *hSymbols = sym_provider->loadSymbols(this, (void *)m_pid, (void *)m_load_address, exepath, NULL, &err);
 
             if (!processImage((void *)m_load_address, hSymbols, exepath)) {
-                spdlog::trace("Error loading image information for: {}", exepath);
+                logger->trace("Error loading image information for: {}", exepath);
             }
         }
 
@@ -607,7 +611,7 @@ bool GixDebuggerLinux::wait_for_signal()
 
         resolve_rendezvous();
 
-        spdlog::trace("Breakpoint 0 processing finished");
+        logger->trace("Breakpoint 0 processing finished");
         return true;
     }
 
@@ -634,17 +638,17 @@ void GixDebuggerLinux::stopReaderThreads()
     usleep(500 * 1000);
     
     if (threadDataOut.is_running) {
-        spdlog::warn("stdout reader thread is still running, should have terminated");
+        logger->warn("stdout reader thread is still running, should have terminated");
     }
 
     if (threadDataErr.is_running) {
-        spdlog::warn("stderr reader thread is still running, should have terminated");
+        logger->warn("stderr reader thread is still running, should have terminated");
     }
 }
 
 void GixDebuggerLinux::resolve_rendezvous()
 {
-    spdlog::trace("Resolving rendezvous address");
+    logger->trace("Resolving rendezvous address");
 
     // Rendezvous address is found in the .dynamic section
     auto dyn_section = m_elf.get_section(".dynamic");
@@ -671,7 +675,7 @@ void GixDebuggerLinux::resolve_rendezvous()
             m_linker_breakpoint->address = (void *)rendezvous.r_brk;
             m_linker_breakpoint->automatic = true;
 
-            spdlog::trace("Linker breakpoint (rendezvous) address is {:x}", m_linker_breakpoint->address);
+            logger->trace("Linker breakpoint (rendezvous) address is {:x}", m_linker_breakpoint->address);
 
             m_linker_breakpoint->install();
 
@@ -681,7 +685,7 @@ void GixDebuggerLinux::resolve_rendezvous()
         val = read_word(addr);
 
     }
-    spdlog::trace("ERROR: Could not resolve rendezvous structure");
+    logger->trace("ERROR: Could not resolve rendezvous structure");
 
 }
 
@@ -692,7 +696,7 @@ T GixDebuggerLinux::read_from_inferior(addr_t &addr)
     iovec local_iov{ &t, sizeof(T) };
     iovec remote_iov{ (void *)addr, sizeof(T) };
     if (process_vm_readv(m_pid, &local_iov, 1, &remote_iov, 1, 0) < 0) {
-        //spdlog::trace("Cannot read memory: (%d) %s", errno, strerror(errno));
+        //logger->trace("Cannot read memory: (%d) %s", errno, strerror(errno));
     }
     addr += sizeof(T);
     return t;
@@ -737,7 +741,7 @@ void GixDebuggerLinux::handleLibraryLoaded(std::string lib_path, void *lib_addr)
     void *hSymbols = sym_provider->loadSymbols(this, (void *)m_pid, lib_addr, lib_path, NULL, &err);
 
     if (!processImage(lib_addr, hSymbols, lib_path)) {
-        spdlog::trace("Error loading image information for: {}", lib_path.c_str());
+        logger->trace("Error loading image information for: {}", lib_path.c_str());
     }
     else {
         m_entry_breakpoint->owner = shared_modules.back();
@@ -751,7 +755,7 @@ void GixDebuggerLinux::handleLibraryUnloaded(std::string lib_path, void *lib_add
 
 void GixDebuggerLinux::update_libraries()
 {
-    spdlog::trace("Updating list of loaded libraries");
+    logger->trace("Updating list of loaded libraries");
     if (!m_rendezvous_addr) {
         resolve_rendezvous();
     }
@@ -794,27 +798,27 @@ void GixDebuggerLinux::update_libraries()
     for (auto &&lib : loaded) {
         std::cerr << "Loaded " << lib.name << " at 0x" << std::hex << lib.addr << std::endl;
         handleLibraryLoaded(lib.name, (void *)lib.addr);
-        spdlog::trace("Loading library {}", lib.name.c_str());
+        logger->trace("Loading library {}", lib.name.c_str());
     }
 
     for (auto &&lib : unloaded) {
         std::cerr << "Unloaded " << lib.name << " at 0x" << std::hex << lib.addr << std::endl;
         handleLibraryUnloaded(lib.name, (void *)lib.addr);
-        spdlog::trace("Unloading library {}", lib.name.c_str());
+        logger->trace("Unloading library {}", lib.name.c_str());
     }
 
     m_libraries = new_libs;
 
-    spdlog::trace("The list of loaded libraries has been updated");
+    logger->trace("The list of loaded libraries has been updated");
 }
 
 bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string imageName)
 {
     int err = 0;
     if (hSym) {
-        spdlog::trace(":: Loaded symbols for {}", imageName);
+        logger->trace(":: Loaded symbols for {}", imageName);
         if (sym_provider->isGnuCOBOLModule(this, NULL, imageBase, NULL, &err)) {
-            spdlog::trace("{} is a GnuCOBOL module", imageName);
+            logger->trace("{} is a GnuCOBOL module", imageName);
             uint64_t base_of_code = m_load_address;
             SharedModuleInfo *mi = sym_provider->extractModuleDebugInfo(this, NULL, imageBase, (void *)hSym, imageName, (void *)base_of_code, &err);
 
@@ -822,7 +826,7 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string ima
 
                 shared_modules.push_back(mi);
                 for (auto it = mi->cbl_modules.begin(); it != mi->cbl_modules.end(); ++it) {
-                    spdlog::trace("Installing startup hardware breakpoint for module {}", it->second->name);
+                    logger->trace("Installing startup hardware breakpoint for module {}", it->second->name);
                     it->second->entry_breakpoint->install();
                     breakPointAdd(it->second->entry_breakpoint);
                 }
@@ -832,7 +836,7 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string ima
                 return false;
         }
         else {
-            spdlog::trace("{} is NOT a GnuCOBOL module", imageName);
+            logger->trace("{} is NOT a GnuCOBOL module", imageName);
         }
 
     }
@@ -858,7 +862,7 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string ima
 
 //    char bfr[1024];
 //    if (!fd || !debugger_instance) {
-//        spdlog::trace("Cannot launch pipe reader thread for channel type {}", (int) channel_type);
+//        logger->trace("Cannot launch pipe reader thread for channel type {}", (int) channel_type);
 //        return;
 //    }
 
@@ -878,7 +882,7 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string ima
 //                   break;        
                    
 //                default:
-//                   spdlog::trace("Invalid channel type: ", (int) channel_type); 
+//                   logger->trace("Invalid channel type: ", (int) channel_type); 
 //                   break;                       
 //            }
 //        }
@@ -889,7 +893,7 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string ima
 bool LinuxUserBreakpoint::install()
 {
     if (isInstalled()) {
-        spdlog::trace("Breakpoint at {:p} for {}@{} is already installed, skipping", this->address, this->line, this->source_file);
+        logger->trace("Breakpoint at {:p} for {}@{} is already installed, skipping", this->address, this->line, this->source_file);
         return true;
     }
 
@@ -900,11 +904,11 @@ bool LinuxUserBreakpoint::install()
 
     uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
     if ((int64_t)data == -1)
-        spdlog::trace("Error ({}) {}", errno, strerror(errno));
+        logger->trace("Error ({}) {}", errno, strerror(errno));
     this->orig_instr = static_cast<uint8_t>(data & 0xff); //save bottom byte
     uint64_t int3 = 0xcc;
     uint64_t data_with_int3 = ((data & ~0xff) | int3); //set bottom byte to 0xcc
-    spdlog::trace("Installing breakpoint at {:x} - old data: {:x}, new data : {:x}, saved data: {:x}", this->address, data, data_with_int3, this->orig_instr);
+    logger->trace("Installing breakpoint at {:x} - old data: {:x}, new data : {:x}, saved data: {:x}", this->address, data, data_with_int3, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, data_with_int3);
     return true;
 }
@@ -912,7 +916,7 @@ bool LinuxUserBreakpoint::install()
 bool LinuxUserBreakpoint::uninstall()
 {
     if (!isInstalled()) {
-        spdlog::trace("Breakpoint at {:x} for {}@{} is not installed, skipping", this->address, this->line, this->source_file);
+        logger->trace("Breakpoint at {:x} for {}@{} is not installed, skipping", this->address, this->line, this->source_file);
         return true;
     }
 
@@ -920,7 +924,7 @@ bool LinuxUserBreakpoint::uninstall()
 
     uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
     uint64_t restored_data = ((data & ~0xff) | this->orig_instr);
-    spdlog::trace("Removing breakpoint at {:x} - old data: {:x}, new data : {:x}, orig_instr: {:x}", this->address, data, restored_data, this->orig_instr);
+    logger->trace("Removing breakpoint at {:x} - old data: {:x}, new data : {:x}, orig_instr: {:x}", this->address, data, restored_data, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, restored_data);
     this->orig_instr = 0x00;
     return true;
@@ -932,7 +936,7 @@ void GixDebuggerLinux::PipeReaderThread(stPipeThreadData *data)
 
     char bfr[1024];
     if (!data->fd || !data->debugger_instance) {
-        spdlog::trace("Cannot launch pipe reader thread for channel type {}", (int) data->channel_type);
+        logger->trace("Cannot launch pipe reader thread for channel type {}", (int) data->channel_type);
         return;
     }
 
@@ -973,7 +977,7 @@ void GixDebuggerLinux::PipeReaderThread(stPipeThreadData *data)
                        break;        
                        
                     default:
-                       spdlog::trace("Invalid channel type: ", (int) data->channel_type); 
+                       logger->trace("Invalid channel type: ", (int) data->channel_type); 
                        break;                       
                 }
             }

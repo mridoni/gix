@@ -44,6 +44,7 @@ USA.
 #include "GixDebuggerSessionConfig.h"
 #include "linq/linq.hpp"
 #include "NetworkManager.h"
+#include "IdeLogManager.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include "windows.h"
@@ -485,6 +486,10 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 	connect(debug_driver_thread, &QThread::finished, debug_driver, &QObject::deleteLater);
 
 	debug_driver->setSessionConfiguration(dbgr_client_cfg);
+
+	IdeLogManager* lm = (IdeLogManager*)GixGlobals::getLogManager();
+	debug_driver->setLogger(lm->getLogger(LOG_DEBUG));
+
 	debug_driver_thread->start();
 
 	emit startDriver();

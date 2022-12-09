@@ -89,11 +89,15 @@ int GixDebuggerWin::start()
 	UserBreakpoint *last_bkp = nullptr;
 	char dbg_help_path[1024] = { 0, 0, 0, 0 };
 
+	if (logger.get() == nullptr) {
+		logger = spdlog::default_logger();
+	}
+
 	std::hash<std::thread::id> hasher;
 	std::ostringstream ss;
 	ss << std::this_thread::get_id();
 	std::string idstr = ss.str();
-	spdlog::info("GixDebugger (Windows) is starting (thread id: {})", idstr);
+	logger->info("GixDebugger (Windows) is starting (thread id: {})", idstr);
 
 	if (is_debugging_enabled()) {
 		sym_provider = get_symbol_provider();
@@ -108,9 +112,9 @@ int GixDebuggerWin::start()
 		HMODULE hDbgHelp = GetModuleHandle("dbghelp.dll");
 		if (GetModuleFileName(hDbgHelp, dbg_help_path, sizeof(dbg_help_path)) == 0) {
 			int ret = GetLastError();
-			spdlog::warn("GetModuleFileName failed, error = {}", ret);
+			logger->warn("GetModuleFileName failed, error = {}", ret);
 		}
-		spdlog::debug("Using dbgHelp version: {}.{}.{}: {}", dbgver->MajorVersion, dbgver->MinorVersion, dbgver->Revision, dbg_help_path);
+		logger->debug("Using dbgHelp version: {}.{}.{}: {}", dbgver->MajorVersion, dbgver->MinorVersion, dbgver->Revision, dbg_help_path);
 	}
 
 	ZeroMemory(&si, sizeof(si));
@@ -219,13 +223,13 @@ int GixDebuggerWin::start()
 
 	// TODO: verify that this works in all cases (internal/external console, stdir redirected or not, etc.)
 	// WAS : if (!CreateProcess(NULL, (LPSTR) fcl.toStdString().c_str(), NULL, NULL, !use_external_console, createFlags, envBlock, working_dir.toStdString().c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
-	spdlog::debug("Working directory is: [{}]", working_dir);
-	spdlog::debug("CreateProcess called with: [{}]", fcl);
+	logger->debug("Working directory is: [{}]", working_dir);
+	logger->debug("CreateProcess called with: [{}]", fcl);
 	if (!CreateProcess(NULL, (LPSTR) fcl.c_str(), NULL, NULL, TRUE, createFlags, envBlock, working_dir.c_str(), &si, &process_info)) { // DEBUG_ONLY_THIS_PROCESS
 		TerminateThread(hThreadReadStdOut, 0);
 		TerminateThread(hThreadReadStdErr, 0);
 		
-		spdlog::error("Cannot start process");
+		logger->error("Cannot start process");
 
 		debug_driver->dbgr_client_debuggerError(this, 1, "Cannot start process");
 		printLastError();
@@ -233,7 +237,7 @@ int GixDebuggerWin::start()
 		return 1;
 	}
 
-	spdlog::trace("Process launched, PID is {}, thread ID is {}", process_info.dwProcessId, process_info.dwThreadId);
+	logger->trace("Process launched, PID is {}, thread ID is {}", process_info.dwProcessId, process_info.dwThreadId);
 
 	target_is_running = true;
 
@@ -263,11 +267,11 @@ int GixDebuggerWin::start()
 	}
 
 	if (!is_debugging_enabled()) {
-		spdlog::trace("Sending \"ready\" message to client");
+		logger->trace("Sending \"ready\" message to client");
 		debug_driver->dbgr_client_debuggerReady(this, exepath);
 	}
 
-	spdlog::trace("Sending \"started\" message to client");
+	logger->trace("Sending \"started\" message to client");
 	debug_driver->dbgr_client_debuggerProcessStarted(this, exepath);
 
 	std::string strEventMessage;
@@ -307,7 +311,7 @@ int GixDebuggerWin::start()
 					strEventMessage = std::string("Loaded EXE: ") + exe_image_name;
 					DWORD64 hSymbols = (DWORD64)sym_provider->loadSymbols(this, the_process, debug_event.u.CreateProcessInfo.lpBaseOfImage, exe_image_name, (void *) debug_event.u.CreateProcessInfo.lpStartAddress, &err);
 					if (!processImage(the_process, debug_event.u.CreateProcessInfo.lpBaseOfImage, hSymbols, exe_image_name)) {
-						spdlog::warn("Error loading image information for: {}", exe_image_name);
+						logger->warn("Error loading image information for: {}", exe_image_name);
 						error_exit = true;
 						debug_driver->dbgr_client_debuggerError(this, -1, "Error loading image information for: " + exe_image_name);
 						bContinueDebugging = false;
@@ -322,7 +326,7 @@ int GixDebuggerWin::start()
 				if (!is_debugging_enabled())
 					break;
 
-				spdlog::trace("Thread {} (Id: {}) created at: {}",
+				logger->trace("Thread {} (Id: {}) created at: {}",
 					debug_event.u.CreateThread.hThread,
 					debug_event.dwThreadId,
 					(void *)debug_event.u.CreateThread.lpStartAddress); // Thread 0xc (Id: 7920) created at: 0x77b15e58
@@ -333,7 +337,7 @@ int GixDebuggerWin::start()
 				if (!is_debugging_enabled())
 					break;
 
-				spdlog::trace("The thread {} exited with code: {}",
+				logger->trace("The thread {} exited with code: {}",
 					debug_event.dwThreadId,
 					debug_event.u.ExitThread.dwExitCode);
 				strEventMessage = "EXIT_THREAD_DEBUG_EVENT";
@@ -342,7 +346,7 @@ int GixDebuggerWin::start()
 			case EXIT_PROCESS_DEBUG_EVENT:
 				exit_code = (int)debug_event.u.ExitProcess.dwExitCode;
 				debug_driver->dbgr_client_debuggerProcessExit(this, exit_code, exepath);		
-				spdlog::debug(":: Process exit code: {}", exit_code);
+				logger->debug(":: Process exit code: {}", exit_code);
 				bContinueDebugging = false;
 				break;
 
@@ -352,7 +356,7 @@ int GixDebuggerWin::start()
 					break;
 
 				std::string dll_image_name = GetFileNameFromHandle(debug_event.u.LoadDll.hFile);
-				spdlog::trace("Gix-IDE debugger: loading DLL: {} at {}", dll_image_name, debug_event.u.LoadDll.lpBaseOfDll);
+				logger->trace("Gix-IDE debugger: loading DLL: {} at {}", dll_image_name, debug_event.u.LoadDll.lpBaseOfDll);
 
 				std::string cp = filename_clean_path(dll_image_name);
 				if (properties["symformat"] == "dwarf" && !starts_with(cp, this->module_dir))
@@ -362,7 +366,7 @@ int GixDebuggerWin::start()
 				DWORD64 hSymbols = (DWORD64)sym_provider->loadSymbols(this, the_process, debug_event.u.LoadDll.lpBaseOfDll, dll_image_name, NULL, &err);
 
 				if (!processImage(the_process, debug_event.u.LoadDll.lpBaseOfDll, hSymbols, dll_image_name)) {
-					spdlog::warn("Error loading image information for: {}", dll_image_name);
+					logger->warn("Error loading image information for: {}", dll_image_name);
 					error_exit = true;
 					debug_driver->dbgr_client_debuggerError(this, -1, "Error loading image information for: " + dll_image_name);
 					bContinueDebugging = false;
@@ -380,7 +384,7 @@ int GixDebuggerWin::start()
 
 				SharedModuleInfo *mi = nullptr;
 				if (isLoadedGnuCOBOLImage(debug_event.u.UnloadDll.lpBaseOfDll, &mi)) {
-					spdlog::trace("Gix-IDE debugger: unloading DLL: {}", mi->dll_path);
+					logger->trace("Gix-IDE debugger: unloading DLL: {}", mi->dll_path);
 					unloadGnuCOBOLImage(mi);
 				}
 
@@ -405,7 +409,7 @@ int GixDebuggerWin::start()
 				else
 					strEventMessage = (LPSTR)msg;
 
-				spdlog::trace(msg);
+				logger->trace(msg);
 
 				delete[]msg;
 			}
@@ -428,11 +432,11 @@ int GixDebuggerWin::start()
 							__breakpoint_0_hit = true;
 							//inject_helper(the_process, the_thread);
 							debug_driver->dbgr_client_debuggerReady(this, exepath);
-							spdlog::trace("EXCEPTION_BREAKPOINT: Breakpoint 0 hit");
+							logger->trace("EXCEPTION_BREAKPOINT: Breakpoint 0 hit");
 							break;
 						}
 
-						spdlog::trace("EXCEPTION_BREAKPOINT: Breakpoint hit");
+						logger->trace("EXCEPTION_BREAKPOINT: Breakpoint hit");
 
 						PVOID ex_addr = exception.ExceptionRecord.ExceptionAddress;
 
@@ -442,11 +446,11 @@ int GixDebuggerWin::start()
 						
 						UserBreakpoint *bp = findBreakpointByAddress(ex_addr);
 						if (!bp) {	// This will probably lead to a crash
-							spdlog::error("EXCEPTION_BREAKPOINT: Breakpoint not found: {}", ex_addr);
+							logger->error("EXCEPTION_BREAKPOINT: Breakpoint not found: {}", ex_addr);
 							break;
 						}
 
-						spdlog::trace("EXCEPTION_BREAKPOINT: Breakpoint at address {} is at source line {} of {}", bp->address, bp->line, bp->source_file);
+						logger->trace("EXCEPTION_BREAKPOINT: Breakpoint at address {} is at source line {} of {}", bp->address, bp->line, bp->source_file);
 
 						CONTEXT lcContext;
 						lcContext.ContextFlags = CONTEXT_ALL;
@@ -468,7 +472,7 @@ int GixDebuggerWin::start()
 						CloseHandle(h_exc_thread);
 
 						bp->uninstall();
-						spdlog::trace("EXCEPTION_BREAKPOINT: Hardware breakpoint uninstalled at {}", bp->address);
+						logger->trace("EXCEPTION_BREAKPOINT: Hardware breakpoint uninstalled at {}", bp->address);
 
 						last_bkp = bp;
 						last_source_file = bp->source_file;
@@ -481,7 +485,7 @@ int GixDebuggerWin::start()
 						if (!is_debugging_enabled())
 							break;
 
-						spdlog::trace("EXCEPTION_SINGLE_STEP: Breakpoint single-step");
+						logger->trace("EXCEPTION_SINGLE_STEP: Breakpoint single-step");
 
 						is_on_break = true;
 #ifdef _WIN64
@@ -492,30 +496,30 @@ int GixDebuggerWin::start()
 						uint8_t brk_inst = 0xcc;
 						if (last_bkp) {
 							last_bkp->install();
-							spdlog::trace("EXCEPTION_SINGLE_STEP: Reinstalled hardware breakpoint at {}", last_bkp->address);
+							logger->trace("EXCEPTION_SINGLE_STEP: Reinstalled hardware breakpoint at {}", last_bkp->address);
 
 							if (!last_bkp->automatic || single_step) {
-								spdlog::trace("EXCEPTION_SINGLE_STEP: User/single step breakpoint: yes");
+								logger->trace("EXCEPTION_SINGLE_STEP: User/single step breakpoint: yes");
 								if (this->source_lines_by_addr.find(last_bkp->address) != source_lines_by_addr.end()) {
-									spdlog::trace("EXCEPTION_SINGLE_STEP: Successfully decoded source line info");
+									logger->trace("EXCEPTION_SINGLE_STEP: Successfully decoded source line info");
 									SourceLineInfo *sli = source_lines_by_addr[last_bkp->address];
-									spdlog::trace("Found breakpoint at {} ({}:{})", last_bkp->address, sli->source_file, sli->line);
+									logger->trace("Found breakpoint at {} ({}:{})", last_bkp->address, sli->source_file, sli->line);
 
  									// Check if breakpoint is on the first line of a generated preprocessor block
  									// If yes, pass the line corresponding to the start of the original block
  									int actual_line = 0;
 									if (!is_first_line_of_preproc_block(current_cbl_module, sli->source_file, sli->line, &actual_line)) {
 										debug_driver->dbgr_client_debuggerBreak(this, current_cbl_module->name, sli->source_file, sli->line);
-										spdlog::trace("Debugger breaking at: {}:{}", sli->source_file, sli->line);
+										logger->trace("Debugger breaking at: {}:{}", sli->source_file, sli->line);
 									}
 									else {
 										debug_driver->dbgr_client_debuggerBreak(this, current_cbl_module->name, sli->source_file, actual_line);
-										spdlog::trace("Debugger breaking at: {}:{}", sli->source_file, actual_line);
+										logger->trace("Debugger breaking at: {}:{}", sli->source_file, actual_line);
 									}
 								}
 							}
 							else {
-								spdlog::trace("EXCEPTION_SINGLE_STEP: User/single step breakpoint: no");
+								logger->trace("EXCEPTION_SINGLE_STEP: User/single step breakpoint: no");
 							}
 						}
 
@@ -587,7 +591,7 @@ int GixDebuggerWin::start()
 		
 
 		if (strEventMessage != "")
-			spdlog::trace(strEventMessage);
+			logger->trace(strEventMessage);
 
 		if (!bContinueDebugging)
 			break;
@@ -603,7 +607,7 @@ int GixDebuggerWin::start()
 	// We give the pipe reader threads enough time to read and display output
 	Sleep(200);
 
-	spdlog::trace("Canceling reader threads");
+	logger->trace("Canceling reader threads");
 	
 	if (!use_external_console) {
 		stop_reading_pipes = true;
@@ -714,7 +718,7 @@ void GixDebuggerWin::printLastError()
 		(LPTSTR)&lpMsgBuf,
 		0, NULL);
 
-	spdlog::trace("Last error: {}", (char *)lpMsgBuf);
+	logger->trace("Last error: {}", (char *)lpMsgBuf);
 
 	LocalFree(lpDisplayBuf);
 }
@@ -722,12 +726,12 @@ void GixDebuggerWin::printLastError()
 bool GixDebuggerWin::getVariables(const std::vector<std::string>& var_names, std::map<std::string, VariableDisplayData>& var_list)
 {
 	if (!is_on_break) {
-		spdlog::warn("GixDebuggerWin is trying to resolve variable while not on break");
+		logger->warn("GixDebuggerWin is trying to resolve variable while not on break");
 		return false;
 	}
 
 	if (!var_names.size()) {
-		spdlog::trace("No variables to resolve");
+		logger->trace("No variables to resolve");
 		return true;
 	}
 
@@ -744,7 +748,7 @@ bool GixDebuggerWin::getVariables(const std::vector<std::string>& var_names, std
 #endif
 
 	for (std::string var_name : var_names) {
-		spdlog::trace("GixDebuggerWin is trying to resolve variable [{}]", var_name);
+		logger->trace("GixDebuggerWin is trying to resolve variable [{}]", var_name);
 		// Resolve COBOL variable name to a local symbol in the current stack frame + offset
 		if (map_contains(current_cbl_module->locals, var_name)) {
 
@@ -768,14 +772,14 @@ bool GixDebuggerWin::getVariables(const std::vector<std::string>& var_names, std
 				}
 
 				if (!this->buildVariableDisplayData(vd, raw_data)) {
-					spdlog::warn("Cannot build displayable data for variable {}", var_name);
+					logger->warn("Cannot build displayable data for variable {}", var_name);
 				}
 
 
 				var_list[vd.var_name] = vd;
 			}
 			else {
-				spdlog::warn("GixDebuggerWin cannot find variable [{}] in the locals list", var_name);
+				logger->warn("GixDebuggerWin cannot find variable [{}] in the locals list", var_name);
 			}
 		}
 	}
@@ -987,17 +991,17 @@ bool GixDebuggerWin::processImage(HANDLE hProc, HANDLE imageBase, DWORD64 hSym, 
 {
 	int err = 0;
 	if (hSym) {
-		spdlog::debug("Loaded symbols for {}", imageName);
+		logger->debug("Loaded symbols for {}", imageName);
 		if (sym_provider->isGnuCOBOLModule(this, the_process, imageBase, NULL, &err)) {
 			image_name = imageName;
-			spdlog::debug("{} is a GnuCOBOL module", imageName);
+			logger->debug("{} is a GnuCOBOL module", imageName);
 			uint32_t base_of_code = extract_base_of_code(hProc, imageBase);
 			SharedModuleInfo *smi = sym_provider->extractModuleDebugInfo(this, the_process, imageBase, (void *)hSym, imageName, (void *) base_of_code, &err);
 
 			if (smi) {
 				shared_modules.push_back(smi);
 				for (auto it = smi->cbl_modules.begin(); it != smi->cbl_modules.end(); ++it) {
-					spdlog::trace("Installing hardware breakpoint for module {}", it->second->name);
+					logger->trace("Installing hardware breakpoint for module {}", it->second->name);
 					it->second->entry_breakpoint->install();
 					breakPointAdd(it->second->entry_breakpoint);
 				}
@@ -1011,7 +1015,7 @@ bool GixDebuggerWin::processImage(HANDLE hProc, HANDLE imageBase, DWORD64 hSym, 
 				// Now what?
 			}
 
-			spdlog::debug("{} is NOT a GnuCOBOL module", imageName);
+			logger->debug("{} is NOT a GnuCOBOL module", imageName);
 			if (starts_with(filename_get_name(to_lower(imageName)), "libcob.")) {
 				uint32_t base_of_code = extract_base_of_code(hProc, imageBase);
 				libcob_info = sym_provider->extractLibCobInfo(this, the_process, imageBase, (void *)hSym, imageName, (void *)base_of_code, &err);
@@ -1044,7 +1048,7 @@ bool GixDebuggerWin::unloadGnuCOBOLImage(SharedModuleInfo *mi)
 	if (!mi)
 		return false;
 
-	spdlog::debug("Shared module {} is being unloaded", mi->dll_path);
+	logger->debug("Shared module {} is being unloaded", mi->dll_path);
 
 	std::vector<UserBreakpoint *> to_be_removed;
 	for (auto it = this->breakpoints.begin(); it != this->breakpoints.end(); ++it) {
@@ -1105,7 +1109,7 @@ bool WinUserBreakpoint::install()
 	SIZE_T dwReadBytes;
 
 	if (isInstalled()) {
-		spdlog::trace("Breakpoint at {} for {}@{} is already installed, skipping", this->address, this->line, this->source_file.c_str());
+		//logger->trace("Breakpoint at {} for {}@{} is already installed, skipping", this->address, this->line, this->source_file.c_str());
 		return true;
 	}
 
@@ -1114,7 +1118,7 @@ bool WinUserBreakpoint::install()
 
 	GixDebuggerWin *gdwin = (GixDebuggerWin *) this->owner->owner;
 
-	spdlog::trace("Installing hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
+	//logger->trace("Installing hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
 
 	// Read the instruction    
 	if (!ReadProcessMemory(gdwin->getProcess(), (void *)this->address, &cInstruction, 1, &dwReadBytes)) {
@@ -1137,7 +1141,7 @@ bool WinUserBreakpoint::install()
 		return false;
 	}
 
-	spdlog::trace("Successfully installed hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
+	//logger->trace("Successfully installed hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
 
 	return true;
 }
@@ -1148,14 +1152,14 @@ bool WinUserBreakpoint::uninstall()
 	SIZE_T dwWrittenBytes;
 
 	if (!isInstalled()) {
-		spdlog::trace("Breakpoint at {} for {}@{} is not installed, skipping", this->address, this->line, this->source_file.c_str());
+		//logger->trace("Breakpoint at {} for {}@{} is not installed, skipping", this->address, this->line, this->source_file.c_str());
 		return true;
 	}
 
 	if (!this->address)
 		return false;
 
-	spdlog::trace("Uninstalling hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
+	//logger->trace("Uninstalling hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
 
 	GixDebuggerWin *gdwin = (GixDebuggerWin *)this->owner->owner;
 
@@ -1173,7 +1177,7 @@ bool WinUserBreakpoint::uninstall()
 
 	this->orig_instr = 0x00;
 
-	spdlog::trace("Successfully uninstalled hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
+	//logger->trace("Successfully uninstalled hardware breakpoint at {} for {}@{}", this->address, this->line, this->source_file.c_str());
 	
 	return true;
 }

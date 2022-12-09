@@ -15,6 +15,7 @@ typedef unsigned char byte;
 
 #include <QProcessEnvironment>
 #include <functional>
+#include <spdlog/spdlog.h>
 
 class GixDebugger;
 class GixDebuggerSessionConfig;
@@ -51,6 +52,7 @@ public:
 public:
 
 	void setSessionConfiguration(GixDebuggerSessionConfig* cfg);
+	void setLogger(std::shared_ptr<spdlog::logger> l);
 
 	virtual bool stop() = 0;
 	virtual QString getLastResponse() = 0;
@@ -83,7 +85,8 @@ protected:
 	std::condition_variable cv_on_break;
 	std::mutex cv_m;
 	bool is_started = false;
-
+	std::shared_ptr<spdlog::logger> logger;
+	
 signals:
 	void DebuggerReady(QString);
 	void DebuggerBreak(QString, QString, int);

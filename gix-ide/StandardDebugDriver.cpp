@@ -21,6 +21,7 @@ USA.
 #include "StandardDebugDriver.h"
 #include "DebugManager.h"
 #include "MetadataManager.h"
+#include "IdeLogManager.h"
 #include "Changeling.h"
 #include "Ide.h"
 #include "GixDebugger.h"
@@ -36,7 +37,7 @@ USA.
 
 StandardDebugDriver::StandardDebugDriver(DebugManager* mgr)
 {
-	logger = GixGlobals::getLogManager();
+	driver_logger = GixGlobals::getLogManager();
 	debug_manager = mgr;
     dbg_status_init();
 }
@@ -70,14 +71,14 @@ void StandardDebugDriver::startDriver()
             cmd_line = "";
 
             cmd_mutex.lock();
-            logger->trace(LOG_DEBUG, "StandardDebugDriver is waiting for commands");
+			driver_logger->trace(LOG_DEBUG, "StandardDebugDriver is waiting for commands");
             cmd_available.wait(&cmd_mutex);
             cmd_mutex.unlock();
 
-            logger->trace(LOG_DEBUG, "StandardDebugDriver received: {}", cmd_line);
+			driver_logger->trace(LOG_DEBUG, "StandardDebugDriver received: {}", cmd_line);
             bool stop_processing = processCommand(cmd_line);
             if (stop_processing) {
-                logger->trace(LOG_DEBUG, "StandardDebugDriver will stop processing commands");
+				driver_logger->trace(LOG_DEBUG, "StandardDebugDriver will stop processing commands");
                 break;
             }
         }
@@ -98,31 +99,31 @@ void StandardDebugDriver::startDriver()
 	};
 
 	ib.debuggerMessage = [this](GixDebugger *gd, QString msg, int l) {
-		logger->trace(LOG_DEBUG, "{}", msg);
+		driver_logger->trace(LOG_DEBUG, "{}", msg);
 		return true;
 	};
 
 	ib.debuggerError = [this](GixDebugger *gd, int err_code, QString msg) {
 		QString m1 = msg;
-		logger->error(LOG_DEBUG, "{}", msg);
+		driver_logger->error(LOG_DEBUG, "{}", msg);
         emit DebuggerProcessError(m1, err_code);
 		return true;
 	};
 
 	ib.debuggerProcessStarted = [this](GixDebugger *gd, QString msg) {
-		logger->info(LOG_DEBUG, "Program {} started", msg);
+		driver_logger->info(LOG_DEBUG, "Program {} started", msg);
 		emit DebuggerProcessStarted(msg);
 		return true;
 	};
 
 	ib.debuggerReady = [this](GixDebugger *gd, QString msg) {
-		logger->info(LOG_DEBUG, "Debugger has loaded symbols and is ready to run {}}", msg);
+		driver_logger->info(LOG_DEBUG, "Debugger has loaded symbols and is ready to run {}}", msg);
 		emit DebuggerReady(msg);
 		return true;
 	};
 
 	ib.debuggerProcessExit = [this](GixDebugger *gd, int rc, QString msg) {
-		logger->info(LOG_DEBUG, "Program {} terminated with result code: {}", msg, rc);
+		driver_logger->info(LOG_DEBUG, "Program {} terminated with result code: {}", msg, rc);
 		emit DebuggerProcessFinished(msg, rc);
 		return true;
 	};
@@ -139,6 +140,7 @@ void StandardDebugDriver::startDriver()
 
 	GixDebugger* gd = GixDebugger::get();
 	gd->setDriver(this);
+	gd->setLogger(((IdeLogManager*)GixGlobals::getLogManager())->getLogger(LOG_DEBUG));
 	gd->setConfiguration(*debug_session_config);
 	this->debugger_instance = gd;
 

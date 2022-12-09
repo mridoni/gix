@@ -365,6 +365,11 @@ void GixDebugger::setConfiguration(const GixDebuggerSessionConfig& cfg)
 	this->environment = cfg.environment;
 }
 
+void GixDebugger::setLogger(std::shared_ptr<spdlog::logger> l)
+{
+	logger = l;
+}
+
 void GixDebugger::setProperty(const std::string &k, const std::string &v)
 {
 	properties[k] = v;

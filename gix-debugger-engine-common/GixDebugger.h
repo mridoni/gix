@@ -110,6 +110,7 @@ public:
 	virtual ~GixDebugger();
 
 	void setConfiguration(const GixDebuggerSessionConfig& cfg);
+	void setLogger(std::shared_ptr<spdlog::logger> l);
 
 	void setProperty(const std::string &k, const std::string &v);
 
@@ -227,6 +228,8 @@ protected:
 #else
 	DebuggerHostDriver *debug_driver = nullptr;
 #endif
+	
+	std::shared_ptr<spdlog::logger> logger;
 
 private:
 
