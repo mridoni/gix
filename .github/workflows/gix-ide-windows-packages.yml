@@ -32,6 +32,9 @@ env:
   EXE_7Z: C:/Program Files/7-Zip/7z.exe
   VCRTVER: 14.34.31931
   VCTOOLSVER: 143 
+  MSYS2_BASE: D:\
+  MSYS2_MINGW64_DIR: D:\msys64\mingw64
+  MSYS2_MINGW32_DIR: D:\msys64\mingw43
 
 permissions:
   contents: read
@@ -220,6 +223,7 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         msystem: ${{env.HOST_PLATFORM}}
+        location: ${{ env.MSYS2_BASE }}
         install: >-
             mingw-w64-${{env.PLATFORM_ID}}-pkg-config
             autoconf
@@ -275,6 +279,7 @@ jobs:
        uses: msys2/setup-msys2@v2
        with:
          msystem: ${{env.HOST_PLATFORM}}
+         location: ${{ env.MSYS2_BASE }}
          install: >-
              mingw-w64-${{env.PLATFORM_ID}}-pkg-config
              autoconf
@@ -436,8 +441,39 @@ jobs:
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x86
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x86
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x86             
-          
+          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x86         
+          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libcrypto-3-x64.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libmariadb.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libpq.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libssl-3-x64.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+          copy "%VCPKG_ROOT%\installed\x64-windows\bin\zlib1.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libcrypto-1_1-x64.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libfmt.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libgcc_s_seh-1.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libintl-8.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libmariadb.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libpq.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libssl-1_1-x64.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libstdc++-6.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libwinpthread-1.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\zlib1.dll ${{ env.DIST_DIR }}\lib\x64\gcc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libcrypto-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libmariadb.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libpq.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libssl-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\zlib1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libcrypto-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libfmt.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libgcc_s_dw2-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libintl-8.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libmariadb.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libpq.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libssl-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libstdc++-6.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libwinpthread-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libxml2-2.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\zlib1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+
     - name: Build installer package
       shell: cmd
       env:
@@ -544,7 +580,23 @@ jobs:
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x86
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x86
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x86               
-
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libcrypto-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libmariadb.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libpq.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libssl-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy "%VCPKG_ROOT%\installed\x86-windows\bin\zlib1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libcrypto-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libfmt.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libgcc_s_dw2-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libintl-8.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libmariadb.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libpq.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libssl-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libstdc++-6.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libwinpthread-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libxml2-2.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\zlib1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          
     - name: Build installer package
       shell: cmd
       env:
