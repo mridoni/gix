@@ -426,11 +426,6 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x64\gcc
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x64\gcc
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\gcc      
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x64\dbghelp.dll" ${{ env.DIST_DIR }}\bin
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x64
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x64
@@ -542,12 +537,7 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-odbc.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-pgsql.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc          
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\${{ env.HOST_PLATFORM }}\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ env.DIST_DIR }}\bin       
+          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc                
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x86\dbghelp.dll" ${{ env.DIST_DIR }}\bin       
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x86
           copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x86
