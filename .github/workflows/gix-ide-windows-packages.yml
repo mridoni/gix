@@ -463,9 +463,9 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\gcc      
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x64\dbghelp.dll" ${{ env.DIST_DIR }}\bin
           copy ${{ env.GIX_IDE_X64_BIN_DIR }}\deps-x64-msvc\*.* ${{ github.workspace }}\redist\msvc\x64
-          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\86          
+          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\x86          
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\deps-x64-gcc\*.* ${{ github.workspace }}\redist\gcc\x64
-          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\86
+          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\x86
 
     - name: Build installer package
       shell: cmd
@@ -568,8 +568,8 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc                
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x86\dbghelp.dll" ${{ env.DIST_DIR }}\bin       
-          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\86          
-          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\86
+          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\x86          
+          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\x86
           
     - name: Build installer package
       shell: cmd
