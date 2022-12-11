@@ -34,7 +34,7 @@ env:
   VCTOOLSVER: 143 
   MSYS2_BASE: D:\
   MSYS2_MINGW64_DIR: D:\msys64\mingw64
-  MSYS2_MINGW32_DIR: D:\msys64\mingw43
+  MSYS2_MINGW32_DIR: D:\msys64\mingw32
 
 permissions:
   contents: read
@@ -377,6 +377,8 @@ jobs:
       shell: cmd
       working-directory: ${{ github.workspace }}
       run: |
+          tree %VCPKG_ROOT%
+          tree D:\msys64
           FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
           mkdir ${{ github.workspace }}\redist\msvc\x86
           mkdir ${{ github.workspace }}\redist\msvc\x64
