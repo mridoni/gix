@@ -115,7 +115,13 @@ jobs:
         %VCPKG_ROOT%\vcpkg integrate install
         echo Running MSBuild
         msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
-
+        mkdir ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x64-windows\bin\libcrypto-3-x64.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x64-windows\bin\libmariadb.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x64-windows\bin\libpq.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x64-windows\bin\libssl-3-x64.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x64-windows\bin\zlib1.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc      
+        
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -124,6 +130,7 @@ jobs:
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe
+          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-msvc/
           
   gix-ide-windows-x86-msvc:
     name: gix-ide-windows-x86-msvc
@@ -197,7 +204,13 @@ jobs:
         call ${{ github.workspace }}\prepbuild.cmd /E
         %VCPKG_ROOT%\vcpkg integrate install
         msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
-
+        mkdir ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x86-windows\bin\libcrypto-3.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x86-windows\bin\libmariadb.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x86-windows\bin\libpq.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x86-windows\bin\libssl-3.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+        copy "%VCPKG_ROOT%\installed\x86-windows\bin\zlib1.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
+          
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -206,13 +219,14 @@ jobs:
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe          
+          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-msvc/
 
   gixsql-windows-x64-mingw:
     name: gixsql-windows-x64-mingw
     env:
-      BUILD_CONFIGURATION: Release
-      HOST_PLATFORM: mingw64      
-      PLATFORM_ID: x86_64    
+      HOST_PLATFORM: x64
+      MSYS2_SYSTEM: mingw64      
+      MSYS2_PLATFORM_ID: x86_64          
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -222,21 +236,21 @@ jobs:
     - name: Set up MinGW
       uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{env.HOST_PLATFORM}}
+        msystem: ${{env.MSYS2_SYSTEM}}
         location: ${{ env.MSYS2_BASE }}
         install: >-
-            mingw-w64-${{env.PLATFORM_ID}}-pkg-config
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-pkg-config
             autoconf
             make
             automake
             libtool
             bison
             flex
-            mingw-w64-${{env.PLATFORM_ID}}-gcc
-            mingw-w64-${{env.PLATFORM_ID}}-postgresql 
-            mingw-w64-${{env.PLATFORM_ID}}-libmariadbclient 
-            mingw-w64-${{env.PLATFORM_ID}}-unixodbc 
-            mingw-w64-${{env.PLATFORM_ID}}-spdlog 
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-gcc
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-postgresql 
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-libmariadbclient 
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-unixodbc 
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-spdlog 
 
     - shell: msys2 {0}
       name: Build
@@ -245,30 +259,38 @@ jobs:
          echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
          chmod 755 prepdist.sh && ./prepdist.sh
          autoreconf --install --force
-         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
+         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
          make
          make install-strip
+         mkdir ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc     
+         cp /bin/libcrypto-1_1-x64.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libfmt.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libgcc_s_seh-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libintl-8.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libmariadb.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libpq.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libssl-1_1-x64.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libstdc++-6.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/libwinpthread-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         cp /bin/zlib1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         
  
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
          name: ${{ github.job }}-artifacts
          path: |
-           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/bin/*.*
-           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/lib/*.*
-           
-    - shell: msys2 {0}
-      name: List outputs
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: |
-         ls -lR $(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")     
+           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/bin/*.*
+           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/lib/*.*
+           ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc/
+   
  
   gixsql-windows-x86-mingw:
      name: gixsql-windows-x86-mingw
      env:
-       BUILD_CONFIGURATION: Release
-       HOST_PLATFORM: mingw32      
-       PLATFORM_ID: i686    
+       HOST_PLATFORM: x86      
+       MSYS2_SYSTEM: mingw32      
+       MSYS2_PLATFORM_ID: i686    
      runs-on: windows-latest
      steps:
      - uses: actions/checkout@v3
@@ -278,21 +300,21 @@ jobs:
      - name: Set up MinGW
        uses: msys2/setup-msys2@v2
        with:
-         msystem: ${{env.HOST_PLATFORM}}
+         msystem: ${{env.MSYS2_SYSTEM}}
          location: ${{ env.MSYS2_BASE }}
          install: >-
-             mingw-w64-${{env.PLATFORM_ID}}-pkg-config
+             mingw-w64-${{env.MSYS2_PLATFORM_ID}}-pkg-config
              autoconf
              make
              automake
              libtool
              bison
              flex
-             mingw-w64-${{env.PLATFORM_ID}}-gcc
-             mingw-w64-${{env.PLATFORM_ID}}-postgresql 
-             mingw-w64-${{env.PLATFORM_ID}}-libmariadbclient 
-             mingw-w64-${{env.PLATFORM_ID}}-unixodbc 
-             mingw-w64-${{env.PLATFORM_ID}}-spdlog 
+             mingw-w64-${{ env.MSYS2_PLATFORM_ID }}-gcc
+             mingw-w64-${{ env.MSYS2_PLATFORM_ID }}-postgresql 
+             mingw-w64-${{ env.MSYS2_PLATFORM_ID }}-libmariadbclient 
+             mingw-w64-${{ env.MSYS2_PLATFORM_ID }}-unixodbc 
+             mingw-w64-${{ env.MSYS2_PLATFORM_ID }}-spdlog 
  
      - shell: msys2 {0}
        name: Build
@@ -301,25 +323,31 @@ jobs:
          echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
          chmod 755 prepdist.sh && ./prepdist.sh
          autoreconf --install --force
-         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")
+         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
          make
          make install-strip
+         mkdir ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc     
+         copy /bin/libcrypto-1_1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libfmt.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libgcc_s_dw2-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libintl-8.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libmariadb.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libpq.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libssl-1_1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libstdc++-6.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libwinpthread-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/libxml2-2.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         copy /bin/zlib1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc     
  
      - name: Archive production artifacts
        uses: actions/upload-artifact@v3
        with:
          name: ${{ github.job }}-artifacts
          path: |
-           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/bin/*.*
-           ${{ github.workspace }}/build-${{env.PLATFORM_ID}}/lib/*.*
-           
-     - shell: msys2 {0}
-       name: List outputs
-       working-directory: ${{env.GITHUB_WORKSPACE}}
-       run: |
-         ls -lR $(cygpath "${{ github.workspace }}/build-${{env.PLATFORM_ID}}")                
+           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/bin/*.*
+           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/lib/*.*
+           ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc/
 
-    
   gix-ide-installer-windows-x64:
     name: gix-ide-installer-windows-x64
     needs: [ gix-ide-windows-x64-msvc, gix-ide-windows-x86-msvc, gixsql-windows-x64-mingw, gixsql-windows-x86-mingw ]
@@ -434,47 +462,10 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x64\gcc
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\gcc      
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x64\dbghelp.dll" ${{ env.DIST_DIR }}\bin
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x64
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x64
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x64
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x64
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x64\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x64       
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x86         
-          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libcrypto-3-x64.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libmariadb.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libpq.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-          copy "%VCPKG_ROOT%\installed\x64-windows\bin\libssl-3-x64.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-          copy "%VCPKG_ROOT%\installed\x64-windows\bin\zlib1.dll" ${{ env.DIST_DIR }}\lib\x64\msvc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libcrypto-1_1-x64.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libfmt.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libgcc_s_seh-1.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libintl-8.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libmariadb.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libpq.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libssl-1_1-x64.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libstdc++-6.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\libwinpthread-1.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy ${{ env.MSYS2_MINGW64_DIR }}\bin\zlib1.dll ${{ env.DIST_DIR }}\lib\x64\gcc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libcrypto-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libmariadb.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libpq.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libssl-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\zlib1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libcrypto-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libfmt.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libgcc_s_dw2-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libintl-8.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libmariadb.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libpq.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libssl-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libstdc++-6.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libwinpthread-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libxml2-2.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\zlib1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\deps-x64-msvc\*.* ${{ github.workspace }}\redist\msvc\x64
+          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\86          
+          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\deps-x64-gcc\*.* ${{ github.workspace }}\redist\gcc\x64
+          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\86
 
     - name: Build installer package
       shell: cmd
@@ -577,27 +568,8 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc                
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x86\dbghelp.dll" ${{ env.DIST_DIR }}\bin       
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\vcruntime140_1.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_1.dll" ${{ github.workspace }}\redist\msvc\x86
-          copy "%VSPATH%\VC\Redist\MSVC\${{ env.VCRTVER }}\x86\Microsoft.VC${{ env.VCTOOLSVER }}.CRT\msvcp140_2.dll" ${{ github.workspace }}\redist\msvc\x86               
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libcrypto-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libmariadb.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libpq.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\libssl-3.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy "%VCPKG_ROOT%\installed\x86-windows\bin\zlib1.dll" ${{ env.DIST_DIR }}\lib\x86\msvc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libcrypto-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libfmt.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libgcc_s_dw2-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libintl-8.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libmariadb.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libpq.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libssl-1_1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libstdc++-6.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libwinpthread-1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\libxml2-2.dll ${{ env.DIST_DIR }}\lib\x86\gcc
-          copy ${{ env.MSYS2_MINGW32_DIR }}\bin\zlib1.dll ${{ env.DIST_DIR }}\lib\x86\gcc
+          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\86          
+          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\86
           
     - name: Build installer package
       shell: cmd
