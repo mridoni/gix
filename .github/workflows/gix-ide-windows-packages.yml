@@ -262,17 +262,19 @@ jobs:
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
          make
          make install-strip
-         mkdir $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libcrypto-1_1-x64.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libfmt.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libgcc_s_seh-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libintl-8.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libmariadb.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libpq.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libssl-1_1-x64.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libstdc++-6.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/libwinpthread-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         cp /bin/zlib1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         ls -lR /bin
+         export DEPS_DIR=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         mkdir $DEPS_DIR
+         cp /bin/libcrypto-1_1-x64.dll $DEPS_DIR
+         cp /bin/libfmt.dll $DEPS_DIR
+         cp /bin/libgcc_s_seh-1.dll $DEPS_DIR
+         cp /bin/libintl-8.dll $DEPS_DIR
+         cp /bin/libmariadb.dll $DEPS_DIR
+         cp /bin/libpq.dll $DEPS_DIR
+         cp /bin/libssl-1_1-x64.dll $DEPS_DIR
+         cp /bin/libstdc++-6.dll $DEPS_DIR
+         cp /bin/libwinpthread-1.dll $DEPS_DIR
+         cp /bin/zlib1.dll $DEPS_DIR
          
  
     - name: Archive production artifacts
@@ -326,20 +328,20 @@ jobs:
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
          make
          make install-strip
-         export MSYS2_WORKSPACE=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         echo "MSYS2_WORKSPACE => $MSYS2_WORKSPACE"
-         mkdir $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libcrypto-1_1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libfmt.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libgcc_s_dw2-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libintl-8.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libmariadb.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libpq.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libssl-1_1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libstdc++-6.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libwinpthread-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/libxml2-2.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-         copy /bin/zlib1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc") 
+         ls -lR /bin         
+         export DEPS_DIR=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         mkdir $DEPS_DIR
+         cp /bin/libcrypto-1_1.dll $DEPS_DIR
+         cp /bin/libfmt.dll $DEPS_DIR
+         cp /bin/libgcc_s_dw2-1.dll $DEPS_DIR
+         cp /bin/libintl-8.dll $DEPS_DIR
+         cp /bin/libmariadb.dll $DEPS_DIR
+         cp /bin/libpq.dll $DEPS_DIR
+         cp /bin/libssl-1_1.dll $DEPS_DIR
+         cp /bin/libstdc++-6.dll $DEPS_DIR
+         cp /bin/libwinpthread-1.dll $DEPS_DIR
+         cp /bin/libxml2-2.dll $DEPS_DIR
+         cp /bin/zlib1.dll $DEPS_DIR 
  
      - name: Archive production artifacts
        uses: actions/upload-artifact@v3
@@ -407,8 +409,6 @@ jobs:
       shell: cmd
       working-directory: ${{ github.workspace }}
       run: |
-          tree %VCPKG_ROOT%
-          tree D:\msys64
           FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
           mkdir ${{ github.workspace }}\redist\msvc\x86
           mkdir ${{ github.workspace }}\redist\msvc\x64
