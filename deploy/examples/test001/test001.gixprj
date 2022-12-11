@@ -12,7 +12,7 @@
   </file>
  </items>
  <settings>
-  <build_type>dll</build_type>
+  <build_type>exe</build_type>
   <cobc_c_comp_opts></cobc_c_comp_opts>
   <cobc_c_link_opts></cobc_c_link_opts>
   <cobc_generate_listing>-t</cobc_generate_listing>
@@ -26,15 +26,16 @@
   <dbg_args></dbg_args>
   <dbg_cmd></dbg_cmd>
   <dbg_merge_env>true</dbg_merge_env>
-  <dbg_run_env_vars>DBNAME=192.168.1.1:5432/test|DBAUTH=test.test</dbg_run_env_vars>
+  <dbg_run_env_vars>DBNAME=mysql://192.168.1.171:3306/testdb1|DBAUTH=test.test</dbg_run_env_vars>
   <dbg_separate_console>true</dbg_separate_console>
   <dbg_stdin_file></dbg_stdin_file>
   <dbg_stop_at_first_line>false</dbg_stop_at_first_line>
   <dbg_working_dir></dbg_working_dir>
-  <esql_anon_params>true</esql_anon_params>
+  <esql_consolidate_source>false</esql_consolidate_source>
   <esql_debug_log_file></esql_debug_log_file>
   <esql_debug_log_on>false</esql_debug_log_on>
   <esql_error_log_file></esql_error_log_file>
+  <esql_params_style>a</esql_params_style>
   <esql_preprocess_copy_files>false</esql_preprocess_copy_files>
   <esql_static_calls>true</esql_static_calls>
   <keep_temp_files>false</keep_temp_files>

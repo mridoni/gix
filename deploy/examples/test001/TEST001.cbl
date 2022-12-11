@@ -2,7 +2,6 @@
        
        PROGRAM-ID. TEST001. 
        
-       
        ENVIRONMENT DIVISION. 
        
        CONFIGURATION SECTION. 
@@ -66,16 +65,13 @@
               DISPLAY 'SQLERRM. ' SQLERRMC(1:SQLERRML)
               GO TO 100-EXIT
            END-IF.
-       100-MAIN.
-
-           EXEC SQL
-              START TRANSACTION
-	       END-EXEC.                                                    
+       100-MAIN.                                               
        
       *  open cursor
            EXEC SQL
                OPEN EMPTBL
            END-EXEC 
+		   
            MOVE SQLCODE TO DISP-CODE
            DISPLAY 'open ' DISP-CODE.
            DISPLAY 'open ' SQLERRM.
@@ -106,11 +102,7 @@
            DISPLAY 'state     : [' ST ']'
            DISPLAY 'zip code  : [' ZIP ']'
            DISPLAY 'payrate   : [' DISP-RATE ']'
-           IF COM-NULL-IND < 0 
-               DISPLAY 'commission is null' 
-           ELSE 
-               DISPLAY 'commission ' DISP-COM 
-           END-IF 
+
            DISPLAY 'Do you want to see the next record? (y/n)' 
            ACCEPT ANSS 
            IF ANSS = 'Y' OR 'y' 
@@ -134,6 +126,10 @@
            EXEC SQL 
                CLOSE EMPTBL 
            END-EXEC. 
+		   
+           EXEC SQL
+              CONNECT RESET
+           END-EXEC.   		   
        
        100-EXIT. 
              STOP RUN.
