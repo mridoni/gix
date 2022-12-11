@@ -262,17 +262,17 @@ jobs:
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
          make
          make install-strip
-         mkdir ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc     
-         cp /bin/libcrypto-1_1-x64.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libfmt.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libgcc_s_seh-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libintl-8.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libmariadb.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libpq.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libssl-1_1-x64.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libstdc++-6.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/libwinpthread-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         cp /bin/zlib1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
+         mkdir $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libcrypto-1_1-x64.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libfmt.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libgcc_s_seh-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libintl-8.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libmariadb.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libpq.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libssl-1_1-x64.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libstdc++-6.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/libwinpthread-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         cp /bin/zlib1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
          
  
     - name: Archive production artifacts
@@ -326,18 +326,20 @@ jobs:
          ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
          make
          make install-strip
-         mkdir ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc     
-         copy /bin/libcrypto-1_1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libfmt.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libgcc_s_dw2-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libintl-8.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libmariadb.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libpq.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libssl-1_1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libstdc++-6.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libwinpthread-1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/libxml2-2.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc
-         copy /bin/zlib1.dll ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc     
+         export MSYS2_WORKSPACE=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         echo "MSYS2_WORKSPACE => $MSYS2_WORKSPACE"
+         mkdir $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libcrypto-1_1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libfmt.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libgcc_s_dw2-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libintl-8.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libmariadb.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libpq.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libssl-1_1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libstdc++-6.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libwinpthread-1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/libxml2-2.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         copy /bin/zlib1.dll $(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc") 
  
      - name: Archive production artifacts
        uses: actions/upload-artifact@v3
