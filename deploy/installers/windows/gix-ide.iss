@@ -34,11 +34,12 @@ PrivilegesRequired=lowest
 ; main binaries
 Source: "{#DIST_DIR}\*"; DestDir: "{app}"; Flags: ignoreversion createallsubdirs recursesubdirs
 #if "x64" == HOST_PLATFORM
-Source: "{#WORKSPACE}\redist\msvc\x64\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
-Source: "{#WORKSPACE}\redist\msvc\x64\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
+Source: "{#WORKSPACE}\redist\msvcrt\x64\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
+Source: "{#WORKSPACE}\redist\msvcrt\x64\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
+#else
+Source: "{#WORKSPACE}\redist\msvcrt\x86\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
 #endif
-Source: "{#WORKSPACE}\redist\msvc\x86\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
-Source: "{#WORKSPACE}\redist\msvc\x86\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
+Source: "{#WORKSPACE}\redist\msvcrt\x86\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs; Check: UseLocalMSVCRT
 
 ; COPY files
 Source: "{#WORKSPACE}\gixsql\copy\SQLCA.cpy"; DestDir: "{app}\lib\copy"; Flags: ignoreversion createallsubdirs recursesubdirs
@@ -63,25 +64,23 @@ Source: "{#WORKSPACE}\doc\*"; DestDir: "{userdocs}\Gix\Documentation"; Flags: ig
 
 ; dependencies for DB runtime libraries
 #if "x64" == HOST_PLATFORM
-Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x64\msvc\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x64\gcc\*"; DestDir: "{app}\lib\x64\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-
-Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x64\msvc\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x64\gcc\*"; DestDir: "{app}\lib\x64\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\redist\deps\x64\msvc\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs 
+Source: "{#WORKSPACE}\redist\deps\x64\gcc\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs 
+Source: "{#WORKSPACE}\redist\deps\x64\msvc\*"; DestDir: "{app}\lib\x64\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs 
+Source: "{#WORKSPACE}\redist\deps\x64\gcc\*"; DestDir: "{app}\lib\x64\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs 
+#else
+Source: "{#WORKSPACE}\redist\deps\x86\msvc\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs 
+Source: "{#WORKSPACE}\redist\deps\x86\gcc\*"; DestDir: "{app}\bin"; Flags: ignoreversion createallsubdirs recursesubdirs 
 #endif
-
-Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x86\msvc\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "{#WORKSPACE}\gixsql\deploy\redist\pgsql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-
-Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\msvc\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
-Source: "{#WORKSPACE}\gixsql\deploy\redist\mysql\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs skipifsourcedoesntexist
+Source: "{#WORKSPACE}\redist\deps\x86\msvc\*"; DestDir: "{app}\lib\x86\msvc"; Flags: ignoreversion createallsubdirs recursesubdirs 
+Source: "{#WORKSPACE}\redist\deps\x86\gcc\*"; DestDir: "{app}\lib\x86\gcc"; Flags: ignoreversion createallsubdirs recursesubdirs 
 
 [Run]
 #if "x64" == HOST_PLATFORM
 Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated runascurrentuser shellexec skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x64)"; Verb: "runas"; Check: UseDownloadedMSVCRT
 #endif
 Filename: "{tmp}\vc_redist.x86.exe"; Parameters: "/install /passive /norestart"; WorkingDir: "{tmp}"; Flags: waituntilterminated runascurrentuser shellexec skipifdoesntexist; Description: "Visual C++ 2022 redistributable package (x86)"; Verb: "runas"; Check: UseDownloadedMSVCRT
-Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated postinstall runascurrentuser shellexec; Description: "Intall Visual C++ 2022 build tools"; StatusMsg: "Installing Visual C++ 2022 build tools"; Verb: "runas"; Check: IsMSVCCompilerSelected
+Filename: "{tmp}\vs_buildtools.exe"; Parameters: "--passive --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"; WorkingDir: "{tmp}"; Flags: waituntilterminated postinstall runascurrentuser shellexec; Description: "Install Visual C++ 2022 Build Tools"; StatusMsg: "Installing Visual C++ 2022 Build Tools"; Verb: "runas"; Check: IsMSVCCompilerSelected
 
 [Registry]
 Root: "HKA"; Subkey: "Software\MediumGray\gix-ide"; ValueType: string; ValueName: "version"; ValueData: "{#VER_GIXIDEMAJ}.{#VER_GIXIDEMIN}.{#VER_GIXIDEREL}-{#GIX_REVISION}"; Flags: createvalueifdoesntexist deletevalue uninsdeletekey
