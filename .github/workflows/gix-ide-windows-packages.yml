@@ -434,8 +434,10 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: |
           FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
-          mkdir ${{ github.workspace }}\redist\msvc\x86
-          mkdir ${{ github.workspace }}\redist\msvc\x64
+          mkdir ${{ github.workspace }}\redist\x86\msvc
+          mkdir ${{ github.workspace }}\redist\x64\msvc
+          mkdir ${{ github.workspace }}\redist\x86\gcc
+          mkdir ${{ github.workspace }}\redist\x64\gcc          
           mkdir ${{ env.DIST_DIR }}\bin
           mkdir ${{ env.DIST_DIR }}\lib
           mkdir ${{ env.DIST_DIR }}\lib\x64\msvc
@@ -488,10 +490,10 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x64\gcc
           copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x64\gcc      
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x64\dbghelp.dll" ${{ env.DIST_DIR }}\bin
-          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\deps-x64-msvc\*.* ${{ github.workspace }}\redist\msvc\x64
-          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\x86          
-          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\deps-x64-gcc\*.* ${{ github.workspace }}\redist\gcc\x64
-          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\x86
+          copy ${{ env.GIX_IDE_X64_BIN_DIR }}\deps-x64-msvc\*.* ${{ github.workspace }}\redist\x64\msvc
+          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\x86\msvc          
+          copy ${{ env.GIXSQL_MINGW_X64_BIN_DIR }}\deps-x64-gcc\*.* ${{ github.workspace }}\redist\x64\gcc
+          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\x86\gcc
 
     - name: Build installer package
       shell: cmd
@@ -558,7 +560,8 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: |
           FOR /F "tokens=*" %%g IN ('vswhere -property installationPath') do (SET VSPATH=%%g)
-          mkdir ${{ github.workspace }}\redist\msvc\x86
+          mkdir ${{ github.workspace }}\redist\x86\msvc
+          mkdir ${{ github.workspace }}\redist\x86\gcc
           mkdir ${{ env.DIST_DIR }}\bin
           mkdir ${{ env.DIST_DIR }}\lib
           mkdir ${{ env.DIST_DIR }}\lib\x86\msvc
@@ -594,8 +597,8 @@ jobs:
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-oracle.dll ${{ env.DIST_DIR }}\lib\x86\gcc
           copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\bin\libgixsql-sqlite.dll ${{ env.DIST_DIR }}\lib\x86\gcc                
           copy "%ProgramFiles(x86)%\Windows Kits\10\Debuggers\x86\dbghelp.dll" ${{ env.DIST_DIR }}\bin       
-          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\msvc\x86          
-          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\gcc\x86
+          copy ${{ env.GIX_IDE_X86_BIN_DIR }}\deps-x86-msvc\*.* ${{ github.workspace }}\redist\x86\msvc          
+          copy ${{ env.GIXSQL_MINGW_X86_BIN_DIR }}\deps-x86-gcc\*.* ${{ github.workspace }}\redist\x86\gcc
           
     - name: Build installer package
       shell: cmd
