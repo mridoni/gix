@@ -136,7 +136,7 @@ jobs:
       with:
         name: ${{ github.job }}-artifacts
         path: |
-          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-msvc/          
+          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-*/          
           
   gix-ide-windows-x86-msvc:
     name: gix-ide-windows-x86-msvc
