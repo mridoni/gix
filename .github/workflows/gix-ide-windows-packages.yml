@@ -130,7 +130,13 @@ jobs:
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe
-          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-msvc/
+          
+    - name: Archive dependencies
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.job }}-artifacts
+        path: |
+          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-msvc/          
           
   gix-ide-windows-x86-msvc:
     name: gix-ide-windows-x86-msvc
@@ -219,7 +225,13 @@ jobs:
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.dll
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/libgixsql.lib
           ${{ github.workspace }}/${{env.HOST_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/*.exe          
-          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-msvc/
+
+    - name: Archive dependencies
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.job }}-artifacts
+        path: |
+          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-msvc/  
 
   gixsql-windows-x64-mingw:
     name: gixsql-windows-x64-mingw
@@ -284,7 +296,13 @@ jobs:
          path: |
            ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/bin/*.*
            ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/lib/*.*
-           ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc/
+
+    - name: Archive dependencies
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.job }}-artifacts
+        path: |
+          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc/  
    
  
   gixsql-windows-x86-mingw:
@@ -350,7 +368,13 @@ jobs:
          path: |
            ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/bin/*.*
            ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/lib/*.*
-           ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc/
+
+     - name: Archive dependencies
+       uses: actions/upload-artifact@v3
+       with:
+         name: ${{ github.job }}-artifacts
+         path: |
+           ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-gcc/  
 
   gix-ide-installer-windows-x64:
     name: gix-ide-installer-windows-x64
