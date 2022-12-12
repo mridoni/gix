@@ -265,16 +265,16 @@ jobs:
          ls -lR /bin
          export DEPS_DIR=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
          mkdir $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libcrypto-1_1-x64.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libfmt.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libgcc_s_seh-1.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libintl-8.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libmariadb.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libpq.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libssl-1_1-x64.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libstdc++-6.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libwinpthread-1.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/zlib1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libcrypto-1_1-x64.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libfmt.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libgcc_s_seh-1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libintl-8.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libmariadb.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libpq.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libssl-1_1-x64.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libstdc++-6.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libwinpthread-1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/zlib1.dll $DEPS_DIR
          
  
     - name: Archive production artifacts
@@ -331,17 +331,17 @@ jobs:
          ls -lR /bin         
          export DEPS_DIR=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
          mkdir $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libcrypto-1_1.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libfmt.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libgcc_s_dw2-1.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libintl-8.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libmariadb.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libpq.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libssl-1_1.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libstdc++-6.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libwinpthread-1.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/libxml2-2.dll $DEPS_DIR
-         cp /${{ env,MSYS2_SYSTEM }}/bin/zlib1.dll $DEPS_DIR 
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libcrypto-1_1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libfmt.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libgcc_s_dw2-1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libintl-8.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libmariadb.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libpq.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libssl-1_1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libstdc++-6.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libwinpthread-1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libxml2-2.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/zlib1.dll $DEPS_DIR 
  
      - name: Archive production artifacts
        uses: actions/upload-artifact@v3
