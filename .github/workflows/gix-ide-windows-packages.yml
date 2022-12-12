@@ -142,8 +142,8 @@ jobs:
     name: gix-ide-windows-x86-msvc
     env:
       BUILD_CONFIGURATION: Release
-      HOST_PLATFORM: Win32      
-      PLATFORM_ID: x86    
+      HOST_PLATFORM: x86      
+      PLATFORM_ID: Win32    
       SOLUTION_FILE_PATH: gix-ide.sln
     runs-on: windows-latest
     steps:
@@ -178,16 +178,16 @@ jobs:
       uses: mridoni/my-vcpkg-action@v1
       with:
           pkgs: libpq libmariadb nng
-          triplet: ${{env.PLATFORM_ID}}-windows
-          cache-key: '${{env.PLATFORM_ID}}-rdynamic'
+          triplet: ${{env.HOST_PLATFORM}}-windows
+          cache-key: '${{env.HOST_PLATFORM}}-rdynamic'
           disable-cache: false
           
     - name: Install vcpkg packages (2)
       uses: mridoni/my-vcpkg-action@v1
       with:
           pkgs: spdlog
-          triplet: ${{env.PLATFORM_ID}}-windows-static-md
-          cache-key: '${{env.PLATFORM_ID}}-rstatic'
+          triplet: ${{env.HOST_PLATFORM}}-windows-static-md
+          cache-key: '${{env.HOST_PLATFORM}}-rstatic'
           disable-cache: false
 
     - name: Build
@@ -209,7 +209,7 @@ jobs:
         "%EXE_7Z%" x -y ${{ github.workspace }}\build-tools\QtMsBuild.zip  
         call ${{ github.workspace }}\prepbuild.cmd /E
         %VCPKG_ROOT%\vcpkg integrate install
-        msbuild /p:Platform=${{env.HOST_PLATFORM}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
+        msbuild /p:Platform=${{env.PLATFORM_ID}} /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:IncludePath="${{env.Qt5_Dir}}/include;${{env.Qt5_Dir}}/include/QtCore;${{env.Qt5_Dir}}/include/QtWidgets;${{env.Qt5_Dir}}/include/QtXml;${{env.Qt5_Dir}}/include/QtXmlPatterns;${{env.Qt5_Dir}}/include/QtNetwork;${{env.Qt5_Dir}}/include/QtUiTools;${{env.Qt5_Dir}}/include/QtGui;${{ '$(IncludePath)' }}" /p:LibPath="${{env.Qt5_Dir}}/lib;${{ '$(LibPath)' }}" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Widgets.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Gui.lib" /p:AdditionalDependencies="${{env.QTDIR}}\lib\Qt5Core.lib ${{env.QTDIR}}\lib\qtmain.lib"
         mkdir ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
         copy "%VCPKG_ROOT%\installed\x86-windows\bin\libcrypto-3.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
         copy "%VCPKG_ROOT%\installed\x86-windows\bin\libmariadb.dll" ${{ github.workspace }}\deps-${{env.HOST_PLATFORM}}-msvc
