@@ -234,76 +234,76 @@ jobs:
         path: |
           ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-*/  
 
-#  gixsql-windows-x64-mingw:
-#    name: gixsql-windows-x64-mingw
-#    env:
-#      HOST_PLATFORM: x64
-#      MSYS2_SYSTEM: mingw64      
-#      MSYS2_PLATFORM_ID: x86_64          
-#    runs-on: windows-latest
-#    steps:
-#    - uses: actions/checkout@v3
-#      with:
-#          repository: 'mridoni/gixsql'    
-#
-#    - name: Set up MinGW
-#      uses: msys2/setup-msys2@v2
-#      with:
-#        msystem: ${{env.MSYS2_SYSTEM}}
-#        location: ${{ env.MSYS2_BASE }}
-#        install: >-
-#            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-pkg-config
-#            autoconf
-#            make
-#            automake
-#            libtool
-#            bison
-#            flex
-#            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-gcc
-#            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-postgresql 
-#            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-libmariadbclient 
-#            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-unixodbc 
-#            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-spdlog 
-#
-#    - shell: msys2 {0}
-#      name: Build
-#      working-directory: ${{env.GITHUB_WORKSPACE}}
-#      run: |
-#         echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
-#         chmod 755 prepdist.sh && ./prepdist.sh
-#         autoreconf --install --force
-#         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
-#         make
-#         make install-strip
-#         ls -lR /bin
-#         export DEPS_DIR=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
-#         mkdir $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libcrypto-1_1-x64.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libfmt.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libgcc_s_seh-1.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libintl-8.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libmariadb.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libpq.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libssl-1_1-x64.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libstdc++-6.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/libwinpthread-1.dll $DEPS_DIR
-#         cp /${{ env.MSYS2_SYSTEM }}/bin/zlib1.dll $DEPS_DIR
-#         
-# 
-#    - name: Archive production artifacts
-#      uses: actions/upload-artifact@v3
-#      with:
-#         name: ${{ github.job }}-artifacts
-#         path: |
-#           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/bin/*.*
-#           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/lib/*.*
-#
-#    - name: Archive dependencies
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: ${{ github.job }}-artifacts
-#        path: |
-#          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-*/  
+  gixsql-windows-x64-mingw:
+    name: gixsql-windows-x64-mingw
+    env:
+      HOST_PLATFORM: x64
+      MSYS2_SYSTEM: mingw64      
+      MSYS2_PLATFORM_ID: x86_64          
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+          repository: 'mridoni/gixsql'    
+
+    - name: Set up MinGW
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{env.MSYS2_SYSTEM}}
+        location: ${{ env.MSYS2_BASE }}
+        install: >-
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-pkg-config
+            autoconf
+            make
+            automake
+            libtool
+            bison
+            flex
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-gcc
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-postgresql 
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-libmariadbclient 
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-unixodbc 
+            mingw-w64-${{env.MSYS2_PLATFORM_ID}}-spdlog 
+
+    - shell: msys2 {0}
+      name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+         echo lt_cv_deplibs_check_method='pass_all' >> /etc/config.site
+         chmod 755 prepdist.sh && ./prepdist.sh
+         autoreconf --install --force
+         ./configure --prefix=$(cygpath "${{ github.workspace }}/build-${{env.HOST_PLATFORM}}")
+         make
+         make install-strip
+         ls -lR /bin
+         export DEPS_DIR=$(cygpath "${{ github.workspace }}/deps-${{ env.HOST_PLATFORM }}-gcc")
+         mkdir $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libcrypto-1_1-x64.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libfmt.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libgcc_s_seh-1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libintl-8.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libmariadb.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libpq.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libssl-1_1-x64.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libstdc++-6.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/libwinpthread-1.dll $DEPS_DIR
+         cp /${{ env.MSYS2_SYSTEM }}/bin/zlib1.dll $DEPS_DIR
+         
+ 
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+         name: ${{ github.job }}-artifacts
+         path: |
+           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/bin/*.*
+           ${{ github.workspace }}/build-${{env.HOST_PLATFORM}}/lib/*.*
+
+    - name: Archive dependencies
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.job }}-artifacts
+        path: |
+          ${{ github.workspace }}/deps-${{env.HOST_PLATFORM}}-*/  
    
  
   gixsql-windows-x86-mingw:
