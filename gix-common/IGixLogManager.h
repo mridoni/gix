@@ -23,8 +23,7 @@ USA.
 
 #include <QString>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/common.h"
+#include <spdlog/spdlog.h>
 
 #include "QStringFormatter.h"
 
@@ -42,6 +41,12 @@ USA.
 #define LOG_TEST		99
 
 #define LOG_CUSTOM_BASE	100
+
+#if SPDLOG_VERSION >= 11000
+#define SPDLOG_FORMAT_STRING_T spdlog::format_string_t
+#else
+#define SPDLOG_FORMAT_STRING_T spdlog::format_string
+#endif
 
 class IGixLogManager : public QObject
 {
@@ -65,37 +70,37 @@ public:
 	};
 
 	template<typename... Args>
-	inline void trace(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	inline void trace(int source, SPDLOG_FORMAT_STRING_T<Args...> fmt, Args &&... args)
 	{
 		log(source, spdlog::level::trace, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
-	inline void debug(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	inline void debug(int source, SPDLOG_FORMAT_STRING_T<Args...> fmt, Args &&... args)
 	{
 		log(source, spdlog::level::debug, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
-	inline void info(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	inline void info(int source, SPDLOG_FORMAT_STRING_T<Args...> fmt, Args &&... args)
 	{
 		log(source, spdlog::level::info, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
-	inline void warn(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	inline void warn(int source, SPDLOG_FORMAT_STRING_T<Args...> fmt, Args &&... args)
 	{
 		log(source, spdlog::level::warn, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
-	inline void error(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	inline void error(int source, SPDLOG_FORMAT_STRING_T<Args...> fmt, Args &&... args)
 	{
 		log(source, spdlog::level::err, fmt, std::forward<Args>(args)...);
 	};
 
 	template<typename... Args>
-	inline void critical(int source, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	inline void critical(int source, SPDLOG_FORMAT_STRING_T<Args...> fmt, Args &&... args)
 	{
 		this->log(source, spdlog::level::critical, fmt, std::forward<Args>(args)...);
 	};
