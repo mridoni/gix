@@ -6,7 +6,6 @@ HEADERS +=  ./CobolVar.h \
 			./IGixLogManager.h \
 			./MacroManager.h \
 			./PropertyConsts.h \
-			./QLogger.h \
 			./RsrcUtils.h \
 			./ServerConfig.h \
 			./SymbolBufferReader.h \
@@ -14,6 +13,7 @@ HEADERS +=  ./CobolVar.h \
 			./XPathParser.h \
 			./ESQLConfiguration.h \
 			./SourceFileFormat.h \
+			./ErrorWarningFilter.h \
 			./projectsystem/IPersistableProjectItem.h \
 			./projectsystem/MultiBinaryProject.h \
 			./projectsystem/PrjCollPropertyDefinitionCollection.h \
@@ -58,7 +58,6 @@ HEADERS +=  ./CobolVar.h \
 			./metadata/MetadataWorker.h
 	 
 SOURCES +=  ./GixGlobals.cpp \
-			./QLogger.cpp \
 			./CobolVarList.cpp \
 			./MacroManager.cpp \
 			./SymbolBufferReader.cpp			 \
@@ -68,6 +67,7 @@ SOURCES +=  ./GixGlobals.cpp \
 			./PropertyConsts.cpp \
 			./RsrcUtils.cpp \
 			./ESQLConfiguration.cpp \
+			./ErrorWarningFilter.cpp \
 			./projectsystem/Project.cpp \
 			./projectsystem/WebProject.cpp \
 			./projectsystem/SingleBinaryProject.cpp \

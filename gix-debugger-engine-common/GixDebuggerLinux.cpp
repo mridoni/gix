@@ -88,7 +88,7 @@ int GixDebuggerLinux::start()
     dbgr_instance = this;
 
     if (logger.get() == nullptr) {
-        logger = spdlog::default_logger;
+        logger = spdlog::default_logger();
     }
 
     LinuxProcessRunner process(this);
@@ -893,7 +893,7 @@ bool GixDebuggerLinux::processImage(void *imageBase, void *hSym, std::string ima
 bool LinuxUserBreakpoint::install()
 {
     if (isInstalled()) {
-        logger->trace("Breakpoint at {:p} for {}@{} is already installed, skipping", this->address, this->line, this->source_file);
+//        logger->trace("Breakpoint at {:p} for {}@{} is already installed, skipping", this->address, this->line, this->source_file);
         return true;
     }
 
@@ -903,12 +903,13 @@ bool LinuxUserBreakpoint::install()
     GixDebuggerLinux *gdlinux = GixDebuggerLinux::getInstance();
 
     uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
-    if ((int64_t)data == -1)
-        logger->trace("Error ({}) {}", errno, strerror(errno));
+//    if ((int64_t)data == -1)
+//        logger->trace("Error ({}) {}", errno, strerror(errno));
+
     this->orig_instr = static_cast<uint8_t>(data & 0xff); //save bottom byte
     uint64_t int3 = 0xcc;
     uint64_t data_with_int3 = ((data & ~0xff) | int3); //set bottom byte to 0xcc
-    logger->trace("Installing breakpoint at {:x} - old data: {:x}, new data : {:x}, saved data: {:x}", this->address, data, data_with_int3, this->orig_instr);
+//    logger->trace("Installing breakpoint at {:x} - old data: {:x}, new data : {:x}, saved data: {:x}", this->address, data, data_with_int3, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, data_with_int3);
     return true;
 }
@@ -916,7 +917,7 @@ bool LinuxUserBreakpoint::install()
 bool LinuxUserBreakpoint::uninstall()
 {
     if (!isInstalled()) {
-        logger->trace("Breakpoint at {:x} for {}@{} is not installed, skipping", this->address, this->line, this->source_file);
+//        logger->trace("Breakpoint at {:x} for {}@{} is not installed, skipping", this->address, this->line, this->source_file);
         return true;
     }
 
@@ -924,7 +925,7 @@ bool LinuxUserBreakpoint::uninstall()
 
     uint64_t data = ptrace(PTRACE_PEEKDATA, gdlinux->getPid(), this->address, nullptr);
     uint64_t restored_data = ((data & ~0xff) | this->orig_instr);
-    logger->trace("Removing breakpoint at {:x} - old data: {:x}, new data : {:x}, orig_instr: {:x}", this->address, data, restored_data, this->orig_instr);
+//    logger->trace("Removing breakpoint at {:x} - old data: {:x}, new data : {:x}, orig_instr: {:x}", this->address, data, restored_data, this->orig_instr);
     ptrace(PTRACE_POKEDATA, gdlinux->getPid(), this->address, restored_data);
     this->orig_instr = 0x00;
     return true;
@@ -936,7 +937,8 @@ void GixDebuggerLinux::PipeReaderThread(stPipeThreadData *data)
 
     char bfr[1024];
     if (!data->fd || !data->debugger_instance) {
-        logger->trace("Cannot launch pipe reader thread for channel type {}", (int) data->channel_type);
+	GixDebuggerLinux *gdlinux = GixDebuggerLinux::getInstance();
+        gdlinux->logger->trace("Cannot launch pipe reader thread for channel type {}", (int) data->channel_type);
         return;
     }
 
@@ -954,6 +956,8 @@ void GixDebuggerLinux::PipeReaderThread(stPipeThreadData *data)
     struct timeval timeout;
     timeout.tv_sec = 0;
     timeout.tv_usec = 250 * 1000;
+
+    GixDebuggerLinux *gdlinux = GixDebuggerLinux::getInstance();
     
     while (data->debugger_instance->stop_reading_pipes) {
         
@@ -977,7 +981,7 @@ void GixDebuggerLinux::PipeReaderThread(stPipeThreadData *data)
                        break;        
                        
                     default:
-                       logger->trace("Invalid channel type: ", (int) data->channel_type); 
+                       gdlinux->logger->trace("Invalid channel type: ", (int) data->channel_type); 
                        break;                       
                 }
             }

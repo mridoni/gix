@@ -228,7 +228,7 @@ protected:
 #else
 	DebuggerHostDriver *debug_driver = nullptr;
 #endif
-	
+
 	std::shared_ptr<spdlog::logger> logger;
 
 private:

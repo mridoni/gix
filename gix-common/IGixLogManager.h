@@ -45,7 +45,7 @@ USA.
 #if SPDLOG_VERSION >= 11000
 #define SPDLOG_FORMAT_STRING_T spdlog::format_string_t
 #else
-#define SPDLOG_FORMAT_STRING_T spdlog::format_string
+#define SPDLOG_FORMAT_STRING_T fmt::format_string
 #endif
 
 class IGixLogManager : public QObject
@@ -53,7 +53,7 @@ class IGixLogManager : public QObject
 public:
 
 	template<typename... Args>
-	inline void log(int source, spdlog::level::level_enum level, spdlog::format_string_t<Args...> fmt, Args &&... args)
+	inline void log(int source, spdlog::level::level_enum level, SPDLOG_FORMAT_STRING_T<Args...> fmt, Args &&... args)
 	{
 		std::shared_ptr<spdlog::logger> logger = get_logger(source);
 		if (logger.get()) {

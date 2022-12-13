@@ -111,7 +111,7 @@ bool DebugManager::start(Project* prj, QString _build_configuration, QString _ta
 #if defined (__linux__)
 	if (prj->getType() == ProjectType::Web) {
 		QString msg = QString(tr("Debugging of Web Projects under Linux is not currently supported"));
-		logger->logMessage(LOG_DEBUG, msg, QLogger::LogLevel::Error);
+		logger->error(LOG_DEBUG, "{}", msg);
 		UiUtils::ErrorDialog(msg);
 		return false;
 	}

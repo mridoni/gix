@@ -55,7 +55,9 @@ HEADERS += \
 	./IdeStatusSyncSetter.h \ 
 	./DragDropTreeWidget.h \
 	./DragDropTableWidget.h \
-	./DebugDriverFactory.h
+	./DebugDriverFactory.h \
+	./OutputWindowLogger.h \
+	./ErrorWindow.h
 
 SOURCES += \
         ./Changeling.cpp \
@@ -106,7 +108,9 @@ SOURCES += \
 	./IdeStatusSyncSetter.cpp \ 
 	./DragDropTreeWidget.cpp \
 	./DragDropTableWidget.cpp \
-	./DebugDriverFactory.cpp
+	./DebugDriverFactory.cpp \
+	./OutputWindowLogger.cpp \
+	./ErrorWindow.cpp
 
 FORMS += ./NewProject.ui \
 	./Settings.ui  \

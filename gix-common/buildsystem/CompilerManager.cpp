@@ -72,8 +72,8 @@ void CompilerManager::init()
 
 		compiler_defs[cd->getId()] = cd;
 	}
-	
-#if defined(__linux__)	
+
+#if defined(__linux__)
 	if (!compiler_defs.contains("system-default")) {
 
 		QString compiler_info;
@@ -83,11 +83,11 @@ void CompilerManager::init()
 		if (cd_default != nullptr) {
 			QStringList test_info;
 			if (cd_default->testConfiguration(compiler_errs) && cd_default->save()) {
-				logger->logMessage(LOG_CONFIG, QString("Adding distribution-provided compiler (%1)").arg(compiler_info), QLogger::LogLevel::Info);
+				logger->info(LOG_CONFIG, "Adding distribution-provided compiler ({})", compiler_info);
 				compiler_defs[cd_default->getId()] = cd_default;
 			}
 			else {
-				logger->logMessage(LOG_CONFIG, "Cannot add distribution-provided compiler", QLogger::LogLevel::Warning);
+				logger->warn(LOG_CONFIG, "Cannot add distribution-provided compiler");
 			}
 		}
 	}

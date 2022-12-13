@@ -7,6 +7,7 @@ HEADERS += ./ExternalInterfaceData.h \
     ./documentcache.h \
     ./global.h \
     ./main.h \
+    ./QLogger.h \
     ./ServiceManager.h \
     ./templateengine/template.h \
     ./templateengine/templateglobal.h \
@@ -44,6 +45,7 @@ SOURCES += ./main.cpp \
     ./templateengine/templatecache.cpp \
     ./templateengine/templateloader.cpp \
     ./utils.cpp \
+    ./QLogger.cpp \
     ./http/httpconnectionhandler.cpp \
     ./http/httpconnectionhandlerpool.cpp \
     ./http/httpcookie.cpp \
