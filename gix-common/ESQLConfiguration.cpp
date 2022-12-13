@@ -203,6 +203,10 @@ QStringList ESQLConfiguration::getLinkLibNameList()
 {
 	if (id == ESQLConfigurationType::GixInternal || id == ESQLConfigurationType::GixExternal) {
 		QStringList res = QStringList() << (env == CompilerEnvironment::VisualStudio ? "libgixsql" : "gixsql");
+		if (env != CompilerEnvironment::VisualStudio) {
+			res.append("stdc++");
+			res.append("fmt");
+		}
 		return res;
 	}
 	return QStringList();
