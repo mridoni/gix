@@ -28,7 +28,7 @@ USA.
 #include <QFileDialog>
 //############################################################
 
-ColorButton::ColorButton(QColor _color, QWidget *parent) : QPushButton(parent)
+ColorButton::ColorButton(QColor _color, QWidget* parent) : QPushButton(parent)
 {
 	color = _color;
 	this->setStyleSheet("background-color: " + color.name());
@@ -69,13 +69,13 @@ void ColorButton::pickColor()
 //------------------------
 //-- Default construtor
 
-CustomDialog::CustomDialog(QString title, QWidget *parent, btnset btnSet)
+CustomDialog::CustomDialog(QString title, QWidget* parent, btnset btnSet)
 	: QDialog(parent)
 {
 	setWindowTitle(title);
 
 
-	QVBoxLayout *vboxLayoutMain = new QVBoxLayout(this);
+	QVBoxLayout* vboxLayoutMain = new QVBoxLayout(this);
 	vboxLayoutMain->setSpacing(0);
 	vboxLayoutMain->setMargin(0);
 
@@ -132,7 +132,7 @@ bool CustomDialog::addCustomButton(QString buttonStr, btnbehav buttonBehav,
 {
 	customBtn.push_back(new QPushButton(buttonStr, this));
 
-	QPushButton *newButton = customBtn.back();
+	QPushButton* newButton = customBtn.back();
 
 	switch (buttonBehav)
 	{
@@ -192,7 +192,7 @@ DialogElement& CustomDialog::addNewElement(DlgType _type, QString caption,
 			e.label->setToolTip(tooltip);
 		//setDefaultColorAndFont(e.label);  // Uncomment if you add special font or stylesheet changes to group boxes.
 	}
-	else 
+	else
 		e.label = nullptr;
 
 	e.layout = new QHBoxLayout();
@@ -213,7 +213,7 @@ DialogElement& CustomDialog::addNewElement(DlgType _type, QString caption,
 
 int CustomDialog::addLabel(QString caption, bool bold, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_LABEL, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_LABEL, caption, tooltip, true);
 
 	setBold(e.label, bold);
 	e.label->setTextFormat(Qt::PlainText);
@@ -232,7 +232,7 @@ int CustomDialog::addLabel(QString caption, bool bold, QString tooltip)
 
 int CustomDialog::addHtmlLabel(QString caption, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_LABEL, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_LABEL, caption, tooltip, true);
 
 	e.label->setTextFormat(Qt::RichText);
 	e.label->setOpenExternalLinks(true);
@@ -249,9 +249,9 @@ int CustomDialog::addHtmlLabel(QString caption, QString tooltip)
 //-- @ *checked  = default value + where the checkbox value is updated if "Ok" is clicked
 //-- @ tooltip   = is_optional tooltip
 
-int CustomDialog::addCheckBox(QString caption, bool *checked, QString tooltip)
+int CustomDialog::addCheckBox(QString caption, bool* checked, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_CHECKBOX, caption, tooltip, false);
+	DialogElement& e = addNewElement(DLG_CHECKBOX, caption, tooltip, false);
 
 	e.returnBool = checked;
 	e.chkBox = new QCheckBox(caption, this);
@@ -272,9 +272,9 @@ int CustomDialog::addCheckBox(QString caption, bool *checked, QString tooltip)
 //--                   value is saved if/when the user clicks "Ok"
 //-- @ tooltip       = is_optional tooltip
 
-int CustomDialog::addLineEdit(QString caption, std::string *stringValue, QString tooltip)
+int CustomDialog::addLineEdit(QString caption, std::string* stringValue, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_LINEEDIT, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_LINEEDIT, caption, tooltip, true);
 
 	e.returnString = stringValue;
 	e.lineEdit = new QLineEdit(this);
@@ -297,7 +297,7 @@ int CustomDialog::addLineEdit(QString caption, std::string *stringValue, QString
 
 int CustomDialog::addReadOnlyLineEdit(QString caption, QString text, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_LABEL, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_LABEL, caption, tooltip, true);
 
 	e.lineEdit = new QLineEdit(this);
 	e.lineEdit->setText(text);
@@ -320,10 +320,10 @@ int CustomDialog::addReadOnlyLineEdit(QString caption, QString text, QString too
 //-- @ decimal   = number of decimal points to show
 //-- @ tooltip   = is_optional tooltip
 
-int CustomDialog::addLineEditF(QString caption, float min, float max, float *value,
+int CustomDialog::addLineEditF(QString caption, float min, float max, float* value,
 	float decimals, QString tooltip, QString unitsStr)
 {
-	DialogElement &e = addNewElement(DLG_FLOATEDIT, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_FLOATEDIT, caption, tooltip, true);
 
 	e.returnFloat = value;
 	e.lineEdit = new QLineEdit(this);
@@ -334,7 +334,7 @@ int CustomDialog::addLineEditF(QString caption, float min, float max, float *val
 	e.lineEdit->setValidator(new QDoubleValidator(min, max,
 		decimals, e.lineEdit));
 
-	QSpacerItem *sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	QSpacerItem* sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 	e.layout->addWidget(e.label);
 	e.layout->addItem(sp);
 	e.layout->addWidget(e.lineEdit);
@@ -358,10 +358,10 @@ int CustomDialog::addLineEditF(QString caption, float min, float max, float *val
 //-- @ tooltip   =  is_optional tooltip
 
 
-int CustomDialog::addSpinBox(QString caption, int min, int max, int *value, int step,
+int CustomDialog::addSpinBox(QString caption, int min, int max, int* value, int step,
 	QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_SPINBOX, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_SPINBOX, caption, tooltip, true);
 
 	e.returnInt = value;
 	e.spnBox = new QSpinBox(this);
@@ -371,7 +371,7 @@ int CustomDialog::addSpinBox(QString caption, int min, int max, int *value, int 
 	if (!tooltip.isEmpty())
 		e.spnBox->setToolTip(tooltip);
 
-	QSpacerItem *sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	QSpacerItem* sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 	e.layout->addWidget(e.label);
 	e.layout->addItem(sp);
 	e.layout->addWidget(e.spnBox);
@@ -389,10 +389,10 @@ int CustomDialog::addSpinBox(QString caption, int min, int max, int *value, int 
 //-- @ step     =  the interval the spin box advances when its little arrows are clicked
 //-- @ tooltip  =  is_optional tooltip
 
-int CustomDialog::addDblSpinBoxF(QString caption, float min, float max, float *value,
+int CustomDialog::addDblSpinBoxF(QString caption, float min, float max, float* value,
 	int decimals, float step, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_DBLSPINBOX, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_DBLSPINBOX, caption, tooltip, true);
 
 	e.returnFloat = value;
 
@@ -404,7 +404,7 @@ int CustomDialog::addDblSpinBoxF(QString caption, float min, float max, float *v
 	if (!tooltip.isEmpty())
 		e.dblSpnBox->setToolTip(tooltip);
 
-	QSpacerItem *sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	QSpacerItem* sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 	e.layout->addWidget(e.label);
 	e.layout->addItem(sp);
 	e.layout->addWidget(e.dblSpnBox);
@@ -421,10 +421,10 @@ int CustomDialog::addDblSpinBoxF(QString caption, float min, float max, float *v
 //--                 updated when/if the user clicks "Ok"
 //-- @ tooltip    =  is_optional tooltip
 
-int CustomDialog::addComboBox(QString caption, QString barSepList, int *selIdx,
+int CustomDialog::addComboBox(QString caption, QString barSepList, int* selIdx,
 	QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_COMBOBOX, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_COMBOBOX, caption, tooltip, true);
 
 	e.returnInt = selIdx;
 	e.cmbBox = new QComboBox(this);
@@ -457,10 +457,10 @@ int CustomDialog::addComboBox(QString caption, QString barSepList, int *selIdx,
 //-- @ *checked   = if "checkable" is true, the default value + where the value of the
 //--                checkbox is updated when/if the user clicks "Ok"
 
-int CustomDialog::addRadioGrp(QString caption, QString barSepList, int *selIdx,
-	QString tooltip, QString tooltipArr, bool checkable, bool *checked)
+int CustomDialog::addRadioGrp(QString caption, QString barSepList, int* selIdx,
+	QString tooltip, QString tooltipArr, bool checkable, bool* checked)
 {
-	DialogElement &e = addNewElement(DLG_RADIOGRP, caption, tooltip, false);
+	DialogElement& e = addNewElement(DLG_RADIOGRP, caption, tooltip, false);
 
 	e.returnInt = selIdx;
 	e.grpBox = new QGroupBox(this);
@@ -470,8 +470,8 @@ int CustomDialog::addRadioGrp(QString caption, QString barSepList, int *selIdx,
 		e.returnBool = checked;
 		e.grpBox->setCheckable(*checked);
 	}
-	QButtonGroup *butGrp = new QButtonGroup(this);
-	QVBoxLayout  *butLay = new QVBoxLayout(e.grpBox);
+	QButtonGroup* butGrp = new QButtonGroup(this);
+	QVBoxLayout* butLay = new QVBoxLayout(e.grpBox);
 	butLay->setSpacing(2);
 	butLay->setContentsMargins(5, 2, 5, 5);
 	QStringList items = barSepList.split(
@@ -483,7 +483,7 @@ int CustomDialog::addRadioGrp(QString caption, QString barSepList, int *selIdx,
 
 	for (int j = 0; j < (int)items.size(); j++)    // Add each of item as radio button.
 	{
-		QRadioButton *newRadBtn = new QRadioButton(e.grpBox);
+		QRadioButton* newRadBtn = new QRadioButton(e.grpBox);
 		butLay->addWidget(newRadBtn);
 		butGrp->addButton(newRadBtn, j);
 		newRadBtn->setText(items[j]);
@@ -510,16 +510,16 @@ int CustomDialog::addRadioGrp(QString caption, QString barSepList, int *selIdx,
 //-- @ *color     = the default color + where the color is updated if the user clicks "Ok"
 //-- @ tooltip    =  is_optional tooltip
 
-int CustomDialog::addColorSel(QString caption, QColor *color, QString tooltip)
+int CustomDialog::addColorSel(QString caption, QColor* color, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_COLOR, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_COLOR, caption, tooltip, true);
 
 	e.returnColor = color;
 	e.btnColor = new ColorButton(*color, this);
 	if (!tooltip.isEmpty())
 		e.btnColor->setToolTip(tooltip);
 
-	QSpacerItem *sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	QSpacerItem* sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 	e.layout->addWidget(e.label);
 	e.layout->addItem(sp);
 	e.layout->addWidget(e.btnColor);
@@ -546,10 +546,10 @@ int CustomDialog::addColorSel(QString caption, QColor *color, QString tooltip)
 
 int CustomDialog::addMinMaxSpinBoxPair(QString caption, QString middleCaption,
 	int min, int max,
-	int *minValue, int *maxValue, int step,
+	int* minValue, int* maxValue, int step,
 	QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_MINMAXSPIN, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_MINMAXSPIN, caption, tooltip, true);
 
 	e.returnInt = minValue;
 	e.spnBox = new QSpinBox(this);
@@ -572,7 +572,7 @@ int CustomDialog::addMinMaxSpinBoxPair(QString caption, QString middleCaption,
 		e.label2->setToolTip(tooltip);
 	}
 
-	QSpacerItem *sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	QSpacerItem* sp = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	e.layout->addWidget(e.label);
 	e.layout->addItem(sp);
@@ -596,10 +596,10 @@ int CustomDialog::addMinMaxSpinBoxPair(QString caption, QString middleCaption,
 //-- @ minHeight = the minimum height of the text area in pixels
 //-- @ tooltip   =  is_optional tooltip for all the form elements in this row
 
-int CustomDialog::addTextEdit(std::string *text, bool richText, bool readOnly,
+int CustomDialog::addTextEdit(std::string* text, bool richText, bool readOnly,
 	int minHeight, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_TEXTEDIT, "", tooltip, false);
+	DialogElement& e = addNewElement(DLG_TEXTEDIT, "", tooltip, false);
 
 	e.returnString = text;
 	e.textEdit = new QTextEdit(this);
@@ -631,7 +631,7 @@ int CustomDialog::addTextEdit(std::string *text, bool richText, bool readOnly,
 int CustomDialog::addReadOnlyTextEdit(QString text, bool richText,
 	int minHeight, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_TEXTEDIT, "", tooltip, false);
+	DialogElement& e = addNewElement(DLG_TEXTEDIT, "", tooltip, false);
 
 	e.textEdit = new QTextEdit(this);
 	e.textEdit->setAcceptRichText(richText);
@@ -661,9 +661,9 @@ int CustomDialog::addReadOnlyTextEdit(QString text, bool richText,
 int CustomDialog::addProgressBar(QString caption, int percent,
 	int width, bool showValue, QString tooltip)
 {
-	DialogElement &e = addNewElement(DLG_LABEL, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_LABEL, caption, tooltip, true);
 
-	QProgressBar *progBar = new QProgressBar(this);
+	QProgressBar* progBar = new QProgressBar(this);
 	progBar->setMinimum(0);
 	progBar->setMaximum(100);
 	progBar->setValue(percent);
@@ -673,7 +673,7 @@ int CustomDialog::addProgressBar(QString caption, int percent,
 	if (!tooltip.isEmpty())
 		progBar->setToolTip(tooltip);
 
-	QSpacerItem *sp = new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	QSpacerItem* sp = new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 	e.layout->addWidget(e.label);
 	e.layout->addItem(sp);
 	e.layout->addWidget(progBar);
@@ -694,27 +694,27 @@ int CustomDialog::addPercentBar(QString caption, QString valueLabel, float fract
 	int width, QColor colorBar, QString tooltip,
 	QFrame::Shape shape, QFrame::Shadow shadow)
 {
-	DialogElement &e = addNewElement(DLG_LABEL, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_LABEL, caption, tooltip, true);
 
-	QSpacerItem *sp = new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+	QSpacerItem* sp = new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	e.label2 = new QLabel(valueLabel, this);
 
-	QSpacerItem *sp2 = new QSpacerItem(10, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+	QSpacerItem* sp2 = new QSpacerItem(10, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
 
 	int widthLine1 = (int)(fraction * (float)width);
 	int widthLine2 = width - widthLine1;
 
-	QFrame *fraBar = new QFrame(this);
+	QFrame* fraBar = new QFrame(this);
 	fraBar->setFrameShape(shape);
 	fraBar->setFrameShadow(shadow);
 
-	QHBoxLayout *layLines = new QHBoxLayout();
+	QHBoxLayout* layLines = new QHBoxLayout();
 	layLines->setSpacing(0);
 	layLines->setMargin(0);
 	fraBar->setLayout(layLines);
 
-	QFrame *line1 = new QFrame(this);
+	QFrame* line1 = new QFrame(this);
 	line1->setObjectName(QString::fromUtf8("line1"));
 	line1->setFixedWidth(widthLine1);
 	line1->setMinimumHeight(18);
@@ -724,7 +724,7 @@ int CustomDialog::addPercentBar(QString caption, QString valueLabel, float fract
 	line1->setStyleSheet("color: " + colorBar.name() + ";");
 	layLines->addWidget(line1);
 
-	QFrame *line2 = new QFrame(this);
+	QFrame* line2 = new QFrame(this);
 	line2->setObjectName(QString::fromUtf8("line1"));
 	line2->setFixedWidth(widthLine2);
 	line2->setMinimumHeight(18);
@@ -756,7 +756,7 @@ int CustomDialog::addPercentBar(QString caption, QString valueLabel, float fract
 
 int CustomDialog::addVSpacer(int minHeight)
 {
-	QSpacerItem *sp = new QSpacerItem(0, minHeight,
+	QSpacerItem* sp = new QSpacerItem(0, minHeight,
 		QSizePolicy::Minimum, QSizePolicy::Expanding);
 
 	//e.layout->addItem(sp);
@@ -764,15 +764,17 @@ int CustomDialog::addVSpacer(int minHeight)
 	return elements.size();
 }
 
-int CustomDialog::addEditableStringList(QString caption, QString tooltip, QStringList *stringList)
+int CustomDialog::addEditableStringList(QString caption, QString tooltip, QStringList* stringList)
 {
-	DialogElement &e = addNewElement(DLG_EDITABLE_STRING_LIST, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_EDITABLE_STRING_LIST, caption, tooltip, true);
 
 	e.returnStringList = stringList;
 	e.lstStrings = new QListWidget(this);
 	e.lstStrings->setMinimumWidth(500);
 
 	e.lstStrings->addItems(*stringList);
+
+	connect(e.lstStrings, &QListWidget::doubleClicked, this, [this, &e](QModelIndex m) { CustomDialog::editVar(e, m);  });
 
 	if (!tooltip.isEmpty())
 		e.lstStrings->setToolTip(tooltip);
@@ -783,14 +785,14 @@ int CustomDialog::addEditableStringList(QString caption, QString tooltip, QStrin
 	e.layout->addWidget(e.lstStrings);
 
 	customBtn.push_back(new QPushButton(tr("Add..."), this));
-	QPushButton *newButton = customBtn.back();
+	QPushButton* newButton = customBtn.back();
 	connect(newButton, &QPushButton::clicked, this, [this, &e] { CustomDialog::addVarToVarList(e);  });
 
 	customBtn.push_back(new QPushButton(tr("Remove"), this));
-	QPushButton *remButton = customBtn.back();
+	QPushButton* remButton = customBtn.back();
 	connect(remButton, &QPushButton::clicked, this, [this, &e] { CustomDialog::removeVarFromVarList(e);  });
 
-	QVBoxLayout *vlayout = new QVBoxLayout(this);
+	QVBoxLayout* vlayout = new QVBoxLayout(this);
 	vlayout->addWidget(newButton);
 	vlayout->addWidget(remButton);
 	e.layout->addLayout(vlayout);
@@ -799,44 +801,44 @@ int CustomDialog::addEditableStringList(QString caption, QString tooltip, QStrin
 	return elements.size();
 }
 
-int CustomDialog::addGetFolder(QString caption, std::string *folder_path, std::string default_path)
+int CustomDialog::addGetFolder(QString caption, std::string* folder_path, std::string default_path)
 {
-	DialogElement &e = addNewElement(DLG_GET_FOLDER, caption, "", true);
+	DialogElement& e = addNewElement(DLG_GET_FOLDER, caption, "", true);
 	e.returnString = folder_path;
 
-	QHBoxLayout *hb = new QHBoxLayout(this);
+	QHBoxLayout* hb = new QHBoxLayout(this);
 
-	QLabel *path_display = new QLabel(this);
+	QLabel* path_display = new QLabel(this);
 	path_display->setText("");
 	path_display->setMinimumWidth(350);
 	path_display->setStyleSheet("border: 1px solid #c0c0c0");
 
 	hb->addWidget(path_display);
 
-	QPushButton *pb = new QPushButton();
+	QPushButton* pb = new QPushButton();
 	pb->setMaximumWidth(30);
 	pb->setText("...");
 	hb->addWidget(pb);
 
-    connect(pb, &QPushButton::clicked, this, [path_display, e, default_path]() {
+	connect(pb, &QPushButton::clicked, this, [path_display, e, default_path]() {
 		QFileDialog dialog;
-		dialog.setFileMode(QFileDialog::Directory);
-		dialog.setOption(QFileDialog::ShowDirsOnly);
-        dialog.setDirectory(QString::fromStdString(default_path));
-		if (dialog.exec()) { 
-			path_display->setText(dialog.selectedFiles()[0]);
-			e.returnString->assign(dialog.selectedFiles()[0].toStdString());
-		}
-	});
+	dialog.setFileMode(QFileDialog::Directory);
+	dialog.setOption(QFileDialog::ShowDirsOnly);
+	dialog.setDirectory(QString::fromStdString(default_path));
+	if (dialog.exec()) {
+		path_display->setText(dialog.selectedFiles()[0]);
+		e.returnString->assign(dialog.selectedFiles()[0].toStdString());
+	}
+		});
 
 	layoutNextElement->addLayout(hb);
 	return elements.size();
 }
 
 
-int CustomDialog::addEditablePathList(QString caption, QString tooltip, QStringList *pathList)
+int CustomDialog::addEditablePathList(QString caption, QString tooltip, QStringList* pathList)
 {
-	DialogElement &e = addNewElement(DLG_EDITABLE_PATH_LIST, caption, tooltip, true);
+	DialogElement& e = addNewElement(DLG_EDITABLE_PATH_LIST, caption, tooltip, true);
 
 	e.returnStringList = pathList;
 	e.lstStrings = new QListWidget(this);
@@ -853,14 +855,14 @@ int CustomDialog::addEditablePathList(QString caption, QString tooltip, QStringL
 	e.layout->addWidget(e.lstStrings);
 
 	customBtn.push_back(new QPushButton(tr("Add..."), this));
-	QPushButton *newButton = customBtn.back();
+	QPushButton* newButton = customBtn.back();
 	connect(newButton, &QPushButton::clicked, this, [this, &e] { CustomDialog::addPathToPathList(e);  });
 
 	customBtn.push_back(new QPushButton(tr("Remove"), this));
-	QPushButton *remButton = customBtn.back();
+	QPushButton* remButton = customBtn.back();
 	connect(remButton, &QPushButton::clicked, this, [this, &e] { CustomDialog::removePathFromPathList(e);  });
 
-	QVBoxLayout *vlayout = new QVBoxLayout(this);
+	QVBoxLayout* vlayout = new QVBoxLayout(this);
 	vlayout->addWidget(newButton);
 	vlayout->addWidget(remButton);
 	e.layout->addLayout(vlayout);
@@ -884,9 +886,9 @@ void CustomDialog::addPathToPathList(DialogElement& e)
 
 void CustomDialog::removePathFromPathList(DialogElement& e)
 {
-    auto l = e.lstStrings->selectionModel()->selectedIndexes();
+	auto l = e.lstStrings->selectionModel()->selectedIndexes();
 	if (l.size() == 1) {
-        int idx = l.at(0).row();
+		int idx = l.at(0).row();
 		if (idx >= 0) {
 			e.lstStrings->takeItem(idx);
 			e.returnStringList->removeAt(idx);
@@ -894,28 +896,35 @@ void CustomDialog::removePathFromPathList(DialogElement& e)
 	}
 }
 
-void CustomDialog::addVarToVarList(DialogElement & e)
+void CustomDialog::addVarToVarList(DialogElement& e)
 {
-	QInputDialog dlg(this);
-	dlg.setInputMode(QInputDialog::TextInput);
-	dlg.setLabelText(tr("Enter a variable definition (e.g. NAME=VALUE)"));
-	dlg.resize(500, 100);
-	bool ok = dlg.exec();
-	if (ok) {
-		QString var = dlg.textValue();
-		if (!var.contains("=")) {
+	QString cur_text;
+
+	while (true) {
+		QInputDialog dlg(this);
+		dlg.setInputMode(QInputDialog::TextInput);
+		dlg.setLabelText(tr("Enter a variable definition (e.g. NAME=VALUE)"));
+		dlg.resize(500, 100);
+		dlg.setTextValue(cur_text);
+		if (!dlg.exec())
+			break;
+
+		cur_text = dlg.textValue();
+		if (!cur_text.contains("=")) {
 			QMessageBox msgBox;
 			msgBox.setText(tr("Invalid variable definition"));
 			msgBox.setIcon(QMessageBox::Critical);
 			msgBox.exec();
-			return;
+			continue;
 		}
-		e.lstStrings->addItem(var);
-		e.returnStringList->append(var);
+
+		e.lstStrings->addItem(cur_text);
+		e.returnStringList->append(cur_text);
+		break;
 	}
 }
 
-void CustomDialog::removeVarFromVarList(DialogElement & e)
+void CustomDialog::removeVarFromVarList(DialogElement& e)
 {
 	auto l = e.lstStrings->selectionModel()->selectedIndexes();
 	if (l.size() == 1) {
@@ -925,6 +934,40 @@ void CustomDialog::removeVarFromVarList(DialogElement & e)
 			e.returnStringList->removeAt(idx);
 		}
 	}
+}
+
+void CustomDialog::editVar(DialogElement& e, QModelIndex midx)
+{
+	int row = midx.row();
+
+	if (row < 0 || row >= e.lstStrings->count())
+		return;
+
+	QString cur_text = e.lstStrings->item(row)->text();
+
+	while (true) {
+		QInputDialog dlg(this);
+		dlg.setInputMode(QInputDialog::TextInput);
+		dlg.setLabelText(tr("Edit a variable definition (e.g. NAME=VALUE)"));
+		dlg.resize(500, 100);
+		dlg.setTextValue(cur_text);
+		if (!dlg.exec())
+			break;
+
+		cur_text = dlg.textValue();
+		if (!cur_text.contains("=")) {
+			QMessageBox msgBox;
+			msgBox.setText(tr("Invalid variable definition"));
+			msgBox.setIcon(QMessageBox::Critical);
+			msgBox.exec();
+			continue;
+		}
+
+		e.lstStrings->item(row)->setText(cur_text);
+		e.returnStringList->replace(row, cur_text);
+		break;
+	}
+
 }
 
 
@@ -940,9 +983,9 @@ void CustomDialog::removeVarFromVarList(DialogElement & e)
 //--                checkbox is updated when/if the user clicks "Ok"
 
 int CustomDialog::beginGroupBox(QString caption, bool flat, QString tooltip,
-	bool checkable, bool *checked)
+	bool checkable, bool* checked)
 {
-	DialogElement &e = addNewElement(DLG_GRPBOX, caption, tooltip, false);
+	DialogElement& e = addNewElement(DLG_GRPBOX, caption, tooltip, false);
 
 	e.grpBox = new QGroupBox(this);
 	e.grpBox->setTitle(caption);
@@ -993,10 +1036,10 @@ void CustomDialog::endGroupBox()
 //-- @ removeLabel = will remove the little label added on the left by "addNewElement()"
 //-- @ tooltip     = is_optional tooltip applied to the little checkbox
 
-int CustomDialog::addCheckPrev(QString caption, bool *checked,
+int CustomDialog::addCheckPrev(QString caption, bool* checked,
 	chkbehav chkBehav, bool removeLabel, QString tooltip)
 {
-	DialogElement &e = elements.back();
+	DialogElement& e = elements.back();
 	e.extraChkAdded = true;
 
 	e.returnChkExtra = checked;
@@ -1027,7 +1070,7 @@ int CustomDialog::addCheckPrev(QString caption, bool *checked,
 
 	//## ADD APPROPRIATE CONNECTOR TO APPROPRIATE WIDGET:
 
-	QWidget *wid;
+	QWidget* wid;
 
 	switch (e.type)
 	{
@@ -1084,14 +1127,14 @@ int CustomDialog::addCheckPrev(QString caption, bool *checked,
 
 int CustomDialog::addAutoCompletePrev(QStringList wordList, bool caseSensitive)
 {
-	DialogElement &e = elements.back();
+	DialogElement& e = elements.back();
 	if (e.type != DLG_LINEEDIT)
 	{
 		std::cerr << "ERROR: addAutoCompletePrev() must proceed addLineEdit()" << std::endl;
 		return 01;
 	}
 
-	QCompleter *completer = new QCompleter(wordList, this);
+	QCompleter* completer = new QCompleter(wordList, this);
 	if (caseSensitive)
 		completer->setCaseSensitivity(Qt::CaseSensitive);
 	else
@@ -1115,7 +1158,7 @@ bool CustomDialog::setStyleElem(int idx, std::string styleStr, bool bold)
 	if (idx >= elements.size() || idx < 0)
 		return false;
 
-	DialogElement &e = elements[idx];
+	DialogElement& e = elements[idx];
 	QString styleQStr = (QString)styleStr.c_str();
 
 
@@ -1172,7 +1215,7 @@ bool CustomDialog::setEnabledElem(int idx, bool enabled)
 	if (idx >= elements.size() || idx < 0)
 		return false;
 
-	DialogElement &e = elements[idx];
+	DialogElement& e = elements[idx];
 	e.layout->setEnabled(enabled);
 }
 
@@ -1222,7 +1265,7 @@ void CustomDialog::customBtnAccept()
 
 	for (int i = 0; i < (int)elements.size(); i++)
 	{
-		DialogElement &e = elements[i];
+		DialogElement& e = elements[i];
 
 		if (e.extraChkAdded)
 			*e.returnChkExtra = e.chkExtra->isChecked();
@@ -1385,7 +1428,7 @@ void MsgBox(std::string str)
 //---------
 //-- Display a simple message box
 
-void MsgBox(QWidget *parent, QString title, QString str)
+void MsgBox(QWidget* parent, QString title, QString str)
 {
 	QMessageBox::information(parent, title, str);
 }
@@ -1393,7 +1436,7 @@ void MsgBox(QWidget *parent, QString title, QString str)
 //---------
 //-- Display a tyes/no dialog box and return "true" if use clicks yes.
 
-bool MsgBoxYesNo(QWidget *parent, std::string str)
+bool MsgBoxYesNo(QWidget* parent, std::string str)
 {
 	int result = QMessageBox::information(parent, "...", str.c_str(),
 		QMessageBox::Yes, QMessageBox::No);
@@ -1403,7 +1446,7 @@ bool MsgBoxYesNo(QWidget *parent, std::string str)
 //---------
 //-- Display an input dialog and return the std::string entered by the user.
 
-std::string InputBoxString(QWidget *parent, std::string title, std::string label, std::string defaultStr)
+std::string InputBoxString(QWidget* parent, std::string title, std::string label, std::string defaultStr)
 {
 	return qStringToString(QInputDialog::getText(parent, title.c_str(), label.c_str(),
 		QLineEdit::Normal, defaultStr.c_str()));

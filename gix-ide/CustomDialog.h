@@ -317,6 +317,7 @@ private:
 
 	void addVarToVarList(DialogElement &e);
 	void removeVarFromVarList(DialogElement &e);
+	void editVar(DialogElement &e, QModelIndex idx);
 
 public slots:   //## SLOTS:
 
