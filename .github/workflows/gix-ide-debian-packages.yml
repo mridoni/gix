@@ -61,18 +61,18 @@ jobs:
     - name: Build package
       shell: bash
       env:
-        WORKSPACE: .
         DIST: debian-10
       run: |
-        chmod 755 ./deploy/installers/linux/mkdeb.sh && ./deploy/installers/linux/mkdeb.sh
+        export WORKSPACE=$(pwd)
+        echo "WORKSPACE: $WORKSPACE"
+        chmod 755 $WORKSPACE/deploy/installers/linux/mkdeb.sh && $WORKSPACE/deploy/installers/linux/mkdeb.sh
         
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       env:
-        WORKSPACE: .
         DIST: debian-10      
       with:
         name: gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
         path: |
-          ${{ env.WORKSPACE }}/gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}.deb
+          ./gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}.deb
 
