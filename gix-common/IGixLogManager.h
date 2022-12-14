@@ -25,7 +25,9 @@ USA.
 #include <QString>
 
 #include <spdlog/spdlog.h>
+#if SPDLOG_VERSION < 11000    
 #include <fmt/format.h>
+#endif
 
 #include "QStringFormatter.h"
 
@@ -43,16 +45,6 @@ USA.
 #define LOG_TEST		99
 
 #define LOG_CUSTOM_BASE	100
-
-/*
- * 
-template<typename... Args>
-    void log(level::level_enum lvl, fmt::format_string<Args...> fmt, Args &&...args)
-    {
-        log(source_loc{}, lvl, fmt, std::forward<Args>(args)...);
-    }
-*/
-
 
 class IGixLogManager : public QObject
 {
