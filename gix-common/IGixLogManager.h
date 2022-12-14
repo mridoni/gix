@@ -21,9 +21,11 @@ USA.
 #pragma once
 
 
+#include <QObject>
 #include <QString>
 
 #include <spdlog/spdlog.h>
+#include <fmt/format.h>
 
 #include "QStringFormatter.h"
 
@@ -42,16 +44,21 @@ USA.
 
 #define LOG_CUSTOM_BASE	100
 
-//#if SPDLOG_VERSION >= 11000
-//#define spdlog::format_string_t spdlog::format_string_t
-//#else
-//#define spdlog::format_string_t fmt::format_string
-//#endif
+/*
+ * 
+template<typename... Args>
+    void log(level::level_enum lvl, fmt::format_string<Args...> fmt, Args &&...args)
+    {
+        log(source_loc{}, lvl, fmt, std::forward<Args>(args)...);
+    }
+*/
+
 
 class IGixLogManager : public QObject
 {
 public:
 
+#if SPDLOG_VERSION >= 11000    
 	template<typename... Args>
 	inline void log(int source, spdlog::level::level_enum level, spdlog::format_string_t<Args...> fmt, Args &&... args)
 	{
@@ -104,7 +111,60 @@ public:
 	{
 		this->log(source, spdlog::level::critical, fmt, std::forward<Args>(args)...);
 	};
+#else
+    template<typename... Args>
+	inline void log(int source, spdlog::level::level_enum level, fmt::format_string<Args...> fmt, Args &&...args)
+	{
+		std::shared_ptr<spdlog::logger> logger = get_logger(source);
+		if (logger.get()) {
 
+			logger->log(level, fmt, std::forward<Args>(args)...);
+		}
+		else {
+			spdlog::memory_buf_t buf;
+			spdlog::string_view_t f = fmt;
+			fmt::detail::vformat_to(buf, f, fmt::make_format_args(std::forward<Args>(args)...));
+			std::string s(buf.data(), buf.size());
+			add_to_backlog(source, level, s);
+		}
+	};
+
+    template<typename... Args>
+    inline void trace(int source, fmt::format_string<Args...> fmt, Args &&...args)
+	{
+		log(source, spdlog::level::trace, fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void debug(int source, fmt::format_string<Args...> fmt, Args &&...args)
+	{
+		log(source, spdlog::level::debug, fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void info(int source, fmt::format_string<Args...> fmt, Args &&...args)
+	{
+		log(source, spdlog::level::info, fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void warn(int source, fmt::format_string<Args...> fmt, Args &&...args)
+	{
+		log(source, spdlog::level::warn, fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void error(int source, fmt::format_string<Args...> fmt, Args &&...args)
+	{
+		log(source, spdlog::level::err, fmt, std::forward<Args>(args)...);
+	};
+
+	template<typename... Args>
+	inline void critical(int source, fmt::format_string<Args...> fmt, Args &&...args)
+	{
+		this->log(source, spdlog::level::critical, fmt, std::forward<Args>(args)...);
+	};    
+#endif    
 	template<typename T>
 	void trace(int source, const T& msg)
 	{
