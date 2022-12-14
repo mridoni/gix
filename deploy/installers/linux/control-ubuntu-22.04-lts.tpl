@@ -5,8 +5,8 @@ Priority: optional
 Architecture: amd64
 Depends: libqt5xml5, libqt5xmlpatterns5, libqtermwidget5-0, libdwarf1, libelf++0, libdwarf++0, libmysqlclient21, libpq5, unixodbc, libspdlog1, libnng1
 Installed-Size: 11284
-Maintainer: Marco Ridoni <m.ridoni@gmail.com>
-Description: Gix-IDE (or Gix) is an IDE and platform for GnuCOBOL providing a native debugger, ESQL and HTTP REST services.
+Maintainer: Marco Ridoni <m.ridoni@mediumgray.info>
+Description: Gix-IDE is an IDE and platform for GnuCOBOL providing a native debugger, ESQL and HTTP REST services.
  .
  The centerpiece is a Qt-based IDE that provides syntax highlighting 
  (thanks to Scintilla), support for different versions of the compiler, 
