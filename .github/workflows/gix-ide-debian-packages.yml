@@ -65,7 +65,7 @@ jobs:
         DIST: debian-10
       run: |
         cd ${{ env.WORKSPACE }}
-        chmod 755 ${{ env.WORKSPACE }}/deploy/installers/linux/mkdeb.sh && ${{ env.WORKSPACE }}/deploy/installers/linux/mkdeb.sh
+        chmod 755 ./deploy/installers/linux/mkdeb.sh && ./deploy/installers/linux/mkdeb.sh
         
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
