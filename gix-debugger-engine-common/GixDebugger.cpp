@@ -336,11 +336,18 @@ bool GixDebugger::buildVariableDisplayData(VariableDisplayData& vdd, uint8_t* ra
 
 void GixDebugger::log_local(const std::string& msg, spdlog::level::level_enum l)
 {
+#if SPDLOG_VERSION >= 10900
 	spdlog::details::log_msg m;
 	m.level = l;
 	m.payload = msg;
 	m.logger_name = spdlog::default_logger()->name();
 	spdlog::default_logger()->sinks().at(0)->log(m);
+#else
+	std::string logger_name = spdlog::default_logger()->name();
+	spdlog::details::log_msg m(&logger_name, l, msg);
+	spdlog::default_logger()->sinks().at(0)->log(m);
+
+#endif
 }
 
 GixDebugger::~GixDebugger()

@@ -21,7 +21,7 @@ linux:DEFINES += QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLP
 linux:DEFINES_DEBUG += _GCDEBUGGER_NET_DEBUG _DEBUG
 linux:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEditBase ../libs/scintilla/qt/ScintillaEdit ../gixsql/libgixsql ../gixsql/libgixpp /usr/include/libdwarf /usr/include/libelfin
 linux:LIBPATH += ../libs/scintilla/src/scintilla/bin $(DESTDIR) 
-linux:LIBS += -lScintillaEdit -L$(DESTDIR) -L ../gixsql/Release -lgix-common -lgixsql -lgix-debugger-client -lgix-debugger-common -ldwarf -ldwarf++ -lelf++ -lqtermwidget5 -lnng -lfmt
+linux:LIBS += -lScintillaEdit -lstdc++fs -L$(DESTDIR) -L ../gixsql/Release -lgix-common -lgixsql -lgix-debugger-client -lgix-debugger-common -ldwarf -ldwarf++ -lelf++ -lqtermwidget5 -lnng -lfmt
 
 win32:DEFINES += QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _HAS_STD_BYTE=0
 win32:INCLUDEPATH += ../libs/scintilla/include ../libs/scintilla/qt/ScintillaEditBase ../libs/scintilla/qt/ScintillaEdit ../gixsql/libgixsql ../gixsql/libgixpp ../build-tools/grammar-tools  ../libs/libdwarf/libdwarf
@@ -38,6 +38,11 @@ macx:LIBS += -F $(HOME)/Projects/scintilla/bin -framework ScintillaEdit -lgixuti
 macx:QMAKE_POST_LINK = mkdir -p ../$$(HOST_PLATFORM)/Debug/gix-ide.app/Contents/Frameworks && cp -frvp ../../scintilla/bin/ScintillaEdit.framework ../$$(HOST_PLATFORM)/Debug/gix-ide.app/Contents/Frameworks
 macx:INCLUDEPATH += ../gixsql/libgixsql 
 macx:LIBPATH += ../libs/scintilla/src/scintilla/bin ../gix-common $(DESTDIR) 
+
+equals(USE_BUNDLED_NNG, "1") {
+	INCLUDEPATH += ../libs/nng/include
+	LIBPATH += ../libs/nng
+}
 
 DEPENDPATH += .
 MOC_DIR += GeneratedFiles

@@ -3,6 +3,10 @@ CONFIG += staticlib
 TARGET = gix-debugger-common
 INCLUDEPATH += . .. ../gixsql/libcpputils ../gix-debugger-common
 
+equals(USE_BUNDLED_NNG, "1") {
+   INCLUDEPATH += ../libs/nng/include
+}
+
 CONFIG(release,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Release
 CONFIG(debug,debug|release) DESTDIR = ../$$(HOST_PLATFORM)/Debug
 
