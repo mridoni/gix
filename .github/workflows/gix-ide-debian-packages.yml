@@ -39,23 +39,23 @@ jobs:
     steps:
     
     - name: Build
-        run: |
-          export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-          apt update
-          apt install -y build-essential qt5-default qtbase5-dev libqt5xmlpatterns5-dev libqtermwidget5-0-dev libdwarf-dev libelfin-dev qttools5-dev qttools5-dev-tools libmariadb-dev-compat libmariadb-dev libpq-dev unixodbc-dev flex libnanomsg-dev libspdlog-dev libfmt-dev git wget cmake
-          git clone --recurse-submodules https://github.com/mridoni/gix.git gix-ide
-          echo "HOST_PLATFORM      : ${{env.HOST_PLATFORM}}"
-          echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
-          wget http://ftp.debian.org/debian/pool/main/b/bison/bison_3.7.5+dfsg-1_amd64.deb
-          dpkg -i bison_3.7.5+dfsg-1_amd64.deb
-          cd gix-ide
-          chmod 755 ./prepbuild.sh && ./prepbuild.sh /E
-          cd ./libs/nng
-          cmake -DBUILD_SHARED_LIBS=OFF
-          make
-          cd ../..      
-          qmake CONFIG+=${{ env.BUILD_CONFIGURATION }} USE_BUNDLED_NNG=1
-          make -j 2
+      run: |
+        export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        apt update
+        apt install -y build-essential qt5-default qtbase5-dev libqt5xmlpatterns5-dev libqtermwidget5-0-dev libdwarf-dev libelfin-dev qttools5-dev qttools5-dev-tools libmariadb-dev-compat libmariadb-dev libpq-dev unixodbc-dev flex libnanomsg-dev libspdlog-dev libfmt-dev git wget cmake
+        git clone --recurse-submodules https://github.com/mridoni/gix.git gix-ide
+        echo "HOST_PLATFORM      : ${{env.HOST_PLATFORM}}"
+        echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
+        wget http://ftp.debian.org/debian/pool/main/b/bison/bison_3.7.5+dfsg-1_amd64.deb
+        dpkg -i bison_3.7.5+dfsg-1_amd64.deb
+        cd gix-ide
+        chmod 755 ./prepbuild.sh && ./prepbuild.sh /E
+        cd ./libs/nng
+        cmake -DBUILD_SHARED_LIBS=OFF
+        make
+        cd ../..      
+        qmake CONFIG+=${{ env.BUILD_CONFIGURATION }} USE_BUNDLED_NNG=1
+        make -j 2
 
     
     - name: Build package
