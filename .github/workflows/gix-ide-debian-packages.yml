@@ -64,6 +64,7 @@ jobs:
         WORKSPACE: ./gix-ide
         DIST: debian-10
       run: |
+        ls -lR ${{ env.WORKSPACE }}
         chmod 755 ${{ env.WORKSPACE }}/deploy/installers/linux/mkdeb.sh && ${{ env.WORKSPACE }}/deploy/installers/linux/mkdeb.sh
         
     - name: Archive production artifacts
