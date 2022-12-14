@@ -60,21 +60,19 @@ jobs:
     
     - name: Build package
       shell: bash
-      working-directory: ${{ github.workspace }}
       env:
-        WORKSPACE: ${{ github.workspace }}
+        WORKSPACE: gix-ide
         DIST: debian-10
       run: |
-        ls ${{ github.workspace }} -l
-        chmod 755 ${{ github.workspace }}/gix-ide/deploy/installers/linux/mkdeb.sh && ${{ github.workspace }}/gix-ide/deploy/installers/linux/mkdeb.sh
+        chmod 755 ${{ env.WORKSPACE }}/gix-ide/deploy/installers/linux/mkdeb.sh && ${{ env.WORKSPACE }}/gix-ide/deploy/installers/linux/mkdeb.sh
     
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       env:
-        WORKSPACE: ${{ github.workspace }}
+        WORKSPACE: gix-ide
         DIST: debian-10      
       with:
         name: gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
         path: |
-          gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}.deb
+          ${{ env.WORKSPACE }}/gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}.deb
 
