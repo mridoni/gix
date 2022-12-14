@@ -1,4 +1,4 @@
-name: gix-ide-ubuntu-packages
+name: gix-ide-debian-packages
 
 on:
   workflow_dispatch
