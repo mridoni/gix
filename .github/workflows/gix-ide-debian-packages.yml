@@ -65,7 +65,7 @@ jobs:
         WORKSPACE: ${{ github.workspace }}
         DIST: debian-10
       run: |
-        chmod 755 ${{ github.workspace }}/deploy/installers/linux/mkdeb.sh && ${{ github.workspace }}/deploy/installers/linux/mkdeb.sh
+        chmod 755 ${{ github.workspace }}/gix-ide/deploy/installers/linux/mkdeb.sh && ${{ github.workspace }}/gix-ide/deploy/installers/linux/mkdeb.sh
     
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
