@@ -35,6 +35,8 @@ jobs:
     steps:
     
     - name: Build
+      env:
+        DIST: ${{ env.DIST }}    
       run: |
         export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         apt update
@@ -54,6 +56,8 @@ jobs:
 
     
     - name: Build package
+      env:
+          DIST: ${{ env.DIST }}    
       shell: bash
       run: |
         export WORKSPACE=$(pwd)
@@ -61,6 +65,8 @@ jobs:
         chmod 755 $WORKSPACE/deploy/installers/linux/mkdeb.sh && $WORKSPACE/deploy/installers/linux/mkdeb.sh
         
     - name: Archive production artifacts
+      env:
+          DIST: ${{ env.DIST }}    
       uses: actions/upload-artifact@v3
       with:
         name: gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
@@ -78,6 +84,8 @@ jobs:
     steps:
     
     - name: Build
+      env:
+        DIST: ${{ env.DIST }}    
       run: |
         export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         apt update
@@ -95,6 +103,8 @@ jobs:
 
     
     - name: Build package
+      env:
+          DIST: ${{ env.DIST }}
       shell: bash
       run: |
         export WORKSPACE=$(pwd)
@@ -102,6 +112,8 @@ jobs:
         chmod 755 $WORKSPACE/deploy/installers/linux/mkdeb.sh && $WORKSPACE/deploy/installers/linux/mkdeb.sh
         
     - name: Archive production artifacts
+      env:
+          DIST: ${{ env.DIST }}    
       uses: actions/upload-artifact@v3
       with:
         name: gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
