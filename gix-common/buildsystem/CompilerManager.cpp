@@ -93,6 +93,9 @@ void CompilerManager::init()
                 }
 			}
 			else {
+                for (QString err : compiler_errs) {
+                    logger->warn(LOG_CONFIG, "{}", err);
+                }
 				logger->warn(LOG_CONFIG, "Cannot add distribution-provided compiler");
 			}
 		}

@@ -7,6 +7,8 @@ CONFIG += lib_bundle c++17
 
 VERSION = 4.3.2
 
+QMAKE_CXXFLAGS = -std=c++17
+
 SOURCES += \
     ScintillaEdit.cpp \
     ScintillaDocument.cpp \

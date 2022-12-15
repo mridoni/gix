@@ -16,7 +16,7 @@ linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
 linux:DEFINES += GIX_DEBUGGER
 linux:INCLUDEPATH += /usr/include/libdwarf /usr/include/libelfin ../gix-debugger-engine-common
 linux:LIBPATH +=$(DESTDIR) 
-linux:LIBS += -ldwarf -ldwarf++ -lelf++ -lcpputils -lgix-debugger-common -lnng -lfmt
+linux:LIBS += -lstdc++fs -ldwarf -ldwarf++ -lelf++ -lcpputils -lgix-debugger-common -lnng -lfmt
 
 win32:DEFINES +=
 win32:INCLUDEPATH += /usr/include/libdwarf /usr/include/libelfin ../gix-debugger-engine-common
@@ -33,6 +33,11 @@ win32:DEFINES -= UNICODE _UNICODE
 #macx:QMAKE_POST_LINK = mkdir -p ../$$(HOST_PLATFORM)/Debug/gix-ide.app/Contents/Frameworks && cp -frvp ../../scintilla/bin/ScintillaEdit.framework ../$$(HOST_PLATFORM)/Debug/gix-ide.app/Contents/Frameworks
 #macx:INCLUDEPATH += ../gixsql/libgixsql 
 #macx:LIBPATH += ../libs/scintilla/src/scintilla/bin ../gix-common $(DESTDIR) 
+
+equals(USE_BUNDLED_NNG, "1") {
+        INCLUDEPATH += ../libs/nng/include
+        LIBPATH += ../libs/nng
+}
 
 DEPENDPATH += .
 MOC_DIR += GeneratedFiles

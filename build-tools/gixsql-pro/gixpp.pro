@@ -16,7 +16,7 @@ linux:QMAKE_CXXFLAGS_RELEASE+= -O3 -std=c++17 -Wno-unknown-pragmas
 linux:DEFINES += QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _GCDEBUGGER_NET_DEBUG _DEBUG
 #linux:INCLUDEPATH +=
 linux:LIBPATH += $(DESTDIR) 
-linux:LIBS += -lgixpp -lcpputils
+linux:LIBS += -lgixpp -lcpputils -lstdc++fs
 
 win32:DEFINES += QT_DLL QT_NETWORK_LIB QT_UITOOLS_LIB QT_WIDGETS_LIB QT_XML_LIB QT_XMLPATTERNS_LIB _HAS_STD_BYTE=0
 win32:INCLUDEPATH += ../build-tools/grammar-tools \

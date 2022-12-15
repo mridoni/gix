@@ -553,7 +553,7 @@ void CobolModuleMetadata::load_data_entries(const CobolModuleMetadata *cmm, QLis
 
 	for (DataEntry *e : f_entries) {
 		if (!e || e->path.isEmpty() || !relation_map.contains(e->path) || relation_map.size() == 0) {
-			logger->warn(LOG_METADATA, QCoreApplication::translate("gix", "Warning: bad entry in symbol file").toStdString());
+			logger->warn(LOG_METADATA, "{}", QCoreApplication::translate("gix", "Warning: bad entry in symbol file").toStdString());
 			continue;
 		}
 

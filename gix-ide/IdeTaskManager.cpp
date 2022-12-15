@@ -255,7 +255,7 @@ void IdeTaskManager::buildClean(QString configuration, QString platform)
 
 	CompilerConfiguration *compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 	if (!compiler_cfg) {
-		logger->error(LOG_BUILD, tr("Please check your compiler configuration").toStdString());
+		logger->error(LOG_BUILD, "{}", tr("Please check your compiler configuration").toStdString());
 		return;
 	}
 

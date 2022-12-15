@@ -1,7 +1,7 @@
 // gix-debugger.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#define NOMINMAX 
+#define NOMINMAX
 
 #include "NetworkManager.h"
 
@@ -33,6 +33,11 @@
 #define _CUR_THREAD_ID_ GetCurrentThreadId()
 #else
 #define _CUR_THREAD_ID_ gettid()
+#endif
+
+#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
+#include <sys/syscall.h>
+#define gettid() syscall(SYS_gettid)
 #endif
 
 enum class DebuggerMode
