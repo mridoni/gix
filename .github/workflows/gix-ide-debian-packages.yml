@@ -24,18 +24,14 @@ permissions:
   contents: read
 
 jobs:
+
   debian-10-x64:
     runs-on: ubuntu-latest
     container:
       image: debian:10
-#      env:
-#        NODE_ENV: development
-#      ports:
-#        - 80
-#      volumes:
-#        - my_docker_volume:/volume_mount
-#      options: --cpus 1
-      
+      env:
+        DIST_NAME: debian-10      
+
     steps:
     
     - name: Build
@@ -48,7 +44,6 @@ jobs:
         echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
         wget http://ftp.debian.org/debian/pool/main/b/bison/bison_3.7.5+dfsg-1_amd64.deb
         dpkg -i bison_3.7.5+dfsg-1_amd64.deb
-        : # cd gix-ide
         chmod 755 ./prepbuild.sh && ./prepbuild.sh /E
         cd ./libs/nng
         cmake -DBUILD_SHARED_LIBS=OFF
@@ -60,8 +55,6 @@ jobs:
     
     - name: Build package
       shell: bash
-      env:
-        DIST: debian-10
       run: |
         export WORKSPACE=$(pwd)
         echo "WORKSPACE: $WORKSPACE"
@@ -69,10 +62,48 @@ jobs:
         
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
-      env:
-        DIST: debian-10      
       with:
-        name: gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
+        name: gix-ide-${{ env.DIST_NAME }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
         path: |
-          ./gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}.deb
+          ./gix-ide-${{ env.DIST_NAME }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}.deb
 
+
+  debian-11-x64:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:10
+      env:
+        DIST_NAME: debian-11      
+
+    steps:
+    
+    - name: Build
+      run: |
+        export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        apt update
+        apt install -y build-essential qt5-default qtbase5-dev libqt5xmlpatterns5-dev libqtermwidget5-0-dev libdwarf-dev libelfin-dev qttools5-dev qttools5-dev-tools libmariadb-dev-compat libmariadb-dev libpq-dev unixodbc-dev flex libnanomsg-dev libspdlog-dev libfmt-dev git wget cmake patchelf imagemagick
+        git clone --recurse-submodules https://github.com/mridoni/gix.git .
+        echo "HOST_PLATFORM      : ${{env.HOST_PLATFORM}}"
+        echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
+        chmod 755 ./prepbuild.sh && ./prepbuild.sh /E
+        : # cd ./libs/nng
+        : # cmake -DBUILD_SHARED_LIBS=OFF
+        : # make
+        : # cd ../..      
+        qmake CONFIG+=${{ env.BUILD_CONFIGURATION }}
+        make -j 2
+
+    
+    - name: Build package
+      shell: bash
+      run: |
+        export WORKSPACE=$(pwd)
+        echo "WORKSPACE: $WORKSPACE"
+        chmod 755 $WORKSPACE/deploy/installers/linux/mkdeb.sh && $WORKSPACE/deploy/installers/linux/mkdeb.sh
+        
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: gix-ide-${{ env.DIST_NAME }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
+        path: |
+          ./gix-ide-${{ env.DIST_NAME }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}.deb
