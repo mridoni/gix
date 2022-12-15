@@ -201,9 +201,6 @@ void SettingsDialog::accept()
 
 bool SettingsDialog::GnuCobolCfgTab_SaveSettings()
 {
-	QSettings settings;
-	QMap<QString, CompilerDefinition*> compilers = GixGlobals::getCompilerManager()->getCompilers();
-
 	bool changed = settingsSetValue("ReleaseCompilerId", cbReleaseCompiler->currentData().toString());
 	changed |= settingsSetValue("DebugCompilerId", cbDebugCompiler->currentData().toString());
 

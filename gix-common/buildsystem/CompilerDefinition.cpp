@@ -320,7 +320,7 @@ bool CompilerDefinition::testConfiguration(QStringList &errs)
 
 	for (QString platform_id : this->getTargetPlatforms().keys()) {
 
-#ifndef _WIN64
+#if defined(_WIN32) && !defined(_WIN64)
 		if (platform_id == "x64")
 			continue;
 #endif

@@ -40,10 +40,11 @@
   <dbg_stdin_file></dbg_stdin_file>
   <dbg_stop_at_first_line>true</dbg_stop_at_first_line>
   <dbg_working_dir></dbg_working_dir>
-  <esql_anon_params>false</esql_anon_params>
+  <esql_consolidate_source>false</esql_consolidate_source>
   <esql_debug_log_file></esql_debug_log_file>
   <esql_debug_log_on>false</esql_debug_log_on>
   <esql_error_log_file></esql_error_log_file>
+  <esql_params_style>a</esql_params_style>
   <esql_preprocess_copy_files>false</esql_preprocess_copy_files>
   <esql_static_calls>true</esql_static_calls>
   <keep_temp_files>false</keep_temp_files>

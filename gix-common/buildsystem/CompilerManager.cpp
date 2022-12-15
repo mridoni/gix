@@ -82,9 +82,15 @@ void CompilerManager::init()
 
 		if (cd_default != nullptr) {
 			QStringList test_info;
+            cd_default->setDefinitionFile(PathUtils::combine(QDir::fromNativeSeparators(cdir), cd_default->getId() + ".def"));
 			if (cd_default->testConfiguration(compiler_errs) && cd_default->save()) {
 				logger->info(LOG_CONFIG, "Adding distribution-provided compiler ({})", compiler_info);
 				compiler_defs[cd_default->getId()] = cd_default;
+                if (compiler_defs.size() == 1) {
+                    QSettings settings;
+                    settings.setValue("ReleaseCompilerId", cd_default->getId());
+                    settings.setValue("DebugCompilerId", cd_default->getId());
+                }
 			}
 			else {
 				logger->warn(LOG_CONFIG, "Cannot add distribution-provided compiler");
