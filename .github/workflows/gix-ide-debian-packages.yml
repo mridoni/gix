@@ -71,7 +71,7 @@ jobs:
   debian-11-x64:
     runs-on: ubuntu-latest
     container:
-      image: debian:10
+      image: debian:11
       env:
         DIST: debian-11      
 
