@@ -87,6 +87,9 @@ void CompilerManager::init()
 				compiler_defs[cd_default->getId()] = cd_default;
 			}
 			else {
+                for (QString err : compiler_errs) {
+                    logger->warn(LOG_CONFIG, err);
+                }
 				logger->warn(LOG_CONFIG, "Cannot add distribution-provided compiler");
 			}
 		}
