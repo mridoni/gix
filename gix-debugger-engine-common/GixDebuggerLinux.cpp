@@ -127,7 +127,7 @@ int GixDebuggerLinux::start()
             logger->error("cannot create output pipe");
             return false;
         }
-        fd_out = open(outname.c_str(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
+        fd_out = open(outname.c_str(), O_RDWR | O_CREAT | O_SYNC , S_IRUSR | S_IWUSR);
         process.setStdOut(fd_out);
 
         errname = path_combine({ path_get_temp_path(), "gix_t_err_" + std::to_string(t) });
@@ -145,21 +145,6 @@ int GixDebuggerLinux::start()
         }
         fd_in = open(inname.c_str(), O_RDWR | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
         process.setStdIn(fd_in);
-
-//        reader_thread_out = new QThread();
-//        reader_out = new PipeReader(this, PipeChannelType::Out, fd_out);
-//        connect(reader_thread_out, &QThread::finished, reader_out, &QObject::deleteLater);
-//        connect(this, &GixDebuggerLinux::startReading, reader_out, &PipeReader::startReading, Qt::ConnectionType::QueuedConnection);
-//        reader_out->moveToThread(reader_thread_out);
-
-//        reader_thread_err = new QThread();
-//        reader_err = new PipeReader(this, PipeChannelType::Err, fd_err);
-//        connect(reader_thread_err, &QThread::finished, reader_err, &QObject::deleteLater);
-//        connect(this, &GixDebuggerLinux::startReading, reader_err, &PipeReader::startReading, Qt::ConnectionType::QueuedConnection);
-//        reader_err->moveToThread(reader_thread_err);
-
-//        reader_thread_out->start();
-//        reader_thread_err->start();
         
         threadDataOut = { this, fd_out, PipeChannelType::Out, false };
         pipe_reader_thread_out = std::thread(&GixDebuggerLinux::PipeReaderThread, &threadDataOut);
@@ -583,7 +568,7 @@ bool GixDebuggerLinux::wait_for_signal()
     if (is_debugging_enabled() && !__breakpoint_0_hit && siginfo.si_signo == SIGTRAP) {
 #endif
 
-        logger->trace("Got signal {} ({})", siginfo.si_signo), strsignal(siginfo.si_signo);
+        logger->trace("Got signal {} ({})", siginfo.si_signo, strsignal(siginfo.si_signo));
         logger->trace("Breakpoint 0 hit");
 
         initialise_load_address();
@@ -675,7 +660,7 @@ void GixDebuggerLinux::resolve_rendezvous()
             m_linker_breakpoint->address = (void *)rendezvous.r_brk;
             m_linker_breakpoint->automatic = true;
 
-            logger->trace("Linker breakpoint (rendezvous) address is {:x}", m_linker_breakpoint->address);
+            logger->trace("Linker breakpoint (rendezvous) address is {}", m_linker_breakpoint->address);
 
             m_linker_breakpoint->install();
 
@@ -959,13 +944,15 @@ void GixDebuggerLinux::PipeReaderThread(stPipeThreadData *data)
 
     GixDebuggerLinux *gdlinux = GixDebuggerLinux::getInstance();
     
-    while (data->debugger_instance->stop_reading_pipes) {
-        
+    while (!data->debugger_instance->stop_reading_pipes) {
+               
+#if 0        
         // Wait for input to become ready or until the time out; the first parameter is
         // 1 more than the largest file descriptor in any of the sets
         int p = select(data->fd + 1, &read_fds, &write_fds, &except_fds, &timeout);
         
         if (p == 1) {
+#endif            
             int nread = read(data->fd, bfr, sizeof(bfr));
             if (nread > 0) {
                 bfr[nread] = '\0';
@@ -985,12 +972,17 @@ void GixDebuggerLinux::PipeReaderThread(stPipeThreadData *data)
                        break;                       
                 }
             }
+#if 0         
         }
         else
         {
-            if (p == -1)
+            if (p == -1) {
                 break;
+            }
         }        
+#endif        
     }
+    
+    gdlinux->logger->trace("Pipe reader thread for channel {} is stopping", (int) data->channel_type);
     data->is_running = false;
 }

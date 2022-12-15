@@ -117,7 +117,7 @@ void StandardDebugDriver::startDriver()
 	};
 
 	ib.debuggerReady = [this](GixDebugger *gd, QString msg) {
-		driver_logger->info(LOG_DEBUG, "Debugger has loaded symbols and is ready to run {}}", msg);
+		driver_logger->info(LOG_DEBUG, "Debugger has loaded symbols and is ready to run ({})", msg);
 		emit DebuggerReady(msg);
 		return true;
 	};
