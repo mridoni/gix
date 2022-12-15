@@ -29,14 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:10
-      env:
-        DIST: debian-10      
 
     steps:
     
     - name: Build
       env:
-        DIST: ${{ env.DIST }}    
+        DIST: debian-10
       run: |
         export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         apt update
@@ -57,7 +55,7 @@ jobs:
     
     - name: Build package
       env:
-          DIST: ${{ env.DIST }}    
+          DIST: debian-10
       shell: bash
       run: |
         export WORKSPACE=$(pwd)
@@ -66,7 +64,7 @@ jobs:
         
     - name: Archive production artifacts
       env:
-          DIST: ${{ env.DIST }}    
+          DIST: debian-10 
       uses: actions/upload-artifact@v3
       with:
         name: gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
@@ -78,14 +76,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: debian:11
-      env:
-        DIST: debian-11      
 
     steps:
     
     - name: Build
       env:
-        DIST: ${{ env.DIST }}    
+        DIST: debian-11
       run: |
         export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         apt update
@@ -104,7 +100,7 @@ jobs:
     
     - name: Build package
       env:
-          DIST: ${{ env.DIST }}
+          DIST: debian-11
       shell: bash
       run: |
         export WORKSPACE=$(pwd)
@@ -113,7 +109,7 @@ jobs:
         
     - name: Archive production artifacts
       env:
-          DIST: ${{ env.DIST }}    
+          DIST: debian-11
       uses: actions/upload-artifact@v3
       with:
         name: gix-ide-${{ env.DIST }}-${{ env.HOST_PLATFORM }}-${{ env.GIXIDEMAJ}}.${{ env.GIXIDEMIN}}.${{ env.GIXIDEREL}}-${{ env.GIX_REVISION}}
