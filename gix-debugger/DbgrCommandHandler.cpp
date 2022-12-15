@@ -9,6 +9,19 @@ extern std::thread debug_session_thread;
 
 void DebugSessionThreadStub(std::shared_ptr<NetworkManager> nm, GixDebugger* gd);
 
+static std::string vector_join(const std::vector<std::string>& v, std::string sep)
+{
+	std::string s;
+
+	for (std::vector< std::string>::const_iterator p = v.begin();
+		p != v.end(); ++p) {
+		s += *p;
+		if (p != v.end() - 1)
+			s += sep;
+	}
+	return s;
+}
+
 bool DbgrCommandHandler::handleCommand(std::shared_ptr<NetworkManager> nm, const DebuggerHostInputMessage& m, bool *keep_running)
 {		
 	spdlog::trace("DbgrCommandHandler is processing: {}", m.serialize());
@@ -108,7 +121,7 @@ bool DbgrCommandHandler::handleCommand(std::shared_ptr<NetworkManager> nm, const
 		std::map<std::string, VariableDisplayData> var_data;
 		std::vector<std::string> var_names = m.payload1.toStringVector();
 
-		spdlog::trace("get_vars - requesting variables: {}", fmt::join(var_names, ", "));
+		spdlog::trace("get_vars - requesting variables: {}", vector_join(var_names, ", "));
 
 		bool b = debug_driver->getDebuggerInstance()->getVariables(var_names, var_data);
 		if (!b) {
