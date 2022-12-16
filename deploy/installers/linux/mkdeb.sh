@@ -166,11 +166,11 @@ cat $WORKSPACE/deploy/installers/linux/control-${DIST}.tpl | \
 cat <<EOF > $PKGDEBDIR/DEBIAN/postinst
 #!/bin/bash
 
-USR=$SUDO_USER
+USR=\$SUDO_USER
 
-if [ "$USR" == "" ] ; then
-	USR=$USER
-	if [ "$USR" == "" ] ; then
+if [ "\$USR" == "" ] ; then
+	USR=\$USER
+	if [ "\$USR" == "" ] ; then
 		exit 0
 	fi
 fi

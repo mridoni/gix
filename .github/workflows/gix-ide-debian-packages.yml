@@ -15,8 +15,8 @@ env:
   GIX_REVISION: ${{ github.run_number }}  
   GIXSQLMAJ: 1
   GIXSQLMIN: 0
-  GIXSQLREL: 19  
-  GIX_SQL_VERSION: 1.0.19
+  GIXSQLREL: 19a
+  GIX_SQL_VERSION: 1.0.19a
   BUILD_CONFIGURATION: release
   HOST_PLATFORM: x64  
 
@@ -90,10 +90,6 @@ jobs:
         echo "HOST_PLATFORM      : ${{env.HOST_PLATFORM}}"
         echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
         chmod 755 ./prepbuild.sh && ./prepbuild.sh /E
-        : # cd ./libs/nng
-        : # cmake -DBUILD_SHARED_LIBS=OFF
-        : # make
-        : # cd ../..      
         qmake CONFIG+=${{ env.BUILD_CONFIGURATION }}
         make -j 2
 

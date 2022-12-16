@@ -11,11 +11,11 @@ on:
 env:
   GIXIDEMAJ: 1
   GIXIDEMIN: 1
-  GIXIDEREL: 0
+  GIXIDEREL: 1
   GIX_REVISION: ${{ github.run_number }}
   GIXSQLMAJ: 1
-  GIXSQLMIN: 0
-  GIXSQLREL: 19
+  GIXSQLMIN: 1
+  GIXSQLREL: 19a
   GIX_IDE_BRANCH: main
   VCPKG_ROOT: C:\vcpkg
   GIX_IDE_X64_BIN_DIR: gix-ide-windows-x64-msvc-artifacts
