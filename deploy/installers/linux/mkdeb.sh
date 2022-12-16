@@ -166,18 +166,29 @@ cat $WORKSPACE/deploy/installers/linux/control-${DIST}.tpl | \
 cat <<EOF > $PKGDEBDIR/DEBIAN/postinst
 #!/bin/bash
 
-if [ -f "/home/\$SUDO_USER/.config/MediumGray/gix-ide.conf" ] ; then
+USR=$SUDO_USER
+
+if [ "$USR" == "" ] ; then
+	USR=$USER
+	if [ "$USR" == "" ] ; then
+		exit 0
+	fi
+fi
+
+if [ -f "/home/\$USR/.config/MediumGray/gix-ide.conf" ] ; then
 	exit 0
 fi;
-	
-mkdir -p /home/\$SUDO_USER/.config/MediumGray
-touch /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
-echo "[General]" >> /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
-echo "screen_resolution=72" >> /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
 
-chown -R \$SUDO_USER:\$SUDO_USER /home/\$SUDO_USER/.config/MediumGray/
-chmod -R 775 /home/\$SUDO_USER/.config/MediumGray/
-chmod 664 /home/\$SUDO_USER/.config/MediumGray/gix-ide.conf
+mkdir -p /home/\$USR/.config/MediumGray
+touch /home/\$USR/.config/MediumGray/gix-ide.conf
+echo "[General]" >> /home/\$USR/.config/MediumGray/gix-ide.conf
+echo "screen_resolution=72" >> /home/\$USR/.config/MediumGray/gix-ide.conf
+
+chown -R \$USR:\$USR /home/\$USR/.config/MediumGray/
+chmod -R 775 /home/\$USR/.config/MediumGray/
+chmod 664 /home/\$USR/.config/MediumGray/gix-ide.conf
+
+exit 0
 EOF
 
 cd $WORKSPACE
