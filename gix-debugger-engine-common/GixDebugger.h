@@ -30,7 +30,7 @@ USA.
 
 #include <mutex>
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #ifdef GIX_IDE
 #include "IDebugDriver.h"
