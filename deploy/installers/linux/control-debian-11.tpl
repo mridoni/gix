@@ -3,7 +3,7 @@ Section: devel
 Version: #GIXIDEMAJ#.#GIXIDEMIN#.#GIXIDEREL#~#GIX_REVISION#-1
 Priority: optional
 Architecture: amd64
-Depends: libqt5xml5, libqt5xmlpatterns5, libqtermwidget5-0, libdwarf1, libelf++0, libdwarf++0, libmariadb-dev, libmariadb-dev-compat, libpq5, unixodbc
+Depends: libqt5xml5, libqt5xmlpatterns5, libqtermwidget5-0, libdwarf1, libelf++0, libdwarf++0, libmariadb-dev, libmariadb-dev-compat, libpq5, unixodbc, libnng1, libfmt7
 Installed-Size: 11284
 Maintainer: Marco Ridoni <m.ridoni@mediumgray.info>
 Description: Gix-IDE is an IDE and platform for GnuCOBOL providing a native debugger, ESQL and HTTP REST services.
