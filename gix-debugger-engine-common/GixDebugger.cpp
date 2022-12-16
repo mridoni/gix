@@ -336,7 +336,7 @@ bool GixDebugger::buildVariableDisplayData(VariableDisplayData& vdd, uint8_t* ra
 
 void GixDebugger::log_local(const std::string& msg, spdlog::level::level_enum l)
 {
-#if SPDLOG_VERSION >= 10800
+#if SPDLOG_VERSION >= 10400
 	spdlog::details::log_msg m;
 	m.level = l;
 	m.payload = msg;
