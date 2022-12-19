@@ -1,3 +1,24 @@
+=== v1.1.1 =====================================================
+- The IDE logging system is now based on spdlog
+- The output window has been split into different panes
+- Added clickable "Error List" window
+- Linux debugger fixes
+- Added packages for Debian 10 and 11
+- The Linux version can now automatically use a distribution-provided install of GnuCOBOL
+- Fixed a linking problem for GixSQL when used with a MinGW compiler from the IDE
+- Fixed ESQL sample project
+- On Windows the user can now decide whether to install the MSVC runtime locally or globally
+- The Windows installer does not require administrative privileges anymore (still needed for VC++ Build Tools)
+- Removed some test-related dead code
+- In the IDE, files can now be dragged and dropped on a project folder
+- Added filename tooltips on editor tabs
+- On Linux the correct scaling factor is now used on a fresh install
+- Internal fixes in GixSQL for metadata handling
+- Fixed ESQL parameter-style setting in the IDE (now it is possible to set the corect parameter style/prefix).
+- Added an option in the IDE that maps to GixSQL's "consolidate source" (i.e. stitch all module sources/COPY files together before preprocessing). This is needed in some scenarios to properly parse metadata.
+- Fixed a possible crash in the logging system
+- gix-http was inadvertently deactivated in the build configuration, now it is built again by default
+
 === v1.1.0 =====================================================
 - Integrated "standalone" debugger
 - GixSQL is now a git submodule
