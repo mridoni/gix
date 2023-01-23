@@ -1,4 +1,4 @@
-﻿﻿# Gix-IDE - A brief tutorial
+# Gix-IDE - A brief tutorial
 
 ***Note: Gix-IDE is still undergoing heavy development: it is likely that some of the features and procedures described here will not work flawlessly. Should you find something that does not perform as described or expected, please file an issue.***
 
@@ -6,7 +6,7 @@
 In Gix-IDE GnuCOBOL modules and copy files are organized into "projects". A project is a logical entity that does not necessarily correspond to a compilation unit (DLL or EXE, in Windows parlance). *Please note that in this text, for the sake of brevity, I'll be referring to  the build type as EXE or DLL, but the same concepts also apply to the corresponding kinds of compilation units on other platforms (e.g. .so for DLLs under Linux/Unix)*. Gix-IDE projects can be one of three types:
 
  - **Single Binary Project**: the output of the project is a single DLL or EXE that contains one or more COBOL modules. Gix-IDE compiles the single modules and links them into a single unit. If we're building an EXE-based Single Binary Project, one of the modules must be designated as the "startup item".
- - **Multiple Binaries Project**: this kind of project aims at reducing the clutter in the interface when you have many programs of the same kind: each module in the project will be compiled as a single EXE or DLL, as indicated in the "Default Build Type" property. All the projects share the same properties. As an exception, individual modules can have a different build type than the rest of the project (e.g. in a Multiple Binaries Project you can have 20 called modules compiled as DLLs and a single EXE that is responsible for launching the other modules).
+ - **Multiple Binaries Project**: this kind of project aims at reducing the clutter in the interface when you have many programs of the same kind: each module in the project will be compiled as a single EXE or DLL, as indicated in the "Default Build Type" property. All the projects share the same properties. As an exception, individual modules can have a different build type than the rest of the project (e.g. in a "Multiple Binaries Project" you can have 20 called modules compiled as DLLs and a single EXE that is responsible for launching the other modules).
  - **Web Project**: this type of project builds modules that can be invoked as Web Services. Each module is compiled into a single compilation unit, always a DLL.
 
 Project collections are groupings of one or more projects. In Gix-IDE you work on project collections, that contain one or more projects of the same or different types.
