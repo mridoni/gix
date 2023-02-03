@@ -50,7 +50,7 @@ jobs:
         make
         cd ../..      
         qmake CONFIG+=${{ env.BUILD_CONFIGURATION }} USE_BUNDLED_NNG=1
-        make -j 2
+        make -j$(nproc)
 
     
     - name: Build package
@@ -91,7 +91,7 @@ jobs:
         echo "BUILD_CONFIGURATION: ${{env.BUILD_CONFIGURATION}}"
         chmod 755 ./prepbuild.sh && ./prepbuild.sh /E
         qmake CONFIG+=${{ env.BUILD_CONFIGURATION }}
-        make -j 2
+        make -j$(nproc)
 
     
     - name: Build package

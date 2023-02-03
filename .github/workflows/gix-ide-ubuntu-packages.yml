@@ -57,7 +57,7 @@ jobs:
         sed -i 's/{GIXIDEBLD}/${{env.GIX_VER_GIXIDEBLD}}/' gix-ide/GixVersion.h
         chmod 755 ./prepbuild.sh && ./prepbuild.sh
         qmake CONFIG+=${{env.BUILD_CONFIGURATION}}
-        make
+        make -j$(nproc)
     
     - name: Build package
       shell: bash
@@ -127,7 +127,7 @@ jobs:
         sed -i 's/{GIXIDEBLD}/${{env.GIX_VER_GIXIDEBLD}}/' gix-ide/GixVersion.h
         chmod 755 ./prepbuild.sh && ./prepbuild.sh
         qmake CONFIG+=${{env.BUILD_CONFIGURATION}}
-        make
+        make -j$(nproc)
     
     - name: Build package
       shell: bash
