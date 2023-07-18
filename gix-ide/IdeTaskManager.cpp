@@ -317,7 +317,7 @@ void IdeTaskManager::debugProject(Project *prj, QString configuration, QString p
 	auto compiler_cfg = CompilerConfiguration::get(configuration, platform, QVariantMap());
 
 	if (!compiler_cfg->isVersionGreaterThanOrEqualTo(3, 1, 2)) {
-		UiUtils::ErrorDialog(tr("Debugging is only supported when using GnuCOBOL 3.1.2 or greater"));
+		UiUtils::ErrorDialog(tr("Debugging is only supported when using GnuCOBOL 3.1.2 or newer."));
 		return;
 	}
 
@@ -338,7 +338,7 @@ void IdeTaskManager::debugProject(Project *prj, QString configuration, QString p
 	if (!current_debug_target->isUpToDate()) {
 		buildAll(configuration, platform);
 		if (last_build_result != 0) {
-			UiUtils::ErrorDialog(tr("Build failed, the debug session will not be started"));
+			UiUtils::ErrorDialog(tr("Build failed, the debug session will not be started."));
 			return;
 		}
 	}
